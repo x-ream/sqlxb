@@ -1,4 +1,4 @@
-# sqlxb
+# sqlxb  [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 sql golang builder, build sql for sql.DB, sqlx, 
 or build condition sql for some orm framework
 
