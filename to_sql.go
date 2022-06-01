@@ -100,7 +100,11 @@ func (built *Built) toResultKeyScript(bp *strings.Builder) *strings.Builder{
 
 func (built *Built) toSourceScript(bp *strings.Builder) {
 	bp.WriteString(FROM)
-	bp.WriteString(built.Po.TableName())
+	if built.Po == nil {
+		bp.WriteString("?")
+	}else {
+		bp.WriteString(built.Po.TableName())
+	}
 
 	length := len(*built.ConditionX)
 	if length == 0 {
