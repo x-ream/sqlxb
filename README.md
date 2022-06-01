@@ -15,12 +15,13 @@ import (
 )
 
 type Cat struct {
-	Id       uint64   `db:"id"`
-	Name     string   `db:"name"`
-	Age      uint     `db:"age"`
-	Weight   float64  `db:"weight"`
-	IsSold   *bool    `db:"is_sold"`
-	Price    *float64 `db:"price"`
+	Id       uint64    `db:"id"`
+	Name     string    `db:"name"`
+	Age      uint      `db:"age"`
+	Color    string    `db:"color"`
+	Weight   float64   `db:"weight"`
+	IsSold   *bool     `db:"is_sold"`
+	Price    *float64  `db:"price"`
 	CreateAt time.Time `db:"create_at"`
 }
 
