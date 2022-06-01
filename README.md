@@ -80,7 +80,7 @@ func main() {
 
     //dataSql: SELECT * FROM t_cat WHERE id >= ? AND (price >= ? OR age >= ?) OR (price < ?)
     
-    _, conditionSql, _ := builder.Build().ToSqlOfCondition()
+	_, conditionSql, _ := builder.Build().ToSqlOfCondition()
     
     //conditionSql: id >= ? AND (price >= ? OR age >= ?) OR (price < ?)
 

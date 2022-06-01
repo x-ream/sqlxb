@@ -114,7 +114,6 @@ func (built *Built) toSourceScript(bp *strings.Builder) {
 }
 
 func (built *Built) toBb(bb *Bb, bp *strings.Builder)  {
-	//sb := *bp
 	op := bb.op
 	switch op {
 	case X:
