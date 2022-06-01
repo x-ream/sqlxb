@@ -38,6 +38,17 @@ type Built struct {
 	Po Po
 }
 
+func (builder *ConditionBuilder) Build() *Built  {
+	if builder == nil {
+		panic("sqlxb.Builder is nil")
+	}
+	built := Built{
+		ConditionX: builder.bbs,
+	}
+
+	return &built
+}
+
 func (builder *Builder) Build() *Built {
 
 	if builder == nil {
@@ -175,6 +186,13 @@ func (built *Built) isOR(bb *Bb) bool {
 	return bb.op == OR && bb.key == ""
 }
 
+func (built *Built) ToSqlOfCondition() (*[]interface{}, *string, error) {
+	sb := strings.Builder{}
+	built.toConditionScript(built.ConditionX, &sb)
+	conditionSql := sb.String()
+	return nil, &conditionSql, nil
+}
+
 func (built *Built) ToSql() (*[]interface{}, *string, *string, error) {
 
 	sb := strings.Builder{}
@@ -185,3 +203,4 @@ func (built *Built) ToSql() (*[]interface{}, *string, *string, error) {
 	dataSql := sb.String()
 	return nil, &dataSql, nil, nil
 }
+
