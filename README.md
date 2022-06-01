@@ -2,6 +2,10 @@
 sql golang builder, build sql for sql.DB, sqlx, 
 or build condition sql for some orm framework
 
+## API
+    Builder: build sql like: SELECT * FROM t_foo WHERE name Like "%xx%" ORDER BY ID DESC
+    BuilderX: build sql like: SELECT DISTINCT(f.id) FROM t_foo f INNER JOIN t_bar b ON ....
+
 ## Builder DEMO
 
 ```Go
