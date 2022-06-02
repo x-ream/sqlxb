@@ -22,8 +22,8 @@ const (
 	NONE     = ""
 	X_AGGR   = NONE
 	SPACE	 = " "
-	LIMIT    = "LIMIT"
-	OFFSET   = "OFFSET"
+	LIMIT    = " LIMIT "
+	OFFSET   = " OFFSET "
 	SUB      = "SUB"
 	ORDER_BY = " ORDER BY "
 	GROUP_BY = " GROUP BY "

@@ -19,8 +19,9 @@
 package sqlxb
 
 import (
-	"strings"
 	. "github.com/x-ream/sqlxb/internal"
+	"strconv"
+	"strings"
 )
 
 type Built struct {
@@ -30,10 +31,7 @@ type Built struct {
 	Havings    *[]*Bb
 	GroupBys   *[]string
 
-	Page               uint
-	Rows               uint
-	Last               uint64
-	IsTotalRowsIgnored bool
+	PageCondition *PageCondition
 
 	Po Po
 }
@@ -65,13 +63,27 @@ func (builder *Builder) Build() *Built {
 		Po: builder.po,
 	}
 	if builder.pageBuilder != nil {
-		built.Page = builder.pageBuilder.page
-		built.Rows = builder.pageBuilder.rows
-		built.Last = builder.pageBuilder.last
-		built.IsTotalRowsIgnored = builder.pageBuilder.isTotalRowsIgnored
+		built.PageCondition = &builder.pageBuilder.condition
 	}
 
 	return &built
+}
+
+func  (built *Built)  filterLast()  {
+	if built.PageCondition == nil {
+		return
+	}
+	if built.PageCondition.last > 0 && built.Sorts != nil && len(*built.Sorts) > 0{
+		sort := (*built.Sorts)[0]
+		bb := Bb{
+			op: GT,
+			key: sort.orderBy,
+			value: built.PageCondition.last,
+		}
+		*built.ConditionX = append(*(built.ConditionX), &bb)
+	}else {
+		built.PageCondition.last = 0
+	}
 }
 
 func (built *Built) toResultKeyScript(bp *strings.Builder) {
@@ -244,6 +256,21 @@ func (built *Built) toSortSql(bbs *[]*Sort, bp *strings.Builder) {
 	}
 }
 
+func (built *Built) toPageSql(condition *PageCondition, bp *strings.Builder) {
+	if condition == nil || condition.rows < 1{
+		return
+	}
+	bp.WriteString(LIMIT)
+	bp.WriteString(strconv.Itoa(int(condition.rows)))
+	if condition.last < 1 {
+		if condition.page < 1 {
+			condition.page = 1
+		}
+		bp.WriteString(OFFSET)
+		bp.WriteString( strconv.Itoa(int((condition.page - 1) * condition.rows )))
+	}
+}
+
 func (built *Built) isOr(bb *Bb) bool {
 	return bb.op == OR
 }
@@ -254,7 +281,8 @@ func (built *Built) isOR(bb *Bb) bool {
 
 func (built *Built) countBuilder() *strings.Builder  {
 	var sbCount *strings.Builder
-	if built.Rows > 1 && !built.IsTotalRowsIgnored {
+	pageCondition := built.PageCondition
+	if pageCondition != nil && pageCondition.rows > 1 && !pageCondition.isTotalRowsIgnored {
 		sbCount = &strings.Builder{}
 	}
 	return sbCount
@@ -309,15 +337,18 @@ func (built *Built) Sql() (*[]interface{}, *string, *string, error) {
 	built.countSqlFrom(sbCount)
 	built.toSourceScriptOfCount(sbCount)
 	built.countSqlWhere(sbCount)
-	built.toConditionScript(built.ConditionX, &sb)
 	built.toConditionScriptOfCount(built.ConditionX,sbCount)
+	built.filterLast()
+	built.toConditionScript(built.ConditionX, &sb)
 	built.toGroupBySql(built.GroupBys,&sb)
 	built.toGroupBySqlOfCount(built.GroupBys,sbCount)
 	built.toHavingSql(built.Havings,&sb)
 	built.toSortSql(built.Sorts, &sb)
+	built.toPageSql(built.PageCondition,&sb)
 	dataSql := sb.String()
 	countSql := built.sqlCount(sbCount)
 	return nil, &dataSql,countSql,nil
 }
+
 
 
