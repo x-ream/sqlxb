@@ -181,6 +181,22 @@ func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder) {
 
 }
 
+func (built *Built) toSortSql(bbs *[]*Sort, bp *strings.Builder) {
+	length := len(*bbs)
+	if length == 0 {
+		return
+	}
+	bp.WriteString(ORDER_BY)
+	for i := 0; i < length; i++  {
+		sort := (*bbs)[i]
+		bp.WriteString(sort.orderBy)
+		bp.WriteString(sort.direction)
+		if i < length -1 {
+			bp.WriteString(COMMA)
+		}
+	}
+}
+
 func (built *Built) isOr(bb *Bb) bool {
 	return bb.op == OR
 }
@@ -203,6 +219,7 @@ func (built *Built) ToSql() (*[]interface{}, *string, *string, error) {
 	built.toResultKeyScript(&sb)
 	built.toSourceScript(&sb)
 	built.toConditionScript(built.ConditionX, &sb)
+	built.toSortSql(built.Sorts, &sb)
 	dataSql := sb.String()
 	return nil, &dataSql, nil, nil
 }
