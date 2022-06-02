@@ -275,16 +275,40 @@ func (built *Built) sqlCount(sbCount *strings.Builder) *string{
 	return &countSql
 }
 
+func (built *Built) countSqlFrom(sbCount *strings.Builder) {
+	if sbCount == nil {
+		return
+	}
+	sbCount.WriteString(FROM)
+}
+
+func (built *Built) countSqlWhere(sbCount *strings.Builder) {
+	if sbCount == nil {
+		return
+	}
+	sbCount.WriteString(WHERE)
+}
+
+func (built *Built) sqlFrom(bp *strings.Builder) {
+	bp.WriteString(FROM)
+}
+
+func (built *Built) sqlWhere(bp *strings.Builder) {
+	bp.WriteString(WHERE)
+}
+
 func (built *Built) Sql() (*[]interface{}, *string, *string, error) {
 
 	sb := strings.Builder{}
 	var sbCount = built.countBuilder()
 	built.toResultKeyScript(&sb)
 	built.toResultKeyScriptOfCount(sbCount)
-	sb.WriteString(FROM)
+	built.sqlFrom(&sb)
 	built.toSourceScript(&sb)
+	built.sqlWhere(&sb)
+	built.countSqlFrom(sbCount)
 	built.toSourceScriptOfCount(sbCount)
-	sb.WriteString(WHERE)
+	built.countSqlWhere(sbCount)
 	built.toConditionScript(built.ConditionX, &sb)
 	built.toConditionScriptOfCount(built.ConditionX,sbCount)
 	built.toGroupBySql(built.GroupBys,&sb)

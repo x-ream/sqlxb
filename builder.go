@@ -82,7 +82,9 @@ func (builder *Builder) Sort(orderBy string, direction Direction) *Builder {
 }
 
 func (builder *Builder) Paged() *PageBuilder {
-	return new(PageBuilder)
+	pageBuilder := new(PageBuilder)
+	builder.pageBuilder = pageBuilder
+	return pageBuilder
 }
 
 
