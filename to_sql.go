@@ -74,7 +74,7 @@ func (builder *Builder) Build() *Built {
 	return &built
 }
 
-func (built *Built) toResultKeyScript(bp *strings.Builder) *strings.Builder{
+func (built *Built) toResultKeyScript(bp *strings.Builder) {
 	//sb := (*bp)
 	bp.WriteString(SELECT)
 	if built.ResultKeys == nil {
@@ -95,11 +95,37 @@ func (built *Built) toResultKeyScript(bp *strings.Builder) *strings.Builder{
 			}
 		}
 	}
-	return bp
+}
+
+func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
+	if bpCount == nil {
+		return
+	}
+	bpCount.WriteString("SELECT COUNT(*) ")
+}
+
+func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
+	if bpCount == nil {
+		return
+	}
+	built.toSourceScript(bpCount)
+}
+
+func (built *Built) toConditionScriptOfCount(bbs *[]*Bb, bpCount *strings.Builder) {
+	if bpCount == nil {
+		return
+	}
+	built.toConditionScript(bbs, bpCount)
+}
+
+func (built *Built) toGroupBySqlOfCount(bys *[]string, bpCount *strings.Builder) {
+	if bpCount == nil {
+		return
+	}
+	built.toGroupBySql(bys,bpCount)
 }
 
 func (built *Built) toSourceScript(bp *strings.Builder) {
-	bp.WriteString(FROM)
 	if built.Po == nil {
 		bp.WriteString("?")
 	}else {
@@ -110,7 +136,6 @@ func (built *Built) toSourceScript(bp *strings.Builder) {
 	if length == 0 {
 		return
 	}
-	bp.WriteString(WHERE)
 }
 
 func (built *Built) toBb(bb *Bb, bp *strings.Builder)  {
@@ -181,6 +206,28 @@ func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder) {
 
 }
 
+func (built *Built) toGroupBySql(bys *[]string, bp *strings.Builder) {
+	length := len(*bys)
+	if bys == nil || length == 0 {
+		return
+	}
+	bp.WriteString(GROUP_BY)
+	for i := 0; i<length; i++ {
+		bp.WriteString((*bys)[i])
+		if i < length - 1 {
+			bp.WriteString(COMMA)
+		}
+	}
+}
+
+func (built *Built) toHavingSql(bys *[]*Bb, bp *strings.Builder) {
+	if bys == nil || len(*bys) == 0 {
+		return
+	}
+	bp.WriteString(HAVING)
+	built.toConditionScript(bys,bp)
+}
+
 func (built *Built) toSortSql(bbs *[]*Sort, bp *strings.Builder) {
 	length := len(*bbs)
 	if length == 0 {
@@ -205,22 +252,48 @@ func (built *Built) isOR(bb *Bb) bool {
 	return bb.op == OR && bb.key == ""
 }
 
-func (built *Built) ToSqlOfCondition() (*[]interface{}, *string, error) {
+func (built *Built) countBuilder() *strings.Builder  {
+	var sbCount *strings.Builder
+	if built.Rows > 1 && !built.IsTotalRowsIgnored {
+		sbCount = &strings.Builder{}
+	}
+	return sbCount
+}
+
+func (built *Built) SqlOfCondition() (*[]interface{}, *string, error) {
 	sb := strings.Builder{}
 	built.toConditionScript(built.ConditionX, &sb)
 	conditionSql := sb.String()
 	return nil, &conditionSql, nil
 }
 
-func (built *Built) ToSql() (*[]interface{}, *string, *string, error) {
+func (built *Built) sqlCount(sbCount *strings.Builder) *string{
+	if sbCount == nil {
+		return nil
+	}
+	countSql := sbCount.String()
+	return &countSql
+}
+
+func (built *Built) Sql() (*[]interface{}, *string, *string, error) {
 
 	sb := strings.Builder{}
-
+	var sbCount = built.countBuilder()
 	built.toResultKeyScript(&sb)
+	built.toResultKeyScriptOfCount(sbCount)
+	sb.WriteString(FROM)
 	built.toSourceScript(&sb)
+	built.toSourceScriptOfCount(sbCount)
+	sb.WriteString(WHERE)
 	built.toConditionScript(built.ConditionX, &sb)
+	built.toConditionScriptOfCount(built.ConditionX,sbCount)
+	built.toGroupBySql(built.GroupBys,&sb)
+	built.toGroupBySqlOfCount(built.GroupBys,sbCount)
+	built.toHavingSql(built.Havings,&sb)
 	built.toSortSql(built.Sorts, &sb)
 	dataSql := sb.String()
-	return nil, &dataSql, nil, nil
+	countSql := built.sqlCount(sbCount)
+	return nil, &dataSql,countSql,nil
 }
+
 

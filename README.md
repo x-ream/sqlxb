@@ -75,12 +75,12 @@ func main() {
 	builder.Bool(preCondition, func(cb *ConditionBuilder) {
 		cb.Or(SubCondition().Lt("price", 5000))
 	})
-	vs, dataSql, countSql, err := builder.Build().ToSql()
+	vs, dataSql, countSql, err := builder.Build().Sql()
     // ....
 
     //dataSql: SELECT * FROM t_cat WHERE id >= ? AND (price >= ? OR age >= ?) OR (price < ?)
     
-	_, conditionSql, _ := builder.Build().ToSqlOfCondition()
+	_, conditionSql, _ := builder.Build().SqlOfCondition()
     
     //conditionSql: id >= ? AND (price >= ? OR age >= ?) OR (price < ?)
 
