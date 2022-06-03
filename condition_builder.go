@@ -18,20 +18,19 @@
  */
 package sqlxb
 
-
 type ConditionBuilder struct {
 	bbs *[]*Bb
 }
 
 type BoolFunc func() bool
 
-func SubCondition() * ConditionBuilder {
+func SubCondition() *ConditionBuilder {
 	c := new(ConditionBuilder)
 	c.bbs = &[]*Bb{}
 	return c
 }
 
-func (builder *ConditionBuilder) X(k string, vs... interface{}) * ConditionBuilder {
+func (builder *ConditionBuilder) X(k string, vs ...interface{}) *ConditionBuilder {
 	bb := Bb{
 		op:    X,
 		key:   k,
@@ -55,31 +54,22 @@ func (builder *ConditionBuilder) doIn(p string, k string, arr *[]interface{}) *C
 		}
 		switch v.(type) {
 		case string:
-			//if i>0 && i < length-1 {
-			//	ss = append(ss,", ")
-			//}
 			s := "'"
 			s += v.(string)
 			s += "'"
-			ss = append(ss,s)
-		case uint64,uint,int, int64, int32, int16, int8, byte, float64,float32:
+			ss = append(ss, s)
+		case uint64, uint, int, int64, int32, int16, int8, byte, float64, float32:
 			s := N2s(v)
 			if s == "0" {
 				continue
 			}
-			//if i>0 && i < length-1 {
-			//	ss = append(ss,", ")
-			//}
-			ss = append(ss,s)
-		case *uint64,*uint,*int,*int64,*int32,*int16,*int8,*byte,*float64,*float32:
-			s,isOK :=Np2s(v)
+			ss = append(ss, s)
+		case *uint64, *uint, *int, *int64, *int32, *int16, *int8, *byte, *float64, *float32:
+			s, isOK := Np2s(v)
 			if isOK == false {
 				continue
 			}
-			//if i>0 && i < length-1 {
-			//	ss = append(ss,", ")
-			//}
-			ss = append(ss,s)
+			ss = append(ss, s)
 		case []interface{}:
 			panic("Builder.doIn(ke, ([]arr)), ([]arr) ?")
 		}
@@ -113,11 +103,11 @@ func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *Condi
 		if v.(string) == "" {
 			return builder
 		}
-	case uint64,uint,int64, int, int32, int16, int8, bool, byte, float64, float32:
+	case uint64, uint, int64, int, int32, int16, int8, bool, byte, float64, float32:
 		if v == 0 {
 			return builder
 		}
-	case *uint64,*uint,*int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
+	case *uint64, *uint, *int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
 		if IsNil(v) {
 			return builder
 		}
@@ -139,23 +129,23 @@ func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *Condi
 	return builder
 }
 
-func (builder *ConditionBuilder) null(op string, k string)  *ConditionBuilder  {
+func (builder *ConditionBuilder) null(op string, k string) *ConditionBuilder {
 	bb := Bb{
-		op:    op,
-		key:   k,
+		op:  op,
+		key: k,
 	}
 	*builder.bbs = append(*builder.bbs, &bb)
 	return builder
 }
 
 func (builder *ConditionBuilder) orAndSub(orAnd string, sub *ConditionBuilder) *ConditionBuilder {
-	if sub.bbs == nil || len(*sub.bbs)==0 {
+	if sub.bbs == nil || len(*sub.bbs) == 0 {
 		return builder
 	}
 
 	bb := Bb{
 		op:   orAnd,
-		key: orAnd,
+		key:  orAnd,
 		subs: sub.bbs,
 	}
 	*builder.bbs = append(*builder.bbs, &bb)

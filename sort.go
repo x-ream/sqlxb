@@ -19,15 +19,14 @@
 package sqlxb
 
 const (
-	asc = " ASC"
+	asc  = " ASC"
 	desc = " DESC"
 )
 
 type Sort struct {
-	orderBy string
+	orderBy   string
 	direction string
 }
-
 
 type Direction func() string
 
@@ -38,4 +37,3 @@ func ASC() string {
 func DESC() string {
 	return desc
 }
-

@@ -25,8 +25,8 @@ package sqlxb
 //
 type BuilderX struct {
 	Builder
-	resultKeys []string
-	sbs []*SourceBuilder
+	resultKeys   []string
+	sbs          []*SourceBuilder
 	sourceScript *string
 	sourceValues []interface{}
 }
@@ -35,17 +35,17 @@ func NewBuilderX() *BuilderX {
 	return new(BuilderX)
 }
 
-func (x *BuilderX) SourceBuilder() *SourceBuilder  {
+func (x *BuilderX) SourceBuilder() *SourceBuilder {
 	var sb = SourceBuilder{}
-	x.sbs = append(x.sbs,&sb)
+	x.sbs = append(x.sbs, &sb)
 	return &sb
 }
 
-func (x *BuilderX) SourceScript(script string, arr... interface{}) *BuilderX {
+func (x *BuilderX) SourceScript(script string, arr ...interface{}) *BuilderX {
 	x.sourceScript = &script
 	if arr != nil {
-		for _,v := range arr {
-			x.sourceValues = append(x.sourceValues,v)
+		for _, v := range arr {
+			x.sourceValues = append(x.sourceValues, v)
 		}
 	}
 	return x
@@ -56,8 +56,8 @@ func (x *BuilderX) ResultKey(resultKey string) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) ResultKeys(resultKeys... string) *BuilderX {
-	for _,resultKey := range resultKeys {
+func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
+	for _, resultKey := range resultKeys {
 		x.resultKeys = append(x.resultKeys, resultKey)
 	}
 	return x
@@ -68,8 +68,8 @@ func (x *BuilderX) Having(op Op, k string, v interface{}) *BuilderX {
 		return x
 	}
 	bb := Bb{
-		op: op(),
-		key: k,
+		op:    op(),
+		key:   k,
 		value: v,
 	}
 	x.havings = append(x.havings, &bb)
@@ -83,4 +83,3 @@ func (x *BuilderX) GroupBy(groupBy string) *BuilderX {
 	x.groupBys = append(x.groupBys, groupBy)
 	return x
 }
-

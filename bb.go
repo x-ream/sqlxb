@@ -24,4 +24,3 @@ type Bb struct {
 	value interface{}
 	subs  *[]*Bb
 }
-

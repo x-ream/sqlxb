@@ -23,7 +23,7 @@ const (
 	AND      = "AND"
 	OR       = "OR"
 	AND_SUB  = AND
-	OR_SUB	 = OR
+	OR_SUB   = OR
 	EQ       = "="
 	NE       = "<>"
 	GT       = ">"

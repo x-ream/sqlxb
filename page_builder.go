@@ -19,9 +19,9 @@
 package sqlxb
 
 type PageCondition struct {
-	page uint
-	rows uint
-	last uint64
+	page               uint
+	rows               uint
+	last               uint64
 	isTotalRowsIgnored bool
 }
 
@@ -29,16 +29,16 @@ type PageBuilder struct {
 	condition PageCondition
 }
 
-func (pb * PageBuilder) Paged() *PageBuilder{
+func (pb *PageBuilder) Paged() *PageBuilder {
 	return new(PageBuilder)
 }
 
-func (pb * PageBuilder) Page(page uint) *PageBuilder{
+func (pb *PageBuilder) Page(page uint) *PageBuilder {
 	pb.condition.page = page
 	return pb
 }
 
-func (pb * PageBuilder) Rows(rows uint) *PageBuilder{
+func (pb *PageBuilder) Rows(rows uint) *PageBuilder {
 	pb.condition.rows = rows
 	return pb
 }
@@ -47,12 +47,12 @@ func (pb * PageBuilder) Rows(rows uint) *PageBuilder{
  * ASC: orderBy > last | DESC: orderBy < last
  * LIMIT rows
  */
-func (pb * PageBuilder) Last(last uint64) *PageBuilder{
+func (pb *PageBuilder) Last(last uint64) *PageBuilder {
 	pb.condition.last = last
 	return pb
 }
 
-func (pb * PageBuilder) IgnoreTotalRows(ignored bool) *PageBuilder{
+func (pb *PageBuilder) IgnoreTotalRows(ignored bool) *PageBuilder {
 	pb.condition.isTotalRowsIgnored = ignored
 	return pb
 }

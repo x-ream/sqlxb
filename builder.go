@@ -28,8 +28,8 @@ type Builder struct {
 	ConditionBuilder
 	pageBuilder *PageBuilder
 
-	sorts []*Sort
-	havings []*Bb
+	sorts    []*Sort
+	havings  []*Bb
 	groupBys []string
 
 	po Po
@@ -55,7 +55,7 @@ func (builder *Builder) Sort(orderBy string, direction Direction) *Builder {
 	if orderBy == "" || direction == nil {
 		return builder
 	}
-	sort := Sort{orderBy: orderBy,direction: direction()}
+	sort := Sort{orderBy: orderBy, direction: direction()}
 	builder.sorts = append(builder.sorts, &sort)
 	return builder
 }
@@ -65,8 +65,3 @@ func (builder *Builder) Paged() *PageBuilder {
 	builder.pageBuilder = pageBuilder
 	return pageBuilder
 }
-
-
-
-
-

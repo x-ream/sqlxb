@@ -20,13 +20,11 @@ package sqlxb
 
 type sub struct {
 	builder *BuilderX
-	alia string
+	alia    string
 }
 
 type SourceBuilder struct {
-
-	origin string
-	alia string
+	origin    string
+	alia      string
 	subSource *sub
 }
-
