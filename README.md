@@ -5,6 +5,9 @@ or build condition sql for some orm framework
 ## API
     Builder: build sql like: SELECT * FROM t_foo WHERE name Like "%xx%" ORDER BY ID DESC
     BuilderX: build sql like: SELECT DISTINCT(f.id) FROM t_foo f INNER JOIN t_bar b ON ....
+    
+    builder.Gte("id", 10000)
+    builder.And(SubCondition().Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
 
 ## Builder DEMO
 
@@ -71,7 +74,7 @@ func main() {
 	c := Cat{}
 	var builder = NewBuilder(&c)
 	builder.Gte("id", 10000)
-	builder.And(SubCondition().Gte("price", catRo.Price).OR().Gte("age", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
+	builder.And(SubCondition().Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
 	builder.Bool(preCondition, func(cb *ConditionBuilder) {
 		cb.Or(SubCondition().Lt("price", 5000))
 	})
