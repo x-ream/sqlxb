@@ -127,7 +127,7 @@ func (built *Built) toConditionScriptOfCount(bbs *[]*Bb, bpCount *strings.Builde
 	if bpCount == nil {
 		return
 	}
-	built.toConditionScript(bbs, bpCount)
+	built.toConditionScript(bbs, bpCount, nil)
 }
 
 func (built *Built) toGroupBySqlOfCount(bys *[]string, bpCount *strings.Builder) {
@@ -150,19 +150,30 @@ func (built *Built) toSourceScript(bp *strings.Builder) {
 	}
 }
 
-func (built *Built) toBb(bb *Bb, bp *strings.Builder)  {
+func (built *Built) toBb(bb *Bb, bp *strings.Builder, vs *[]interface{})  {
 	op := bb.op
 	switch op {
 	case X:
 		bp.WriteString(bb.key)
+		if vs != nil && bb.value !=nil{
+			arr := bb.value.([]interface{})
+			for _,v := range arr {
+				*vs = append(*vs,v)
+			}
+		}
 	case IN, NIN:
 		bp.WriteString(bb.key)
 		bp.WriteString(SPACE)
 		bp.WriteString(bb.op)
 		bp.WriteString(SPACE)
 		bp.WriteString(BEGIN_SUB)
-		for _,s := range *(bb.value.(*[]string)) {
-			bp.WriteString(s)
+		arr := *(bb.value.(*[]string))
+		inl := len(arr)
+		for i := 0; i<inl; i++{
+			bp.WriteString(arr[i])
+			if i <inl - 1 {
+				bp.WriteString(COMMA)
+			}
 		}
 		bp.WriteString(END_SUB)
 	case IS_NULL, NON_NULL:
@@ -174,17 +185,20 @@ func (built *Built) toBb(bb *Bb, bp *strings.Builder)  {
 			return
 		}
 		bp.WriteString(BEGIN_SUB)
-		built.toConditionScript(bb.subs, bp)
+		built.toConditionScript(bb.subs, bp,vs)
 		bp.WriteString(END_SUB)
 	default:
 		bp.WriteString(bb.key)
 		bp.WriteString(SPACE)
 		bp.WriteString(bb.op)
 		bp.WriteString(PLACE_HOLDER)
+		if vs != nil {
+			*vs = append(*vs,bb.value)
+		}
 	}
 }
 
-func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder) {
+func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder, vs *[]interface{}) {
 
 	if bbs == nil {
 		return
@@ -195,7 +209,7 @@ func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder) {
 	}
 	for i := 0; i < length; i++ {
 		bb := (*bbs)[i]
-		built.toBb(bb, bp)
+		built.toBb(bb, bp,vs)
 		if i < length-1 {
 			next := (*bbs)[i+1]
 			if built.isOr(next) {
@@ -237,7 +251,7 @@ func (built *Built) toHavingSql(bys *[]*Bb, bp *strings.Builder) {
 		return
 	}
 	bp.WriteString(HAVING)
-	built.toConditionScript(bys,bp)
+	built.toConditionScript(bys,bp,nil)
 }
 
 func (built *Built) toSortSql(bbs *[]*Sort, bp *strings.Builder) {
@@ -289,10 +303,11 @@ func (built *Built) countBuilder() *strings.Builder  {
 }
 
 func (built *Built) SqlOfCondition() (*[]interface{}, *string, error) {
+	vs := []interface{}{}
 	sb := strings.Builder{}
-	built.toConditionScript(built.ConditionX, &sb)
+	built.toConditionScript(built.ConditionX, &sb, &vs)
 	conditionSql := sb.String()
-	return nil, &conditionSql, nil
+	return &vs, &conditionSql, nil
 }
 
 func (built *Built) sqlCount(sbCount *strings.Builder) *string{
@@ -327,6 +342,7 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 
 func (built *Built) Sql() (*[]interface{}, *string, *string, error) {
 
+	vs := []interface{}{}
 	sb := strings.Builder{}
 	var sbCount = built.countBuilder()
 	built.toResultKeyScript(&sb)
@@ -339,7 +355,7 @@ func (built *Built) Sql() (*[]interface{}, *string, *string, error) {
 	built.countSqlWhere(sbCount)
 	built.toConditionScriptOfCount(built.ConditionX,sbCount)
 	built.filterLast()
-	built.toConditionScript(built.ConditionX, &sb)
+	built.toConditionScript(built.ConditionX, &sb, &vs)
 	built.toGroupBySql(built.GroupBys,&sb)
 	built.toGroupBySqlOfCount(built.GroupBys,sbCount)
 	built.toHavingSql(built.Havings,&sb)
@@ -347,7 +363,7 @@ func (built *Built) Sql() (*[]interface{}, *string, *string, error) {
 	built.toPageSql(built.PageCondition,&sb)
 	dataSql := sb.String()
 	countSql := built.sqlCount(sbCount)
-	return nil, &dataSql,countSql,nil
+	return &vs, &dataSql,countSql,nil
 }
 
 

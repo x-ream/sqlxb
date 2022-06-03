@@ -41,43 +41,44 @@ func (builder *ConditionBuilder) X(k string, vs... interface{}) * ConditionBuild
 	return builder
 }
 
-func (builder *ConditionBuilder) doIn(p string, k string, arr []interface{}) *ConditionBuilder {
-	if arr == nil || len(arr) == 0 {
+func (builder *ConditionBuilder) doIn(p string, k string, arr *[]interface{}) *ConditionBuilder {
+	if arr == nil || len(*arr) == 0 {
 		return builder
 	}
 
 	ss := []string{}
-	length := len(arr)
+	length := len(*arr)
 	for i := 0; i < length; i++ {
-		v := arr[i]
+		v := (*arr)[i]
 		if v == nil {
 			continue
 		}
 		switch v.(type) {
 		case string:
-			if i>0 && i < length-1 {
-				ss = append(ss,", ")
-			}
-			ss = append(ss,"'")
-			ss = append(ss,v.(string))
-			ss = append(ss,"'")
+			//if i>0 && i < length-1 {
+			//	ss = append(ss,", ")
+			//}
+			s := "'"
+			s += v.(string)
+			s += "'"
+			ss = append(ss,s)
 		case uint64,uint,int, int64, int32, int16, int8, byte, float64,float32:
 			s := N2s(v)
 			if s == "0" {
 				continue
 			}
-			if i>0 && i < length-1 {
-				ss = append(ss,", ")
-			}
-			ss = append(ss,N2s(v))
+			//if i>0 && i < length-1 {
+			//	ss = append(ss,", ")
+			//}
+			ss = append(ss,s)
 		case *uint64,*uint,*int,*int64,*int32,*int16,*int8,*byte,*float64,*float32:
 			s,isOK :=Np2s(v)
 			if isOK == false {
 				continue
 			}
-			if i>0 && i < length-1 {
-				ss = append(ss,", ")
-			}
+			//if i>0 && i < length-1 {
+			//	ss = append(ss,", ")
+			//}
 			ss = append(ss,s)
 		case []interface{}:
 			panic("Builder.doIn(ke, ([]arr)), ([]arr) ?")
@@ -239,10 +240,10 @@ func (builder *ConditionBuilder) LikeRight(k string, v string) *ConditionBuilder
 	}
 	return builder.doLike(LIKE, k, v+"%")
 }
-func (builder *ConditionBuilder) In(k string, arr []interface{}) *ConditionBuilder {
+func (builder *ConditionBuilder) In(k string, arr *[]interface{}) *ConditionBuilder {
 	return builder.doIn(IN, k, arr)
 }
-func (builder *ConditionBuilder) Nin(k string, arr []interface{}) *ConditionBuilder {
+func (builder *ConditionBuilder) Nin(k string, arr *[]interface{}) *ConditionBuilder {
 	return builder.doIn(NIN, k, arr)
 }
 func (builder *ConditionBuilder) IsNull(key string) *ConditionBuilder {

@@ -51,27 +51,6 @@ func (builder *Builder) SubBuilder() *Builder {
 	return newBuilder()
 }
 
-func (builder *Builder) Having(op Op, k string, v interface{}) *Builder {
-	if op == nil || k == "" {
-		return builder
-	}
-	bb := Bb{
-		op: op(),
-		key: k,
-		value: v,
-	}
-	builder.havings = append(builder.havings, &bb)
-	return builder
-}
-
-func (builder *Builder) GroupBy(groupBy string) *Builder {
-	if groupBy == "" {
-		return builder
-	}
-	builder.groupBys = append(builder.groupBys, groupBy)
-	return builder
-}
-
 func (builder *Builder) Sort(orderBy string, direction Direction) *Builder {
 	if orderBy == "" || direction == nil {
 		return builder
