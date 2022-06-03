@@ -85,11 +85,14 @@ func main() {
 	vs, dataSql, countSql, err := builder.Build().Sql()
     // ....
 
-    //dataSql: SELECT * FROM t_cat WHERE id >= ? AND (price >= ? OR age >= ?) OR (price < ?)
+    //dataSql: SELECT * FROM t_cat WHERE name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?) AND id > ? 
+    //ORDER BY id ASC LIMIT 10
+
+    //countSql: SELECT COUNT(*) FROM t_cat WHERE name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
     
 	_, conditionSql, _ := builder.Build().SqlOfCondition()
     
-    //conditionSql: id >= ? AND (price >= ? OR age >= ?) OR (price < ?)
+    //conditionSql: name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?) AND id > ?
 
 }
 ```

@@ -269,6 +269,7 @@ func (built *Built) toSortSql(bbs *[]*Sort, bp *strings.Builder) {
 	for i := 0; i < length; i++ {
 		sort := (*bbs)[i]
 		bp.WriteString(sort.orderBy)
+		bp.WriteString(SPACE)
 		bp.WriteString(sort.direction)
 		if i < length-1 {
 			bp.WriteString(COMMA)
