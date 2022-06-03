@@ -75,8 +75,14 @@ func (built *Built) filterLast() {
 	}
 	if built.PageCondition.last > 0 && built.Sorts != nil && len(*built.Sorts) > 0 {
 		sort := (*built.Sorts)[0]
+		var gl string
+		if sort.direction == "ASC" {
+			gl = GT
+		}else {
+			gl = LT
+		}
 		bb := Bb{
-			op:    GT,
+			op:    gl,
 			key:   sort.orderBy,
 			value: built.PageCondition.last,
 		}

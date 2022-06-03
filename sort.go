@@ -19,8 +19,8 @@
 package sqlxb
 
 const (
-	asc  = " ASC"
-	desc = " DESC"
+	asc  = "ASC"
+	desc = "DESC"
 )
 
 type Sort struct {

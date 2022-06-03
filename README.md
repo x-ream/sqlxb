@@ -36,6 +36,7 @@ func (*Cat) TableName() string {
 // sqlxb has func: Bool(true), Int(v) ....
 // sqlxb no relect, not support omitempty, should rewrite ro, dto
 type CatRo struct {
+	Name   string   `json:"name, string"`
 	IsSold *bool    `json:"isSold, *bool"`
 	Price  *float64 `json:"price, *float64"`
 	Age    uint     `json:"age", unit`
@@ -56,6 +57,7 @@ func main() {
 
     // PREPARE TO QUERY
 	catRo := CatRo{
+		Name:	"Tu",
 		IsSold: nil,
 		Price:  Float64(5000.00),
 		Age:    1,
@@ -73,11 +75,13 @@ func main() {
 
 	c := Cat{}
 	var builder = NewBuilder(&c)
-	builder.Gte("id", 10000)
+	builder.LikeRight("name",catRo.Name)
 	builder.And(SubCondition().Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
 	builder.Bool(preCondition, func(cb *ConditionBuilder) {
 		cb.Or(SubCondition().Lt("price", 5000))
 	})
+	builder.Sort("id", ASC)
+	builder.Paged().Rows(10).Last(100)
 	vs, dataSql, countSql, err := builder.Build().Sql()
     // ....
 
