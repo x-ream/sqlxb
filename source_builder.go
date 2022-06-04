@@ -18,11 +18,62 @@
  */
 package sqlxb
 
-type sub BuilderX
-
 type SourceBuilder struct {
 	po Po
 	alia string
+	join Join
+	sub *BuilderX
+	bbs *[]*Bb
+}
+
+func (sb * SourceBuilder) Source(po Po) *SourceBuilder {
+	sb.po = po
+	return sb
+}
+
+func (sb * SourceBuilder) Alia(alia string) *SourceBuilder {
+	sb.alia = alia
+	return sb
+}
+
+type Join struct {
 	join string
-	sub *sub
+	on *On
+}
+type On struct {
+	key string
+	targetAlia string
+	targetKey string
+}
+
+
+func  (sb * SourceBuilder) JoinOn(join JOIN, targetAlia string, targetKey string, key string) *SourceBuilder {
+	sb.join = Join{
+		join: join(),
+		on: &On{
+			key,
+			targetAlia,
+			targetKey,
+		},
+	}
+	return sb
+}
+
+func (sb * SourceBuilder) JoinUsing(join JOIN, key string) *SourceBuilder {
+	sb.join = Join{
+		join: join(),
+		on: &On{
+			key:key,
+		},
+	}
+	return sb
+}
+
+func (sb * SourceBuilder) More(cb *ConditionBuilder)  {
+	sb.bbs = cb.bbs
+}
+
+func  (sb * SourceBuilder) Sub(sub *BuilderX) *SourceBuilder {
+	sb.sub = sub
+	return sb
 }

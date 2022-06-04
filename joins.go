@@ -18,46 +18,22 @@
  */
 package sqlxb
 
-//
-// TO build sql, like: SELECT * FROM ....
-// Can add L2Cache
-//
-// @author Sim
-//
-type Builder struct {
-	ConditionBuilder
-	pageBuilder *PageBuilder
+const (
+	inner_join = "INNER JOIN"
+	left_join = "LEFT JOIN"
+	right_join = "RIGHT JOIN"
+)
 
-	sorts    []*Sort
-	//havings  []*Bb
-	//groupBys []string
+type JOIN func() string
 
-	po Po
+func INNER_JOIN() string {
+	return inner_join
 }
 
-func NewBuilder(poOrNil Po) *Builder {
-	var instance = newBuilder()
-	instance.po = poOrNil
-	return instance
+func LEFT_JOIN() string {
+	return left_join
 }
 
-func newBuilder() *Builder {
-	b := new(Builder)
-	b.bbs = &[]*Bb{}
-	return b
-}
-
-func (builder *Builder) Sort(orderBy string, direction Direction) *Builder {
-	if orderBy == "" || direction == nil {
-		return builder
-	}
-	sort := Sort{orderBy: orderBy, direction: direction()}
-	builder.sorts = append(builder.sorts, &sort)
-	return builder
-}
-
-func (builder *Builder) Paged() *PageBuilder {
-	pageBuilder := new(PageBuilder)
-	builder.pageBuilder = pageBuilder
-	return pageBuilder
+func RIGHT_JOIN() string {
+	return right_join
 }

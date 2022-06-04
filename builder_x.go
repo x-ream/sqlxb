@@ -23,17 +23,28 @@ package sqlxb
 //
 // @author Sim
 //
-type BuilderX struct {
-	Builder
-	resultKeys   []string
-	sbs          []*SourceBuilder
-	sourceValues []interface{}
-	havings  []*Bb
-	groupBys []string
+func Sub() *BuilderX {
+	return NewBuilderX(nil, "")
 }
 
-func NewBuilderX() *BuilderX {
-	return new(BuilderX)
+type BuilderX struct {
+	Builder
+	resultKeys []string
+	sbs        []*SourceBuilder
+	svs        []interface{}
+	havings    []*Bb
+	groupBys   []string
+}
+
+func NewBuilderX(po Po, alia string) *BuilderX {
+	x := new(BuilderX)
+	x.bbs = &[]*Bb{}
+	var sb = SourceBuilder{
+		po: po,
+		alia: alia,
+	}
+	x.sbs = append(x.sbs, &sb)
+	return x
 }
 
 func (x *BuilderX) SourceBuilder() *SourceBuilder {
@@ -51,6 +62,14 @@ func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
 	for _, resultKey := range resultKeys {
 		x.resultKeys = append(x.resultKeys, resultKey)
 	}
+	return x
+}
+
+func (x *BuilderX) Source(po Po) *BuilderX {
+	sb := SourceBuilder{
+		po: po,
+	}
+	x.sbs = append(x.sbs, &sb)
 	return x
 }
 
