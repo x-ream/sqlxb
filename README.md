@@ -92,7 +92,7 @@ func main() {
     
 	_, conditionSql, _ := builder.Build().SqlOfCondition()
     
-    //conditionSql: name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?) AND id > ?
+    //conditionSql: name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
 
 }
 ```
