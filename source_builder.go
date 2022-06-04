@@ -46,15 +46,18 @@ type On struct {
 	targetKey string
 }
 
+func ON(key string, targetOrAlia string, targetKey string) *On {
+	return &On{
+		key,
+		targetOrAlia,
+		targetKey,
+	}
+}
 
-func  (sb * SourceBuilder) JoinOn(join JOIN, targetAlia string, targetKey string, key string) *SourceBuilder {
+func  (sb * SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
 	sb.join = Join{
 		join: join(),
-		on: &On{
-			key,
-			targetAlia,
-			targetKey,
-		},
+		on: on,
 	}
 	return sb
 }
