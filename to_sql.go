@@ -31,6 +31,9 @@ type Built struct {
 	Havings    *[]*Bb
 	GroupBys   *[]string
 
+	sbs          *[]*SourceBuilder
+	sourceValues *[]interface{}
+
 	PageCondition *PageCondition
 
 	Po Po
@@ -57,11 +60,32 @@ func (builder *Builder) Build() *Built {
 		ResultKeys: nil,
 		ConditionX: builder.bbs,
 		Sorts:      &builder.sorts,
+
+		Po: builder.po,
+	}
+	if builder.pageBuilder != nil {
+		built.PageCondition = &builder.pageBuilder.condition
+	}
+
+	return &built
+}
+
+func (builder *BuilderX) Build() *Built {
+
+	if builder == nil {
+		panic("sqlxb.Builder is nil")
+	}
+
+	built := Built{
+		ResultKeys: &builder.resultKeys,
+		ConditionX: builder.bbs,
+		Sorts:      &builder.sorts,
 		Havings:    &builder.havings,
 		GroupBys:   &builder.groupBys,
 
 		Po: builder.po,
 	}
+
 	if builder.pageBuilder != nil {
 		built.PageCondition = &builder.pageBuilder.condition
 	}

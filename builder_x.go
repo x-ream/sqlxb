@@ -27,8 +27,9 @@ type BuilderX struct {
 	Builder
 	resultKeys   []string
 	sbs          []*SourceBuilder
-	sourceScript *string
 	sourceValues []interface{}
+	havings  []*Bb
+	groupBys []string
 }
 
 func NewBuilderX() *BuilderX {
@@ -41,16 +42,6 @@ func (x *BuilderX) SourceBuilder() *SourceBuilder {
 	return &sb
 }
 
-func (x *BuilderX) SourceScript(script string, arr ...interface{}) *BuilderX {
-	x.sourceScript = &script
-	if arr != nil {
-		for _, v := range arr {
-			x.sourceValues = append(x.sourceValues, v)
-		}
-	}
-	return x
-}
-
 func (x *BuilderX) ResultKey(resultKey string) *BuilderX {
 	x.resultKeys = append(x.resultKeys, resultKey)
 	return x
@@ -60,19 +51,6 @@ func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
 	for _, resultKey := range resultKeys {
 		x.resultKeys = append(x.resultKeys, resultKey)
 	}
-	return x
-}
-
-func (x *BuilderX) Having(op Op, k string, v interface{}) *BuilderX {
-	if op == nil || k == "" {
-		return x
-	}
-	bb := Bb{
-		op:    op(),
-		key:   k,
-		value: v,
-	}
-	x.havings = append(x.havings, &bb)
 	return x
 }
 

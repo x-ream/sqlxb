@@ -18,13 +18,11 @@
  */
 package sqlxb
 
-type sub struct {
-	builder *BuilderX
-	alia    string
-}
+type sub BuilderX
 
 type SourceBuilder struct {
-	origin    string
-	alia      string
-	subSource *sub
+	po Po
+	alia string
+	join string
+	sub *sub
 }

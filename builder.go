@@ -29,8 +29,8 @@ type Builder struct {
 	pageBuilder *PageBuilder
 
 	sorts    []*Sort
-	havings  []*Bb
-	groupBys []string
+	//havings  []*Bb
+	//groupBys []string
 
 	po Po
 }
