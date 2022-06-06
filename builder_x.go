@@ -29,18 +29,19 @@ func Sub() *BuilderX {
 
 type BuilderX struct {
 	Builder
-	resultKeys []string
-	sbs        []*SourceBuilder
-	svs        []interface{}
-	havings    []*Bb
-	groupBys   []string
+	resultKeys            []string
+	sbs                   []*SourceBuilder
+	svs                   []interface{}
+	havings               []*Bb
+	groupBys              []string
+	isWithoutOptimization bool
 }
 
 func NewBuilderX(po Po, alia string) *BuilderX {
 	x := new(BuilderX)
 	x.bbs = &[]*Bb{}
 	var sb = SourceBuilder{
-		po: po,
+		po:   po,
 		alia: alia,
 	}
 	x.sbs = append(x.sbs, &sb)
@@ -92,4 +93,30 @@ func (x *BuilderX) GroupBy(groupBy string) *BuilderX {
 	}
 	x.groupBys = append(x.groupBys, groupBy)
 	return x
+}
+
+func (builder *BuilderX) Build() *Built {
+	if builder == nil {
+		panic("sqlxb.Builder is nil")
+	}
+	built := Built{
+		ResultKeys: &builder.resultKeys,
+		ConditionX: builder.bbs,
+		Sorts:      &builder.sorts,
+		Havings:    &builder.havings,
+		GroupBys:   &builder.groupBys,
+		Sbs:        &builder.sbs,
+		Svs:        &builder.svs,
+
+		Po:                    builder.po,
+		IsWithoutOptimization: builder.isWithoutOptimization,
+	}
+
+	if builder.pageBuilder != nil {
+		built.PageCondition = &builder.pageBuilder.condition
+	}
+
+	builder.OptimizeSourceBuilder()
+
+	return &built
 }

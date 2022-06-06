@@ -24,7 +24,7 @@ import (
 )
 
 func (built *Built) toSourceScriptByBuilder(sb *SourceBuilder, bp *strings.Builder, vsp *[]interface{}) {
-	if sb.join != nil {
+	if sb.join != nil {//JOIN
 		bp.WriteString(SPACE)
 		bp.WriteString(sb.join.join)
 		bp.WriteString(SPACE)
@@ -44,7 +44,7 @@ func (built *Built) toSourceScriptByBuilder(sb *SourceBuilder, bp *strings.Build
 		bp.WriteString(SPACE)
 		bp.WriteString(sb.alia)
 	}
-	if sb.join != nil {
+	if sb.join != nil && sb.join.on != nil{//ON
 		bp.WriteString(ON_SCRIPT)
 		if sb.alia != "" {
 			bp.WriteString(sb.alia)

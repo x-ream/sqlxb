@@ -61,3 +61,21 @@ func (builder *Builder) Paged() *PageBuilder {
 	builder.pageBuilder = pageBuilder
 	return pageBuilder
 }
+
+func (builder *Builder) Build() *Built {
+	if builder == nil {
+		panic("sqlxb.Builder is nil")
+	}
+	built := Built{
+		ResultKeys: nil,
+		ConditionX: builder.bbs,
+		Sorts:      &builder.sorts,
+
+		Po: builder.po,
+	}
+	if builder.pageBuilder != nil {
+		built.PageCondition = &builder.pageBuilder.condition
+	}
+
+	return &built
+}

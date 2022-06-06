@@ -18,26 +18,25 @@
  */
 package sqlxb
 
-const (
-	inner_join = "INNER JOIN"
-	left_join = "LEFT JOIN"
-	right_join = "RIGHT JOIN"
-)
-
-type JOIN func() string
-
-func NonJoin() string {
-	return ", "
-}
-
-func INNER_JOIN() string {
-	return inner_join
-}
-
-func LEFT_JOIN() string {
-	return left_join
-}
-
-func RIGHT_JOIN() string {
-	return right_join
+func (built *Built) filterLast() *Bb {
+	if built.PageCondition == nil {
+		return nil
+	}
+	if built.PageCondition.last > 0 && built.Sorts != nil && len(*built.Sorts) > 0 {
+		sort := (*built.Sorts)[0]
+		var gl string
+		if sort.direction == asc {
+			gl = GT
+		} else {
+			gl = LT
+		}
+		return &Bb{
+			op:    gl,
+			key:   sort.orderBy,
+			value: built.PageCondition.last,
+		}
+	} else {
+		built.PageCondition.last = 0
+	}
+	return nil
 }

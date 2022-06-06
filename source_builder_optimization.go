@@ -18,26 +18,9 @@
  */
 package sqlxb
 
-const (
-	inner_join = "INNER JOIN"
-	left_join = "LEFT JOIN"
-	right_join = "RIGHT JOIN"
-)
+func (builder *BuilderX) OptimizeSourceBuilder() {
+	if builder.isWithoutOptimization {
+		return
+	}
 
-type JOIN func() string
-
-func NonJoin() string {
-	return ", "
-}
-
-func INNER_JOIN() string {
-	return inner_join
-}
-
-func LEFT_JOIN() string {
-	return left_join
-}
-
-func RIGHT_JOIN() string {
-	return right_join
 }
