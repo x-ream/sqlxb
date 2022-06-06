@@ -21,7 +21,7 @@ package sqlxb
 type SourceBuilder struct {
 	po Po
 	alia string
-	join Join
+	join *Join
 	sub *BuilderX
 	bbs *[]*Bb
 }
@@ -55,7 +55,7 @@ func ON(key string, targetOrAlia string, targetKey string) *On {
 }
 
 func  (sb * SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
-	sb.join = Join{
+	sb.join = &Join{
 		join: join(),
 		on: on,
 	}
@@ -63,7 +63,7 @@ func  (sb * SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
 }
 
 func (sb * SourceBuilder) JoinUsing(join JOIN, key string) *SourceBuilder {
-	sb.join = Join{
+	sb.join = &Join{
 		join: join(),
 		on: &On{
 			key:key,
