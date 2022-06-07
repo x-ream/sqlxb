@@ -22,7 +22,6 @@ package sqlxb
 // Can add L2Cache
 //
 // @author Sim
-//
 type Builder struct {
 	ConditionBuilder
 	pageBuilder *PageBuilder

@@ -14,7 +14,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 package sqlxb
 
 // To build sql, like: SELECT DISTINCT f.id FROM foo f INNER JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
