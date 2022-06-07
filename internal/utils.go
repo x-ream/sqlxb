@@ -18,7 +18,7 @@ package internal
 
 type CanDelete func(ele interface{}) bool
 
-func DelEle(arr *[]interface{}, canDelete CanDelete) *[]interface{}{
+func DelEle(arr *[]interface{}, canDelete CanDelete) *[]interface{} {
 	j := 0
 	for _, ele := range *arr {
 		if !canDelete(ele) {
@@ -29,4 +29,3 @@ func DelEle(arr *[]interface{}, canDelete CanDelete) *[]interface{}{
 	a := (*arr)[:j]
 	return &a
 }
-
