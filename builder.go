@@ -27,8 +27,6 @@ type Builder struct {
 	pageBuilder *PageBuilder
 
 	sorts    []*Sort
-	//havings  []*Bb
-	//groupBys []string
 
 	po Po
 }
@@ -74,6 +72,5 @@ func (builder *Builder) Build() *Built {
 	if builder.pageBuilder != nil {
 		built.PageCondition = &builder.pageBuilder.condition
 	}
-
 	return &built
 }

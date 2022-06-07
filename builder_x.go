@@ -38,11 +38,15 @@ type BuilderX struct {
 func NewBuilderX(po Po, alia string) *BuilderX {
 	x := new(BuilderX)
 	x.bbs = &[]*Bb{}
-	var sb = SourceBuilder{
-		po:   po,
-		alia: alia,
+	if po != nil {
+		var sb = SourceBuilder{
+			po:   po,
+			alia: alia,
+		}
+		x.sbs = append(x.sbs, &sb)
+	}else if alia != ""{
+		panic("No po, alia: " + alia)
 	}
-	x.sbs = append(x.sbs, &sb)
 	return x
 }
 
@@ -53,22 +57,28 @@ func (x *BuilderX) SourceBuilder() *SourceBuilder {
 }
 
 func (x *BuilderX) ResultKey(resultKey string) *BuilderX {
-	x.resultKeys = append(x.resultKeys, resultKey)
-	return x
-}
-
-func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
-	for _, resultKey := range resultKeys {
+	if resultKey != "" {
 		x.resultKeys = append(x.resultKeys, resultKey)
 	}
 	return x
 }
 
-func (x *BuilderX) Source(po Po) *BuilderX {
-	sb := SourceBuilder{
-		po: po,
+func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
+	for _, resultKey := range resultKeys {
+		if resultKey != "" {
+			x.resultKeys = append(x.resultKeys, resultKey)
+		}
 	}
-	x.sbs = append(x.sbs, &sb)
+	return x
+}
+
+func (x *BuilderX) Source(po Po) *BuilderX {
+	if po != nil {
+		sb := SourceBuilder{
+			po: po,
+		}
+		x.sbs = append(x.sbs, &sb)
+	}
 	return x
 }
 
