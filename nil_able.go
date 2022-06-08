@@ -126,30 +126,85 @@ func N2s(p interface{}) string {
 	return ""
 }
 
-func IsNil(p interface{}) bool {
+func NilOrNumber(p interface{}) (bool, interface{}) {
 	switch p.(type) {
 	case *uint64:
-		return p.(*uint64) == nil
+		vp := p.(*uint64)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*uint64)
+		}
 	case *uint:
-		return p.(*uint) == nil
+		vp := p.(*uint)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*uint)
+		}
 	case *int64:
-		return p.(*int64) == nil
+		vp := p.(*int64)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*int64)
+		}
 	case *int:
-		return p.(*int) == nil
+		vp := p.(*int)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*int)
+		}
 	case *int32:
-		return p.(*int32) == nil
+		vp := p.(*int32)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*int32)
+		}
 	case *int16:
-		return p.(*int16) == nil
+		vp := p.(*int16)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*int16)
+		}
 	case *int8:
-		return p.(*int8) == nil
+		vp := p.(*int8)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*int8)
+		}
 	case *byte:
-		return p.(*byte) == nil
+		vp := p.(*byte)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*byte)
+		}
 	case *float64:
-		return p.(*float64) == nil
+		vp := p.(*float64)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*float64)
+		}
 	case *float32:
-		return p.(*float32) == nil
+		vp := p.(*float32)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*float32)
+		}
 	case *bool:
-		return p.(*bool) == nil
+		vp := p.(*bool)
+		if vp == nil {
+			return true, nil
+		}else {
+			return false, * p.(*bool)
+		}
 	}
-	return false
+	panic("NOT SUPPORT THE TYPE POINTER")
 }

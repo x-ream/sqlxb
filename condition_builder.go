@@ -96,6 +96,7 @@ func (builder *ConditionBuilder) doLike(p string, k string, v string) *Condition
 }
 
 func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *ConditionBuilder {
+
 	switch v.(type) {
 	case string:
 		if v.(string) == "" {
@@ -106,9 +107,17 @@ func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *Condi
 			return builder
 		}
 	case *uint64, *uint, *int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
-		if IsNil(v) {
+		isNil, n := NilOrNumber(v)
+		if isNil {
 			return builder
 		}
+		bb := Bb{
+			op:    p,
+			key:   k,
+			value: n,
+		}
+		*builder.bbs = append(*builder.bbs, &bb)
+		return builder
 	case []interface{}:
 		panic("Builder.doGLE(ke, []arr), [] ?")
 	default:
