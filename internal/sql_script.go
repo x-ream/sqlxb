@@ -36,4 +36,5 @@ const (
 	AND_SCRIPT      = " AND "
 	OR_SCRIPT       = " OR "
 	EQ_SCRIPT       = " = "
+	COUNT_BASE_SCRIPT	= "SELECT COUNT(*) "
 )

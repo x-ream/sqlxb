@@ -72,7 +72,7 @@ func (built *Built) toResultKeyScript(bp *strings.Builder) {
 }
 
 func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
-	bpCount.WriteString("SELECT COUNT(*) ")
+	bpCount.WriteString(COUNT_BASE_SCRIPT)
 }
 
 func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
