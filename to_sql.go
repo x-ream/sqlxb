@@ -150,6 +150,15 @@ func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder, vs *[]int
 		return
 	}
 
+	if filterLast != nil {
+		if bb := filterLast(); bb != nil {
+			built.toBb(bb, bp, vs)
+		}
+		if length > 0 {
+			bp.WriteString(AND_SCRIPT)
+		}
+	}
+
 	for i := 0; i < length; i++ {
 		bb := (*bbs)[i]
 		built.toBb(bb, bp, vs)
@@ -171,13 +180,6 @@ func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder, vs *[]int
 			} else {
 				bp.WriteString(AND_SCRIPT)
 			}
-		}
-	}
-
-	if filterLast != nil {
-		if bb := filterLast(); bb != nil {
-			bp.WriteString(AND_SCRIPT)
-			built.toBb(bb, bp, vs)
 		}
 	}
 
