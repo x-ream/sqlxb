@@ -64,7 +64,7 @@ func (builder *ConditionBuilder) doIn(p string, k string, arr *[]interface{}) *C
 			ss = append(ss, s)
 		case *uint64, *uint, *int, *int64, *int32, *int16, *int8, *byte, *float64, *float32:
 			s, isOK := Np2s(v)
-			if isOK == false {
+			if !isOK {
 				continue
 			}
 			ss = append(ss, s)
@@ -182,7 +182,7 @@ func (builder *ConditionBuilder) Bool(preCondition BoolFunc, then func(cb *Condi
 	if preCondition == nil {
 		panic("ConditionBuilder.Bool para of BoolFunc can not nil")
 	}
-	if preCondition() == false {
+	if !preCondition() {
 		return builder
 	}
 	if then == nil {
