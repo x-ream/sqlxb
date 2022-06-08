@@ -45,7 +45,7 @@ func NewBuilderX(po Po, alia string) *BuilderX {
 			alia: alia,
 		}
 		*x.sbs = append(*x.sbs, &sb)
-	}else if alia != ""{
+	} else if alia != "" {
 		panic("No po, alia: " + alia)
 	}
 	return x
@@ -108,6 +108,7 @@ func (builder *BuilderX) Build() *Built {
 	if builder == nil {
 		panic("sqlxb.Builder is nil")
 	}
+	builder.optimizeSourceBuilder()
 	built := Built{
 		ResultKeys: &builder.resultKeys,
 		ConditionX: builder.bbs,
@@ -117,15 +118,12 @@ func (builder *BuilderX) Build() *Built {
 		Sbs:        builder.sbs,
 		Svs:        &builder.svs,
 
-		Po:                    builder.po,
-		IsWithoutOptimization: builder.isWithoutOptimization,
+		Po: builder.po,
 	}
 
 	if builder.pageBuilder != nil {
 		built.PageCondition = &builder.pageBuilder.condition
 	}
-
-	builder.OptimizeSourceBuilder()
 
 	return &built
 }

@@ -26,7 +26,7 @@ type Builder struct {
 	ConditionBuilder
 	pageBuilder *PageBuilder
 
-	sorts    []*Sort
+	sorts []*Sort
 
 	po Po
 }

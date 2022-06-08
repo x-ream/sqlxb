@@ -22,17 +22,17 @@ import (
 )
 
 func (built *Built) toSourceScriptByBuilder(sb *SourceBuilder, bp *strings.Builder, vsp *[]interface{}) {
-	if sb.join != nil {//JOIN
+	if sb.join != nil { //JOIN
 		bp.WriteString(SPACE)
 		bp.WriteString(sb.join.join)
 		bp.WriteString(SPACE)
 	}
 	if sb.po != nil {
 		bp.WriteString(sb.po.TableName())
-	}else if sb.sub != nil {
-		vs,dataSql := sb.sub.Build().sqlData()
+	} else if sb.sub != nil {
+		vs, dataSql := sb.sub.Build().sqlData()
 		if vsp != nil {
-			for _,v := range *vs {
+			for _, v := range *vs {
 				*vsp = append(*vsp, v)
 			}
 		}
@@ -44,11 +44,11 @@ func (built *Built) toSourceScriptByBuilder(sb *SourceBuilder, bp *strings.Build
 		bp.WriteString(SPACE)
 		bp.WriteString(sb.alia)
 	}
-	if sb.join != nil && sb.join.on != nil{//ON
+	if sb.join != nil && sb.join.on != nil { //ON
 		bp.WriteString(ON_SCRIPT)
 		if sb.alia != "" {
 			bp.WriteString(sb.alia)
-		}else {
+		} else {
 			bp.WriteString(sb.po.TableName())
 		}
 		bp.WriteString(DOT)
@@ -59,4 +59,3 @@ func (built *Built) toSourceScriptByBuilder(sb *SourceBuilder, bp *strings.Build
 		bp.WriteString(sb.join.on.targetKey)
 	}
 }
-

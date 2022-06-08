@@ -18,7 +18,7 @@ package sqlxb
 
 const (
 	inner_join = "INNER JOIN"
-	left_join = "LEFT JOIN"
+	left_join  = "LEFT JOIN"
 	right_join = "RIGHT JOIN"
 )
 

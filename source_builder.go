@@ -17,31 +17,31 @@
 package sqlxb
 
 type SourceBuilder struct {
-	po Po
+	po   Po
 	alia string
 	join *Join
-	sub *BuilderX
-	bbs *[]*Bb
+	sub  *BuilderX
+	bbs  *[]*Bb
 }
 
-func (sb * SourceBuilder) Source(po Po) *SourceBuilder {
+func (sb *SourceBuilder) Source(po Po) *SourceBuilder {
 	sb.po = po
 	return sb
 }
 
-func (sb * SourceBuilder) Alia(alia string) *SourceBuilder {
+func (sb *SourceBuilder) Alia(alia string) *SourceBuilder {
 	sb.alia = alia
 	return sb
 }
 
 type Join struct {
 	join string
-	on *On
+	on   *On
 }
 type On struct {
-	key string
+	key        string
 	targetAlia string
-	targetKey string
+	targetKey  string
 }
 
 func ON(key string, targetOrAlia string, targetKey string) *On {
@@ -52,29 +52,29 @@ func ON(key string, targetOrAlia string, targetKey string) *On {
 	}
 }
 
-func  (sb * SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
+func (sb *SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
 	sb.join = &Join{
 		join: join(),
-		on: on,
+		on:   on,
 	}
 	return sb
 }
 
-func (sb * SourceBuilder) JoinUsing(join JOIN, key string) *SourceBuilder {
+func (sb *SourceBuilder) JoinUsing(join JOIN, key string) *SourceBuilder {
 	sb.join = &Join{
 		join: join(),
 		on: &On{
-			key:key,
+			key: key,
 		},
 	}
 	return sb
 }
 
-func (sb * SourceBuilder) More(cb *ConditionBuilder)  {
+func (sb *SourceBuilder) More(cb *ConditionBuilder) {
 	sb.bbs = cb.bbs
 }
 
-func  (sb * SourceBuilder) Sub(sub *BuilderX) *SourceBuilder {
+func (sb *SourceBuilder) Sub(sub *BuilderX) *SourceBuilder {
 	sb.sub = sub
 	return sb
 }

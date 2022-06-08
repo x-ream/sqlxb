@@ -17,57 +17,47 @@
 package sqlxb
 
 import (
-	"github.com/x-ream/sqlxb/internal"
 	"strings"
 )
-
 
 func (builder *BuilderX) WithoutOptimization() *BuilderX {
 	builder.isWithoutOptimization = true
 	return builder
 }
 
-func (builder *BuilderX) OptimizeSourceBuilder() {
+func (builder *BuilderX) optimizeSourceBuilder() {
 	if builder.isWithoutOptimization {
 		return
 	}
-
-	if len(builder.resultKeys) == 0 {
+	if len(builder.resultKeys) == 0 || len(*builder.sbs) < 2 {
 		return
 	}
 
-	conds := builder.conds()
+	builder.removeSourceBuilder(builder.sbs, func(useds *[]*SourceBuilder, ele *SourceBuilder) bool {
 
-	length := len(*builder.sbs)
-	newArr := []interface{}{}
-
-	for i := 1; i<length; i++ {
-		newArr = append(newArr,(*builder.sbs)[i])
-	}
-	sbs := internal.DelEle(&newArr, func(e interface{}) bool {
-		for _,v := range *conds {
-			sb := e.(*SourceBuilder)
-			if sb.sub == nil && strings.HasPrefix(v, sb.po.TableName()+".") {
+		for _, u := range *useds {
+			//if used, can not remove
+			if (ele.sub == nil && ele.alia == u.alia) || ele.po == u.po {
 				return false
 			}
-			if strings.HasPrefix(v, sb.alia+".") {
+		}
+
+		for _, v := range *builder.conds() {
+			if ele.sub == nil && strings.HasPrefix(v, ele.po.TableName()+".") {
+				return false
+			}
+			if strings.HasPrefix(v, ele.alia+".") {
 				return false
 			}
 		}
 		return true
 	})
-	if len(*sbs) < length -1 {
-		*builder.sbs = (*builder.sbs)[:1]
-		for _, v := range *sbs {
-			*builder.sbs = append(*builder.sbs,v.(*SourceBuilder))
-		}
-	}
 }
 
 func (builder *BuilderX) conds() *[]string {
 	condArr := []string{}
-	for _,v := range builder.resultKeys {
-		condArr = append(condArr,v)
+	for _, v := range builder.resultKeys {
+		condArr = append(condArr, v)
 	}
 
 	bbps := builder.ConditionBuilder.bbs
@@ -78,13 +68,10 @@ func (builder *BuilderX) conds() *[]string {
 		}
 	}
 
-	sbs := builder.sbs
-
-	if len(*sbs) > 0 {
-		for _, v := range *sbs {
-			sbbps := v.bbs
-			if sbbps != nil {
-				for _, v := range *sbbps {
+	if len(*builder.sbs) > 0 {
+		for _, v := range *builder.sbs {
+			if v.bbs != nil {
+				for _, v := range *v.bbs {
 					condArr = append(condArr, v.key)
 				}
 			}
@@ -92,3 +79,28 @@ func (builder *BuilderX) conds() *[]string {
 	}
 	return &condArr
 }
+
+func (builder *BuilderX) removeSourceBuilder(sbs *[]*SourceBuilder, canRemove canRemove) {
+	useds := []*SourceBuilder{}
+	j := 0
+	leng := len(*sbs)
+	for i := leng - 1; i > -1; i-- {
+		ele := (*sbs)[i]
+		if !canRemove(&useds, ele) {
+			useds = append(useds, ele)
+			j++
+		}
+	}
+
+	length := len(useds)
+	j = 0
+	if length < leng {
+		for i := length - 1; i > -1; i-- { //reverse
+			(*builder.sbs)[j] = useds[i]
+			j++
+		}
+		*builder.sbs = (*builder.sbs)[:j]
+	}
+}
+
+type canRemove func(useds *[]*SourceBuilder, ele *SourceBuilder) bool

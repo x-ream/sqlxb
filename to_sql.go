@@ -35,8 +35,6 @@ type Built struct {
 	PageCondition *PageCondition
 
 	Po Po
-
-	IsWithoutOptimization bool
 }
 
 func (builder *ConditionBuilder) Build() *Built {
@@ -147,9 +145,6 @@ func (built *Built) toBb(bb *Bb, bp *strings.Builder, vs *[]interface{}) {
 
 func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
 
-	if bbs == nil {
-		return
-	}
 	length := len(*bbs)
 	if length == 0 {
 		return
@@ -286,7 +281,7 @@ func (built *Built) countSqlFrom(sbCount *strings.Builder) {
 }
 
 func (built *Built) countSqlWhere(sbCount *strings.Builder) {
-	sbCount.WriteString(WHERE)
+	built.sqlWhere(sbCount)
 }
 
 func (built *Built) sqlFrom(bp *strings.Builder) {
@@ -294,6 +289,9 @@ func (built *Built) sqlFrom(bp *strings.Builder) {
 }
 
 func (built *Built) sqlWhere(bp *strings.Builder) {
+	if len(*built.ConditionX) == 0 {
+		return
+	}
 	bp.WriteString(WHERE)
 }
 
