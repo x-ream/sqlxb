@@ -38,11 +38,11 @@ func (builder *BuilderX) OptimizeSourceBuilder() {
 
 	conds := builder.conds()
 
-	length := len(builder.sbs)
+	length := len(*builder.sbs)
 	newArr := []interface{}{}
 
 	for i := 1; i<length; i++ {
-		newArr = append(newArr,builder.sbs[i])
+		newArr = append(newArr,(*builder.sbs)[i])
 	}
 	sbs := internal.DelEle(&newArr, func(e interface{}) bool {
 		for _,v := range *conds {
@@ -57,9 +57,9 @@ func (builder *BuilderX) OptimizeSourceBuilder() {
 		return true
 	})
 	if len(*sbs) < length -1 {
-		builder.sbs = builder.sbs[:1]
+		*builder.sbs = (*builder.sbs)[:1]
 		for _, v := range *sbs {
-			builder.sbs = append(builder.sbs,v.(*SourceBuilder))
+			*builder.sbs = append(*builder.sbs,v.(*SourceBuilder))
 		}
 	}
 }
@@ -80,8 +80,8 @@ func (builder *BuilderX) conds() *[]string {
 
 	sbs := builder.sbs
 
-	if len(sbs) > 0 {
-		for _, v := range sbs {
+	if len(*sbs) > 0 {
+		for _, v := range *sbs {
 			sbbps := v.bbs
 			if sbbps != nil {
 				for _, v := range *sbbps {

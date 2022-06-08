@@ -28,7 +28,7 @@ func Sub() *BuilderX {
 type BuilderX struct {
 	Builder
 	resultKeys            []string
-	sbs                   []*SourceBuilder
+	sbs                   *[]*SourceBuilder
 	svs                   []interface{}
 	havings               []*Bb
 	groupBys              []string
@@ -38,12 +38,13 @@ type BuilderX struct {
 func NewBuilderX(po Po, alia string) *BuilderX {
 	x := new(BuilderX)
 	x.bbs = &[]*Bb{}
+	x.sbs = &[]*SourceBuilder{}
 	if po != nil {
 		var sb = SourceBuilder{
 			po:   po,
 			alia: alia,
 		}
-		x.sbs = append(x.sbs, &sb)
+		*x.sbs = append(*x.sbs, &sb)
 	}else if alia != ""{
 		panic("No po, alia: " + alia)
 	}
@@ -52,7 +53,7 @@ func NewBuilderX(po Po, alia string) *BuilderX {
 
 func (x *BuilderX) SourceBuilder() *SourceBuilder {
 	var sb = SourceBuilder{}
-	x.sbs = append(x.sbs, &sb)
+	*x.sbs = append(*x.sbs, &sb)
 	return &sb
 }
 
@@ -77,7 +78,7 @@ func (x *BuilderX) Source(po Po) *BuilderX {
 		sb := SourceBuilder{
 			po: po,
 		}
-		x.sbs = append(x.sbs, &sb)
+		*x.sbs = append(*x.sbs, &sb)
 	}
 	return x
 }
@@ -113,7 +114,7 @@ func (builder *BuilderX) Build() *Built {
 		Sorts:      &builder.sorts,
 		Havings:    &builder.havings,
 		GroupBys:   &builder.groupBys,
-		Sbs:        &builder.sbs,
+		Sbs:        builder.sbs,
 		Svs:        &builder.svs,
 
 		Po:                    builder.po,
