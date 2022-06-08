@@ -1,6 +1,6 @@
 # sqlxb  
-[![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 ![workflow build](https://github.com/x-ream/sqlxb/actions/workflows/go.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 
 a tool of sql golang builder, build sql for sql.DB, sqlx, 
 or build condition sql for some orm framework
