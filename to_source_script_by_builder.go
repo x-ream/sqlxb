@@ -32,7 +32,9 @@ func (built *Built) toSourceScriptByBuilder(sb *SourceBuilder, bp *strings.Build
 	}else if sb.sub != nil {
 		vs,dataSql := sb.sub.Build().sqlData()
 		if vsp != nil {
-			*vsp = append(*vsp, vs)
+			for _,v := range *vs {
+				*vsp = append(*vsp, v)
+			}
 		}
 		bp.WriteString(BEGIN_SUB)
 		bp.WriteString(*dataSql)
