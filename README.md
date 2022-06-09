@@ -88,11 +88,12 @@ func main() {
 	vs, dataSql, countSql := builder.Build().Sql()
     // ....
 
-    //dataSql: SELECT * FROM t_cat WHERE name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?) AND id > ? 
+    //dataSql: SELECT * FROM t_cat WHERE id > ? AND name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
     //ORDER BY id ASC LIMIT 10
 
     //countSql: SELECT COUNT(*) FROM t_cat WHERE name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
     
+    //sqlx: 	rows, _ := Db.Query(*dataSql,(*vs)...)
 	_, conditionSql := builder.Build().SqlOfCondition()
     
     //conditionSql: name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
