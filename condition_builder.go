@@ -38,15 +38,18 @@ func (builder *ConditionBuilder) X(k string, vs ...interface{}) *ConditionBuilde
 	return builder
 }
 
-func (builder *ConditionBuilder) doIn(p string, k string, arr *[]interface{}) *ConditionBuilder {
-	if arr == nil || len(*arr) == 0 {
+func (builder *ConditionBuilder) doIn(p string, k string, vs... interface{}) *ConditionBuilder {
+	if vs == nil || len(vs) == 0 {
+		return builder
+	}
+	if len(vs) == 1 && (vs[0] == nil || vs[0] == "") {
 		return builder
 	}
 
 	ss := []string{}
-	length := len(*arr)
+	length := len(vs)
 	for i := 0; i < length; i++ {
-		v := (*arr)[i]
+		v := vs[i]
 		if v == nil {
 			continue
 		}
@@ -237,11 +240,11 @@ func (builder *ConditionBuilder) LikeRight(k string, v string) *ConditionBuilder
 	}
 	return builder.doLike(LIKE, k, v+"%")
 }
-func (builder *ConditionBuilder) In(k string, arr *[]interface{}) *ConditionBuilder {
-	return builder.doIn(IN, k, arr)
+func (builder *ConditionBuilder) In(k string, vs... interface{}) *ConditionBuilder {
+	return builder.doIn(IN, k, vs... )
 }
-func (builder *ConditionBuilder) Nin(k string, arr *[]interface{}) *ConditionBuilder {
-	return builder.doIn(NIN, k, arr)
+func (builder *ConditionBuilder) Nin(k string, vs... interface{}) *ConditionBuilder {
+	return builder.doIn(NIN, k, vs... )
 }
 func (builder *ConditionBuilder) IsNull(key string) *ConditionBuilder {
 	return builder.null(IS_NULL, key)
