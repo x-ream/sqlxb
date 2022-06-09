@@ -18,6 +18,7 @@ package internal
 
 const (
 	SPACE             = " "
+	AS                = " AS "
 	LIMIT             = " LIMIT "
 	OFFSET            = " OFFSET "
 	ORDER_BY          = " ORDER BY "

@@ -47,7 +47,7 @@ func (builder *ConditionBuilder) Build() *Built {
 	return &built
 }
 
-func (built *Built) toResultKeyScript(bp *strings.Builder) {
+func (built *Built) toResultKeyScript(bp *strings.Builder, km *map[string]string) {
 	bp.WriteString(SELECT)
 	if built.ResultKeys == nil {
 		bp.WriteString(STAR)
@@ -58,6 +58,18 @@ func (built *Built) toResultKeyScript(bp *strings.Builder) {
 		} else {
 			for i := 0; i < length; i++ {
 				kp := (*built.ResultKeys)[i]
+				if km != nil {
+					k := strings.Trim(kp, SPACE)
+					if strings.Contains(k, AS) {
+						adapterResultKeyAlia(km,k,AS)
+					}else if strings.Contains(k, SPACE) {
+						adapterResultKeyAlia(km,k,SPACE)
+					}else {
+						var alia = "c" + strconv.Itoa(len(*km))
+						(*km)[alia] = k
+						kp = kp + AS + alia
+					}
+				}
 				bp.WriteString(kp)
 				if i < length-1 {
 					bp.WriteString(COMMA)
@@ -67,6 +79,15 @@ func (built *Built) toResultKeyScript(bp *strings.Builder) {
 			}
 		}
 	}
+}
+
+func adapterResultKeyAlia(km *map[string]string, k string, reg string)  {
+	arr := strings.Split(k, reg)
+	alia := arr[1]
+	if strings.Contains(alia,"`") {
+		alia = strings.Replace(alia,"`","",2)
+	}
+	(*km)[alia] = alia
 }
 
 func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
@@ -297,18 +318,18 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 	bp.WriteString(WHERE)
 }
 
-func (built *Built) Sql() (*[]interface{}, *string, *string) {
-
-	vs, dataSql := built.sqlData()
+func (built *Built) Sql() (*[]interface{}, *string, *string, *map[string]string) {
+	km := make(map[string]string)
+	vs, dataSql,kmp := built.sqlData(&km)
 	countSql := built.sqlCount()
 
-	return vs, dataSql, countSql
+	return vs, dataSql, countSql, kmp
 }
 
-func (built *Built) sqlData() (*[]interface{}, *string) {
+func (built *Built) sqlData(km *map[string]string) (*[]interface{}, *string, *map[string]string) {
 	vs := []interface{}{}
 	sb := strings.Builder{}
-	built.toResultKeyScript(&sb)
+	built.toResultKeyScript(&sb,km)
 	built.sqlFrom(&sb)
 	built.toSourceScript(&sb, &vs)
 	built.sqlWhere(&sb)
@@ -318,7 +339,7 @@ func (built *Built) sqlData() (*[]interface{}, *string) {
 	built.toSortSql(built.Sorts, &sb)
 	built.toPageSql(built.PageCondition, &sb)
 	dataSql := sb.String()
-	return &vs, &dataSql
+	return &vs, &dataSql, km
 }
 
 func (built *Built) sqlCount() *string {
