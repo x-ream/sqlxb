@@ -43,10 +43,10 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 		}
 
 		for _, v := range *builder.conds() {
-			if ele.sub == nil && strings.HasPrefix(v, ele.po.TableName()+".") {
+			if ele.sub == nil && strings.HasPrefix(v, ele.po.TableName()+".") { //has return or condition
 				return false
 			}
-			if strings.HasPrefix(v, ele.alia+".") {
+			if strings.HasPrefix(v, ele.alia+".") {////has return or condition
 				return false
 			}
 		}
@@ -69,10 +69,10 @@ func (builder *BuilderX) conds() *[]string {
 	}
 
 	if len(*builder.sbs) > 0 {
-		for _, v := range *builder.sbs {
-			if v.bbs != nil {
-				for _, v := range *v.bbs {
-					condArr = append(condArr, v.key)
+		for _, sb := range *builder.sbs {
+			if sb.bbs != nil {
+				for _, bb := range *sb.bbs {
+					condArr = append(condArr, bb.key)
 				}
 			}
 		}
