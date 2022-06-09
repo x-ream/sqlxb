@@ -153,9 +153,9 @@ func (built *Built) toConditionScript(bbs *[]*Bb, bp *strings.Builder, vs *[]int
 	if filterLast != nil {
 		if bb := filterLast(); bb != nil {
 			built.toBb(bb, bp, vs)
-		}
-		if length > 0 {
-			bp.WriteString(AND_SCRIPT)
+			if length > 0 {
+				bp.WriteString(AND_SCRIPT)
+			}
 		}
 	}
 
