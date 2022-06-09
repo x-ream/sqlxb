@@ -93,7 +93,7 @@ func main() {
 
     //countSql: SELECT COUNT(*) FROM t_cat WHERE name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
     
-    //sqlx: 	rows, _ := Db.Query(*dataSql,(*vs)...)
+    //sqlx: 	err = Db.Select(&catList, *dataSql,(*vs1)...)
 	_, conditionSql := builder.Build().SqlOfCondition()
     
     //conditionSql: name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
