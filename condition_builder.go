@@ -16,6 +16,8 @@
 // limitations under the License.
 package sqlxb
 
+import "time"
+
 type ConditionBuilder struct {
 	bbs *[]*Bb
 }
@@ -114,13 +116,10 @@ func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *Condi
 		if isNil {
 			return builder
 		}
-		bb := Bb{
-			op:    p,
-			key:   k,
-			value: n,
-		}
-		*builder.bbs = append(*builder.bbs, &bb)
-		return builder
+		return builder.addBb(p,k,n)
+	case time.Time:
+		ts := v.(time.Time).Format("2006-01-02 15:04:05")
+		return builder.addBb(p,k,ts)
 	case []interface{}:
 		panic("Builder.doGLE(ke, []arr), [] ?")
 	default:
@@ -128,10 +127,13 @@ func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *Condi
 			return builder
 		}
 	}
+	return builder.addBb(p,k,v)
+}
 
+func (builder *ConditionBuilder) addBb(op string, key string, v interface{}) *ConditionBuilder {
 	bb := Bb{
-		op:    p,
-		key:   k,
+		op:    op,
+		key:   key,
 		value: v,
 	}
 	*builder.bbs = append(*builder.bbs, &bb)
