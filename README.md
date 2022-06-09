@@ -85,7 +85,7 @@ func main() {
 	})
 	builder.Sort("id", ASC)
 	builder.Paged().Rows(10).Last(100)
-	vs, dataSql, countSql := builder.Build().Sql()
+	vs, dataSql, countSql, _ := builder.Build().Sql()
     // ....
 
     //dataSql: SELECT * FROM t_cat WHERE id > ? AND name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
