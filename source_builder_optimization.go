@@ -35,13 +35,15 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 
 	builder.removeSourceBuilder(builder.sbs, func(useds *[]*SourceBuilder, ele *SourceBuilder) bool {
 
+		if ele.join != nil && !strings.Contains(ele.join.join,"LEFT") {
+			return false
+		}
 		for _, u := range *useds {
 			//if used, can not remove
 			if (ele.sub == nil && ele.alia == u.alia) || ele.po == u.po {
 				return false
 			}
 		}
-
 		for _, v := range *builder.conds() {
 			if ele.sub == nil && strings.HasPrefix(v, ele.po.TableName()+".") { //has return or condition
 				return false
