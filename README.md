@@ -7,7 +7,7 @@ or build condition sql for some orm framework
 
 ## API
     Builder: build sql like: SELECT * FROM t_foo WHERE name Like "%xx%" ORDER BY ID DESC
-    BuilderX: build sql like: SELECT DISTINCT(f.id) FROM t_foo f INNER JOIN t_bar b ON ....
+    BuilderX: build sql like: SELECT DISTINCT(f.id) AS `f.id` FROM t_foo f INNER JOIN t_bar b ON ....
     
     builder.Gte("id", 10000)
     builder.And(SubCondition().Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
