@@ -9,8 +9,15 @@ or build condition sql for some orm framework
     Builder: build sql like: SELECT * FROM t_foo WHERE name Like "%xx%" ORDER BY ID DESC
     BuilderX: build sql like: SELECT DISTINCT(f.id) AS `f.id` FROM t_foo f INNER JOIN t_bar b ON ....
     
+    c := Cat{}
+	builder := NewBuilder(&c)
     builder.Gte("id", 10000)
     builder.And(SubCondition().Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
+    ....
+    
+    builderX := NewBuilderX(nil,"") //or, NewBuilderX(&cat,"c")
+    builderX.ResultKeys( "c.color","p.id","COUNT(DISTINCT c.id) AS `c.id_count`")
+    ....
 
 ## Builder DEMO
 
