@@ -39,7 +39,7 @@ func NewBuilder(poOrNil Po) *Builder {
 
 func newBuilder() *Builder {
 	b := new(Builder)
-	b.bbs = &[]*Bb{}
+	b.bbs = []*Bb{}
 	return b
 }
 
@@ -65,7 +65,7 @@ func (builder *Builder) Build() *Built {
 	built := Built{
 		ResultKeys: nil,
 		ConditionX: builder.bbs,
-		Sorts:      &builder.sorts,
+		Sorts:      builder.sorts,
 
 		Po: builder.po,
 	}

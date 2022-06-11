@@ -19,14 +19,14 @@ package sqlxb
 import "time"
 
 type ConditionBuilder struct {
-	bbs *[]*Bb
+	bbs []*Bb
 }
 
 type BoolFunc func() bool
 
 func SubCondition() *ConditionBuilder {
 	c := new(ConditionBuilder)
-	c.bbs = &[]*Bb{}
+	c.bbs = []*Bb{}
 	return c
 }
 
@@ -36,7 +36,7 @@ func (builder *ConditionBuilder) X(k string, vs ...interface{}) *ConditionBuilde
 		key:   k,
 		value: vs,
 	}
-	*builder.bbs = append(*builder.bbs, &bb)
+	builder.bbs = append(builder.bbs, &bb)
 	return builder
 }
 
@@ -83,7 +83,7 @@ func (builder *ConditionBuilder) doIn(p string, k string, vs... interface{}) *Co
 		key:   k,
 		value: &ss,
 	}
-	*builder.bbs = append(*builder.bbs, &bb)
+	builder.bbs = append(builder.bbs, &bb)
 
 	return builder
 }
@@ -95,7 +95,7 @@ func (builder *ConditionBuilder) doLike(p string, k string, v string) *Condition
 		key:   k,
 		value: v,
 	}
-	*builder.bbs = append(*builder.bbs, &bb)
+	builder.bbs = append(builder.bbs, &bb)
 
 	return builder
 }
@@ -136,7 +136,7 @@ func (builder *ConditionBuilder) addBb(op string, key string, v interface{}) *Co
 		key:   key,
 		value: v,
 	}
-	*builder.bbs = append(*builder.bbs, &bb)
+	builder.bbs = append(builder.bbs, &bb)
 
 	return builder
 }
@@ -146,12 +146,12 @@ func (builder *ConditionBuilder) null(op string, k string) *ConditionBuilder {
 		op:  op,
 		key: k,
 	}
-	*builder.bbs = append(*builder.bbs, &bb)
+	builder.bbs = append(builder.bbs, &bb)
 	return builder
 }
 
 func (builder *ConditionBuilder) orAndSub(orAnd string, sub *ConditionBuilder) *ConditionBuilder {
-	if sub.bbs == nil || len(*sub.bbs) == 0 {
+	if sub.bbs == nil || len(sub.bbs) == 0 {
 		return builder
 	}
 
@@ -160,23 +160,23 @@ func (builder *ConditionBuilder) orAndSub(orAnd string, sub *ConditionBuilder) *
 		key:  orAnd,
 		subs: sub.bbs,
 	}
-	*builder.bbs = append(*builder.bbs, &bb)
+	builder.bbs = append(builder.bbs, &bb)
 	return builder
 }
 
 func (builder *ConditionBuilder) orAnd(orAnd string) *ConditionBuilder {
-	length := len(*builder.bbs)
+	length := len(builder.bbs)
 	if length == 0 {
 		return builder
 	}
-	pre := *(*builder.bbs)[length-1]
+	pre := *(builder.bbs)[length-1]
 	if pre.op == OR {
 		return builder
 	}
 	bb := Bb{
 		op: orAnd,
 	}
-	*builder.bbs = append(*builder.bbs, &bb)
+	builder.bbs = append(builder.bbs, &bb)
 	return builder
 }
 

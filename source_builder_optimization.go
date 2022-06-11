@@ -29,7 +29,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 	if builder.isWithoutOptimization {
 		return
 	}
-	if len(builder.resultKeys) == 0 || len(*builder.sbs) < 2 {
+	if len(builder.resultKeys) == 0 || len(builder.sbs) < 2 {
 		return
 	}
 
@@ -65,15 +65,15 @@ func (builder *BuilderX) conds() *[]string {
 	bbps := builder.ConditionBuilder.bbs
 
 	if bbps != nil {
-		for _, v := range *bbps {
+		for _, v := range bbps {
 			condArr = append(condArr, v.key)
 		}
 	}
 
-	if len(*builder.sbs) > 0 {
-		for _, sb := range *builder.sbs {
+	if len(builder.sbs) > 0 {
+		for _, sb := range builder.sbs {
 			if sb.bbs != nil {
-				for _, bb := range *sb.bbs {
+				for _, bb := range sb.bbs {
 					condArr = append(condArr, bb.key)
 				}
 			}
@@ -82,12 +82,12 @@ func (builder *BuilderX) conds() *[]string {
 	return &condArr
 }
 
-func (builder *BuilderX) removeSourceBuilder(sbs *[]*SourceBuilder, canRemove canRemove) {
+func (builder *BuilderX) removeSourceBuilder(sbs []*SourceBuilder, canRemove canRemove) {
 	useds := []*SourceBuilder{}
 	j := 0
-	leng := len(*sbs)
+	leng := len(sbs)
 	for i := leng - 1; i > -1; i-- {
-		ele := (*sbs)[i]
+		ele := (sbs)[i]
 		if !canRemove(&useds, ele) {
 			useds = append(useds, ele)
 			j++
@@ -98,10 +98,10 @@ func (builder *BuilderX) removeSourceBuilder(sbs *[]*SourceBuilder, canRemove ca
 	j = 0
 	if length < leng {
 		for i := length - 1; i > -1; i-- { //reverse
-			(*builder.sbs)[j] = useds[i]
+			(builder.sbs)[j] = useds[i]
 			j++
 		}
-		*builder.sbs = (*builder.sbs)[:j]
+		builder.sbs = (builder.sbs)[:j]
 	}
 }
 

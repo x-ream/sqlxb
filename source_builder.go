@@ -21,7 +21,7 @@ type SourceBuilder struct {
 	alia string
 	join *Join
 	sub  *BuilderX
-	bbs  *[]*Bb
+	bbs  []*Bb
 }
 
 func (sb *SourceBuilder) Source(po Po) *SourceBuilder {

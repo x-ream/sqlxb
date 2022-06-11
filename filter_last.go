@@ -20,8 +20,8 @@ func (built *Built) filterLast() *Bb {
 	if built.PageCondition == nil {
 		return nil
 	}
-	if built.PageCondition.last > 0 && built.Sorts != nil && len(*built.Sorts) > 0 {
-		sort := (*built.Sorts)[0]
+	if built.PageCondition.last > 0 && built.Sorts != nil && len(built.Sorts) > 0 {
+		sort := built.Sorts[0]
 		var gl string
 		if sort.direction == asc {
 			gl = GT
