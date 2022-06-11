@@ -47,7 +47,7 @@ func (builder *ConditionBuilder) Build() *Built {
 	return &built
 }
 
-func (built *Built) toResultKeyScript(bp *strings.Builder, km *map[string]string) {
+func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string) {
 	bp.WriteString(SELECT)
 	if built.ResultKeys == nil {
 		bp.WriteString(STAR)
@@ -65,8 +65,8 @@ func (built *Built) toResultKeyScript(bp *strings.Builder, km *map[string]string
 					}else if strings.Contains(k, SPACE) {
 						adapterResultKeyAlia(km,k,SPACE)
 					}else {
-						var alia = "c" + strconv.Itoa(len(*km))
-						(*km)[alia] = k
+						var alia = "c" + strconv.Itoa(len(km))
+						km[alia] = k
 						kp = kp + AS + alia
 					}
 				}
@@ -81,13 +81,13 @@ func (built *Built) toResultKeyScript(bp *strings.Builder, km *map[string]string
 	}
 }
 
-func adapterResultKeyAlia(km *map[string]string, k string, reg string)  {
+func adapterResultKeyAlia(km map[string]string, k string, reg string)  {
 	arr := strings.Split(k, reg)
 	alia := arr[1]
 	if strings.Contains(alia,"`") {
 		alia = strings.Replace(alia,"`","",2)
 	}
-	(*km)[alia] = alia
+	km[alia] = alia
 }
 
 func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
@@ -95,7 +95,7 @@ func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
 }
 
 func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
-	built.toSourceScript(bpCount, nil)
+	built.toSourceScript(bpCount)
 }
 
 func (built *Built) toConditionScriptOfCount(bbs *[]*Bb, bpCount *strings.Builder) {
@@ -106,10 +106,10 @@ func (built *Built) toGroupBySqlOfCount(bys *[]string, bpCount *strings.Builder)
 	built.toGroupBySql(bys, bpCount)
 }
 
-func (built *Built) toSourceScript(bp *strings.Builder, vsp *[]interface{}) {
+func (built *Built) toSourceScript(bp *strings.Builder) {
 	if built.Po == nil {
 		for _, sb := range *built.Sbs {
-			built.toSourceScriptByBuilder(sb, bp, vsp)
+			built.toSourceScriptByBuilder(sb, bp)
 		}
 	} else {
 		bp.WriteString(built.Po.TableName())
@@ -283,20 +283,20 @@ func (built *Built) countBuilder() *strings.Builder {
 	return sbCount
 }
 
-func (built *Built) SqlOfCondition() (*[]interface{}, *string) {
+func (built *Built) SqlOfCondition() ([]interface{}, string) {
 	vs := []interface{}{}
 	sb := strings.Builder{}
 	built.toConditionScript(built.ConditionX, &sb, &vs, nil)
 	conditionSql := sb.String()
-	return &vs, &conditionSql
+	return vs, conditionSql
 }
 
-func (built *Built) toSqlCount(sbCount *strings.Builder) *string {
+func (built *Built) toSqlCount(sbCount *strings.Builder) string {
 	if sbCount == nil {
-		return nil
+		return ""
 	}
 	countSql := sbCount.String()
-	return &countSql
+	return countSql
 }
 
 func (built *Built) countSqlFrom(sbCount *strings.Builder) {
@@ -318,20 +318,20 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 	bp.WriteString(WHERE)
 }
 
-func (built *Built) Sql() (*[]interface{}, *string, *string, *map[string]string) {
-	km := make(map[string]string)
-	vs, dataSql,kmp := built.sqlData(&km)
+func (built *Built) Sql() ([]interface{}, string, string, map[string]string) {
+	km := make(map[string]string) //nil for sub source builder,
+	vs, dataSql,kmp := built.sqlData(km)
 	countSql := built.sqlCount()
 
 	return vs, dataSql, countSql, kmp
 }
 
-func (built *Built) sqlData(km *map[string]string) (*[]interface{}, *string, *map[string]string) {
+func (built *Built) sqlData(km map[string]string) ([]interface{}, string, map[string]string) {
 	vs := []interface{}{}
 	sb := strings.Builder{}
 	built.toResultKeyScript(&sb,km)
 	built.sqlFrom(&sb)
-	built.toSourceScript(&sb, &vs)
+	built.toSourceScript(&sb)
 	built.sqlWhere(&sb)
 	built.toConditionScript(built.ConditionX, &sb, &vs, built.filterLast)
 	built.toGroupBySql(built.GroupBys, &sb)
@@ -339,13 +339,13 @@ func (built *Built) sqlData(km *map[string]string) (*[]interface{}, *string, *ma
 	built.toSortSql(built.Sorts, &sb)
 	built.toPageSql(built.PageCondition, &sb)
 	dataSql := sb.String()
-	return &vs, &dataSql, km
+	return vs, dataSql, km
 }
 
-func (built *Built) sqlCount() *string {
+func (built *Built) sqlCount() string {
 	var sbCount = built.countBuilder()
 	if sbCount == nil {
-		return nil
+		return ""
 	}
 	built.toResultKeyScriptOfCount(sbCount)
 	built.countSqlFrom(sbCount)
