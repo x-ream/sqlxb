@@ -24,9 +24,9 @@ import (
 
 type Built struct {
 	ResultKeys []string
-	ConditionX []*Bb
+	ConditionX []Bb
 	Sorts      []*Sort
-	Havings    []*Bb
+	Havings    []Bb
 	GroupBys   []string
 
 	Sbs []*SourceBuilder
@@ -98,7 +98,7 @@ func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
 	built.toSourceScript(bpCount)
 }
 
-func (built *Built) toConditionScriptOfCount(bbs []*Bb, bpCount *strings.Builder) {
+func (built *Built) toConditionScriptOfCount(bbs []Bb, bpCount *strings.Builder) {
 	built.toConditionScript(bbs, bpCount, nil, nil)
 }
 
@@ -116,7 +116,7 @@ func (built *Built) toSourceScript(bp *strings.Builder) {
 	}
 }
 
-func (built *Built) toBb(bb *Bb, bp *strings.Builder, vs *[]interface{}) {
+func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 	op := bb.op
 	switch op {
 	case X:
@@ -164,7 +164,7 @@ func (built *Built) toBb(bb *Bb, bp *strings.Builder, vs *[]interface{}) {
 	}
 }
 
-func (built *Built) toConditionScript(bbs []*Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
+func (built *Built) toConditionScript(bbs []Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
 
 	length := len(bbs)
 	if length == 0 {
@@ -173,7 +173,7 @@ func (built *Built) toConditionScript(bbs []*Bb, bp *strings.Builder, vs *[]inte
 
 	if filterLast != nil {
 		if bb := filterLast(); bb != nil {
-			built.toBb(bb, bp, vs)
+			built.toBb(*bb, bp, vs)
 			if length > 0 {
 				bp.WriteString(AND_SCRIPT)
 			}
@@ -223,7 +223,7 @@ func (built *Built) toGroupBySql(bys []string, bp *strings.Builder) {
 	}
 }
 
-func (built *Built) toHavingSql(bys []*Bb, bp *strings.Builder) {
+func (built *Built) toHavingSql(bys []Bb, bp *strings.Builder) {
 	if bys == nil || len(bys) == 0 {
 		return
 	}
@@ -266,11 +266,11 @@ func (built *Built) toPageSql(condition *PageCondition, bp *strings.Builder) {
 	}
 }
 
-func (built *Built) isOr(bb *Bb) bool {
+func (built *Built) isOr(bb Bb) bool {
 	return bb.op == OR
 }
 
-func (built *Built) isOR(bb *Bb) bool {
+func (built *Built) isOR(bb Bb) bool {
 	return bb.op == OR && bb.key == ""
 }
 

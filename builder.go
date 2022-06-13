@@ -39,7 +39,7 @@ func NewBuilder(poOrNil Po) *Builder {
 
 func newBuilder() *Builder {
 	b := new(Builder)
-	b.bbs = []*Bb{}
+	b.bbs = []Bb{}
 	return b
 }
 

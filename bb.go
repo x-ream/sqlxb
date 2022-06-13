@@ -20,5 +20,5 @@ type Bb struct {
 	op    string
 	key   string
 	value interface{}
-	subs  []*Bb
+	subs  []Bb
 }

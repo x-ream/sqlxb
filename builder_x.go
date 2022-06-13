@@ -30,14 +30,14 @@ type BuilderX struct {
 	resultKeys            []string
 	sbs                   []*SourceBuilder
 	svs                   []interface{}
-	havings               []*Bb
+	havings               []Bb
 	groupBys              []string
 	isWithoutOptimization bool
 }
 
 func NewBuilderX(po Po, alia string) *BuilderX {
 	x := new(BuilderX)
-	x.bbs = []*Bb{}
+	x.bbs = []Bb{}
 	x.sbs = []*SourceBuilder{}
 	if po != nil {
 		var sb = SourceBuilder{
@@ -92,7 +92,7 @@ func (x *BuilderX) Having(op Op, k string, v interface{}) *BuilderX {
 		key:   k,
 		value: v,
 	}
-	x.havings = append(x.havings, &bb)
+	x.havings = append(x.havings, bb)
 	return x
 }
 
