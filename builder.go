@@ -26,7 +26,7 @@ type Builder struct {
 	ConditionBuilder
 	pageBuilder *PageBuilder
 
-	sorts []*Sort
+	sorts []Sort
 
 	po Po
 }
@@ -48,7 +48,7 @@ func (builder *Builder) Sort(orderBy string, direction Direction) *Builder {
 		return builder
 	}
 	sort := Sort{orderBy: orderBy, direction: direction()}
-	builder.sorts = append(builder.sorts, &sort)
+	builder.sorts = append(builder.sorts, sort)
 	return builder
 }
 

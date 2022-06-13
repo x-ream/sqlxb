@@ -25,7 +25,7 @@ import (
 type Built struct {
 	ResultKeys []string
 	ConditionX []Bb
-	Sorts      []*Sort
+	Sorts      []Sort
 	Havings    []Bb
 	GroupBys   []string
 
@@ -231,7 +231,7 @@ func (built *Built) toHavingSql(bys []Bb, bp *strings.Builder) {
 	built.toConditionScript(bys, bp, nil, nil)
 }
 
-func (built *Built) toSortSql(bbs []*Sort, bp *strings.Builder) {
+func (built *Built) toSortSql(bbs []Sort, bp *strings.Builder) {
 	if bbs == nil {
 		return
 	}
