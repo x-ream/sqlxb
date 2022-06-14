@@ -47,60 +47,6 @@ func (builder *ConditionBuilder) Build() *Built {
 	return &built
 }
 
-func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string) {
-	bp.WriteString(SELECT)
-	if built.ResultKeys == nil {
-		bp.WriteString(STAR)
-	} else {
-		length := len(built.ResultKeys)
-		if length == 0 {
-			bp.WriteString(STAR)
-		} else {
-			for i := 0; i < length; i++ {
-				kp := (built.ResultKeys)[i]
-				if km != nil {
-					k := strings.Trim(kp, SPACE)
-					if strings.Contains(k, AS) {
-						adapterResultKeyAlia(km,k,AS)
-					}else if strings.Contains(k, SPACE) {
-						adapterResultKeyAlia(km,k,SPACE)
-					}else {
-						var alia = "c" + strconv.Itoa(len(km))
-						km[alia] = k
-						kp = kp + AS + alia
-					}
-				}
-				bp.WriteString(kp)
-				if i < length-1 {
-					bp.WriteString(COMMA)
-				} else {
-					bp.WriteString(SPACE)
-				}
-			}
-		}
-	}
-}
-
-func adapterResultKeyAlia(km map[string]string, k string, reg string)  {
-	arr := strings.Split(k, reg)
-	alia := arr[1]
-	if strings.Contains(alia,"`") {
-		alia = strings.Replace(alia,"`","",2)
-	}
-	km[alia] = alia
-}
-
-func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
-	if built.ResultKeys != nil && len(built.ResultKeys) > 0{
-		bpCount.WriteString(COUNT_KEY_SCRIPT_LEFT)
-		bpCount.WriteString(built.ResultKeys[0])
-		bpCount.WriteString(END_SUB)
-		bpCount.WriteString(SPACE)
-	}else {
-		bpCount.WriteString(COUNT_BASE_SCRIPT)
-	}
-}
-
 func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
 	built.toSourceScript(bpCount)
 }
