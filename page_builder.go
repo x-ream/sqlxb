@@ -50,7 +50,7 @@ func (pb *PageBuilder) Last(last uint64) *PageBuilder {
 	return pb
 }
 
-func (pb *PageBuilder) IgnoreTotalRows(ignored bool) *PageBuilder {
-	pb.condition.isTotalRowsIgnored = ignored
+func (pb *PageBuilder) IgnoreTotalRows() *PageBuilder {
+	pb.condition.isTotalRowsIgnored = true
 	return pb
 }
