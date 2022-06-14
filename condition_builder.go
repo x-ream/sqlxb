@@ -75,6 +75,8 @@ func (builder *ConditionBuilder) doIn(p string, k string, vs... interface{}) *Co
 			ss = append(ss, s)
 		case []interface{}:
 			panic("Builder.doIn(ke, ([]arr)), ([]arr) ?")
+		default:
+			panic("Builder.doIn(ke, (*[]arr)), (*[]arr) ?")
 		}
 	}
 
