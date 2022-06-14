@@ -91,7 +91,14 @@ func adapterResultKeyAlia(km map[string]string, k string, reg string)  {
 }
 
 func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
-	bpCount.WriteString(COUNT_BASE_SCRIPT)
+	if built.ResultKeys != nil && len(built.ResultKeys) > 0{
+		bpCount.WriteString(COUNT_KEY_SCRIPT_LEFT)
+		bpCount.WriteString(built.ResultKeys[0])
+		bpCount.WriteString(END_SUB)
+		bpCount.WriteString(SPACE)
+	}else {
+		bpCount.WriteString(COUNT_BASE_SCRIPT)
+	}
 }
 
 func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {

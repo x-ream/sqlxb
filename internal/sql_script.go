@@ -38,4 +38,5 @@ const (
 	OR_SCRIPT         = " OR "
 	EQ_SCRIPT         = " = "
 	COUNT_BASE_SCRIPT = "SELECT COUNT(*) "
+	COUNT_KEY_SCRIPT_LEFT = "SELECT COUNT("
 )
