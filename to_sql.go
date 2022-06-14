@@ -174,9 +174,6 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 func (built *Built) toConditionScript(bbs []Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
 
 	length := len(bbs)
-	if length == 0 {
-		return
-	}
 
 	if filterLast != nil {
 		if bb := filterLast(); bb != nil {
@@ -185,6 +182,10 @@ func (built *Built) toConditionScript(bbs []Bb, bp *strings.Builder, vs *[]inter
 				bp.WriteString(AND_SCRIPT)
 			}
 		}
+	}
+
+	if length == 0 {
+		return
 	}
 
 	for i := 0; i < length; i++ {
