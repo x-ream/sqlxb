@@ -43,8 +43,14 @@ type On struct {
 	targetAlia string
 	targetKey  string
 }
+type Using struct {
+	key string
+}
 
 func ON(key string, targetOrAlia string, targetKey string) *On {
+	if key == "" || targetOrAlia == "" || targetKey == "" {
+		panic("On.key, On.targetOrAlia, On.targetKey can not blank")
+	}
 	return &On{
 		key,
 		targetOrAlia,
@@ -52,7 +58,22 @@ func ON(key string, targetOrAlia string, targetKey string) *On {
 	}
 }
 
+func USING(key string) *Using {
+	if key == "" {
+		panic("Using.key can not blank")
+	}
+	return &Using{
+		key: key,
+	}
+}
+
 func (sb *SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
+	if join == nil || on == nil {
+		panic("join, on can not nil")
+	}
+	if sb.join != nil {
+		panic("call Join repeated")
+	}
 	sb.join = &Join{
 		join: join(),
 		on:   on,
@@ -60,11 +81,17 @@ func (sb *SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
 	return sb
 }
 
-func (sb *SourceBuilder) JoinUsing(join JOIN, key string) *SourceBuilder {
+func (sb *SourceBuilder) JoinUsing(join JOIN, using *Using) *SourceBuilder {
+	if join == nil || using == nil {
+		panic("join, using can not nil")
+	}
+	if sb.join != nil {
+		panic("call Join repeated")
+	}
 	sb.join = &Join{
 		join: join(),
 		on: &On{
-			key: key,
+			key: using.key,
 		},
 	}
 	return sb

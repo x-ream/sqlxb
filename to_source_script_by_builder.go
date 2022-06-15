@@ -45,17 +45,24 @@ func (built *Built) toSourceScriptByBuilder(sb *SourceBuilder, bp *strings.Build
 		bp.WriteString(sb.alia)
 	}
 	if sb.join != nil && sb.join.on != nil { //ON
-		bp.WriteString(ON_SCRIPT)
-		if sb.alia != "" {
-			bp.WriteString(sb.alia)
-		} else {
-			bp.WriteString(sb.po.TableName())
+
+		if sb.join.on.targetKey == "" {
+			bp.WriteString(USING_SCRIPT_LEFT)
+			bp.WriteString(sb.join.on.key)
+			bp.WriteString(END_SUB)
+		}else {
+			bp.WriteString(ON_SCRIPT)
+			if sb.alia != "" {
+				bp.WriteString(sb.alia)
+			} else {
+				bp.WriteString(sb.po.TableName())
+			}
+			bp.WriteString(DOT)
+			bp.WriteString(sb.join.on.key)
+			bp.WriteString(EQ_SCRIPT)
+			bp.WriteString(sb.join.on.targetAlia)
+			bp.WriteString(DOT)
+			bp.WriteString(sb.join.on.targetKey)
 		}
-		bp.WriteString(DOT)
-		bp.WriteString(sb.join.on.key)
-		bp.WriteString(EQ_SCRIPT)
-		bp.WriteString(sb.join.on.targetAlia)
-		bp.WriteString(DOT)
-		bp.WriteString(sb.join.on.targetKey)
 	}
 }
