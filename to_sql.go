@@ -49,7 +49,7 @@ func (builder *ConditionBuilder) Build() *Built {
 }
 
 func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
-	built.toSourceScript(bpCount)
+	built.toSourceScript(nil,bpCount)
 }
 
 func (built *Built) toConditionScriptOfCount(bbs []Bb, bpCount *strings.Builder) {
@@ -60,10 +60,10 @@ func (built *Built) toGroupBySqlOfCount(bys []string, bpCount *strings.Builder) 
 	built.toGroupBySql(bys, bpCount)
 }
 
-func (built *Built) toSourceScript(bp *strings.Builder) {
+func (built *Built) toSourceScript(vs *[]interface{}, bp *strings.Builder) {
 	if built.Po == nil {
 		for _, sb := range built.Sbs {
-			built.toSourceScriptByBuilder(sb, bp)
+			built.toSourceScriptByBuilder(vs,sb, bp)
 		}
 	} else {
 		bp.WriteString(built.Po.TableName())
@@ -274,28 +274,28 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 }
 
 func (built *Built) Sql() ([]interface{}, string, string, map[string]string) {
+	vs := []interface{}{}
 	km := make(map[string]string) //nil for sub source builder,
-	vs, dataSql, kmp := built.sqlData(km)
+	dataSql, kmp := built.sqlData(&vs,km)
 	countSql := built.sqlCount()
 
 	return vs, dataSql, countSql, kmp
 }
 
-func (built *Built) sqlData(km map[string]string) ([]interface{}, string, map[string]string) {
-	vs := []interface{}{}
+func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
 	sb := strings.Builder{}
 	built.toResultKeyScript(&sb, km)
 	built.sqlFrom(&sb)
-	built.toSourceScript(&sb)
+	built.toSourceScript(vs, &sb)
 	built.sqlWhere(&sb)
-	built.toConditionScript(built.ConditionX, &sb, &vs, built.filterLast)
-	built.toAggSql(&vs,&sb)
+	built.toConditionScript(built.ConditionX, &sb, vs, built.filterLast)
+	built.toAggSql(vs,&sb)
 	built.toGroupBySql(built.GroupBys, &sb)
 	built.toHavingSql(built.Havings, &sb)
 	built.toSortSql(built.Sorts, &sb)
 	built.toPageSql(built.PageCondition, &sb)
 	dataSql := sb.String()
-	return vs, dataSql, km
+	return dataSql, km
 }
 
 func (built *Built) sqlCount() string {
