@@ -168,12 +168,16 @@ func (built *Built) toGroupBySql(bys []string, bp *strings.Builder) {
 	}
 }
 
-func (built *Built) toHavingSql(bys []Bb, bp *strings.Builder) {
-	if bys == nil || len(bys) == 0 {
+func (built *Built) toHavingSql(vs *[]interface{}, bp *strings.Builder) {
+	if built.Havings == nil || len(built.Havings) == 0 {
 		return
 	}
 	bp.WriteString(HAVING)
-	built.toConditionScript(bys, bp, nil, nil)
+	built.toConditionScript(built.Havings, bp, vs, nil)
+}
+
+func (built *Built) toHavingSqlOfCount(bp *strings.Builder) {
+	built.toHavingSql(nil,bp)
 }
 
 func (built *Built) toSortSql(bbs []Sort, bp *strings.Builder) {
@@ -281,7 +285,7 @@ func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, ma
 	built.toConditionScript(built.ConditionX, &sb, vs, built.filterLast)
 	built.toAggSql(vs,&sb)
 	built.toGroupBySql(built.GroupBys, &sb)
-	built.toHavingSql(built.Havings, &sb)
+	built.toHavingSql(vs,&sb)
 	built.toSortSql(built.Sorts, &sb)
 	built.toPageSql(built.PageCondition, &sb)
 	dataSql := sb.String()
@@ -300,6 +304,7 @@ func (built *Built) sqlCount() string {
 	built.toConditionScriptOfCount(built.ConditionX, sbCount)
 	built.toAggSqlOfCount(sbCount)
 	built.toGroupBySqlOfCount(built.GroupBys, sbCount)
+	built.toHavingSqlOfCount(sbCount)
 	countSql := built.toSqlCount(sbCount)
 	return countSql
 }
