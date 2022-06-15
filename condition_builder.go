@@ -40,7 +40,7 @@ func (builder *ConditionBuilder) X(k string, vs ...interface{}) *ConditionBuilde
 	return builder
 }
 
-func (builder *ConditionBuilder) doIn(p string, k string, vs... interface{}) *ConditionBuilder {
+func (builder *ConditionBuilder) doIn(p string, k string, vs ...interface{}) *ConditionBuilder {
 	if vs == nil || len(vs) == 0 {
 		return builder
 	}
@@ -118,10 +118,10 @@ func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *Condi
 		if isNil {
 			return builder
 		}
-		return builder.addBb(p,k,n)
+		return builder.addBb(p, k, n)
 	case time.Time:
 		ts := v.(time.Time).Format("2006-01-02 15:04:05")
-		return builder.addBb(p,k,ts)
+		return builder.addBb(p, k, ts)
 	case []interface{}:
 		panic("Builder.doGLE(ke, []arr), [] ?")
 	default:
@@ -129,7 +129,7 @@ func (builder *ConditionBuilder) doGLE(p string, k string, v interface{}) *Condi
 			return builder
 		}
 	}
-	return builder.addBb(p,k,v)
+	return builder.addBb(p, k, v)
 }
 
 func (builder *ConditionBuilder) addBb(op string, key string, v interface{}) *ConditionBuilder {
@@ -244,11 +244,11 @@ func (builder *ConditionBuilder) LikeRight(k string, v string) *ConditionBuilder
 	}
 	return builder.doLike(LIKE, k, v+"%")
 }
-func (builder *ConditionBuilder) In(k string, vs... interface{}) *ConditionBuilder {
-	return builder.doIn(IN, k, vs... )
+func (builder *ConditionBuilder) In(k string, vs ...interface{}) *ConditionBuilder {
+	return builder.doIn(IN, k, vs...)
 }
-func (builder *ConditionBuilder) Nin(k string, vs... interface{}) *ConditionBuilder {
-	return builder.doIn(NIN, k, vs... )
+func (builder *ConditionBuilder) Nin(k string, vs ...interface{}) *ConditionBuilder {
+	return builder.doIn(NIN, k, vs...)
 }
 func (builder *ConditionBuilder) IsNull(key string) *ConditionBuilder {
 	return builder.null(IS_NULL, key)

@@ -20,7 +20,7 @@ func (built *Built) filterLast() *Bb {
 	if built.PageCondition == nil {
 		return nil
 	}
-	if built.PageCondition.last > 0  {
+	if built.PageCondition.last > 0 {
 		if built.Sorts == nil || len(built.Sorts) == 0 {
 			panic("last > 0, Numeric sorts[0] required")
 		}

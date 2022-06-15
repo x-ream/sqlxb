@@ -22,12 +22,11 @@ import (
 	"strings"
 )
 
-
-func adapterResultKeyAlia(km map[string]string, k string, reg string)  {
+func adapterResultKeyAlia(km map[string]string, k string, reg string) {
 	arr := strings.Split(k, reg)
 	alia := arr[1]
-	if strings.Contains(alia,"`") {
-		alia = strings.Replace(alia,"`","",2)
+	if strings.Contains(alia, "`") {
+		alia = strings.Replace(alia, "`", "", 2)
 	}
 	km[alia] = alia
 }
@@ -37,20 +36,20 @@ func buildResultKey(key string, km map[string]string) string {
 		return key
 	}
 
-	k := strings.Trim(key,SPACE)
-	if strings.Contains(k,AS) {
-		adapterResultKeyAlia(km,k,AS)
-	}else if strings.HasSuffix(k,END_SUB) {
+	k := strings.Trim(key, SPACE)
+	if strings.Contains(k, AS) {
+		adapterResultKeyAlia(km, k, AS)
+	} else if strings.HasSuffix(k, END_SUB) {
 		panic(k + ", AS $alia required, multiSource, suggested fmt: AS `t0.c0`")
-	}else if strings.Contains(k,SPACE) {
-		if strings.HasPrefix(k,DISTINCT) || strings.HasPrefix(k,Distinct) {
+	} else if strings.Contains(k, SPACE) {
+		if strings.HasPrefix(k, DISTINCT) || strings.HasPrefix(k, Distinct) {
 			var alia = "c" + strconv.Itoa(len(km))
-			km[alia] = strings.Split(k,SPACE)[1]
+			km[alia] = strings.Split(k, SPACE)[1]
 			key = key + AS + alia
-		}else {
-			adapterResultKeyAlia(km,k,SPACE)
+		} else {
+			adapterResultKeyAlia(km, k, SPACE)
 		}
-	}else if strings.Contains(k,".") {
+	} else if strings.Contains(k, ".") {
 		var alia = "c" + strconv.Itoa(len(km))
 		km[alia] = k
 		key = key + AS + alia
@@ -69,7 +68,7 @@ func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string)
 		} else {
 			for i := 0; i < length; i++ {
 				key := (built.ResultKeys)[i]
-				key = buildResultKey(key,km)
+				key = buildResultKey(key, km)
 				bp.WriteString(key)
 				if i < length-1 {
 					bp.WriteString(COMMA)
@@ -82,12 +81,12 @@ func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string)
 }
 
 func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
-	if built.ResultKeys != nil && len(built.ResultKeys) > 0{
+	if built.ResultKeys != nil && len(built.ResultKeys) > 0 {
 		bpCount.WriteString(COUNT_KEY_SCRIPT_LEFT)
 		bpCount.WriteString(built.ResultKeys[0])
 		bpCount.WriteString(END_SUB)
 		bpCount.WriteString(SPACE)
-	}else {
+	} else {
 		bpCount.WriteString(COUNT_BASE_SCRIPT)
 	}
 }

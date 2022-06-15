@@ -21,7 +21,7 @@ import (
 	"strings"
 )
 
-func (built *Built) toSourceScriptByBuilder(vs *[]interface{},sb *SourceBuilder, bp *strings.Builder) {
+func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceBuilder, bp *strings.Builder) {
 	if sb.join != nil { //JOIN
 		bp.WriteString(SPACE)
 		bp.WriteString(sb.join.join)
@@ -30,7 +30,7 @@ func (built *Built) toSourceScriptByBuilder(vs *[]interface{},sb *SourceBuilder,
 	if sb.po != nil {
 		bp.WriteString(sb.po.TableName())
 	} else if sb.sub != nil {
-		dataSql,_ := sb.sub.Build().sqlData(vs,nil)
+		dataSql, _ := sb.sub.Build().sqlData(vs, nil)
 		bp.WriteString(BEGIN_SUB)
 		bp.WriteString(dataSql)
 		bp.WriteString(END_SUB)
@@ -45,7 +45,7 @@ func (built *Built) toSourceScriptByBuilder(vs *[]interface{},sb *SourceBuilder,
 			bp.WriteString(USING_SCRIPT_LEFT)
 			bp.WriteString(sb.join.on.key)
 			bp.WriteString(END_SUB)
-		}else {
+		} else {
 			bp.WriteString(ON_SCRIPT)
 			if sb.alia != "" {
 				bp.WriteString(sb.alia)

@@ -35,7 +35,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 
 	builder.removeSourceBuilder(builder.sbs, func(useds *[]*SourceBuilder, ele *SourceBuilder) bool {
 
-		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join,"LEFT")) {
+		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join, "LEFT")) {
 			return false
 		}
 		for _, u := range *useds {
@@ -48,7 +48,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 			if ele.sub == nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
 				return false
 			}
-			if strings.Contains(v, ele.alia+".") {////has return or condition
+			if strings.Contains(v, ele.alia+".") { ////has return or condition
 				return false
 			}
 		}

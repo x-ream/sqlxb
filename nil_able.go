@@ -132,78 +132,78 @@ func NilOrNumber(p interface{}) (bool, interface{}) {
 		vp := p.(*uint64)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*uint64)
+		} else {
+			return false, *p.(*uint64)
 		}
 	case *uint:
 		vp := p.(*uint)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*uint)
+		} else {
+			return false, *p.(*uint)
 		}
 	case *int64:
 		vp := p.(*int64)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*int64)
+		} else {
+			return false, *p.(*int64)
 		}
 	case *int:
 		vp := p.(*int)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*int)
+		} else {
+			return false, *p.(*int)
 		}
 	case *int32:
 		vp := p.(*int32)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*int32)
+		} else {
+			return false, *p.(*int32)
 		}
 	case *int16:
 		vp := p.(*int16)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*int16)
+		} else {
+			return false, *p.(*int16)
 		}
 	case *int8:
 		vp := p.(*int8)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*int8)
+		} else {
+			return false, *p.(*int8)
 		}
 	case *byte:
 		vp := p.(*byte)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*byte)
+		} else {
+			return false, *p.(*byte)
 		}
 	case *float64:
 		vp := p.(*float64)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*float64)
+		} else {
+			return false, *p.(*float64)
 		}
 	case *float32:
 		vp := p.(*float32)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*float32)
+		} else {
+			return false, *p.(*float32)
 		}
 	case *bool:
 		vp := p.(*bool)
 		if vp == nil {
 			return true, nil
-		}else {
-			return false, * p.(*bool)
+		} else {
+			return false, *p.(*bool)
 		}
 	}
 	panic("NOT SUPPORT THE TYPE POINTER")
