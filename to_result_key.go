@@ -32,6 +32,32 @@ func adapterResultKeyAlia(km map[string]string, k string, reg string)  {
 	km[alia] = alia
 }
 
+func buildResultKey(key string, km map[string]string) string {
+	if km == nil {
+		return key
+	}
+
+	k := strings.Trim(key,SPACE)
+	if strings.Contains(k,AS) {
+		adapterResultKeyAlia(km,k,AS)
+	}else if strings.HasSuffix(k,END_SUB) {
+		panic(k + ", AS $alia required, multiSource, suggested fmt: AS `t0.c0`")
+	}else if strings.Contains(k,SPACE) {
+		if strings.HasPrefix(k,DISTINCT) || strings.HasPrefix(k,Distinct) {
+			var alia = "c" + strconv.Itoa(len(km))
+			km[alia] = strings.Split(k,SPACE)[1]
+			key = key + AS + alia
+		}else {
+			adapterResultKeyAlia(km,k,SPACE)
+		}
+	}else if strings.Contains(k,".") {
+		var alia = "c" + strconv.Itoa(len(km))
+		km[alia] = k
+		key = key + AS + alia
+	}
+	return key
+}
+
 func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string) {
 	bp.WriteString(SELECT)
 	if built.ResultKeys == nil {
@@ -42,28 +68,9 @@ func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string)
 			bp.WriteString(STAR)
 		} else {
 			for i := 0; i < length; i++ {
-				kp := (built.ResultKeys)[i]
-				if km != nil {
-					k := strings.Trim(kp,SPACE)
-					if strings.Contains(k,AS) {
-						adapterResultKeyAlia(km,k,AS)
-					}else if strings.HasSuffix(k,END_SUB) {
-						panic(k + ", AS $alia required, multiSource, suggested fmt: AS `t0.c0`")
-					}else if strings.Contains(k,SPACE) {
-						if strings.HasPrefix(k,DISTINCT) || strings.HasPrefix(k,Distinct) {
-							var alia = "c" + strconv.Itoa(len(km))
-							km[alia] = strings.Split(k,SPACE)[1]
-							kp = kp + AS + alia
-						}else {
-							adapterResultKeyAlia(km,k,SPACE)
-						}
-					}else {
-						var alia = "c" + strconv.Itoa(len(km))
-						km[alia] = k
-						kp = kp + AS + alia
-					}
-				}
-				bp.WriteString(kp)
+				key := (built.ResultKeys)[i]
+				key = buildResultKey(key,km)
+				bp.WriteString(key)
 				if i < length-1 {
 					bp.WriteString(COMMA)
 				} else {
