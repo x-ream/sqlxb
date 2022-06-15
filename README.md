@@ -19,7 +19,7 @@ or build condition sql for some orm framework
     builderX.ResultKeys( "c.color","p.id","COUNT(DISTINCT c.id) AS `c.id_count`")
     ....
 
-## Builder DEMO
+## Builder Example
 
 ```Go
 
@@ -86,6 +86,7 @@ func main() {
 	c := Cat{}
 	var builder = NewBuilder(&c)
 	builder.LikeRight("name",catRo.Name)
+    builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will not ignore
 	builder.And(SubCondition().Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
 	builder.Bool(preCondition, func(cb *ConditionBuilder) {
 		cb.Or(SubCondition().Lt("price", 5000))
@@ -95,15 +96,15 @@ func main() {
 	vs, dataSql, countSql, _ := builder.Build().Sql()
     // ....
 
-    //dataSql: SELECT * FROM t_cat WHERE id > ? AND name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
+    //dataSql: SELECT * FROM t_cat WHERE id > ? AND name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
     //ORDER BY id ASC LIMIT 10
 
-    //countSql: SELECT COUNT(*) FROM t_cat WHERE name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
+    //countSql: SELECT COUNT(*) FROM t_cat WHERE name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
     
     //sqlx: 	err = Db.Select(&catList, dataSql,vs...)
 	_, conditionSql := builder.Build().SqlOfCondition()
     
-    //conditionSql: name LIKE ? AND (price >= ? OR age >= ?) OR (price < ?)
+    //conditionSql: name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
 
 }
 ```
