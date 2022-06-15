@@ -38,16 +38,6 @@ type Built struct {
 	Po Po
 }
 
-func (builder *ConditionBuilder) Build() *Built {
-	if builder == nil {
-		panic("sqlxb.Builder is nil")
-	}
-	built := Built{
-		ConditionX: builder.bbs,
-	}
-	return &built
-}
-
 func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
 	built.toSourceScript(nil,bpCount)
 }
