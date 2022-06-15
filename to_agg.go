@@ -16,59 +16,29 @@
 // limitations under the License.
 package sqlxb
 
-const (
-	X        = ""
-	AGG      = ""
-	AND      = "AND"
-	OR       = "OR"
-	AND_SUB  = AND
-	OR_SUB   = OR
-	EQ       = "="
-	NE       = "<>"
-	GT       = ">"
-	LT       = "<"
-	GTE      = ">="
-	LTE      = "<="
-	LIKE     = "LIKE"
-	NOT_LIKE = "NOT LIKE"
-	IN       = "IN"
-	NIN      = "NOT IN"
-	IS_NULL  = "IS NULL"
-	NON_NULL = "IS NOT NULL"
+import (
+	"github.com/x-ream/sqlxb/internal"
+	"strings"
 )
 
-type Op func() string
+func (built *Built) toAggSql(vs *[]interface{}, bp *strings.Builder) {
 
-func Eq() string {
-	return EQ
+	if len(built.Aggs) == 0 {
+		return
+	}
+
+	for _,bb := range built.Aggs {
+		bp.WriteString(internal.SPACE)
+		bp.WriteString(bb.key)
+		if bb.value != nil && vs != nil {
+			for _, v := range bb.value.([]interface{}) {
+				*vs = append(*vs, v)
+			}
+		}
+	}
+
 }
-func Ne() string {
-	return NE
-}
-func Gt() string {
-	return GT
-}
-func Gte() string {
-	return GTE
-}
-func Lt() string {
-	return LT
-}
-func Lte() string {
-	return LTE
-}
-func Like() string {
-	return LIKE
-}
-func LikeRight() string {
-	return LIKE
-}
-func NotLike() string {
-	return NOT_LIKE
-}
-func IsNull() string {
-	return IS_NULL
-}
-func NonNull() string {
-	return NON_NULL
+
+func (built *Built) toAggSqlOfCount(bp *strings.Builder) {
+	built.toAggSql(nil, bp)
 }

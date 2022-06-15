@@ -28,6 +28,7 @@ type Built struct {
 	Sorts      []Sort
 	Havings    []Bb
 	GroupBys   []string
+	Aggs       []Bb
 
 	Sbs []*SourceBuilder
 	Svs []interface{}
@@ -274,7 +275,7 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 
 func (built *Built) Sql() ([]interface{}, string, string, map[string]string) {
 	km := make(map[string]string) //nil for sub source builder,
-	vs, dataSql,kmp := built.sqlData(km)
+	vs, dataSql, kmp := built.sqlData(km)
 	countSql := built.sqlCount()
 
 	return vs, dataSql, countSql, kmp
@@ -283,11 +284,12 @@ func (built *Built) Sql() ([]interface{}, string, string, map[string]string) {
 func (built *Built) sqlData(km map[string]string) ([]interface{}, string, map[string]string) {
 	vs := []interface{}{}
 	sb := strings.Builder{}
-	built.toResultKeyScript(&sb,km)
+	built.toResultKeyScript(&sb, km)
 	built.sqlFrom(&sb)
 	built.toSourceScript(&sb)
 	built.sqlWhere(&sb)
 	built.toConditionScript(built.ConditionX, &sb, &vs, built.filterLast)
+	built.toAggSql(&vs,&sb)
 	built.toGroupBySql(built.GroupBys, &sb)
 	built.toHavingSql(built.Havings, &sb)
 	built.toSortSql(built.Sorts, &sb)
@@ -306,6 +308,7 @@ func (built *Built) sqlCount() string {
 	built.toSourceScriptOfCount(sbCount)
 	built.countSqlWhere(sbCount)
 	built.toConditionScriptOfCount(built.ConditionX, sbCount)
+	built.toAggSqlOfCount(sbCount)
 	built.toGroupBySqlOfCount(built.GroupBys, sbCount)
 	countSql := built.toSqlCount(sbCount)
 	return countSql

@@ -32,6 +32,7 @@ type BuilderX struct {
 	svs                   []interface{}
 	havings               []Bb
 	groupBys              []string
+	aggs                  []Bb
 	isWithoutOptimization bool
 }
 
@@ -104,6 +105,19 @@ func (x *BuilderX) GroupBy(groupBy string) *BuilderX {
 	return x
 }
 
+func (x *BuilderX) Agg(fn string, vs ...interface{}) *BuilderX {
+	if fn == "" {
+		return x
+	}
+	bb := Bb{
+		op:    AGG,
+		key:   fn,
+		value: vs,
+	}
+	x.aggs = append(x.aggs, bb)
+	return x
+}
+
 func (builder *BuilderX) Build() *Built {
 	if builder == nil {
 		panic("sqlxb.Builder is nil")
@@ -113,6 +127,7 @@ func (builder *BuilderX) Build() *Built {
 		ResultKeys: builder.resultKeys,
 		ConditionX: builder.bbs,
 		Sorts:      builder.sorts,
+		Aggs:       builder.aggs,
 		Havings:    builder.havings,
 		GroupBys:   builder.groupBys,
 		Sbs:        builder.sbs,
