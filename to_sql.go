@@ -46,8 +46,8 @@ func (built *Built) toConditionScriptOfCount(bbs []Bb, bpCount *strings.Builder)
 	built.toConditionScript(bbs, bpCount, nil, nil)
 }
 
-func (built *Built) toGroupBySqlOfCount(bys []string, bpCount *strings.Builder) {
-	built.toGroupBySql(bys, bpCount)
+func (built *Built) toGroupBySqlOfCount(bpCount *strings.Builder) {
+	built.toGroupBySql(bpCount)
 }
 
 func (built *Built) toSourceScript(vs *[]interface{}, bp *strings.Builder) {
@@ -151,17 +151,17 @@ func (built *Built) toConditionScript(bbs []Bb, bp *strings.Builder, vs *[]inter
 
 }
 
-func (built *Built) toGroupBySql(bys []string, bp *strings.Builder) {
-	if bys == nil {
+func (built *Built) toGroupBySql(bp *strings.Builder) {
+	if built.GroupBys == nil {
 		return
 	}
-	length := len(bys)
+	length := len(built.GroupBys)
 	if length == 0 {
 		return
 	}
 	bp.WriteString(GROUP_BY)
 	for i := 0; i < length; i++ {
-		bp.WriteString(bys[i])
+		bp.WriteString(built.GroupBys[i])
 		if i < length-1 {
 			bp.WriteString(COMMA)
 		}
@@ -180,17 +180,17 @@ func (built *Built) toHavingSqlOfCount(bp *strings.Builder) {
 	built.toHavingSql(nil,bp)
 }
 
-func (built *Built) toSortSql(bbs []Sort, bp *strings.Builder) {
-	if bbs == nil {
+func (built *Built) toSortSql(bp *strings.Builder) {
+	if built.Sorts == nil {
 		return
 	}
-	length := len(bbs)
+	length := len(built.Sorts)
 	if length == 0 {
 		return
 	}
 	bp.WriteString(ORDER_BY)
 	for i := 0; i < length; i++ {
-		sort := bbs[i]
+		sort := built.Sorts[i]
 		bp.WriteString(sort.orderBy)
 		bp.WriteString(SPACE)
 		bp.WriteString(sort.direction)
@@ -200,18 +200,18 @@ func (built *Built) toSortSql(bbs []Sort, bp *strings.Builder) {
 	}
 }
 
-func (built *Built) toPageSql(condition *PageCondition, bp *strings.Builder) {
-	if condition == nil || condition.rows < 1 {
+func (built *Built) toPageSql(bp *strings.Builder) {
+	if built.PageCondition == nil || built.PageCondition.rows < 1 {
 		return
 	}
 	bp.WriteString(LIMIT)
-	bp.WriteString(strconv.Itoa(int(condition.rows)))
-	if condition.last < 1 {
-		if condition.page < 1 {
-			condition.page = 1
+	bp.WriteString(strconv.Itoa(int(built.PageCondition.rows)))
+	if built.PageCondition.last < 1 {
+		if built.PageCondition.page < 1 {
+			built.PageCondition.page = 1
 		}
 		bp.WriteString(OFFSET)
-		bp.WriteString(strconv.Itoa(int((condition.page - 1) * condition.rows)))
+		bp.WriteString(strconv.Itoa(int((built.PageCondition.page - 1) * built.PageCondition.rows)))
 	}
 }
 
@@ -235,7 +235,7 @@ func (built *Built) countBuilder() *strings.Builder {
 func (built *Built) SqlOfCondition() ([]interface{}, string) {
 	vs := []interface{}{}
 	sb := strings.Builder{}
-	built.toConditionScript(built.ConditionX, &sb, &vs, nil)
+	built.toConditionScript(built.ConditionX, &sb, &vs, built.filterLast)
 	conditionSql := sb.String()
 	return vs, conditionSql
 }
@@ -284,10 +284,10 @@ func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, ma
 	built.sqlWhere(&sb)
 	built.toConditionScript(built.ConditionX, &sb, vs, built.filterLast)
 	built.toAggSql(vs,&sb)
-	built.toGroupBySql(built.GroupBys, &sb)
+	built.toGroupBySql(&sb)
 	built.toHavingSql(vs,&sb)
-	built.toSortSql(built.Sorts, &sb)
-	built.toPageSql(built.PageCondition, &sb)
+	built.toSortSql(&sb)
+	built.toPageSql(&sb)
 	dataSql := sb.String()
 	return dataSql, km
 }
@@ -303,7 +303,7 @@ func (built *Built) sqlCount() string {
 	built.countSqlWhere(sbCount)
 	built.toConditionScriptOfCount(built.ConditionX, sbCount)
 	built.toAggSqlOfCount(sbCount)
-	built.toGroupBySqlOfCount(built.GroupBys, sbCount)
+	built.toGroupBySqlOfCount(sbCount)
 	built.toHavingSqlOfCount(sbCount)
 	countSql := built.toSqlCount(sbCount)
 	return countSql
