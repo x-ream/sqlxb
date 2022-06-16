@@ -3,8 +3,8 @@
 [![GitHub tag](https://img.shields.io/github/tag/x-ream/sqlxb.svg?style=flat)](https://github.com/x-ream/sqlxb/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 
-a tool of sql golang builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), 
-or build condition sql for some orm framework
+a tool of sql builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), 
+or build condition sql for some orm framework, like gorm....
 
 ## API
     Builder: build sql like: SELECT * FROM t_foo WHERE name Like "%xx%" ORDER BY ID DESC
