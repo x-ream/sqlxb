@@ -110,7 +110,7 @@ func main() {
     //sqlx: 	err = Db.Select(&catList, dataSql,vs...)
 	_, conditionSql := builder.Build().SqlOfCondition()
     
-    //conditionSql: name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
+    //conditionSql: id > ? AND name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
 
 }
 ```
