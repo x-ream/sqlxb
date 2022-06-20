@@ -91,7 +91,7 @@ func main() {
     //Eq,Ne,Gt.... value 0 and nil will ignore, like as follow: OR().Eq("is_sold", catRo.IsSold)
 	builder.And(SubCondition().Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
     //func Bool NOT designed for value nil or 0; designed to convert complex logic to bool
-    //Decorator pattern suggest to use func Bool preCondition, new struct when call it, like:
+    //Decorator pattern suggest to use func Bool preCondition, like:
     //myBoolDecorator := NewMyBoolDecorator(para)
     //builder.Bool(myBoolDecorator.fooCondition, func(cb *ConditionBuilder) {
 	builder.Bool(preCondition, func(cb *ConditionBuilder) {
