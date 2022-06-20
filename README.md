@@ -87,7 +87,8 @@ func main() {
 	c := Cat{}
 	var builder = NewBuilder(&c)
 	builder.LikeRight("name",catRo.Name)
-	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will not ignore
+	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will NOT ignore
+    //Eq,Ne,Gt.... value 0 and nil will ignore, like as follow: OR().Eq("is_sold", catRo.IsSold)
 	builder.And(SubCondition().Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
 	builder.Bool(preCondition, func(cb *ConditionBuilder) {
 		cb.Or(SubCondition().Lt("price", 5000))
