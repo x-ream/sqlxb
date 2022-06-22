@@ -3,7 +3,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/x-ream/sqlxb.svg?style=flat)](https://github.com/x-ream/sqlxb/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 
-a tool of sql builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), 
+a tool of sql builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like gorm....
 
 ## API
