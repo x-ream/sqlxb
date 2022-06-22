@@ -1,4 +1,5 @@
 # sqlxb  
+[![OSCS Status](https://www.oscs1024.com/platform/badge/x-ream/sqlxb.svg?size=small)](https://www.oscs1024.com/project/x-ream/sqlxb?ref=badge_small)
 ![workflow build](https://github.com/x-ream/sqlxb/actions/workflows/go.yml/badge.svg)
 [![GitHub tag](https://img.shields.io/github/tag/x-ream/sqlxb.svg?style=flat)](https://github.com/x-ream/sqlxb/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
