@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 
 a tool of sql builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), [gorp](https://github.com/go-gorp/gorp),
-or build condition sql for some orm framework, like gorm....
+or build condition sql for some orm framework, like [gorm](https://github.com/go-gorm/gorm)....
 
 ## API
     Builder: build sql like: SELECT * FROM t_foo WHERE name Like "%xx%" ORDER BY ID DESC
