@@ -31,9 +31,12 @@ type Builder struct {
 	po Po
 }
 
-func NewBuilder(poOrNil Po) *Builder {
+func NewBuilder(po Po) *Builder {
+	if po == nil {
+		panic("Builder: po can not nil")
+	}
 	var instance = newBuilder()
-	instance.po = poOrNil
+	instance.po = po
 	return instance
 }
 
