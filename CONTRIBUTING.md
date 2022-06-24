@@ -63,12 +63,12 @@ Since you are ready to improve sqlxb with a PR, we suggest you could take a look
 
 ### Workspace Preparation
 
-git clone git@github.com:x-ream/sqlxb.git <br>
-or fork it....
+git clone https://github.com/x-ream/sqlxb.git <br>
+or fork it ....
 
 For test: <br>
-git clone git@github.com:sim-wangyan/sqlxb-test-on-sqlx.git <br>
-or fork it....
+git clone https://github.com/sim-wangyan/sqlxb-test-on-sqlx.git <br>
+or fork it ....
 
 ## Test case contribution
 
