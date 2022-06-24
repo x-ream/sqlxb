@@ -21,7 +21,18 @@ or build condition sql for some orm framework, like [gorm](https://github.com/go
     builderX.ResultKeys( "c.color","p.id","COUNT(DISTINCT c.id) AS `c.id_count`")
     ....
 
-## Builder Example
+## Contributing
+
+Contributors are welcomed to join the sqlxb project. <br>
+Please check [CONTRIBUTING](./CONTRIBUTING.md)
+
+## Quickstart
+
+* [Builder Example](#builder-example)
+* [BuilderX Example](#builderx-example)
+
+
+### Builder Example
 
 ```Go
 
@@ -114,4 +125,11 @@ func main() {
     //conditionSql: id > ? AND name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
 
 }
+```
+
+
+### BuilderX Example
+
+```Go
+
 ```
