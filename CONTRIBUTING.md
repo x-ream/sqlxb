@@ -74,7 +74,7 @@ or fork it....
 
 Any test case would be welcomed. Currently, sqlxb function test cases are high priority.
 Welcome to pull test case to https://github.com/sim-wangyan/sqlxb-test-on-sqlx , <br>
-or pull test case to your own project https://github.com/xxxxx/sqlxb-test-xxxxx
+or pull test case to your own project like https://github.com/xxxxx/sqlxb-test-xxxxx
 
 ## Engage to help anything
 
