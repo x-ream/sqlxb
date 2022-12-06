@@ -54,3 +54,8 @@ func (pb *PageBuilder) IgnoreTotalRows() *PageBuilder {
 	pb.condition.isTotalRowsIgnored = true
 	return pb
 }
+
+func (pb *PageBuilder) SetTotalRowsIgnored(ignored bool) *PageBuilder {
+	pb.condition.isTotalRowsIgnored = ignored
+	return pb
+}
