@@ -7,7 +7,7 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@ type SourceBuilder struct {
 	alia string
 	join *Join
 	sub  *BuilderX
-	bbs  []Bb
+	s    string
 }
 
 func (sb *SourceBuilder) Source(po Po) *SourceBuilder {
@@ -35,70 +35,54 @@ func (sb *SourceBuilder) Alia(alia string) *SourceBuilder {
 }
 
 type Join struct {
-	join string
-	on   *On
+	join   string
+	target string
+	alia   string
+	on     *On
 }
 type On struct {
-	key        string
-	targetAlia string
-	targetKey  string
+	CondBuilder
+	orUsingKey string
 }
 type Using struct {
 	key string
 }
 
-func ON(key string, targetOrAlia string, targetKey string) *On {
-	if key == "" || targetOrAlia == "" || targetKey == "" {
-		panic("On.key, On.targetOrAlia, On.targetKey can not blank")
-	}
-	return &On{
-		key,
-		targetOrAlia,
-		targetKey,
-	}
+func (join *Join) ON(k string) *On {
+	join.on = &On{}
+	join.on.X(k)
+	return join.on
 }
 
-func USING(key string) *Using {
+func (join *Join) USING(key string) {
 	if key == "" {
 		panic("Using.key can not blank")
 	}
-	return &Using{
-		key: key,
-	}
+	join.on = &On{}
+	join.on.orUsingKey = key
 }
 
-func (sb *SourceBuilder) JoinOn(join JOIN, on *On) *SourceBuilder {
-	if join == nil || on == nil {
+func (join *Join) Alia(alia string) *Join {
+	join.alia = alia
+	return join
+}
+
+func (sb *SourceBuilder) Join(join JOIN, po Po) *Join {
+	if join == nil {
 		panic("join, on can not nil")
 	}
 	if sb.join != nil {
 		panic("call Join repeated")
 	}
 	sb.join = &Join{
-		join: join(),
-		on:   on,
+		join:   join(),
+		target: po.TableName(),
 	}
-	return sb
+	return sb.join
 }
 
-func (sb *SourceBuilder) JoinUsing(join JOIN, using *Using) *SourceBuilder {
-	if join == nil || using == nil {
-		panic("join, using can not nil")
-	}
-	if sb.join != nil {
-		panic("call Join repeated")
-	}
-	sb.join = &Join{
-		join: join(),
-		on: &On{
-			key: using.key,
-		},
-	}
-	return sb
-}
-
-func (sb *SourceBuilder) More(cb *ConditionBuilder) {
-	sb.bbs = cb.bbs
+func (sb *SourceBuilder) JoinScript(joinScript string) {
+	sb.s = joinScript
 }
 
 func (sb *SourceBuilder) Sub(sub *BuilderX) *SourceBuilder {

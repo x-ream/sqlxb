@@ -7,23 +7,21 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 package sqlxb
 
-//
 // TO build sql, like: SELECT * FROM ....
 // Can add L2Cache
 //
 // @author Sim
 type Builder struct {
-	ConditionBuilder
+	CondBuilder
 	pageBuilder *PageBuilder
 
 	sorts []Sort
@@ -55,10 +53,11 @@ func (builder *Builder) Sort(orderBy string, direction Direction) *Builder {
 	return builder
 }
 
-func (builder *Builder) Paged() *PageBuilder {
+func (builder *Builder) Paged(page func(pb *PageBuilder)) *Builder {
 	pageBuilder := new(PageBuilder)
 	builder.pageBuilder = pageBuilder
-	return pageBuilder
+	page(pageBuilder)
+	return builder
 }
 
 func (builder *Builder) Build() *Built {

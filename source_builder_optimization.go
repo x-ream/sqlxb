@@ -7,7 +7,7 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,7 +45,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 			}
 		}
 		for _, v := range *builder.conds() {
-			if ele.sub == nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
+			if strings.Contains(v, ele.po.TableName()+".") { //has return or condition
 				return false
 			}
 			if strings.Contains(v, ele.alia+".") { ////has return or condition
@@ -62,7 +62,7 @@ func (builder *BuilderX) conds() *[]string {
 		condArr = append(condArr, v)
 	}
 
-	bbps := builder.ConditionBuilder.bbs
+	bbps := builder.CondBuilder.bbs
 
 	if bbps != nil {
 		for _, v := range bbps {
@@ -72,9 +72,11 @@ func (builder *BuilderX) conds() *[]string {
 
 	if len(builder.sbs) > 0 {
 		for _, sb := range builder.sbs {
-			if sb.bbs != nil {
-				for _, bb := range sb.bbs {
-					condArr = append(condArr, bb.key)
+			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
+				for i, bb := range sb.join.on.bbs {
+					if i > 0 {
+						condArr = append(condArr, bb.key)
+					}
 				}
 			}
 		}

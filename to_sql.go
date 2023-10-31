@@ -7,7 +7,7 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,8 +30,9 @@ type Built struct {
 	GroupBys   []string
 	Aggs       []Bb
 
-	Sbs []*SourceBuilder
-	Svs []interface{}
+	OrSourceSql string
+	Sbs         []*SourceBuilder
+	Svs         []interface{}
 
 	PageCondition *PageCondition
 
@@ -52,6 +53,11 @@ func (built *Built) toGroupBySqlOfCount(bpCount *strings.Builder) {
 
 func (built *Built) toSourceScript(vs *[]interface{}, bp *strings.Builder) {
 	if built.Po == nil {
+
+		if built.toSourceScriptBySql(bp) {
+			return
+		}
+
 		for _, sb := range built.Sbs {
 			built.toSourceScriptByBuilder(vs, sb, bp)
 		}
