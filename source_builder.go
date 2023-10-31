@@ -41,7 +41,7 @@ type Join struct {
 	on     *On
 }
 type On struct {
-	ConditionBuilder
+	CondBuilder
 	orUsingKey string
 }
 type Using struct {

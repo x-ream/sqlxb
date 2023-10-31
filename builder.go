@@ -21,7 +21,7 @@ package sqlxb
 //
 // @author Sim
 type Builder struct {
-	ConditionBuilder
+	CondBuilder
 	pageBuilder *PageBuilder
 
 	sorts []Sort
