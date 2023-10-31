@@ -21,6 +21,18 @@ import (
 	"strings"
 )
 
+func (built *Built) toSourceScriptBySql(bp * strings.Builder) bool{
+	if (len(built.Sbs) == 1) && (built.OrSourceSql != "") {
+		var sql = strings.Trim(built.OrSourceSql, SPACE)
+		if strings.HasPrefix(sql, "FROM") {
+			sql = strings.Replace(sql, "FROM ","",1)
+		}
+		bp.WriteString(sql)
+		return true
+	}
+	return false
+}
+
 func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceBuilder, bp *strings.Builder) {
 	if sb.join != nil { //JOIN
 		bp.WriteString(SPACE)
@@ -41,23 +53,16 @@ func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceBuilder
 	}
 	if sb.join != nil && sb.join.on != nil { //ON
 
-		if sb.join.on.targetKey == "" {
+		if sb.join.on.orUsingKey != "" {
 			bp.WriteString(USING_SCRIPT_LEFT)
-			bp.WriteString(sb.join.on.key)
+			bp.WriteString(sb.join.on.orUsingKey)
 			bp.WriteString(END_SUB)
-		} else {
+		}else if sb.s != "" {
+			bp.WriteString(SPACE)
+			bp.WriteString(sb.s)
+		}else {
 			bp.WriteString(ON_SCRIPT)
-			if sb.alia != "" {
-				bp.WriteString(sb.alia)
-			} else {
-				bp.WriteString(sb.po.TableName())
-			}
-			bp.WriteString(DOT)
-			bp.WriteString(sb.join.on.key)
-			bp.WriteString(EQ_SCRIPT)
-			bp.WriteString(sb.join.on.targetAlia)
-			bp.WriteString(DOT)
-			bp.WriteString(sb.join.on.targetKey)
+			built.toConditionScript(sb.join.on.bbs,bp,vs,nil)
 		}
 	}
 }

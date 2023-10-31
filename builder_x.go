@@ -7,7 +7,7 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,14 @@ package sqlxb
 // Sql for MySQL, Clickhouse....
 //
 // @author Sim
-//
-func Sub() *BuilderX {
-	return NewBuilderX(nil, "")
+func Sub(po Po) *BuilderX {
+	return NewBuilderX(po, "")
 }
 
 type BuilderX struct {
 	Builder
 	resultKeys            []string
+	orSourceSql           string
 	sbs                   []*SourceBuilder
 	svs                   []interface{}
 	havings               []Bb
@@ -56,6 +56,23 @@ func (x *BuilderX) SourceBuilder() *SourceBuilder {
 	var sb = SourceBuilder{}
 	x.sbs = append(x.sbs, &sb)
 	return &sb
+}
+
+func Source() *SourceBuilder {
+	var sb = SourceBuilder{}
+	return &sb
+}
+
+func (x *BuilderX) SourceX(source func(*SourceBuilder)) *BuilderX {
+	var b = Source()
+	x.sbs = append(x.sbs, b)
+	source(b)
+	return x
+}
+
+func (x *BuilderX) SourceScript(sqlScript string) *BuilderX {
+	x.orSourceSql = sqlScript
+	return x
 }
 
 func (x *BuilderX) ResultKey(resultKey string) *BuilderX {
@@ -124,14 +141,15 @@ func (builder *BuilderX) Build() *Built {
 	}
 	builder.optimizeSourceBuilder()
 	built := Built{
-		ResultKeys: builder.resultKeys,
-		ConditionX: builder.bbs,
-		Sorts:      builder.sorts,
-		Aggs:       builder.aggs,
-		Havings:    builder.havings,
-		GroupBys:   builder.groupBys,
-		Sbs:        builder.sbs,
-		Svs:        builder.svs,
+		ResultKeys:  builder.resultKeys,
+		ConditionX:  builder.bbs,
+		Sorts:       builder.sorts,
+		Aggs:        builder.aggs,
+		Havings:     builder.havings,
+		GroupBys:    builder.groupBys,
+		OrSourceSql: builder.orSourceSql,
+		Sbs:         builder.sbs,
+		Svs:         builder.svs,
 
 		Po: builder.po,
 	}
