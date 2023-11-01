@@ -45,7 +45,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 			}
 		}
 		for _, v := range *builder.conds() {
-			if strings.Contains(v, ele.po.TableName()+".") { //has return or condition
+			if ele.po != nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
 				return false
 			}
 			if strings.Contains(v, ele.alia+".") { ////has return or condition

@@ -182,23 +182,23 @@ func (builder *CondBuilder) orAnd(orAnd string) *CondBuilder {
 	return builder
 }
 
-func (builder *CondBuilder) And(subCondition *CondBuilder) *CondBuilder {
-	return builder.orAndSub(AND_SUB, subCondition)
+func (builder *CondBuilder) And(subCond *CondBuilder) *CondBuilder {
+	return builder.orAndSub(AND_SUB, subCond)
 }
 
-func (builder *CondBuilder) Or(sub *CondBuilder) *CondBuilder {
-	return builder.orAndSub(OR_SUB, sub)
+func (builder *CondBuilder) Or(subCond *CondBuilder) *CondBuilder {
+	return builder.orAndSub(OR_SUB, subCond)
 }
 
 func (builder *CondBuilder) OR() *CondBuilder {
 	return builder.orAnd(OR)
 }
 
-func (builder *CondBuilder) Bool(preCondition BoolFunc, then func(cb *CondBuilder)) *CondBuilder {
-	if preCondition == nil {
+func (builder *CondBuilder) Bool(preCond BoolFunc, then func(cb *CondBuilder)) *CondBuilder {
+	if preCond == nil {
 		panic("CondBuilder.Bool para of BoolFunc can not nil")
 	}
-	if !preCondition() {
+	if !preCond() {
 		return builder
 	}
 	if then == nil {
