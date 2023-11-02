@@ -35,10 +35,9 @@ func (sb *SourceBuilder) Alia(alia string) *SourceBuilder {
 }
 
 type Join struct {
-	join   string
-	target string
-	alia   string
-	on     *On
+	join string
+	alia string
+	on   *On
 }
 type On struct {
 	CondBuilder
@@ -67,7 +66,7 @@ func (join *Join) Alia(alia string) *Join {
 	return join
 }
 
-func (sb *SourceBuilder) Join(join JOIN, po Po) *Join {
+func (sb *SourceBuilder) Join(join JOIN) *Join {
 	if join == nil {
 		panic("join, on can not nil")
 	}
@@ -75,8 +74,7 @@ func (sb *SourceBuilder) Join(join JOIN, po Po) *Join {
 		panic("call Join repeated")
 	}
 	sb.join = &Join{
-		join:   join(),
-		target: po.TableName(),
+		join: join(),
 	}
 	return sb.join
 }

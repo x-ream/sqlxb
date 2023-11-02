@@ -17,6 +17,7 @@
 package sqlxb
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -33,7 +34,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 		return
 	}
 
-	builder.removeSourceBuilder(builder.sbs, func(useds *[]*SourceBuilder, ele *SourceBuilder) bool {
+	builder.removeSourceBuilder(builder.sbs, func(useds *[]*SourceBuilder, ele *SourceBuilder, i int) bool {
 
 		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join, "LEFT")) {
 			return false
@@ -52,6 +53,24 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 				return false
 			}
 		}
+
+		//target
+		for j := len(builder.sbs) - 1; j > i; j-- {
+			var sb = builder.sbs[j]
+			fmt.Println(sb)
+			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
+				for _, bb := range sb.join.on.bbs {
+					v := bb.key
+					if ele.po != nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
+						return false
+					}
+					if strings.Contains(v, ele.alia+".") { ////has return or condition
+						return false
+					}
+				}
+			}
+		}
+
 		return true
 	})
 }
@@ -84,13 +103,29 @@ func (builder *BuilderX) conds() *[]string {
 	return &condArr
 }
 
+func (builder *BuilderX) condsOfOn() *[]string {
+	condArr := []string{}
+
+	if len(builder.sbs) > 0 {
+		for _, sb := range builder.sbs {
+			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
+				for _, bb := range sb.join.on.bbs {
+					condArr = append(condArr, bb.key)
+				}
+			}
+		}
+	}
+	return &condArr
+}
+
 func (builder *BuilderX) removeSourceBuilder(sbs []*SourceBuilder, canRemove canRemove) {
 	useds := []*SourceBuilder{}
 	j := 0
 	leng := len(sbs)
+
 	for i := leng - 1; i > -1; i-- {
 		ele := (sbs)[i]
-		if !canRemove(&useds, ele) {
+		if !canRemove(&useds, ele, i) {
 			useds = append(useds, ele)
 			j++
 		}
@@ -107,4 +142,4 @@ func (builder *BuilderX) removeSourceBuilder(sbs []*SourceBuilder, canRemove can
 	}
 }
 
-type canRemove func(useds *[]*SourceBuilder, ele *SourceBuilder) bool
+type canRemove func(useds *[]*SourceBuilder, ele *SourceBuilder, i int) bool
