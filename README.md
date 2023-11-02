@@ -109,8 +109,8 @@ func main() {
     //func Bool NOT designed for value nil or 0; designed to convert complex logic to bool
     //Decorator pattern suggest to use func Bool preCondition, like:
     //myBoolDecorator := NewMyBoolDecorator(para)
-    //builder.Bool(myBoolDecorator.fooCondition, func(cb *ConditionBuilder) {
-	builder.Bool(preCondition, func(cb *ConditionBuilder) {
+    //builder.Bool(myBoolDecorator.fooCondition, func(cb *CondBuilder) {
+	builder.Bool(preCondition, func(cb *CondBuilder) {
 		cb.Or(SubCondition().Lt("price", 5000))
 	})
 	builder.Sort("id", ASC)
