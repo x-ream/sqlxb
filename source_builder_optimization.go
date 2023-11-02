@@ -17,7 +17,6 @@
 package sqlxb
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -57,7 +56,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 		//target
 		for j := len(builder.sxs) - 1; j > i; j-- {
 			var sb = builder.sxs[j]
-			fmt.Println(sb)
+
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for _, bb := range sb.join.on.bbs {
 					v := bb.key
@@ -96,21 +95,6 @@ func (builder *BuilderX) conds() *[]string {
 					if i > 0 {
 						condArr = append(condArr, bb.key)
 					}
-				}
-			}
-		}
-	}
-	return &condArr
-}
-
-func (builder *BuilderX) condsOfOn() *[]string {
-	condArr := []string{}
-
-	if len(builder.sxs) > 0 {
-		for _, sb := range builder.sxs {
-			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
-				for _, bb := range sb.join.on.bbs {
-					condArr = append(condArr, bb.key)
 				}
 			}
 		}
