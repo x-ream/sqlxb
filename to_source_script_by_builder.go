@@ -7,7 +7,7 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,11 @@ import (
 	"strings"
 )
 
-func (built *Built) toSourceScriptBySql(bp * strings.Builder) bool{
+func (built *Built) toSourceScriptBySql(bp *strings.Builder) bool {
 	if (len(built.Sbs) == 1) && (built.OrSourceSql != "") {
 		var sql = strings.Trim(built.OrSourceSql, SPACE)
 		if strings.HasPrefix(sql, "FROM") {
-			sql = strings.Replace(sql, "FROM ","",1)
+			sql = strings.Replace(sql, "FROM ", "", 1)
 		}
 		bp.WriteString(sql)
 		return true
@@ -33,7 +33,7 @@ func (built *Built) toSourceScriptBySql(bp * strings.Builder) bool{
 	return false
 }
 
-func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceBuilder, bp *strings.Builder) {
+func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceX, bp *strings.Builder) {
 	if sb.join != nil { //JOIN
 		bp.WriteString(SPACE)
 		bp.WriteString(sb.join.join)
@@ -57,12 +57,12 @@ func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceBuilder
 			bp.WriteString(USING_SCRIPT_LEFT)
 			bp.WriteString(sb.join.on.orUsingKey)
 			bp.WriteString(END_SUB)
-		}else if sb.s != "" {
+		} else if sb.s != "" {
 			bp.WriteString(SPACE)
 			bp.WriteString(sb.s)
-		}else {
+		} else {
 			bp.WriteString(ON_SCRIPT)
-			built.toConditionScript(sb.join.on.bbs,bp,vs,nil)
+			built.toConditionScript(sb.join.on.bbs, bp, vs, nil)
 		}
 	}
 }

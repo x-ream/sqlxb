@@ -30,11 +30,11 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 	if builder.isWithoutOptimization {
 		return
 	}
-	if len(builder.resultKeys) == 0 || len(builder.sbs) < 2 {
+	if len(builder.resultKeys) == 0 || len(builder.sxs) < 2 {
 		return
 	}
 
-	builder.removeSourceBuilder(builder.sbs, func(useds *[]*SourceBuilder, ele *SourceBuilder, i int) bool {
+	builder.removeSourceBuilder(builder.sxs, func(useds *[]*SourceX, ele *SourceX, i int) bool {
 
 		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join, "LEFT")) {
 			return false
@@ -55,8 +55,8 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 		}
 
 		//target
-		for j := len(builder.sbs) - 1; j > i; j-- {
-			var sb = builder.sbs[j]
+		for j := len(builder.sxs) - 1; j > i; j-- {
+			var sb = builder.sxs[j]
 			fmt.Println(sb)
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for _, bb := range sb.join.on.bbs {
@@ -89,8 +89,8 @@ func (builder *BuilderX) conds() *[]string {
 		}
 	}
 
-	if len(builder.sbs) > 0 {
-		for _, sb := range builder.sbs {
+	if len(builder.sxs) > 0 {
+		for _, sb := range builder.sxs {
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for i, bb := range sb.join.on.bbs {
 					if i > 0 {
@@ -106,8 +106,8 @@ func (builder *BuilderX) conds() *[]string {
 func (builder *BuilderX) condsOfOn() *[]string {
 	condArr := []string{}
 
-	if len(builder.sbs) > 0 {
-		for _, sb := range builder.sbs {
+	if len(builder.sxs) > 0 {
+		for _, sb := range builder.sxs {
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for _, bb := range sb.join.on.bbs {
 					condArr = append(condArr, bb.key)
@@ -118,8 +118,8 @@ func (builder *BuilderX) condsOfOn() *[]string {
 	return &condArr
 }
 
-func (builder *BuilderX) removeSourceBuilder(sbs []*SourceBuilder, canRemove canRemove) {
-	useds := []*SourceBuilder{}
+func (builder *BuilderX) removeSourceBuilder(sbs []*SourceX, canRemove canRemove) {
+	useds := []*SourceX{}
 	j := 0
 	leng := len(sbs)
 
@@ -135,11 +135,11 @@ func (builder *BuilderX) removeSourceBuilder(sbs []*SourceBuilder, canRemove can
 	j = 0
 	if length < leng {
 		for i := length - 1; i > -1; i-- { //reverse
-			(builder.sbs)[j] = useds[i]
+			(builder.sxs)[j] = useds[i]
 			j++
 		}
-		builder.sbs = (builder.sbs)[:j]
+		builder.sxs = (builder.sxs)[:j]
 	}
 }
 
-type canRemove func(useds *[]*SourceBuilder, ele *SourceBuilder, i int) bool
+type canRemove func(useds *[]*SourceX, ele *SourceX, i int) bool

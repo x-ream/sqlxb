@@ -16,7 +16,7 @@
 // limitations under the License.
 package sqlxb
 
-type SourceBuilder struct {
+type SourceX struct {
 	po   Po
 	alia string
 	join *Join
@@ -24,19 +24,23 @@ type SourceBuilder struct {
 	s    string
 }
 
+type SourceBuilder struct {
+	x  *SourceX
+	xs *[]*SourceX
+}
+
 func (sb *SourceBuilder) Source(po Po) *SourceBuilder {
-	sb.po = po
+	sb.x.po = po
 	return sb
 }
 
 func (sb *SourceBuilder) Alia(alia string) *SourceBuilder {
-	sb.alia = alia
+	sb.x.alia = alia
 	return sb
 }
 
 type Join struct {
 	join string
-	alia string
 	on   *On
 }
 type On struct {
@@ -47,43 +51,46 @@ type Using struct {
 	key string
 }
 
-func (join *Join) ON(k string) *On {
-	join.on = &On{}
-	join.on.X(k)
-	return join.on
+func (sb *SourceBuilder) Cond(on func(on *On)) *SourceBuilder {
+	if sb.x.join == nil || sb.x.join.on == nil {
+		panic("call Cond(on *On) after ON(onStr)")
+	}
+	on(sb.x.join.on)
+	return sb
 }
 
-func (join *Join) USING(key string) {
+func (sb *SourceBuilder) ON(onStr string) *SourceBuilder {
+	sb.x.join.on = &On{}
+	sb.x.join.on.X(onStr)
+	return sb
+}
+
+func (sb *SourceBuilder) USING(key string) *SourceBuilder {
 	if key == "" {
 		panic("Using.key can not blank")
 	}
-	join.on = &On{}
-	join.on.orUsingKey = key
+	sb.x.join.on = &On{}
+	sb.x.join.on.orUsingKey = key
+	return sb
 }
 
-func (join *Join) Alia(alia string) *Join {
-	join.alia = alia
-	return join
-}
-
-func (sb *SourceBuilder) Join(join JOIN) *Join {
+func (sb *SourceBuilder) Join(join JOIN) *SourceBuilder {
 	if join == nil {
 		panic("join, on can not nil")
 	}
-	if sb.join != nil {
-		panic("call Join repeated")
-	}
-	sb.join = &Join{
+
+	x := SourceX{}
+
+	*sb.xs = append(*sb.xs, &x)
+	sb.x = &x
+
+	sb.x.join = &Join{
 		join: join(),
 	}
-	return sb.join
-}
-
-func (sb *SourceBuilder) JoinScript(joinScript string) {
-	sb.s = joinScript
+	return sb
 }
 
 func (sb *SourceBuilder) Sub(sub *BuilderX) *SourceBuilder {
-	sb.sub = sub
+	sb.x.sub = sub
 	return sb
 }

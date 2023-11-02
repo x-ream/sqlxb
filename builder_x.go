@@ -20,15 +20,11 @@ package sqlxb
 // Sql for MySQL, Clickhouse....
 //
 // @author Sim
-func Sub(po Po) *BuilderX {
-	return NewBuilderX(po, "")
-}
-
 type BuilderX struct {
 	Builder
 	resultKeys            []string
 	orSourceSql           string
-	sbs                   []*SourceBuilder
+	sxs                   []*SourceX
 	svs                   []interface{}
 	havings               []Bb
 	groupBys              []string
@@ -36,37 +32,28 @@ type BuilderX struct {
 	isWithoutOptimization bool
 }
 
-func NewBuilderX(po Po, alia string) *BuilderX {
+func NewBuilderX() *BuilderX {
 	x := new(BuilderX)
 	x.bbs = []Bb{}
-	x.sbs = []*SourceBuilder{}
-	if po != nil {
-		var sb = SourceBuilder{
-			po:   po,
-			alia: alia,
-		}
-		x.sbs = append(x.sbs, &sb)
-	} else if alia != "" {
-		panic("No po, alia: " + alia)
-	}
+	x.sxs = []*SourceX{}
+
+	sb := SourceX{}
+	x.sxs = append(x.sxs, &sb)
+
 	return x
 }
 
-func (x *BuilderX) SourceBuilder() *SourceBuilder {
-	var sb = SourceBuilder{}
-	x.sbs = append(x.sbs, &sb)
-	return &sb
+func Sub(po Po) *BuilderX {
+	x := NewBuilderX()
+	x.sxs[0].po = po
+	return x
 }
 
-func Source() *SourceBuilder {
-	var sb = SourceBuilder{}
-	return &sb
-}
-
-func (x *BuilderX) SourceX(source func(*SourceBuilder)) *BuilderX {
-	var b = Source()
-	x.sbs = append(x.sbs, b)
-	source(b)
+func (x *BuilderX) SourceX(source func(sb *SourceBuilder)) *BuilderX {
+	var b = SourceBuilder{}
+	b.xs = &x.sxs
+	b.x = x.sxs[0]
+	source(&b)
 	return x
 }
 
@@ -92,12 +79,7 @@ func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
 }
 
 func (x *BuilderX) Source(po Po) *BuilderX {
-	if po != nil {
-		sb := SourceBuilder{
-			po: po,
-		}
-		x.sbs = append(x.sbs, &sb)
-	}
+	x.sxs[0].po = po
 	return x
 }
 
@@ -148,7 +130,7 @@ func (builder *BuilderX) Build() *Built {
 		Havings:     builder.havings,
 		GroupBys:    builder.groupBys,
 		OrSourceSql: builder.orSourceSql,
-		Sbs:         builder.sbs,
+		Sbs:         builder.sxs,
 		Svs:         builder.svs,
 
 		Po: builder.po,

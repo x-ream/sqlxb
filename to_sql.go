@@ -31,7 +31,7 @@ type Built struct {
 	Aggs       []Bb
 
 	OrSourceSql string
-	Sbs         []*SourceBuilder
+	Sbs         []*SourceX
 	Svs         []interface{}
 
 	PageCondition *PageCondition

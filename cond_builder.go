@@ -24,7 +24,7 @@ type CondBuilder struct {
 
 type BoolFunc func() bool
 
-func SubCond() *CondBuilder {
+func subCondBuilder() *CondBuilder {
 	c := new(CondBuilder)
 	c.bbs = []Bb{}
 	return c
@@ -152,15 +152,17 @@ func (builder *CondBuilder) null(op string, k string) *CondBuilder {
 	return builder
 }
 
-func (builder *CondBuilder) orAndSub(orAnd string, sub *CondBuilder) *CondBuilder {
-	if sub.bbs == nil || len(sub.bbs) == 0 {
+func (builder *CondBuilder) orAndSub(orAnd string, sub func(sub *CondBuilder)) *CondBuilder {
+	c := subCondBuilder()
+	sub(c)
+	if c.bbs == nil || len(c.bbs) == 0 {
 		return builder
 	}
 
 	bb := Bb{
 		op:   orAnd,
 		key:  orAnd,
-		subs: sub.bbs,
+		subs: c.bbs,
 	}
 	builder.bbs = append(builder.bbs, bb)
 	return builder
@@ -182,12 +184,12 @@ func (builder *CondBuilder) orAnd(orAnd string) *CondBuilder {
 	return builder
 }
 
-func (builder *CondBuilder) And(subCond *CondBuilder) *CondBuilder {
-	return builder.orAndSub(AND_SUB, subCond)
+func (builder *CondBuilder) And(sub func(sub *CondBuilder)) *CondBuilder {
+	return builder.orAndSub(AND_SUB, sub)
 }
 
-func (builder *CondBuilder) Or(subCond *CondBuilder) *CondBuilder {
-	return builder.orAndSub(OR_SUB, subCond)
+func (builder *CondBuilder) Or(sub func(sub *CondBuilder)) *CondBuilder {
+	return builder.orAndSub(OR_SUB, sub)
 }
 
 func (builder *CondBuilder) OR() *CondBuilder {
