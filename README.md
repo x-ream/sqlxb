@@ -4,7 +4,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/x-ream/sqlxb.svg?style=flat)](https://github.com/x-ream/sqlxb/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 
-a tool of sql builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), [gorp](https://github.com/go-gorp/gorp),
+a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like [gorm](https://github.com/go-gorm/gorm)....
 
 ## API
@@ -14,10 +14,12 @@ or build condition sql for some orm framework, like [gorm](https://github.com/go
     c := Cat{}
 	builder := NewBuilder(&c)
     builder.Gte("id", 10000)
-    builder.And(SubCondition().Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
+    builder.And(func(sub *CondBuilder) {
+		sub.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
+    })    
     ....
     
-    builderX := NewBuilderX(nil,"") //or, NewBuilderX(&cat,"c")
+    builderX := NewBuilderX() //
     builderX.ResultKeys( "c.color","p.id","COUNT(DISTINCT c.id) AS `c.id_count`")
     ....
 
@@ -101,7 +103,9 @@ func main() {
 	builder.LikeRight("name",catRo.Name)
 	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will NOT ignore
     //Eq,Ne,Gt.... value 0 and nil will ignore, like as follow: OR().Eq("is_sold", catRo.IsSold)
-	builder.And(SubCondition().Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
+	builder.And(func(sub *CondBuilder) {
+            sub.Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
+	    })
     //func Bool NOT designed for value nil or 0; designed to convert complex logic to bool
     //Decorator pattern suggest to use func Bool preCondition, like:
     //myBoolDecorator := NewMyBoolDecorator(para)
@@ -131,5 +135,25 @@ func main() {
 ### BuilderX Example
 
 ```Go
+import (
+        . "github.com/x-ream/sqlxb"
+    )
+    
+func main() {
+    builder := NewBuilderX()
+	
+	// friendly to clickhouse
+	builder.SourceX(func(sb *SourceBuilder) {
+        sb.
+            Sub(sub).Alia("p").
+            Join(INNER_JOIN).Source(&dog).Alia("d").ON("d.pet_id = p.id").
+            Join(INNER_JOIN).Source(&cat).Alia("c").ON("c.pet_id = p.id").
+                Cond(func(on *On) {
+                    on.Gt("c.id", 100)
+                })
+        })
+    
+}
+
 
 ```
