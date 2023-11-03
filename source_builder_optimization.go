@@ -34,7 +34,9 @@ func (x *BuilderX) optimizeSourceBuilder() {
 	}
 
 	x.removeSourceBuilder(x.sxs, func(useds *[]*SourceX, ele *SourceX, i int) bool {
-
+		if i == 0 {
+			return false
+		}
 		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join, "LEFT")) {
 			return false
 		}

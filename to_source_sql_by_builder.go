@@ -33,36 +33,36 @@ func (built *Built) toSourceSqlBySql(bp *strings.Builder) bool {
 	return false
 }
 
-func (built *Built) toSourceSqlByBuilder(vs *[]interface{}, sb *SourceX, bp *strings.Builder) {
-	if sb.join != nil { //JOIN
+func (built *Built) toSourceSqlByBuilder(vs *[]interface{}, sx *SourceX, bp *strings.Builder) {
+	if sx.join != nil { //JOIN
 		bp.WriteString(SPACE)
-		bp.WriteString(sb.join.join)
+		bp.WriteString(sx.join.join)
 		bp.WriteString(SPACE)
 	}
-	if sb.po != nil {
-		bp.WriteString(sb.po.TableName())
-	} else if sb.sub != nil {
-		dataSql, _ := sb.sub.Build().sqlData(vs, nil)
+	if sx.po != nil {
+		bp.WriteString(sx.po.TableName())
+	} else if sx.sub != nil {
+		dataSql, _ := sx.sub.Build().sqlData(vs, nil)
 		bp.WriteString(BEGIN_SUB)
 		bp.WriteString(dataSql)
 		bp.WriteString(END_SUB)
 	}
-	if sb.alia != "" {
+	if sx.alia != "" {
 		bp.WriteString(SPACE)
-		bp.WriteString(sb.alia)
+		bp.WriteString(sx.alia)
 	}
-	if sb.join != nil && sb.join.on != nil { //ON
+	if sx.join != nil && sx.join.on != nil { //ON
 
-		if sb.join.on.orUsingKey != "" {
+		if sx.join.on.orUsingKey != "" {
 			bp.WriteString(USING_SCRIPT_LEFT)
-			bp.WriteString(sb.join.on.orUsingKey)
+			bp.WriteString(sx.join.on.orUsingKey)
 			bp.WriteString(END_SUB)
-		} else if sb.s != "" {
+		} else if sx.s != "" {
 			bp.WriteString(SPACE)
-			bp.WriteString(sb.s)
+			bp.WriteString(sx.s)
 		} else {
 			bp.WriteString(ON_SCRIPT)
-			built.toConditionSql(sb.join.on.bbs, bp, vs, nil)
+			built.toConditionSql(sx.join.on.bbs, bp, vs, nil)
 		}
 	}
 }

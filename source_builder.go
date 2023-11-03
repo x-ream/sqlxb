@@ -80,7 +80,6 @@ func (sb *SourceBuilder) Join(join JOIN) *SourceBuilder {
 	}
 
 	x := SourceX{}
-
 	*sb.xs = append(*sb.xs, &x)
 	sb.x = &x
 
@@ -90,7 +89,9 @@ func (sb *SourceBuilder) Join(join JOIN) *SourceBuilder {
 	return sb
 }
 
-func (sb *SourceBuilder) Sub(sub *BuilderX) *SourceBuilder {
-	sb.x.sub = sub
+func (sb *SourceBuilder) Sub(sub func(sub *BuilderX)) *SourceBuilder {
+	x := new(BuilderX)
+	sb.x.sub = x
+	sub(x)
 	return sb
 }
