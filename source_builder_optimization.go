@@ -20,20 +20,20 @@ import (
 	"strings"
 )
 
-func (builder *BuilderX) WithoutOptimization() *BuilderX {
-	builder.isWithoutOptimization = true
-	return builder
+func (x *BuilderX) WithoutOptimization() *BuilderX {
+	x.isWithoutOptimization = true
+	return x
 }
 
-func (builder *BuilderX) optimizeSourceBuilder() {
-	if builder.isWithoutOptimization {
+func (x *BuilderX) optimizeSourceBuilder() {
+	if x.isWithoutOptimization {
 		return
 	}
-	if len(builder.resultKeys) == 0 || len(builder.sxs) < 2 {
+	if len(x.resultKeys) == 0 || len(x.sxs) < 2 {
 		return
 	}
 
-	builder.removeSourceBuilder(builder.sxs, func(useds *[]*SourceX, ele *SourceX, i int) bool {
+	x.removeSourceBuilder(x.sxs, func(useds *[]*SourceX, ele *SourceX, i int) bool {
 
 		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join, "LEFT")) {
 			return false
@@ -44,7 +44,7 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 				return false
 			}
 		}
-		for _, v := range *builder.conds() {
+		for _, v := range *x.conds() {
 			if ele.po != nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
 				return false
 			}
@@ -54,8 +54,8 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 		}
 
 		//target
-		for j := len(builder.sxs) - 1; j > i; j-- {
-			var sb = builder.sxs[j]
+		for j := len(x.sxs) - 1; j > i; j-- {
+			var sb = x.sxs[j]
 
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for _, bb := range sb.join.on.bbs {
@@ -74,13 +74,13 @@ func (builder *BuilderX) optimizeSourceBuilder() {
 	})
 }
 
-func (builder *BuilderX) conds() *[]string {
+func (x *BuilderX) conds() *[]string {
 	condArr := []string{}
-	for _, v := range builder.resultKeys {
+	for _, v := range x.resultKeys {
 		condArr = append(condArr, v)
 	}
 
-	bbps := builder.CondBuilder.bbs
+	bbps := x.CondBuilder.bbs
 
 	if bbps != nil {
 		for _, v := range bbps {
@@ -88,8 +88,8 @@ func (builder *BuilderX) conds() *[]string {
 		}
 	}
 
-	if len(builder.sxs) > 0 {
-		for _, sb := range builder.sxs {
+	if len(x.sxs) > 0 {
+		for _, sb := range x.sxs {
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for i, bb := range sb.join.on.bbs {
 					if i > 0 {
@@ -102,7 +102,7 @@ func (builder *BuilderX) conds() *[]string {
 	return &condArr
 }
 
-func (builder *BuilderX) removeSourceBuilder(sbs []*SourceX, canRemove canRemove) {
+func (x *BuilderX) removeSourceBuilder(sbs []*SourceX, canRemove canRemove) {
 	useds := []*SourceX{}
 	j := 0
 	leng := len(sbs)
@@ -119,10 +119,10 @@ func (builder *BuilderX) removeSourceBuilder(sbs []*SourceX, canRemove canRemove
 	j = 0
 	if length < leng {
 		for i := length - 1; i > -1; i-- { //reverse
-			(builder.sxs)[j] = useds[i]
+			(x.sxs)[j] = useds[i]
 			j++
 		}
-		builder.sxs = (builder.sxs)[:j]
+		x.sxs = (x.sxs)[:j]
 	}
 }
 

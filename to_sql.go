@@ -39,27 +39,27 @@ type Built struct {
 	Po Po
 }
 
-func (built *Built) toSourceScriptOfCount(bpCount *strings.Builder) {
-	built.toSourceScript(nil, bpCount)
+func (built *Built) toSourceSqlOfCount(bpCount *strings.Builder) {
+	built.toSourceSql(nil, bpCount)
 }
 
-func (built *Built) toConditionScriptOfCount(bbs []Bb, bpCount *strings.Builder) {
-	built.toConditionScript(bbs, bpCount, nil, nil)
+func (built *Built) toConditionSqlOfCount(bbs []Bb, bpCount *strings.Builder) {
+	built.toConditionSql(bbs, bpCount, nil, nil)
 }
 
 func (built *Built) toGroupBySqlOfCount(bpCount *strings.Builder) {
 	built.toGroupBySql(bpCount)
 }
 
-func (built *Built) toSourceScript(vs *[]interface{}, bp *strings.Builder) {
+func (built *Built) toSourceSql(vs *[]interface{}, bp *strings.Builder) {
 	if built.Po == nil {
 
-		if built.toSourceScriptBySql(bp) {
+		if built.toSourceSqlBySql(bp) {
 			return
 		}
 
 		for _, sb := range built.Sbs {
-			built.toSourceScriptByBuilder(vs, sb, bp)
+			built.toSourceSqlByBuilder(vs, sb, bp)
 		}
 	} else {
 		bp.WriteString(built.Po.TableName())
@@ -101,8 +101,23 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 			return
 		}
 		bp.WriteString(BEGIN_SUB)
-		built.toConditionScript(bb.subs, bp, vs, nil)
+		built.toConditionSql(bb.subs, bp, vs, nil)
 		bp.WriteString(END_SUB)
+	case SUB:
+		var bx = *bb.value.(*BuilderX)
+		ss, _ := bx.Build().sqlData(vs, nil)
+		ss = BEGIN_SUB + ss + END_SUB
+		if bb.key != "" {
+			if strings.Contains(bb.key, PLACE_HOLDER) {
+				bp.WriteString(strings.ReplaceAll(bb.key, PLACE_HOLDER, ss))
+			} else {
+				bp.WriteString(bb.key)
+				bp.WriteString(SPACE)
+				bp.WriteString(ss)
+			}
+		} else {
+			bp.WriteString(ss)
+		}
 	default:
 		bp.WriteString(bb.key)
 		bp.WriteString(SPACE)
@@ -114,7 +129,7 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 	}
 }
 
-func (built *Built) toConditionScript(bbs []Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
+func (built *Built) toConditionSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
 
 	length := len(bbs)
 
@@ -179,7 +194,7 @@ func (built *Built) toHavingSql(vs *[]interface{}, bp *strings.Builder) {
 		return
 	}
 	bp.WriteString(HAVING)
-	built.toConditionScript(built.Havings, bp, vs, nil)
+	built.toConditionSql(built.Havings, bp, vs, nil)
 }
 
 func (built *Built) toHavingSqlOfCount(bp *strings.Builder) {
@@ -241,7 +256,7 @@ func (built *Built) countBuilder() *strings.Builder {
 func (built *Built) SqlOfCondition() ([]interface{}, string) {
 	vs := []interface{}{}
 	sb := strings.Builder{}
-	built.toConditionScript(built.ConditionX, &sb, &vs, built.filterLast)
+	built.toConditionSql(built.ConditionX, &sb, &vs, built.filterLast)
 	conditionSql := sb.String()
 	return vs, conditionSql
 }
@@ -284,11 +299,11 @@ func (built *Built) Sql() ([]interface{}, string, string, map[string]string) {
 
 func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
 	sb := strings.Builder{}
-	built.toResultKeyScript(&sb, km)
+	built.toResultKeySql(&sb, km)
 	built.sqlFrom(&sb)
-	built.toSourceScript(vs, &sb)
+	built.toSourceSql(vs, &sb)
 	built.sqlWhere(&sb)
-	built.toConditionScript(built.ConditionX, &sb, vs, built.filterLast)
+	built.toConditionSql(built.ConditionX, &sb, vs, built.filterLast)
 	built.toAggSql(vs, &sb)
 	built.toGroupBySql(&sb)
 	built.toHavingSql(vs, &sb)
@@ -303,11 +318,11 @@ func (built *Built) sqlCount() string {
 	if sbCount == nil {
 		return ""
 	}
-	built.toResultKeyScriptOfCount(sbCount)
+	built.toResultKeySqlOfCount(sbCount)
 	built.countSqlFrom(sbCount)
-	built.toSourceScriptOfCount(sbCount)
+	built.toSourceSqlOfCount(sbCount)
 	built.countSqlWhere(sbCount)
-	built.toConditionScriptOfCount(built.ConditionX, sbCount)
+	built.toConditionSqlOfCount(built.ConditionX, sbCount)
 	built.toAggSqlOfCount(sbCount)
 	built.toGroupBySqlOfCount(sbCount)
 	built.toHavingSqlOfCount(sbCount)

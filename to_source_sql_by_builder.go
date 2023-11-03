@@ -21,7 +21,7 @@ import (
 	"strings"
 )
 
-func (built *Built) toSourceScriptBySql(bp *strings.Builder) bool {
+func (built *Built) toSourceSqlBySql(bp *strings.Builder) bool {
 	if (len(built.Sbs) == 1) && (built.OrSourceSql != "") {
 		var sql = strings.Trim(built.OrSourceSql, SPACE)
 		if strings.HasPrefix(sql, "FROM") {
@@ -33,7 +33,7 @@ func (built *Built) toSourceScriptBySql(bp *strings.Builder) bool {
 	return false
 }
 
-func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceX, bp *strings.Builder) {
+func (built *Built) toSourceSqlByBuilder(vs *[]interface{}, sb *SourceX, bp *strings.Builder) {
 	if sb.join != nil { //JOIN
 		bp.WriteString(SPACE)
 		bp.WriteString(sb.join.join)
@@ -62,7 +62,7 @@ func (built *Built) toSourceScriptByBuilder(vs *[]interface{}, sb *SourceX, bp *
 			bp.WriteString(sb.s)
 		} else {
 			bp.WriteString(ON_SCRIPT)
-			built.toConditionScript(sb.join.on.bbs, bp, vs, nil)
+			built.toConditionSql(sb.join.on.bbs, bp, vs, nil)
 		}
 	}
 }

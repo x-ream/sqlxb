@@ -79,6 +79,9 @@ func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
 }
 
 func (x *BuilderX) Source(po Po) *BuilderX {
+	if len(x.sxs) == 0 {
+		x.sxs = append(x.sxs, new(SourceX))
+	}
 	x.sxs[0].po = po
 	return x
 }
@@ -117,28 +120,41 @@ func (x *BuilderX) Agg(fn string, vs ...interface{}) *BuilderX {
 	return x
 }
 
-func (builder *BuilderX) Build() *Built {
-	if builder == nil {
+func (x *BuilderX) Build() *Built {
+	if x == nil {
 		panic("sqlxb.Builder is nil")
 	}
-	builder.optimizeSourceBuilder()
+	x.optimizeSourceBuilder()
 	built := Built{
-		ResultKeys:  builder.resultKeys,
-		ConditionX:  builder.bbs,
-		Sorts:       builder.sorts,
-		Aggs:        builder.aggs,
-		Havings:     builder.havings,
-		GroupBys:    builder.groupBys,
-		OrSourceSql: builder.orSourceSql,
-		Sbs:         builder.sxs,
-		Svs:         builder.svs,
+		ResultKeys:  x.resultKeys,
+		ConditionX:  x.bbs,
+		Sorts:       x.sorts,
+		Aggs:        x.aggs,
+		Havings:     x.havings,
+		GroupBys:    x.groupBys,
+		OrSourceSql: x.orSourceSql,
+		Sbs:         x.sxs,
+		Svs:         x.svs,
 
-		Po: builder.po,
+		Po: x.po,
 	}
 
-	if builder.pageBuilder != nil {
-		built.PageCondition = &builder.pageBuilder.condition
+	if x.pageBuilder != nil {
+		built.PageCondition = &x.pageBuilder.condition
 	}
 
 	return &built
+}
+
+func (x *BuilderX) Sub(s string, sub func(sub *BuilderX)) *BuilderX {
+
+	b := new(BuilderX)
+	sub(b)
+	bb := Bb{
+		op:    SUB,
+		key:   s,
+		value: b,
+	}
+	x.bbs = append(x.bbs, bb)
+	return x
 }

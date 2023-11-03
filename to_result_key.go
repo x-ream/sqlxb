@@ -7,7 +7,7 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,7 @@ func buildResultKey(key string, km map[string]string) string {
 	return key
 }
 
-func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string) {
+func (built *Built) toResultKeySql(bp *strings.Builder, km map[string]string) {
 	bp.WriteString(SELECT)
 	if built.ResultKeys == nil {
 		bp.WriteString(STAR)
@@ -80,7 +80,7 @@ func (built *Built) toResultKeyScript(bp *strings.Builder, km map[string]string)
 	}
 }
 
-func (built *Built) toResultKeyScriptOfCount(bpCount *strings.Builder) {
+func (built *Built) toResultKeySqlOfCount(bpCount *strings.Builder) {
 	if built.ResultKeys != nil && len(built.ResultKeys) > 0 {
 		bpCount.WriteString(COUNT_KEY_SCRIPT_LEFT)
 		bpCount.WriteString(built.ResultKeys[0])
