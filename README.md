@@ -111,10 +111,14 @@ func main() {
     //myBoolDecorator := NewMyBoolDecorator(para)
     //builder.Bool(myBoolDecorator.fooCondition, func(cb *CondBuilder) {
 	builder.Bool(preCondition, func(cb *CondBuilder) {
-		cb.Or(SubCondition().Lt("price", 5000))
+            cb.Or(func(sub *CondBuilder) {
+                sub.Lt("price", 5000)
+            })
 	})
 	builder.Sort("id", ASC)
-	builder.Paged().Rows(10).Last(100)
+        builder.Paged(func(pb *PageBuilder) {
+                pb.Page(1).Rows(10)
+            })
 	vs, dataSql, countSql, _ := builder.Build().Sql()
     // ....
 
