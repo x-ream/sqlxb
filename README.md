@@ -141,7 +141,7 @@ import (
     
 func main() {
 	
-    builder := NewBuilderX()
+        builder := NewBuilderX()
 	builder.
 		ResultKey("p.id").
 		SourceX(func(sb *SourceBuilder) {
@@ -152,8 +152,7 @@ func main() {
                             Cond(func(on *On) {
                                 on.Gt("c.id", ro.MinCatId)
                             })
-		            }
-				).
+		    }).
 	        Ne("p.type","PIG")
     
 }
