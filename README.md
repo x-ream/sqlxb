@@ -140,18 +140,21 @@ import (
     )
     
 func main() {
-    builder := NewBuilderX()
 	
-	// friendly to clickhouse
-	builder.SourceX(func(sb *SourceBuilder) {
-        sb.
-            Sub(sub).Alia("p").
-            Join(INNER_JOIN).Source(&dog).Alia("d").ON("d.pet_id = p.id").
-            Join(LEFT_JOIN).Source(&cat).Alia("c").ON("c.pet_id = p.id").
-                Cond(func(on *On) {
-                    on.Gt("c.id", ro.MinCatId)
-                })
-        })
+    builder := NewBuilderX()
+	builder.
+		ResultKey("p.id").
+		SourceX(func(sb *SourceBuilder) {
+                    sb.
+                        Sub(sub).Alia("p").
+                        Join(INNER_JOIN).Source(&dog).Alia("d").ON("d.pet_id = p.id").
+                        Join(LEFT_JOIN).Source(&cat).Alia("c").ON("c.pet_id = p.id").
+                            Cond(func(on *On) {
+                                on.Gt("c.id", ro.MinCatId)
+                            })
+		            }
+				).
+	        Ne("p.type","PIG")
     
 }
 
