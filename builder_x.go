@@ -79,16 +79,10 @@ func (x *BuilderX) Source(po Po) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) Having(op Op, k string, v interface{}) *BuilderX {
-	if op == nil || k == "" {
-		return x
-	}
-	bb := Bb{
-		op:    op(),
-		key:   k,
-		value: v,
-	}
-	x.havings = append(x.havings, bb)
+func (x *BuilderX) Having(cond func(cb *CondBuilder)) *BuilderX {
+	var cb = new(CondBuilder)
+	cond(cb)
+	x.havings = cb.bbs
 	return x
 }
 
