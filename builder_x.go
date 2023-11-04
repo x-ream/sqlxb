@@ -62,13 +62,6 @@ func (x *BuilderX) SourceScript(sqlScript string) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) ResultKey(resultKey string) *BuilderX {
-	if resultKey != "" {
-		x.resultKeys = append(x.resultKeys, resultKey)
-	}
-	return x
-}
-
 func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
 	for _, resultKey := range resultKeys {
 		if resultKey != "" {
