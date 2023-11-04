@@ -16,7 +16,7 @@
 // limitations under the License.
 package sqlxb
 
-// To build sql, like: SELECT DISTINCT f.id FROM foo f INNER JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
+// To build sql, like: SELECT DISTINCT f.id FROM foo f INNER_JOIN JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
 // Sql for MySQL, Clickhouse....
 //
 // @author Sim

@@ -41,35 +41,35 @@ func (sb *SourceBuilder) Alia(alia string) *SourceBuilder {
 
 type Join struct {
 	join string
-	on   *On
+	on   *ON
 }
-type On struct {
+type ON struct {
 	CondBuilder
 	orUsingKey string
 }
-type Using struct {
+type USING struct {
 	key string
 }
 
-func (sb *SourceBuilder) Cond(on func(on *On)) *SourceBuilder {
+func (sb *SourceBuilder) Cond(on func(on *ON)) *SourceBuilder {
 	if sb.x.join == nil || sb.x.join.on == nil {
-		panic("call Cond(on *On) after ON(onStr)")
+		panic("call Cond(on *ON) after ON(onStr)")
 	}
 	on(sb.x.join.on)
 	return sb
 }
 
-func (sb *SourceBuilder) ON(onStr string) *SourceBuilder {
-	sb.x.join.on = &On{}
+func (sb *SourceBuilder) On(onStr string) *SourceBuilder {
+	sb.x.join.on = &ON{}
 	sb.x.join.on.X(onStr)
 	return sb
 }
 
-func (sb *SourceBuilder) USING(key string) *SourceBuilder {
+func (sb *SourceBuilder) Using(key string) *SourceBuilder {
 	if key == "" {
-		panic("Using.key can not blank")
+		panic("USING.key can not blank")
 	}
-	sb.x.join.on = &On{}
+	sb.x.join.on = &ON{}
 	sb.x.join.on.orUsingKey = key
 	return sb
 }

@@ -34,7 +34,7 @@ func (built *Built) toSourceSqlBySql(bp *strings.Builder) bool {
 }
 
 func (built *Built) toSourceSqlByBuilder(vs *[]interface{}, sx *SourceX, bp *strings.Builder) {
-	if sx.join != nil { //JOIN
+	if sx.join != nil { //Join
 		bp.WriteString(SPACE)
 		bp.WriteString(sx.join.join)
 		bp.WriteString(SPACE)

@@ -117,7 +117,7 @@ func main() {
 	})
 	builder.Sort("id", ASC)
         builder.Paged(func(pb *PageBuilder) {
-                pb.Page(1).Rows(10)
+                pb.Page(1).Rows(10).IgnoreTotalRows()
             })
 	vs, dataSql, countSql, _ := builder.Build().Sql()
     // ....
@@ -125,6 +125,7 @@ func main() {
     //dataSql: SELECT * FROM t_cat WHERE id > ? AND name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
     //ORDER BY id ASC LIMIT 10
 
+	//.IgnoreTotalRows(), will not output countSql
     //countSql: SELECT COUNT(*) FROM t_cat WHERE name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
     
     //sqlx: 	err = Db.Select(&catList, dataSql,vs...)

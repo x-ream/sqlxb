@@ -37,7 +37,7 @@ func (x *BuilderX) optimizeSourceBuilder() {
 		if i == 0 {
 			return false
 		}
-		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join, "LEFT")) {
+		if ele.sub != nil && (ele.join != nil && !strings.Contains(ele.join.join, "LEFT_JOIN")) {
 			return false
 		}
 		for _, u := range *useds {

@@ -7,7 +7,7 @@
 // (the "License"); you may not use this file except in compliance with
 // the License.  You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,21 @@
 package sqlxb
 
 const (
-	inner_join = "INNER JOIN"
-	left_join  = "LEFT JOIN"
-	right_join = "RIGHT JOIN"
+	inner_join      = "INNER JOIN"
+	left_join       = "LEFT JOIN"
+	right_join      = "RIGHT JOIN"
+	cross_join      = "CROSS JOIN"
+	asof_join       = "ASOF JOIN"
+	global_join     = "GLOBAL JOIN"
+	full_outer_join = "FULL OUTER JOIN"
 )
 
+/**
+ * Config your own JOIN string as string func
+ */
 type JOIN func() string
 
-func NonJoin() string {
+func NON_JOIN() string {
 	return ", "
 }
 
@@ -38,4 +45,20 @@ func LEFT_JOIN() string {
 
 func RIGHT_JOIN() string {
 	return right_join
+}
+
+func CROSS_JOIN() string {
+	return cross_join
+}
+
+func ASOF_JOIN() string {
+	return asof_join
+}
+
+func GLOBAL_JOIN() string {
+	return global_join
+}
+
+func FULL_OUTER_JOIN() string {
+	return full_outer_join
 }
