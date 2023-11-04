@@ -147,7 +147,7 @@ func main() {
 	
         builder := NewBuilderX()
 	builder.
-		ResultKey("p.id").
+		ResultKeys("p.id").
 		SourceX(func(sb *SourceBuilder) {
                     sb.
                         Sub(sub).Alia("p").
