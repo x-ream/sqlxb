@@ -152,8 +152,8 @@ func main() {
 		SourceX(func(sb *SourceBuilder) {
                     sb.
                         Sub(sub).Alia("p").
-                        Join(INNER_JOIN).Source(&dog).Alia("d").ON("d.pet_id = p.id").
-                        Join(LEFT_JOIN).Source(&cat).Alia("c").ON("c.pet_id = p.id").
+                        JOIN(INNER).Source(&dog).Alia("d").ON("d.pet_id = p.id").
+                        JOIN(LEFT).Source(&cat).Alia("c").ON("c.pet_id = p.id").
                             Cond(func(on *On) {
                                 on.Gt("c.id", ro.MinCatId)
                             })
