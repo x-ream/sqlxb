@@ -35,30 +35,30 @@ func NON_JOIN() string {
 	return ", "
 }
 
-func INNER_JOIN() string {
+func INNER() string {
 	return inner_join
 }
 
-func LEFT_JOIN() string {
+func LEFT() string {
 	return left_join
 }
 
-func RIGHT_JOIN() string {
+func RIGHT() string {
 	return right_join
 }
 
-func CROSS_JOIN() string {
+func CROSS() string {
 	return cross_join
 }
 
-func ASOF_JOIN() string {
+func ASOF() string {
 	return asof_join
 }
 
-func GLOBAL_JOIN() string {
+func GLOBAL() string {
 	return global_join
 }
 
-func FULL_OUTER_JOIN() string {
+func FULL_OUTER() string {
 	return full_outer_join
 }

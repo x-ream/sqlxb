@@ -74,7 +74,7 @@ func (sb *SourceBuilder) Using(key string) *SourceBuilder {
 	return sb
 }
 
-func (sb *SourceBuilder) Join(join JOIN) *SourceBuilder {
+func (sb *SourceBuilder) JOIN(join JOIN) *SourceBuilder {
 	if join == nil {
 		panic("join, on can not nil")
 	}
