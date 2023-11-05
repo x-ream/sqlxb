@@ -99,7 +99,7 @@ func main() {
 	}
 
 	c := Cat{}
-	var builder = NewBuilder(&c)
+	var builder = Of(&c)
 	builder.LikeRight("name",catRo.Name)
 	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will NOT ignore
     //Eq,Ne,Gt.... value 0 and nil will ignore, like as follow: OR().Eq("is_sold", catRo.IsSold)
@@ -146,14 +146,15 @@ import (
     
 func main() {
 	
-        builder := NewBuilderX()
-	builder.
+	sub := Of(&pet).ResultKeys("id","type").Gt("id",10000)//....
+	
+        builder := Of(nil).
 		ResultKeys("p.id").
-		SourceX(func(sb *SourceBuilder) {
+		OfX(func(sb *SourceBuilder) {
                     sb.
                         Sub(sub).Alia("p").
-                        JOIN(INNER).Source(&dog).Alia("d").On("d.pet_id = p.id").
-                        JOIN(LEFT).Source(&cat).Alia("c").On("c.pet_id = p.id").
+                        JOIN(INNER).Of(&dog).Alia("d").On("d.pet_id = p.id").
+                        JOIN(LEFT).Of(&cat).Alia("c").On("c.pet_id = p.id").
                             Cond(func(on *ON) {
                                 on.Gt("c.id", ro.MinCatId)
                             })
