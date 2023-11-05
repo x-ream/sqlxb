@@ -19,25 +19,15 @@ package sqlxb
 import "time"
 
 type CondBuilder struct {
-	Bbs []Bb
+	bbs []Bb
 }
 
 type BoolFunc func() bool
 
 func subCondBuilder() *CondBuilder {
 	c := new(CondBuilder)
-	c.Bbs = []Bb{}
+	c.bbs = []Bb{}
 	return c
-}
-
-func (builder *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
-	bb := Bb{
-		op:    X,
-		key:   k,
-		value: vs,
-	}
-	builder.Bbs = append(builder.Bbs, bb)
-	return builder
 }
 
 func (builder *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBuilder {
@@ -85,7 +75,7 @@ func (builder *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBui
 		key:   k,
 		value: &ss,
 	}
-	builder.Bbs = append(builder.Bbs, bb)
+	builder.bbs = append(builder.bbs, bb)
 
 	return builder
 }
@@ -97,7 +87,7 @@ func (builder *CondBuilder) doLike(p string, k string, v string) *CondBuilder {
 		key:   k,
 		value: v,
 	}
-	builder.Bbs = append(builder.Bbs, bb)
+	builder.bbs = append(builder.bbs, bb)
 
 	return builder
 }
@@ -138,7 +128,7 @@ func (builder *CondBuilder) addBb(op string, key string, v interface{}) *CondBui
 		key:   key,
 		value: v,
 	}
-	builder.Bbs = append(builder.Bbs, bb)
+	builder.bbs = append(builder.bbs, bb)
 
 	return builder
 }
@@ -148,39 +138,39 @@ func (builder *CondBuilder) null(op string, k string) *CondBuilder {
 		op:  op,
 		key: k,
 	}
-	builder.Bbs = append(builder.Bbs, bb)
+	builder.bbs = append(builder.bbs, bb)
 	return builder
 }
 
 func (builder *CondBuilder) orAndSub(orAnd string, sub func(sub *CondBuilder)) *CondBuilder {
 	c := subCondBuilder()
 	sub(c)
-	if c.Bbs == nil || len(c.Bbs) == 0 {
+	if c.bbs == nil || len(c.bbs) == 0 {
 		return builder
 	}
 
 	bb := Bb{
 		op:   orAnd,
 		key:  orAnd,
-		subs: c.Bbs,
+		subs: c.bbs,
 	}
-	builder.Bbs = append(builder.Bbs, bb)
+	builder.bbs = append(builder.bbs, bb)
 	return builder
 }
 
 func (builder *CondBuilder) orAnd(orAnd string) *CondBuilder {
-	length := len(builder.Bbs)
+	length := len(builder.bbs)
 	if length == 0 {
 		return builder
 	}
-	pre := builder.Bbs[length-1]
+	pre := builder.bbs[length-1]
 	if pre.op == OR {
 		return builder
 	}
 	bb := Bb{
 		op: orAnd,
 	}
-	builder.Bbs = append(builder.Bbs, bb)
+	builder.bbs = append(builder.bbs, bb)
 	return builder
 }
 
@@ -257,4 +247,14 @@ func (builder *CondBuilder) IsNull(key string) *CondBuilder {
 }
 func (builder *CondBuilder) NonNull(key string) *CondBuilder {
 	return builder.null(NON_NULL, key)
+}
+
+func (builder *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
+	bb := Bb{
+		op:    X,
+		key:   k,
+		value: vs,
+	}
+	builder.bbs = append(builder.bbs, bb)
+	return builder
 }

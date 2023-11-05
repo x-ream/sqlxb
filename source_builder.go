@@ -29,7 +29,7 @@ type SourceBuilder struct {
 	xs *[]*SourceX
 }
 
-func (sb *SourceBuilder) Source(po Po) *SourceBuilder {
+func (sb *SourceBuilder) Of(po Po) *SourceBuilder {
 	sb.x.po = po
 	return sb
 }
