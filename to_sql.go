@@ -39,6 +39,15 @@ type Built struct {
 	Po Po
 }
 
+type Qr struct {
+	Rs []Bb
+	Cs []Bb
+
+	Svs []interface{}
+
+	Po Po
+}
+
 func (built *Built) toSourceSqlOfCount(bpCount *strings.Builder) {
 	built.toSourceSql(nil, bpCount)
 }

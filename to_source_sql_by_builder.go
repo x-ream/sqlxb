@@ -62,7 +62,7 @@ func (built *Built) toSourceSqlByBuilder(vs *[]interface{}, sx *SourceX, bp *str
 			bp.WriteString(sx.s)
 		} else {
 			bp.WriteString(ON_SCRIPT)
-			built.toConditionSql(sx.join.on.bbs, bp, vs, nil)
+			built.toConditionSql(sx.join.on.Bbs, bp, vs, nil)
 		}
 	}
 }

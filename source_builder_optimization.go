@@ -59,8 +59,8 @@ func (x *BuilderX) optimizeSourceBuilder() {
 		for j := len(x.sxs) - 1; j > i; j-- {
 			var sb = x.sxs[j]
 
-			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
-				for _, bb := range sb.join.on.bbs {
+			if sb.join != nil && sb.join.on != nil && sb.join.on.Bbs != nil {
+				for _, bb := range sb.join.on.Bbs {
 					v := bb.key
 					if ele.po != nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
 						return false
@@ -82,7 +82,7 @@ func (x *BuilderX) conds() *[]string {
 		condArr = append(condArr, v)
 	}
 
-	bbps := x.CondBuilder.bbs
+	bbps := x.CondBuilder.Bbs
 
 	if bbps != nil {
 		for _, v := range bbps {
@@ -92,8 +92,8 @@ func (x *BuilderX) conds() *[]string {
 
 	if len(x.sxs) > 0 {
 		for _, sb := range x.sxs {
-			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
-				for i, bb := range sb.join.on.bbs {
+			if sb.join != nil && sb.join.on != nil && sb.join.on.Bbs != nil {
+				for i, bb := range sb.join.on.Bbs {
 					if i > 0 {
 						condArr = append(condArr, bb.key)
 					}

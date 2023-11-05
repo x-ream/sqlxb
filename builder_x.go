@@ -34,7 +34,7 @@ type BuilderX struct {
 
 func NewBuilderX() *BuilderX {
 	x := new(BuilderX)
-	x.bbs = []Bb{}
+	x.Bbs = []Bb{}
 	x.sxs = []*SourceX{}
 
 	sb := SourceX{}
@@ -82,7 +82,7 @@ func (x *BuilderX) Source(po Po) *BuilderX {
 func (x *BuilderX) Having(cond func(cb *CondBuilder)) *BuilderX {
 	var cb = new(CondBuilder)
 	cond(cb)
-	x.havings = cb.bbs
+	x.havings = cb.Bbs
 	return x
 }
 
@@ -114,7 +114,7 @@ func (x *BuilderX) Build() *Built {
 	x.optimizeSourceBuilder()
 	built := Built{
 		ResultKeys:  x.resultKeys,
-		ConditionX:  x.bbs,
+		ConditionX:  x.Bbs,
 		Sorts:       x.sorts,
 		Aggs:        x.aggs,
 		Havings:     x.havings,
@@ -142,6 +142,6 @@ func (x *BuilderX) Sub(s string, sub func(sub *BuilderX)) *BuilderX {
 		key:   s,
 		value: b,
 	}
-	x.bbs = append(x.bbs, bb)
+	x.Bbs = append(x.Bbs, bb)
 	return x
 }
