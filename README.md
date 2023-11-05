@@ -8,20 +8,16 @@ a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmo
 or build condition sql for some orm framework, like [gorm](https://github.com/go-gorm/gorm)....
 
 ## API
-    Builder: build sql like: SELECT * FROM t_foo WHERE name Like "%xx%" ORDER BY ID DESC
-    BuilderX: build sql like: SELECT DISTINCT(f.id) AS `f.id` FROM t_foo f INNER JOIN t_bar b ON ....
+
+    SELECT * FROM t_cat WHERE id > ? AND (price >= ? OR is_sold = ?)
     
     c := Cat{}
-	builder := NewBuilder(&c)
-    builder.Gte("id", 10000)
+	builder := Of(&c)
+    builder.Gt("id", 10000)
     builder.And(func(sub *CondBuilder) {
 		sub.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
-    })    
-    ....
-    
-    builderX := NewBuilderX() //
-    builderX.ResultKeys( "c.color","p.id","COUNT(DISTINCT c.id) AS `c.id_count`")
-    ....
+    })
+
 
 ## Contributing
 
