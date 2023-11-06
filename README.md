@@ -10,7 +10,10 @@ or build condition sql for some orm framework, like [gorm](https://github.com/go
 ## Example
 
     SELECT * FROM t_cat WHERE id > ? AND (price >= ? OR is_sold = ?)
-    
+
+    var Db *sqlx.DB
+    ....
+
     c := Cat{}
 	builder := sqlxb.Of(&c).Gt("id", 10000).And(func(sub *CondBuilder) {
 		sub.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
@@ -18,7 +21,7 @@ or build condition sql for some orm framework, like [gorm](https://github.com/go
 
     vs, dataSql, countSql, _ := builder.Build().Sql()
     catList := []Cat{}
-	err = sqlx.DB.Select(&catList, dataSql, vs...)
+	err = Db.Select(&catList, dataSql, vs...)
 
 
 ## Contributing
