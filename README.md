@@ -18,7 +18,7 @@ or build condition sql for some orm framework, like [gorm](https://github.com/go
 
     vs, dataSql, countSql, _ := builder.Build().Sql()
     catList := []Cat{}
-	err = sqlx.Db.Select(&catList, dataSql, vs...)
+	err = sqlx.DB.Select(&catList, dataSql, vs...)
 
 
 ## Contributing
