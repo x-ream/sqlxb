@@ -12,7 +12,7 @@ or build condition sql for some orm framework, like [gorm](https://github.com/go
     SELECT * FROM t_cat WHERE id > ? AND (price >= ? OR is_sold = ?)
     
     c := Cat{}
-	sqlxb.Of(&c).Gt("id", 10000).And(func(sub *CondBuilder) {
+	builder := sqlxb.Of(&c).Gt("id", 10000).And(func(sub *CondBuilder) {
 		sub.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
     })
 
