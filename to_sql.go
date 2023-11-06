@@ -30,7 +30,7 @@ type Built struct {
 	GroupBys   []string
 	Aggs       []Bb
 
-	orFromSql string
+	OrFromSql string
 	Sbs       []*FromX
 	Svs       []interface{}
 

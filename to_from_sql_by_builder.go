@@ -24,8 +24,8 @@ import (
 
 func (built *Built) toFromSqlBySql(bp *strings.Builder) bool {
 	fmt.Println(built.Sbs)
-	if (len(built.Sbs) == 0) && (built.orFromSql != "") {
-		var sql = strings.Trim(built.orFromSql, SPACE)
+	if (len(built.Sbs) == 0) && (built.OrFromSql != "") {
+		var sql = strings.Trim(built.OrFromSql, SPACE)
 		if strings.HasPrefix(sql, "FROM") {
 			sql = strings.Replace(sql, "FROM ", "", 1)
 		}

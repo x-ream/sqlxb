@@ -46,7 +46,7 @@ func Of(po Po) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) OfX(fromx func(sb *FromBuilder)) *BuilderX {
+func (x *BuilderX) OfX(fromX func(sb *FromBuilder)) *BuilderX {
 
 	if len(x.sxs) == 0 {
 		sb := FromX{
@@ -62,7 +62,7 @@ func (x *BuilderX) OfX(fromx func(sb *FromBuilder)) *BuilderX {
 	var b = FromBuilder{}
 	b.xs = &x.sxs
 	b.x = x.sxs[0]
-	fromx(&b)
+	fromX(&b)
 	return x
 }
 
@@ -246,7 +246,7 @@ func (x *BuilderX) Build() *Built {
 		Aggs:       x.aggs,
 		Havings:    x.havings,
 		GroupBys:   x.groupBys,
-		orFromSql:  x.orFromSql,
+		OrFromSql:  x.orFromSql,
 		Sbs:        x.sxs,
 		Svs:        x.svs,
 
