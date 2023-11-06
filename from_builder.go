@@ -16,7 +16,7 @@
 // limitations under the License.
 package sqlxb
 
-type SourceX struct {
+type FromX struct {
 	po   Po
 	alia string
 	join *Join
@@ -24,17 +24,17 @@ type SourceX struct {
 	s    string
 }
 
-type SourceBuilder struct {
-	x  *SourceX
-	xs *[]*SourceX
+type FromBuilder struct {
+	x  *FromX
+	xs *[]*FromX
 }
 
-func (sb *SourceBuilder) Of(po Po) *SourceBuilder {
+func (sb *FromBuilder) Of(po Po) *FromBuilder {
 	sb.x.po = po
 	return sb
 }
 
-func (sb *SourceBuilder) Alia(alia string) *SourceBuilder {
+func (sb *FromBuilder) Alia(alia string) *FromBuilder {
 	sb.x.alia = alia
 	return sb
 }
@@ -51,7 +51,7 @@ type USING struct {
 	key string
 }
 
-func (sb *SourceBuilder) Cond(on func(on *ON)) *SourceBuilder {
+func (sb *FromBuilder) Cond(on func(on *ON)) *FromBuilder {
 	if sb.x.join == nil || sb.x.join.on == nil {
 		panic("call Cond(on *ON) after ON(onStr)")
 	}
@@ -59,13 +59,13 @@ func (sb *SourceBuilder) Cond(on func(on *ON)) *SourceBuilder {
 	return sb
 }
 
-func (sb *SourceBuilder) On(onStr string) *SourceBuilder {
+func (sb *FromBuilder) On(onStr string) *FromBuilder {
 	sb.x.join.on = &ON{}
 	sb.x.join.on.X(onStr)
 	return sb
 }
 
-func (sb *SourceBuilder) Using(key string) *SourceBuilder {
+func (sb *FromBuilder) Using(key string) *FromBuilder {
 	if key == "" {
 		panic("USING.key can not blank")
 	}
@@ -74,12 +74,12 @@ func (sb *SourceBuilder) Using(key string) *SourceBuilder {
 	return sb
 }
 
-func (sb *SourceBuilder) JOIN(join JOIN) *SourceBuilder {
+func (sb *FromBuilder) JOIN(join JOIN) *FromBuilder {
 	if join == nil {
 		panic("join, on can not nil")
 	}
 
-	x := SourceX{}
+	x := FromX{}
 	*sb.xs = append(*sb.xs, &x)
 	sb.x = &x
 
@@ -89,7 +89,7 @@ func (sb *SourceBuilder) JOIN(join JOIN) *SourceBuilder {
 	return sb
 }
 
-func (sb *SourceBuilder) Sub(sub func(sub *BuilderX)) *SourceBuilder {
+func (sb *FromBuilder) Sub(sub func(sub *BuilderX)) *FromBuilder {
 	x := new(BuilderX)
 	sb.x.sub = x
 	sub(x)

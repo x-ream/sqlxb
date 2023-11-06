@@ -25,7 +25,7 @@ func (x *BuilderX) WithoutOptimization() *BuilderX {
 	return x
 }
 
-func (x *BuilderX) optimizeSourceBuilder() {
+func (x *BuilderX) optimizeFromBuilder() {
 	if x.isWithoutOptimization {
 		return
 	}
@@ -33,7 +33,7 @@ func (x *BuilderX) optimizeSourceBuilder() {
 		return
 	}
 
-	x.removeSourceBuilder(x.sxs, func(useds *[]*SourceX, ele *SourceX, i int) bool {
+	x.removeFromBuilder(x.sxs, func(useds *[]*FromX, ele *FromX, i int) bool {
 		if i == 0 {
 			return false
 		}
@@ -104,8 +104,8 @@ func (x *BuilderX) conds() *[]string {
 	return &condArr
 }
 
-func (x *BuilderX) removeSourceBuilder(sbs []*SourceX, canRemove canRemove) {
-	useds := []*SourceX{}
+func (x *BuilderX) removeFromBuilder(sbs []*FromX, canRemove canRemove) {
+	useds := []*FromX{}
 	j := 0
 	leng := len(sbs)
 
@@ -128,4 +128,4 @@ func (x *BuilderX) removeSourceBuilder(sbs []*SourceX, canRemove canRemove) {
 	}
 }
 
-type canRemove func(useds *[]*SourceX, ele *SourceX, i int) bool
+type canRemove func(useds *[]*FromX, ele *FromX, i int) bool

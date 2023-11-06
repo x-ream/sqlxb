@@ -30,9 +30,9 @@ type Built struct {
 	GroupBys   []string
 	Aggs       []Bb
 
-	OrSourceSql string
-	Sbs         []*SourceX
-	Svs         []interface{}
+	orFromSql string
+	Sbs       []*FromX
+	Svs       []interface{}
 
 	PageCondition *PageCondition
 
@@ -48,8 +48,8 @@ type Qr struct {
 	Po Po
 }
 
-func (built *Built) toSourceSqlOfCount(bpCount *strings.Builder) {
-	built.toSourceSql(nil, bpCount)
+func (built *Built) toFromSqlOfCount(bpCount *strings.Builder) {
+	built.toFromSql(nil, bpCount)
 }
 
 func (built *Built) toConditionSqlOfCount(bbs []Bb, bpCount *strings.Builder) {
@@ -60,15 +60,15 @@ func (built *Built) toGroupBySqlOfCount(bpCount *strings.Builder) {
 	built.toGroupBySql(bpCount)
 }
 
-func (built *Built) toSourceSql(vs *[]interface{}, bp *strings.Builder) {
+func (built *Built) toFromSql(vs *[]interface{}, bp *strings.Builder) {
 	if built.Po == nil {
 
-		if built.toSourceSqlBySql(bp) {
+		if built.toFromSqlBySql(bp) {
 			return
 		}
 
 		for _, sb := range built.Sbs {
-			built.toSourceSqlByBuilder(vs, sb, bp)
+			built.toFromSqlByBuilder(vs, sb, bp)
 		}
 	} else {
 		bp.WriteString(built.Po.TableName())
@@ -299,7 +299,7 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 
 func (built *Built) Sql() ([]interface{}, string, string, map[string]string) {
 	vs := []interface{}{}
-	km := make(map[string]string) //nil for sub source builder,
+	km := make(map[string]string) //nil for sub From builder,
 	dataSql, kmp := built.sqlData(&vs, km)
 	countSql := built.sqlCount()
 
@@ -310,7 +310,7 @@ func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, ma
 	sb := strings.Builder{}
 	built.toResultKeySql(&sb, km)
 	built.sqlFrom(&sb)
-	built.toSourceSql(vs, &sb)
+	built.toFromSql(vs, &sb)
 	built.sqlWhere(&sb)
 	built.toConditionSql(built.ConditionX, &sb, vs, built.filterLast)
 	built.toAggSql(vs, &sb)
@@ -329,7 +329,7 @@ func (built *Built) sqlCount() string {
 	}
 	built.toResultKeySqlOfCount(sbCount)
 	built.countSqlFrom(sbCount)
-	built.toSourceSqlOfCount(sbCount)
+	built.toFromSqlOfCount(sbCount)
 	built.countSqlWhere(sbCount)
 	built.toConditionSqlOfCount(built.ConditionX, sbCount)
 	built.toAggSqlOfCount(sbCount)

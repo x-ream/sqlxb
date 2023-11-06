@@ -142,11 +142,11 @@ import (
     
 func main() {
 	
-	sub := Of(&pet).ResultKeys("id","type").Gt("id",10000)//....
+	sub := Of(&pet).Select("id","type").Gt("id",10000)//....
 	
         builder := Of(nil).
-		ResultKeys("p.id").
-		OfX(func(sb *SourceBuilder) {
+		Select("p.id").
+		OfX(func(sb *FromBuilder) {
                     sb.
                         Sub(sub).Alia("p").
                         JOIN(INNER).Of(&dog).Alia("d").On("d.pet_id = p.id").

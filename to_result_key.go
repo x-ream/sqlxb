@@ -40,7 +40,7 @@ func buildResultKey(key string, km map[string]string) string {
 	if strings.Contains(k, AS) {
 		adapterResultKeyAlia(km, k, AS)
 	} else if strings.HasSuffix(k, END_SUB) {
-		panic(k + ", AS $alia required, multiSource, suggested fmt: AS `t0.c0`")
+		panic(k + ", AS $alia required, multiFrom, suggested fmt: AS `t0.c0`")
 	} else if strings.Contains(k, SPACE) {
 		if strings.HasPrefix(k, DISTINCT) || strings.HasPrefix(k, Distinct) {
 			var alia = "c" + strconv.Itoa(len(km))

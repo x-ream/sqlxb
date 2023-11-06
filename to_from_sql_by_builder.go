@@ -21,9 +21,9 @@ import (
 	"strings"
 )
 
-func (built *Built) toSourceSqlBySql(bp *strings.Builder) bool {
-	if (len(built.Sbs) == 1) && (built.OrSourceSql != "") {
-		var sql = strings.Trim(built.OrSourceSql, SPACE)
+func (built *Built) toFromSqlBySql(bp *strings.Builder) bool {
+	if (len(built.Sbs) == 1) && (built.orFromSql != "") {
+		var sql = strings.Trim(built.orFromSql, SPACE)
 		if strings.HasPrefix(sql, "FROM") {
 			sql = strings.Replace(sql, "FROM ", "", 1)
 		}
@@ -33,7 +33,7 @@ func (built *Built) toSourceSqlBySql(bp *strings.Builder) bool {
 	return false
 }
 
-func (built *Built) toSourceSqlByBuilder(vs *[]interface{}, sx *SourceX, bp *strings.Builder) {
+func (built *Built) toFromSqlByBuilder(vs *[]interface{}, sx *FromX, bp *strings.Builder) {
 	if sx.join != nil { //Join
 		bp.WriteString(SPACE)
 		bp.WriteString(sx.join.join)

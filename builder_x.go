@@ -26,8 +26,8 @@ type BuilderX struct {
 
 	sorts                 []Sort
 	resultKeys            []string
-	orSourceSql           string
-	sxs                   []*SourceX
+	orFromSql             string
+	sxs                   []*FromX
 	svs                   []interface{}
 	havings               []Bb
 	groupBys              []string
@@ -41,15 +41,15 @@ type BuilderX struct {
 func Of(po Po) *BuilderX {
 	x := new(BuilderX)
 	x.bbs = []Bb{}
-	x.sxs = []*SourceX{}
+	x.sxs = []*FromX{}
 	x.po = po
 	return x
 }
 
-func (x *BuilderX) OfX(source func(sb *SourceBuilder)) *BuilderX {
+func (x *BuilderX) OfX(fromx func(sb *FromBuilder)) *BuilderX {
 
 	if len(x.sxs) == 0 {
-		sb := SourceX{
+		sb := FromX{
 			po:   x.po,
 			alia: x.alia,
 		}
@@ -59,15 +59,15 @@ func (x *BuilderX) OfX(source func(sb *SourceBuilder)) *BuilderX {
 	x.po = nil
 	x.alia = ""
 
-	var b = SourceBuilder{}
+	var b = FromBuilder{}
 	b.xs = &x.sxs
 	b.x = x.sxs[0]
-	source(&b)
+	fromx(&b)
 	return x
 }
 
-func (x *BuilderX) SourceScript(sqlScript string) *BuilderX {
-	x.orSourceSql = sqlScript
+func (x *BuilderX) FromScript(sqlScript string) *BuilderX {
+	x.orFromSql = sqlScript
 	return x
 }
 
@@ -76,7 +76,7 @@ func (x *BuilderX) Alia(alia string) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) ResultKeys(resultKeys ...string) *BuilderX {
+func (x *BuilderX) Select(resultKeys ...string) *BuilderX {
 	for _, resultKey := range resultKeys {
 		if resultKey != "" {
 			x.resultKeys = append(x.resultKeys, resultKey)
@@ -238,17 +238,17 @@ func (x *BuilderX) Build() *Built {
 	if x == nil {
 		panic("sqlxb.Builder is nil")
 	}
-	x.optimizeSourceBuilder()
+	x.optimizeFromBuilder()
 	built := Built{
-		ResultKeys:  x.resultKeys,
-		ConditionX:  x.bbs,
-		Sorts:       x.sorts,
-		Aggs:        x.aggs,
-		Havings:     x.havings,
-		GroupBys:    x.groupBys,
-		OrSourceSql: x.orSourceSql,
-		Sbs:         x.sxs,
-		Svs:         x.svs,
+		ResultKeys: x.resultKeys,
+		ConditionX: x.bbs,
+		Sorts:      x.sorts,
+		Aggs:       x.aggs,
+		Havings:    x.havings,
+		GroupBys:   x.groupBys,
+		orFromSql:  x.orFromSql,
+		Sbs:        x.sxs,
+		Svs:        x.svs,
 
 		Po: x.po,
 	}
