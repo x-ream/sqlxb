@@ -7,16 +7,18 @@
 a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like [gorm](https://github.com/go-gorm/gorm)....
 
-## API
+## Example
 
     SELECT * FROM t_cat WHERE id > ? AND (price >= ? OR is_sold = ?)
     
     c := Cat{}
-	builder := Of(&c)
-    builder.Gt("id", 10000)
-    builder.And(func(sub *CondBuilder) {
+	sqlxb.Of(&c).Gt("id", 10000).And(func(sub *CondBuilder) {
 		sub.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
     })
+
+    vs, dataSql, countSql, _ := builder.Build().Sql()
+    catList := []Cat{}
+	err = sqlx.Db.Select(&catList, dataSql, vs...)
 
 
 ## Contributing
@@ -26,11 +28,11 @@ Please check [CONTRIBUTING](./CONTRIBUTING.md)
 
 ## Quickstart
 
-* [Builder Example](#builder-example)
-* [BuilderX Example](#builderx-example)
+* [Single Example](#single-example)
+* [Join Example](#join-example)
 
 
-### Builder Example
+### Single Example
 
 ```Go
 
@@ -133,7 +135,7 @@ func main() {
 ```
 
 
-### BuilderX Example
+### Join Example
 
 ```Go
 import (
@@ -146,7 +148,7 @@ func main() {
 	
         builder := Of(nil).
 		Select("p.id").
-		OfX(func(sb *FromBuilder) {
+		FromX(func(sb *FromBuilder) {
                     sb.
                         Sub(sub).Alia("p").
                         JOIN(INNER).Of(&dog).Alia("d").On("d.pet_id = p.id").

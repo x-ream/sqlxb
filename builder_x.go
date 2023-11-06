@@ -46,7 +46,7 @@ func Of(po Po) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) OfX(fromX func(sb *FromBuilder)) *BuilderX {
+func (x *BuilderX) FromX(fromX func(sb *FromBuilder)) *BuilderX {
 
 	if len(x.sxs) == 0 {
 		sb := FromX{
