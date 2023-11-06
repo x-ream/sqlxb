@@ -66,8 +66,8 @@ func (x *BuilderX) OfX(fromx func(sb *FromBuilder)) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) FromScript(sqlScript string) *BuilderX {
-	x.orFromSql = sqlScript
+func (x *BuilderX) From(orFromSql string) *BuilderX {
+	x.orFromSql = orFromSql
 	return x
 }
 
