@@ -34,15 +34,21 @@ type BuilderX struct {
 	aggs                  []Bb
 	isWithoutOptimization bool
 
-	po   Po
 	alia string
 }
 
-func Of(po Po) *BuilderX {
+func Of(tableNameOrPo interface{}) *BuilderX {
 	x := new(BuilderX)
 	x.bbs = []Bb{}
 	x.sxs = []*FromX{}
-	x.po = po
+	if tableNameOrPo != nil {
+		switch tableNameOrPo.(type) {
+		case string:
+			x.orFromSql = tableNameOrPo.(string)
+		case Po:
+			x.orFromSql = tableNameOrPo.(Po).TableName()
+		}
+	}
 	return x
 }
 
@@ -50,18 +56,20 @@ func (x *BuilderX) FromX(fromX func(sb *FromBuilder)) *BuilderX {
 
 	if len(x.sxs) == 0 {
 		sb := FromX{
-			po:   x.po,
 			alia: x.alia,
+		}
+		if x.orFromSql != "" {
+			sb.tableName = x.orFromSql
 		}
 		x.sxs = append(x.sxs, &sb)
 	}
 
-	x.po = nil
-	x.alia = ""
+	x.orFromSql = ""
 
-	var b = FromBuilder{}
-	b.xs = &x.sxs
-	b.x = x.sxs[0]
+	b := FromBuilder{
+		xs: &x.sxs,
+		x:  x.sxs[0],
+	}
 	fromX(&b)
 	return x
 }
@@ -82,11 +90,6 @@ func (x *BuilderX) Select(resultKeys ...string) *BuilderX {
 			x.resultKeys = append(x.resultKeys, resultKey)
 		}
 	}
-	return x
-}
-
-func (x *BuilderX) Of(po Po) *BuilderX {
-	x.po = po
 	return x
 }
 
@@ -241,7 +244,7 @@ func (x *BuilderX) Build() *Built {
 	x.optimizeFromBuilder()
 	built := Built{
 		ResultKeys: x.resultKeys,
-		ConditionX: x.bbs,
+		Conds:      x.bbs,
 		Sorts:      x.sorts,
 		Aggs:       x.aggs,
 		Havings:    x.havings,
@@ -249,8 +252,6 @@ func (x *BuilderX) Build() *Built {
 		OrFromSql:  x.orFromSql,
 		Sbs:        x.sxs,
 		Svs:        x.svs,
-
-		Po: x.po,
 	}
 
 	if x.pageBuilder != nil {

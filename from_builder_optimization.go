@@ -42,12 +42,12 @@ func (x *BuilderX) optimizeFromBuilder() {
 		}
 		for _, u := range *useds {
 			//if used, can not remove
-			if (ele.sub == nil && ele.alia == u.alia) || ele.po == u.po {
+			if (ele.sub == nil && ele.alia == u.alia) || ele.tableName == u.tableName {
 				return false
 			}
 		}
 		for _, v := range *x.conds() {
-			if ele.po != nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
+			if ele.tableName != "" && strings.Contains(v, ele.tableName+".") { //has return or condition
 				return false
 			}
 			if strings.Contains(v, ele.alia+".") { ////has return or condition
@@ -62,7 +62,7 @@ func (x *BuilderX) optimizeFromBuilder() {
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for _, bb := range sb.join.on.bbs {
 					v := bb.key
-					if ele.po != nil && strings.Contains(v, ele.po.TableName()+".") { //has return or condition
+					if ele.tableName != "" && strings.Contains(v, ele.tableName+".") { //has return or condition
 						return false
 					}
 					if strings.Contains(v, ele.alia+".") { ////has return or condition

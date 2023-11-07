@@ -17,11 +17,10 @@
 package sqlxb
 
 type FromX struct {
-	po   Po
-	alia string
-	join *Join
-	sub  *BuilderX
-	s    string
+	tableName string
+	alia      string
+	join      *Join
+	sub       *BuilderX
 }
 
 type FromBuilder struct {
@@ -29,8 +28,8 @@ type FromBuilder struct {
 	xs *[]*FromX
 }
 
-func (sb *FromBuilder) Of(po Po) *FromBuilder {
-	sb.x.po = po
+func (sb *FromBuilder) Of(tableName string) *FromBuilder {
+	sb.x.tableName = tableName
 	return sb
 }
 
@@ -43,10 +42,12 @@ type Join struct {
 	join string
 	on   *ON
 }
+
 type ON struct {
 	CondBuilder
 	orUsingKey string
 }
+
 type USING struct {
 	key string
 }
@@ -93,5 +94,8 @@ func (sb *FromBuilder) Sub(sub func(sub *BuilderX)) *FromBuilder {
 	x := new(BuilderX)
 	sb.x.sub = x
 	sub(x)
+
+	sb.x.tableName = ""
+
 	return sb
 }

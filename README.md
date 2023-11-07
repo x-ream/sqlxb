@@ -147,15 +147,17 @@ import (
     
 func main() {
 	
-	sub := Of(&pet).Select("id","type").Gt("id",10000)//....
+	sub := func(sub *BuilderX) {
+                sub.Select("id","type").From("t_pet").Gt("id", 10000) //....
+            }
 	
         builder := Of(nil).
 		Select("p.id").
 		FromX(func(sb *FromBuilder) {
                     sb.
                         Sub(sub).Alia("p").
-                        JOIN(INNER).Of(&dog).Alia("d").On("d.pet_id = p.id").
-                        JOIN(LEFT).Of(&cat).Alia("c").On("c.pet_id = p.id").
+                        JOIN(INNER).Of("t_dog").Alia("d").On("d.pet_id = p.id").
+                        JOIN(LEFT).Of("t_cat").Alia("c").On("c.pet_id = p.id").
                             Cond(func(on *ON) {
                                 on.Gt("c.id", ro.MinCatId)
                             })

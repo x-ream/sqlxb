@@ -24,7 +24,7 @@ import (
 
 type Built struct {
 	ResultKeys []string
-	ConditionX []Bb
+	Conds      []Bb
 	Sorts      []Sort
 	Havings    []Bb
 	GroupBys   []string
@@ -35,8 +35,6 @@ type Built struct {
 	Svs       []interface{}
 
 	PageCondition *PageCondition
-
-	Po Po
 }
 
 type Qr struct {
@@ -52,8 +50,8 @@ func (built *Built) toFromSqlOfCount(bpCount *strings.Builder) {
 	built.toFromSql(nil, bpCount)
 }
 
-func (built *Built) toConditionSqlOfCount(bbs []Bb, bpCount *strings.Builder) {
-	built.toConditionSql(bbs, bpCount, nil, nil)
+func (built *Built) toCondSqlOfCount(bbs []Bb, bpCount *strings.Builder) {
+	built.toCondSql(bbs, bpCount, nil, nil)
 }
 
 func (built *Built) toGroupBySqlOfCount(bpCount *strings.Builder) {
@@ -61,7 +59,7 @@ func (built *Built) toGroupBySqlOfCount(bpCount *strings.Builder) {
 }
 
 func (built *Built) toFromSql(vs *[]interface{}, bp *strings.Builder) {
-	if built.Po == nil {
+	if built.OrFromSql == "" {
 
 		if built.toFromSqlBySql(bp) {
 			return
@@ -71,7 +69,7 @@ func (built *Built) toFromSql(vs *[]interface{}, bp *strings.Builder) {
 			built.toFromSqlByBuilder(vs, sb, bp)
 		}
 	} else {
-		bp.WriteString(built.Po.TableName())
+		bp.WriteString(built.OrFromSql)
 	}
 }
 
@@ -110,7 +108,7 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 			return
 		}
 		bp.WriteString(BEGIN_SUB)
-		built.toConditionSql(bb.subs, bp, vs, nil)
+		built.toCondSql(bb.subs, bp, vs, nil)
 		bp.WriteString(END_SUB)
 	case SUB:
 		var bx = *bb.value.(*BuilderX)
@@ -138,7 +136,7 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 	}
 }
 
-func (built *Built) toConditionSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
+func (built *Built) toCondSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, filterLast func() *Bb) {
 
 	length := len(bbs)
 
@@ -203,7 +201,7 @@ func (built *Built) toHavingSql(vs *[]interface{}, bp *strings.Builder) {
 		return
 	}
 	bp.WriteString(HAVING)
-	built.toConditionSql(built.Havings, bp, vs, nil)
+	built.toCondSql(built.Havings, bp, vs, nil)
 }
 
 func (built *Built) toHavingSqlOfCount(bp *strings.Builder) {
@@ -262,10 +260,10 @@ func (built *Built) countBuilder() *strings.Builder {
 	return sbCount
 }
 
-func (built *Built) SqlOfCondition() ([]interface{}, string) {
+func (built *Built) SqlOfCond() ([]interface{}, string) {
 	vs := []interface{}{}
 	sb := strings.Builder{}
-	built.toConditionSql(built.ConditionX, &sb, &vs, built.filterLast)
+	built.toCondSql(built.Conds, &sb, &vs, built.filterLast)
 	conditionSql := sb.String()
 	return vs, conditionSql
 }
@@ -291,7 +289,7 @@ func (built *Built) sqlFrom(bp *strings.Builder) {
 }
 
 func (built *Built) sqlWhere(bp *strings.Builder) {
-	if len(built.ConditionX) == 0 {
+	if len(built.Conds) == 0 {
 		return
 	}
 	bp.WriteString(WHERE)
@@ -312,7 +310,7 @@ func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, ma
 	built.sqlFrom(&sb)
 	built.toFromSql(vs, &sb)
 	built.sqlWhere(&sb)
-	built.toConditionSql(built.ConditionX, &sb, vs, built.filterLast)
+	built.toCondSql(built.Conds, &sb, vs, built.filterLast)
 	built.toAggSql(vs, &sb)
 	built.toGroupBySql(&sb)
 	built.toHavingSql(vs, &sb)
@@ -331,7 +329,7 @@ func (built *Built) sqlCount() string {
 	built.countSqlFrom(sbCount)
 	built.toFromSqlOfCount(sbCount)
 	built.countSqlWhere(sbCount)
-	built.toConditionSqlOfCount(built.ConditionX, sbCount)
+	built.toCondSqlOfCount(built.Conds, sbCount)
 	built.toAggSqlOfCount(sbCount)
 	built.toGroupBySqlOfCount(sbCount)
 	built.toHavingSqlOfCount(sbCount)

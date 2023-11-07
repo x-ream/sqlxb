@@ -41,8 +41,8 @@ func (built *Built) toFromSqlByBuilder(vs *[]interface{}, sx *FromX, bp *strings
 		bp.WriteString(sx.join.join)
 		bp.WriteString(SPACE)
 	}
-	if sx.po != nil {
-		bp.WriteString(sx.po.TableName())
+	if sx.tableName != "" {
+		bp.WriteString(sx.tableName)
 	} else if sx.sub != nil {
 		dataSql, _ := sx.sub.Build().sqlData(vs, nil)
 		bp.WriteString(BEGIN_SUB)
@@ -59,12 +59,9 @@ func (built *Built) toFromSqlByBuilder(vs *[]interface{}, sx *FromX, bp *strings
 			bp.WriteString(USING_SCRIPT_LEFT)
 			bp.WriteString(sx.join.on.orUsingKey)
 			bp.WriteString(END_SUB)
-		} else if sx.s != "" {
-			bp.WriteString(SPACE)
-			bp.WriteString(sx.s)
 		} else {
 			bp.WriteString(ON_SCRIPT)
-			built.toConditionSql(sx.join.on.bbs, bp, vs, nil)
+			built.toCondSql(sx.join.on.bbs, bp, vs, nil)
 		}
 	}
 }
