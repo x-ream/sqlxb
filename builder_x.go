@@ -250,7 +250,7 @@ func (x *BuilderX) Build() *Built {
 		Havings:    x.havings,
 		GroupBys:   x.groupBys,
 		OrFromSql:  x.orFromSql,
-		Sbs:        x.sxs,
+		Fxs:        x.sxs,
 		Svs:        x.svs,
 	}
 

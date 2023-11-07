@@ -31,7 +31,7 @@ type Built struct {
 	Aggs       []Bb
 
 	OrFromSql string
-	Sbs       []*FromX
+	Fxs       []*FromX
 	Svs       []interface{}
 
 	PageCondition *PageCondition
@@ -65,7 +65,7 @@ func (built *Built) toFromSql(vs *[]interface{}, bp *strings.Builder) {
 			return
 		}
 
-		for _, sb := range built.Sbs {
+		for _, sb := range built.Fxs {
 			built.toFromSqlByBuilder(vs, sb, bp)
 		}
 	} else {
@@ -260,12 +260,22 @@ func (built *Built) countBuilder() *strings.Builder {
 	return sbCount
 }
 
-func (built *Built) SqlOfCond() ([]interface{}, string) {
+func (built *Built) SqlOfCond() (string, string, []interface{}) {
 	vs := []interface{}{}
-	sb := strings.Builder{}
-	built.toCondSql(built.Conds, &sb, &vs, built.filterLast)
-	conditionSql := sb.String()
-	return vs, conditionSql
+
+	joinB := strings.Builder{}
+	if built.Fxs != nil {
+		for i, fx := range built.Fxs {
+			if i > 0 {
+				built.toFromSqlByBuilder(&vs, fx, &joinB)
+			}
+		}
+	}
+
+	condB := strings.Builder{}
+	built.toCondSql(built.Conds, &condB, &vs, built.filterLast)
+
+	return joinB.String(), condB.String(), vs
 }
 
 func (built *Built) toSqlCount(sbCount *strings.Builder) string {
