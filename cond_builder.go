@@ -218,6 +218,8 @@ func (builder *CondBuilder) Gte(k string, v interface{}) *CondBuilder {
 func (builder *CondBuilder) Lte(k string, v interface{}) *CondBuilder {
 	return builder.doGLE(LTE, k, v)
 }
+
+// Like sql: LIKE %value%, Like() default has double %
 func (builder *CondBuilder) Like(k string, v string) *CondBuilder {
 	if v == "" {
 		return builder
@@ -230,6 +232,8 @@ func (builder *CondBuilder) NotLike(k string, v string) *CondBuilder {
 	}
 	return builder.doLike(NOT_LIKE, k, "%"+v+"%")
 }
+
+// LikeLeft sql: LIKE value%, Like() default has double %, then LikeLeft() remove left %
 func (builder *CondBuilder) LikeLeft(k string, v string) *CondBuilder {
 	if v == "" {
 		return builder
