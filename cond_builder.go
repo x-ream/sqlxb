@@ -230,7 +230,7 @@ func (builder *CondBuilder) NotLike(k string, v string) *CondBuilder {
 	}
 	return builder.doLike(NOT_LIKE, k, "%"+v+"%")
 }
-func (builder *CondBuilder) LikeRight(k string, v string) *CondBuilder {
+func (builder *CondBuilder) LikeLeft(k string, v string) *CondBuilder {
 	if v == "" {
 		return builder
 	}

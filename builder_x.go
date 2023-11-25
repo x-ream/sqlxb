@@ -192,7 +192,7 @@ func (x *BuilderX) NotLike(k string, v string) *BuilderX {
 	x.doLike(NOT_LIKE, k, "%"+v+"%")
 	return x
 }
-func (x *BuilderX) LikeRight(k string, v string) *BuilderX {
+func (x *BuilderX) LikeLeft(k string, v string) *BuilderX {
 	if v == "" {
 		return x
 	}

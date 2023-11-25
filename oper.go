@@ -61,7 +61,7 @@ func Lte() string {
 func Like() string {
 	return LIKE
 }
-func LikeRight() string {
+func LikeLeft() string {
 	return LIKE
 }
 func NotLike() string {

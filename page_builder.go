@@ -37,10 +37,9 @@ func (pb *PageBuilder) Rows(rows uint) *PageBuilder {
 	return pb
 }
 
-/**
- * ASC: orderBy > last | DESC: orderBy < last
- * LIMIT rows
- */
+// Last
+// if ASC: orderBy > last else DESC: orderBy < last
+// LIMIT rows
 func (pb *PageBuilder) Last(last uint64) *PageBuilder {
 	pb.condition.last = last
 	return pb

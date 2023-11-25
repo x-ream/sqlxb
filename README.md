@@ -101,7 +101,7 @@ func main() {
 
 	c := Cat{}
 	var builder = Of(&c)
-	builder.LikeRight("name",catRo.Name)
+	builder.LikeLeft("name",catRo.Name)
 	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will NOT ignore
     //Eq,Ne,Gt.... value 0 and nil will ignore, like as follow: OR().Eq("is_sold", catRo.IsSold)
 	builder.And(func(sub *CondBuilder) {
