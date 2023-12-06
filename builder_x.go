@@ -79,7 +79,7 @@ func (x *BuilderX) From(orFromSql string) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) Alia(alia string) *BuilderX {
+func (x *BuilderX) As(alia string) *BuilderX {
 	x.alia = alia
 	return x
 }

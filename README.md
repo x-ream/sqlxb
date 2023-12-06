@@ -155,9 +155,9 @@ func main() {
 		Select("p.id").
 		FromX(func(sb *FromBuilder) {
                     sb.
-                        Sub(sub).Alia("p").
-                        JOIN(INNER).Of("t_dog").Alia("d").On("d.pet_id = p.id").
-                        JOIN(LEFT).Of("t_cat").Alia("c").On("c.pet_id = p.id").
+                        Sub(sub).As("p").
+                        JOIN(INNER).Of("t_dog").As("d").On("d.pet_id = p.id").
+                        JOIN(LEFT).Of("t_cat").As("c").On("c.pet_id = p.id").
                             Cond(func(on *ON) {
                                 on.Gt("c.id", ro.MinCatId)
                             })

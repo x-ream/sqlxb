@@ -33,7 +33,7 @@ func (sb *FromBuilder) Of(tableName string) *FromBuilder {
 	return sb
 }
 
-func (sb *FromBuilder) Alia(alia string) *FromBuilder {
+func (sb *FromBuilder) As(alia string) *FromBuilder {
 	sb.x.alia = alia
 	return sb
 }
