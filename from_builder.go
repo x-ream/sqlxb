@@ -28,14 +28,14 @@ type FromBuilder struct {
 	xs *[]*FromX
 }
 
-func (sb *FromBuilder) Of(tableName string) *FromBuilder {
-	sb.x.tableName = tableName
-	return sb
+func (fb *FromBuilder) Of(tableName string) *FromBuilder {
+	fb.x.tableName = tableName
+	return fb
 }
 
-func (sb *FromBuilder) As(alia string) *FromBuilder {
-	sb.x.alia = alia
-	return sb
+func (fb *FromBuilder) As(alia string) *FromBuilder {
+	fb.x.alia = alia
+	return fb
 }
 
 type Join struct {
@@ -52,50 +52,50 @@ type USING struct {
 	key string
 }
 
-func (sb *FromBuilder) Cond(on func(on *ON)) *FromBuilder {
-	if sb.x.join == nil || sb.x.join.on == nil {
+func (fb *FromBuilder) Cond(on func(on *ON)) *FromBuilder {
+	if fb.x.join == nil || fb.x.join.on == nil {
 		panic("call Cond(on *ON) after ON(onStr)")
 	}
-	on(sb.x.join.on)
-	return sb
+	on(fb.x.join.on)
+	return fb
 }
 
-func (sb *FromBuilder) On(onStr string) *FromBuilder {
-	sb.x.join.on = &ON{}
-	sb.x.join.on.X(onStr)
-	return sb
+func (fb *FromBuilder) On(onStr string) *FromBuilder {
+	fb.x.join.on = &ON{}
+	fb.x.join.on.X(onStr)
+	return fb
 }
 
-func (sb *FromBuilder) Using(key string) *FromBuilder {
+func (fb *FromBuilder) Using(key string) *FromBuilder {
 	if key == "" {
 		panic("USING.key can not blank")
 	}
-	sb.x.join.on = &ON{}
-	sb.x.join.on.orUsingKey = key
-	return sb
+	fb.x.join.on = &ON{}
+	fb.x.join.on.orUsingKey = key
+	return fb
 }
 
-func (sb *FromBuilder) JOIN(join JOIN) *FromBuilder {
+func (fb *FromBuilder) JOIN(join JOIN) *FromBuilder {
 	if join == nil {
 		panic("join, on can not nil")
 	}
 
 	x := FromX{}
-	*sb.xs = append(*sb.xs, &x)
-	sb.x = &x
+	*fb.xs = append(*fb.xs, &x)
+	fb.x = &x
 
-	sb.x.join = &Join{
+	fb.x.join = &Join{
 		join: join(),
 	}
-	return sb
+	return fb
 }
 
-func (sb *FromBuilder) Sub(sub func(sub *BuilderX)) *FromBuilder {
+func (fb *FromBuilder) Sub(sub func(sb *BuilderX)) *FromBuilder {
 	x := new(BuilderX)
-	sb.x.sub = x
+	fb.x.sub = x
 	sub(x)
 
-	sb.x.tableName = ""
+	fb.x.tableName = ""
 
-	return sb
+	return fb
 }

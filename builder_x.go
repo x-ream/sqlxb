@@ -52,7 +52,7 @@ func Of(tableNameOrPo interface{}) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) FromX(fromX func(sb *FromBuilder)) *BuilderX {
+func (x *BuilderX) FromX(fromX func(fb *FromBuilder)) *BuilderX {
 
 	if len(x.sxs) == 0 {
 		sb := FromX{
@@ -121,7 +121,7 @@ func (x *BuilderX) Agg(fn string, vs ...interface{}) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) Sub(s string, sub func(sub *BuilderX)) *BuilderX {
+func (x *BuilderX) Sub(s string, sub func(sb *BuilderX)) *BuilderX {
 
 	b := new(BuilderX)
 	sub(b)
@@ -134,12 +134,12 @@ func (x *BuilderX) Sub(s string, sub func(sub *BuilderX)) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) And(sub func(sub *CondBuilder)) *BuilderX {
+func (x *BuilderX) And(sub func(cb *CondBuilder)) *BuilderX {
 	x.CondBuilder.And(sub)
 	return x
 }
 
-func (x *BuilderX) Or(sub func(sub *CondBuilder)) *BuilderX {
+func (x *BuilderX) Or(sub func(cb *CondBuilder)) *BuilderX {
 	x.CondBuilder.Or(sub)
 	return x
 }

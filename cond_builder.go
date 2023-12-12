@@ -30,12 +30,12 @@ func subCondBuilder() *CondBuilder {
 	return c
 }
 
-func (builder *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBuilder {
+func (cb *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBuilder {
 	if vs == nil || len(vs) == 0 {
-		return builder
+		return cb
 	}
 	if len(vs) == 1 && (vs[0] == nil || vs[0] == "") {
-		return builder
+		return cb
 	}
 
 	ss := []string{}
@@ -75,78 +75,78 @@ func (builder *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBui
 		key:   k,
 		value: &ss,
 	}
-	builder.bbs = append(builder.bbs, bb)
+	cb.bbs = append(cb.bbs, bb)
 
-	return builder
+	return cb
 }
 
-func (builder *CondBuilder) doLike(p string, k string, v string) *CondBuilder {
+func (cb *CondBuilder) doLike(p string, k string, v string) *CondBuilder {
 
 	bb := Bb{
 		op:    p,
 		key:   k,
 		value: v,
 	}
-	builder.bbs = append(builder.bbs, bb)
+	cb.bbs = append(cb.bbs, bb)
 
-	return builder
+	return cb
 }
 
-func (builder *CondBuilder) doGLE(p string, k string, v interface{}) *CondBuilder {
+func (cb *CondBuilder) doGLE(p string, k string, v interface{}) *CondBuilder {
 
 	switch v.(type) {
 	case string:
 		if v.(string) == "" {
-			return builder
+			return cb
 		}
 	case uint64, uint, int64, int, int32, int16, int8, bool, byte, float64, float32:
 		if v == 0 {
-			return builder
+			return cb
 		}
 	case *uint64, *uint, *int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
 		isNil, n := NilOrNumber(v)
 		if isNil {
-			return builder
+			return cb
 		}
-		return builder.addBb(p, k, n)
+		return cb.addBb(p, k, n)
 	case time.Time:
 		ts := v.(time.Time).Format("2006-01-02 15:04:05")
-		return builder.addBb(p, k, ts)
+		return cb.addBb(p, k, ts)
 	case []interface{}:
 		panic("Builder.doGLE(ke, []arr), [] ?")
 	default:
 		if v == nil {
-			return builder
+			return cb
 		}
 	}
-	return builder.addBb(p, k, v)
+	return cb.addBb(p, k, v)
 }
 
-func (builder *CondBuilder) addBb(op string, key string, v interface{}) *CondBuilder {
+func (cb *CondBuilder) addBb(op string, key string, v interface{}) *CondBuilder {
 	bb := Bb{
 		op:    op,
 		key:   key,
 		value: v,
 	}
-	builder.bbs = append(builder.bbs, bb)
+	cb.bbs = append(cb.bbs, bb)
 
-	return builder
+	return cb
 }
 
-func (builder *CondBuilder) null(op string, k string) *CondBuilder {
+func (cb *CondBuilder) null(op string, k string) *CondBuilder {
 	bb := Bb{
 		op:  op,
 		key: k,
 	}
-	builder.bbs = append(builder.bbs, bb)
-	return builder
+	cb.bbs = append(cb.bbs, bb)
+	return cb
 }
 
-func (builder *CondBuilder) orAndSub(orAnd string, sub func(sub *CondBuilder)) *CondBuilder {
+func (cb *CondBuilder) orAndSub(orAnd string, sub func(cb *CondBuilder)) *CondBuilder {
 	c := subCondBuilder()
 	sub(c)
 	if c.bbs == nil || len(c.bbs) == 0 {
-		return builder
+		return cb
 	}
 
 	bb := Bb{
@@ -154,111 +154,111 @@ func (builder *CondBuilder) orAndSub(orAnd string, sub func(sub *CondBuilder)) *
 		key:  orAnd,
 		subs: c.bbs,
 	}
-	builder.bbs = append(builder.bbs, bb)
-	return builder
+	cb.bbs = append(cb.bbs, bb)
+	return cb
 }
 
-func (builder *CondBuilder) orAnd(orAnd string) *CondBuilder {
-	length := len(builder.bbs)
+func (cb *CondBuilder) orAnd(orAnd string) *CondBuilder {
+	length := len(cb.bbs)
 	if length == 0 {
-		return builder
+		return cb
 	}
-	pre := builder.bbs[length-1]
+	pre := cb.bbs[length-1]
 	if pre.op == OR {
-		return builder
+		return cb
 	}
 	bb := Bb{
 		op: orAnd,
 	}
-	builder.bbs = append(builder.bbs, bb)
-	return builder
+	cb.bbs = append(cb.bbs, bb)
+	return cb
 }
 
-func (builder *CondBuilder) And(sub func(sub *CondBuilder)) *CondBuilder {
-	return builder.orAndSub(AND_SUB, sub)
+func (cb *CondBuilder) And(sub func(cb *CondBuilder)) *CondBuilder {
+	return cb.orAndSub(AND_SUB, sub)
 }
 
-func (builder *CondBuilder) Or(sub func(sub *CondBuilder)) *CondBuilder {
-	return builder.orAndSub(OR_SUB, sub)
+func (cb *CondBuilder) Or(sub func(cb *CondBuilder)) *CondBuilder {
+	return cb.orAndSub(OR_SUB, sub)
 }
 
-func (builder *CondBuilder) OR() *CondBuilder {
-	return builder.orAnd(OR)
+func (cb *CondBuilder) OR() *CondBuilder {
+	return cb.orAnd(OR)
 }
 
-func (builder *CondBuilder) Bool(preCond BoolFunc, then func(cb *CondBuilder)) *CondBuilder {
+func (cb *CondBuilder) Bool(preCond BoolFunc, then func(cb *CondBuilder)) *CondBuilder {
 	if preCond == nil {
 		panic("CondBuilder.Bool para of BoolFunc can not nil")
 	}
 	if !preCond() {
-		return builder
+		return cb
 	}
 	if then == nil {
 		panic("CondBuilder.Bool para of func(k string, vs... interface{}) can not nil")
 	}
-	then(builder)
-	return builder
+	then(cb)
+	return cb
 }
 
-func (builder *CondBuilder) Eq(k string, v interface{}) *CondBuilder {
-	return builder.doGLE(EQ, k, v)
+func (cb *CondBuilder) Eq(k string, v interface{}) *CondBuilder {
+	return cb.doGLE(EQ, k, v)
 }
-func (builder *CondBuilder) Ne(k string, v interface{}) *CondBuilder {
-	return builder.doGLE(NE, k, v)
+func (cb *CondBuilder) Ne(k string, v interface{}) *CondBuilder {
+	return cb.doGLE(NE, k, v)
 }
-func (builder *CondBuilder) Gt(k string, v interface{}) *CondBuilder {
-	return builder.doGLE(GT, k, v)
+func (cb *CondBuilder) Gt(k string, v interface{}) *CondBuilder {
+	return cb.doGLE(GT, k, v)
 }
-func (builder *CondBuilder) Lt(k string, v interface{}) *CondBuilder {
-	return builder.doGLE(LT, k, v)
+func (cb *CondBuilder) Lt(k string, v interface{}) *CondBuilder {
+	return cb.doGLE(LT, k, v)
 }
-func (builder *CondBuilder) Gte(k string, v interface{}) *CondBuilder {
-	return builder.doGLE(GTE, k, v)
+func (cb *CondBuilder) Gte(k string, v interface{}) *CondBuilder {
+	return cb.doGLE(GTE, k, v)
 }
-func (builder *CondBuilder) Lte(k string, v interface{}) *CondBuilder {
-	return builder.doGLE(LTE, k, v)
+func (cb *CondBuilder) Lte(k string, v interface{}) *CondBuilder {
+	return cb.doGLE(LTE, k, v)
 }
 
 // Like sql: LIKE %value%, Like() default has double %
-func (builder *CondBuilder) Like(k string, v string) *CondBuilder {
+func (cb *CondBuilder) Like(k string, v string) *CondBuilder {
 	if v == "" {
-		return builder
+		return cb
 	}
-	return builder.doLike(LIKE, k, "%"+v+"%")
+	return cb.doLike(LIKE, k, "%"+v+"%")
 }
-func (builder *CondBuilder) NotLike(k string, v string) *CondBuilder {
+func (cb *CondBuilder) NotLike(k string, v string) *CondBuilder {
 	if v == "" {
-		return builder
+		return cb
 	}
-	return builder.doLike(NOT_LIKE, k, "%"+v+"%")
+	return cb.doLike(NOT_LIKE, k, "%"+v+"%")
 }
 
 // LikeLeft sql: LIKE value%, Like() default has double %, then LikeLeft() remove left %
-func (builder *CondBuilder) LikeLeft(k string, v string) *CondBuilder {
+func (cb *CondBuilder) LikeLeft(k string, v string) *CondBuilder {
 	if v == "" {
-		return builder
+		return cb
 	}
-	return builder.doLike(LIKE, k, v+"%")
+	return cb.doLike(LIKE, k, v+"%")
 }
-func (builder *CondBuilder) In(k string, vs ...interface{}) *CondBuilder {
-	return builder.doIn(IN, k, vs...)
+func (cb *CondBuilder) In(k string, vs ...interface{}) *CondBuilder {
+	return cb.doIn(IN, k, vs...)
 }
-func (builder *CondBuilder) Nin(k string, vs ...interface{}) *CondBuilder {
-	return builder.doIn(NIN, k, vs...)
+func (cb *CondBuilder) Nin(k string, vs ...interface{}) *CondBuilder {
+	return cb.doIn(NIN, k, vs...)
 }
-func (builder *CondBuilder) IsNull(key string) *CondBuilder {
-	return builder.null(IS_NULL, key)
+func (cb *CondBuilder) IsNull(key string) *CondBuilder {
+	return cb.null(IS_NULL, key)
 }
-func (builder *CondBuilder) NonNull(key string) *CondBuilder {
-	return builder.null(NON_NULL, key)
+func (cb *CondBuilder) NonNull(key string) *CondBuilder {
+	return cb.null(NON_NULL, key)
 }
 
-func (builder *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
+func (cb *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
 	bb := Bb{
 		op:    X,
 		key:   k,
 		value: vs,
 	}
-	builder.bbs = append(builder.bbs, bb)
-	return builder
+	cb.bbs = append(cb.bbs, bb)
+	return cb
 }

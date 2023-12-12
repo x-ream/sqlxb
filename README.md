@@ -15,8 +15,8 @@ or build condition sql for some orm framework, like [gorm](https://github.com/go
     ....
 
     c := Cat{}
-	builder := sqlxb.Of(&c).Gt("id", 10000).And(func(sub *CondBuilder) {
-		sub.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
+	builder := sqlxb.Of(&c).Gt("id", 10000).And(func(cb *CondBuilder) {
+		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
     })
 
     vs, dataSql, countSql, _ := builder.Build().Sql()
@@ -104,16 +104,16 @@ func main() {
 	builder.LikeLeft("name",catRo.Name)
 	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will NOT ignore
     //Eq,Ne,Gt.... value 0 and nil will ignore, like as follow: OR().Eq("is_sold", catRo.IsSold)
-	builder.And(func(sub *CondBuilder) {
-            sub.Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
+	builder.And(func(cb *CondBuilder) {
+            cb.Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
 	    })
     //func Bool NOT designed for value nil or 0; designed to convert complex logic to bool
     //Decorator pattern suggest to use func Bool preCondition, like:
     //myBoolDecorator := NewMyBoolDecorator(para)
     //builder.Bool(myBoolDecorator.fooCondition, func(cb *CondBuilder) {
 	builder.Bool(preCondition, func(cb *CondBuilder) {
-            cb.Or(func(sub *CondBuilder) {
-                sub.Lt("price", 5000)
+            cb.Or(func(cb *CondBuilder) {
+                cb.Lt("price", 5000)
             })
 	})
 	builder.Sort("id", ASC)
@@ -147,14 +147,14 @@ import (
     
 func main() {
 	
-	sub := func(sub *BuilderX) {
-                sub.Select("id","type").From("t_pet").Gt("id", 10000) //....
+	sub := func(sb *BuilderX) {
+                sb.Select("id","type").From("t_pet").Gt("id", 10000) //....
             }
 	
         builder := Of(nil).
 		Select("p.id").
-		FromX(func(sb *FromBuilder) {
-                    sb.
+		FromX(func(fb *FromBuilder) {
+                    fb.
                         Sub(sub).As("p").
                         JOIN(INNER).Of("t_dog").As("d").On("d.pet_id = p.id").
                         JOIN(LEFT).Of("t_cat").As("c").On("c.pet_id = p.id").
