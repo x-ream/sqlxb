@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 
 a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx/), [gorp](https://github.com/go-gorp/gorp),
-or build condition sql for some orm framework, like [gorm](https://github.com/go-gorm/gorm)....
+or build condition sql for some orm framework, like [xorm](https://https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
 
 ## Example
 
