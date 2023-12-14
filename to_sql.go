@@ -114,6 +114,7 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 		var bx = *bb.value.(*BuilderX)
 		ss, _ := bx.Build().sqlData(vs, nil)
 		ss = BEGIN_SUB + ss + END_SUB
+		ss = SPACE + ss
 		if bb.key != "" {
 			if strings.Contains(bb.key, PLACE_HOLDER) {
 				bp.WriteString(strings.ReplaceAll(bb.key, PLACE_HOLDER, ss))

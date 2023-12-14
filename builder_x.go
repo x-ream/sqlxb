@@ -21,7 +21,7 @@ package sqlxb
 //
 // @author Sim
 type BuilderX struct {
-	CondBuilder
+	CondBuilderX
 	pageBuilder *PageBuilder
 
 	sorts                 []Sort
@@ -93,8 +93,8 @@ func (x *BuilderX) Select(resultKeys ...string) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) Having(cond func(cb *CondBuilder)) *BuilderX {
-	var cb = new(CondBuilder)
+func (x *BuilderX) Having(cond func(cb *CondBuilderX)) *BuilderX {
+	var cb = new(CondBuilderX)
 	cond(cb)
 	x.havings = cb.bbs
 	return x
@@ -122,15 +122,7 @@ func (x *BuilderX) Agg(fn string, vs ...interface{}) *BuilderX {
 }
 
 func (x *BuilderX) Sub(s string, sub func(sb *BuilderX)) *BuilderX {
-
-	b := new(BuilderX)
-	sub(b)
-	bb := Bb{
-		op:    SUB,
-		key:   s,
-		value: b,
-	}
-	x.bbs = append(x.bbs, bb)
+	x.CondBuilderX.Sub(s, sub)
 	return x
 }
 

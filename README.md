@@ -152,7 +152,7 @@ func main() {
             }
 	
         builder := Of(nil).
-		Select("p.id").
+		Select("p.id","p.weight").
 		FromX(func(fb *FromBuilder) {
                     fb.
                         Sub(sub).As("p").
@@ -162,7 +162,12 @@ func main() {
                                 on.Gt("c.id", ro.MinCatId)
                             })
 		    }).
-	        Ne("p.type","PIG")
+	        Ne("p.type","PIG").
+                Having(func(cb *CondBuilderX) {
+                    cb.Sub("p.weight > ?", func(sb *BuilderX) {
+                        sb.Select("AVG(weight)").From("t_dog")
+                    })
+                })
     
 }
 
