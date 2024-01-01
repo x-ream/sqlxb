@@ -76,7 +76,7 @@ func (built *Built) toFromSql(vs *[]interface{}, bp *strings.Builder) {
 func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 	op := bb.op
 	switch op {
-	case X:
+	case XX:
 		bp.WriteString(bb.key)
 		if vs != nil && bb.value != nil {
 			arr := bb.value.([]interface{})

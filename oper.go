@@ -17,7 +17,7 @@
 package sqlxb
 
 const (
-	X        = ""
+	XX       = ""
 	AGG      = ""
 	SUB      = "SUB"
 	AND      = "AND"

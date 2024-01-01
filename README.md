@@ -151,7 +151,7 @@ func main() {
                 sb.Select("id","type").From("t_pet").Gt("id", 10000) //....
             }
 	
-        builder := Of(nil).
+        builder := X().
 		Select("p.id","p.weight").
 		FromX(func(fb *FromBuilder) {
                     fb.

@@ -255,7 +255,7 @@ func (cb *CondBuilder) NonNull(key string) *CondBuilder {
 
 func (cb *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
 	bb := Bb{
-		op:    X,
+		op:    XX,
 		key:   k,
 		value: vs,
 	}

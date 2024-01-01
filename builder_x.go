@@ -38,9 +38,7 @@ type BuilderX struct {
 }
 
 func Of(tableNameOrPo interface{}) *BuilderX {
-	x := new(BuilderX)
-	x.bbs = []Bb{}
-	x.sxs = []*FromX{}
+	x := X()
 	if tableNameOrPo != nil {
 		switch tableNameOrPo.(type) {
 		case string:
@@ -49,6 +47,13 @@ func Of(tableNameOrPo interface{}) *BuilderX {
 			x.orFromSql = tableNameOrPo.(Po).TableName()
 		}
 	}
+	return x
+}
+
+func X() *BuilderX {
+	x := new(BuilderX)
+	x.bbs = []Bb{}
+	x.sxs = []*FromX{}
 	return x
 }
 
