@@ -131,6 +131,11 @@ func (x *BuilderX) Sub(s string, sub func(sb *BuilderX)) *BuilderX {
 	return x
 }
 
+func (x *BuilderX) Any(any func(x *BuilderX)) *BuilderX {
+	any(x)
+	return x
+}
+
 func (x *BuilderX) And(sub func(cb *CondBuilder)) *BuilderX {
 	x.CondBuilder.And(sub)
 	return x
