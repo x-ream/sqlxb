@@ -27,6 +27,10 @@ type PageBuilder struct {
 	condition PageCondition
 }
 
+type TotalRows struct {
+	Count int64 `db:"COUNT(*)"`
+}
+
 func (pb *PageBuilder) Page(page uint) *PageBuilder {
 	pb.condition.page = page
 	return pb
