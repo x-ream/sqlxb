@@ -32,6 +32,8 @@ type BuilderX struct {
 	havings               []Bb
 	groupBys              []string
 	aggs                  []Bb
+	last                  string
+	isDistinct            bool
 	isWithoutOptimization bool
 
 	alia string
@@ -236,6 +238,11 @@ func (x *BuilderX) Paged(page func(pb *PageBuilder)) *BuilderX {
 	pageBuilder := new(PageBuilder)
 	x.pageBuilder = pageBuilder
 	page(pageBuilder)
+	return x
+}
+
+func (x *BuilderX) Last(last string) *BuilderX {
+	x.last = last
 	return x
 }
 
