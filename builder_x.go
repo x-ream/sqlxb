@@ -258,6 +258,7 @@ func (x *BuilderX) Build() *Built {
 		Aggs:       x.aggs,
 		Havings:    x.havings,
 		GroupBys:   x.groupBys,
+		Last:       x.last,
 		OrFromSql:  x.orFromSql,
 		Fxs:        x.sxs,
 		Svs:        x.svs,

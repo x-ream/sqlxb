@@ -29,10 +29,10 @@ type Built struct {
 	Havings    []Bb
 	GroupBys   []string
 	Aggs       []Bb
-
-	OrFromSql string
-	Fxs       []*FromX
-	Svs       []interface{}
+	Last       string
+	OrFromSql  string
+	Fxs        []*FromX
+	Svs        []interface{}
 
 	PageCondition *PageCondition
 }
@@ -244,6 +244,13 @@ func (built *Built) toPageSql(bp *strings.Builder) {
 	}
 }
 
+func (built *Built) toLastSql(bp *strings.Builder) {
+	if built.Last != "" {
+		bp.WriteString(SPACE)
+		bp.WriteString(built.Last)
+	}
+}
+
 func (built *Built) isOr(bb Bb) bool {
 	return bb.op == OR
 }
@@ -327,6 +334,7 @@ func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, ma
 	built.toHavingSql(vs, &sb)
 	built.toSortSql(&sb)
 	built.toPageSql(&sb)
+	built.toLastSql(&sb)
 	dataSql := sb.String()
 	return dataSql, km
 }
