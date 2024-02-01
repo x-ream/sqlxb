@@ -221,8 +221,10 @@ func (built *Built) toSortSql(bp *strings.Builder) {
 	for i := 0; i < length; i++ {
 		sort := built.Sorts[i]
 		bp.WriteString(sort.orderBy)
-		bp.WriteString(SPACE)
-		bp.WriteString(sort.direction)
+		if sort.direction != "" {
+			bp.WriteString(SPACE)
+			bp.WriteString(sort.direction)
+		}
 		if i < length-1 {
 			bp.WriteString(COMMA)
 		}

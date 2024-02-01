@@ -226,11 +226,17 @@ func (x *BuilderX) X(k string, vs ...interface{}) *BuilderX {
 }
 
 func (x *BuilderX) Sort(orderBy string, direction Direction) *BuilderX {
-	if orderBy == "" || direction == nil {
+	if orderBy == "" {
 		return x
 	}
-	sort := Sort{orderBy: orderBy, direction: direction()}
-	x.sorts = append(x.sorts, sort)
+	if direction == nil {
+		sort := Sort{orderBy: orderBy, direction: ""}
+		x.sorts = append(x.sorts, sort)
+	} else {
+		sort := Sort{orderBy: orderBy, direction: direction()}
+		x.sorts = append(x.sorts, sort)
+	}
+
 	return x
 }
 

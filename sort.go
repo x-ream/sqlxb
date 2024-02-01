@@ -19,7 +19,6 @@ package sqlxb
 const (
 	asc  = "ASC"
 	desc = "DESC"
-	nul  = "NULL"
 )
 
 type Sort struct {
@@ -35,8 +34,4 @@ func ASC() string {
 
 func DESC() string {
 	return desc
-}
-
-func NULL() string {
-	return nul
 }
