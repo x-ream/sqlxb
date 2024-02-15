@@ -58,6 +58,10 @@ func buildResultKey(key string, km map[string]string) string {
 }
 
 func (built *Built) toResultKeySql(bp *strings.Builder, km map[string]string) {
+	if built.Updates != nil {
+		bp.WriteString(UPDATE)
+		return
+	}
 	bp.WriteString(SELECT)
 	if built.ResultKeys == nil {
 		bp.WriteString(STAR)

@@ -17,13 +17,11 @@
 package sqlxb
 
 import (
-	"fmt"
 	. "github.com/x-ream/sqlxb/internal"
 	"strings"
 )
 
 func (built *Built) toFromSqlBySql(bp *strings.Builder) bool {
-	fmt.Println(built.Fxs)
 	if (len(built.Fxs) == 0) && (built.OrFromSql != "") {
 		var sql = strings.Trim(built.OrFromSql, SPACE)
 		if strings.HasPrefix(sql, "FROM") {

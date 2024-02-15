@@ -142,9 +142,9 @@ func (cb *CondBuilder) null(op string, k string) *CondBuilder {
 	return cb
 }
 
-func (cb *CondBuilder) orAndSub(orAnd string, sub func(cb *CondBuilder)) *CondBuilder {
+func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuilder {
 	c := subCondBuilder()
-	sub(c)
+	f(c)
 	if c.bbs == nil || len(c.bbs) == 0 {
 		return cb
 	}
@@ -174,29 +174,29 @@ func (cb *CondBuilder) orAnd(orAnd string) *CondBuilder {
 	return cb
 }
 
-func (cb *CondBuilder) And(sub func(cb *CondBuilder)) *CondBuilder {
-	return cb.orAndSub(AND_SUB, sub)
+func (cb *CondBuilder) And(f func(cb *CondBuilder)) *CondBuilder {
+	return cb.orAndSub(AND_SUB, f)
 }
 
-func (cb *CondBuilder) Or(sub func(cb *CondBuilder)) *CondBuilder {
-	return cb.orAndSub(OR_SUB, sub)
+func (cb *CondBuilder) Or(f func(cb *CondBuilder)) *CondBuilder {
+	return cb.orAndSub(OR_SUB, f)
 }
 
 func (cb *CondBuilder) OR() *CondBuilder {
 	return cb.orAnd(OR)
 }
 
-func (cb *CondBuilder) Bool(preCond BoolFunc, then func(cb *CondBuilder)) *CondBuilder {
+func (cb *CondBuilder) Bool(preCond BoolFunc, f func(cb *CondBuilder)) *CondBuilder {
 	if preCond == nil {
 		panic("CondBuilder.Bool para of BoolFunc can not nil")
 	}
 	if !preCond() {
 		return cb
 	}
-	if then == nil {
+	if f == nil {
 		panic("CondBuilder.Bool para of func(k string, vs... interface{}) can not nil")
 	}
-	then(cb)
+	f(cb)
 	return cb
 }
 

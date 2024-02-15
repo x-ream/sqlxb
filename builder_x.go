@@ -27,6 +27,7 @@ type BuilderX struct {
 	sorts                 []Sort
 	resultKeys            []string
 	orFromSql             string
+	updates               *[]Bb
 	sxs                   []*FromX
 	svs                   []interface{}
 	havings               []Bb
@@ -59,7 +60,7 @@ func X() *BuilderX {
 	return x
 }
 
-func (x *BuilderX) FromX(fromX func(fb *FromBuilder)) *BuilderX {
+func (x *BuilderX) FromX(f func(fb *FromBuilder)) *BuilderX {
 
 	if len(x.sxs) == 0 {
 		sb := FromX{
@@ -77,7 +78,7 @@ func (x *BuilderX) FromX(fromX func(fb *FromBuilder)) *BuilderX {
 		xs: &x.sxs,
 		x:  x.sxs[0],
 	}
-	fromX(&b)
+	f(&b)
 	return x
 }
 
@@ -100,9 +101,9 @@ func (x *BuilderX) Select(resultKeys ...string) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) Having(cond func(cb *CondBuilderX)) *BuilderX {
+func (x *BuilderX) Having(f func(cb *CondBuilderX)) *BuilderX {
 	var cb = new(CondBuilderX)
-	cond(cb)
+	f(cb)
 	x.havings = cb.bbs
 	return x
 }
@@ -128,23 +129,23 @@ func (x *BuilderX) Agg(fn string, vs ...interface{}) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) Sub(s string, sub func(sb *BuilderX)) *BuilderX {
-	x.CondBuilderX.Sub(s, sub)
+func (x *BuilderX) Sub(s string, f func(sb *BuilderX)) *BuilderX {
+	x.CondBuilderX.Sub(s, f)
 	return x
 }
 
-func (x *BuilderX) Any(any func(x *BuilderX)) *BuilderX {
-	any(x)
+func (x *BuilderX) Any(f func(x *BuilderX)) *BuilderX {
+	f(x)
 	return x
 }
 
-func (x *BuilderX) And(sub func(cb *CondBuilder)) *BuilderX {
-	x.CondBuilder.And(sub)
+func (x *BuilderX) And(f func(cb *CondBuilder)) *BuilderX {
+	x.CondBuilder.And(f)
 	return x
 }
 
-func (x *BuilderX) Or(sub func(cb *CondBuilder)) *BuilderX {
-	x.CondBuilder.Or(sub)
+func (x *BuilderX) Or(f func(cb *CondBuilder)) *BuilderX {
+	x.CondBuilder.Or(f)
 	return x
 }
 
@@ -240,15 +241,22 @@ func (x *BuilderX) Sort(orderBy string, direction Direction) *BuilderX {
 	return x
 }
 
-func (x *BuilderX) Paged(page func(pb *PageBuilder)) *BuilderX {
+func (x *BuilderX) Paged(f func(pb *PageBuilder)) *BuilderX {
 	pageBuilder := new(PageBuilder)
 	x.pageBuilder = pageBuilder
-	page(pageBuilder)
+	f(pageBuilder)
 	return x
 }
 
 func (x *BuilderX) Last(last string) *BuilderX {
 	x.last = last
+	return x
+}
+
+func (x *BuilderX) Update(f func(ub *UpdateBuilder)) *BuilderX {
+	updateBuilder := new(UpdateBuilder)
+	x.updates = &updateBuilder.bbs
+	f(updateBuilder)
 	return x
 }
 
@@ -259,6 +267,7 @@ func (x *BuilderX) Build() *Built {
 	x.optimizeFromBuilder()
 	built := Built{
 		ResultKeys: x.resultKeys,
+		Updates:    x.updates,
 		Conds:      x.bbs,
 		Sorts:      x.sorts,
 		Aggs:       x.aggs,

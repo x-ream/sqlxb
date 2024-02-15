@@ -16,19 +16,34 @@
 // limitations under the License.
 package sqlxb
 
-type CondBuilderX struct {
-	CondBuilder
-}
+import (
+	. "github.com/x-ream/sqlxb/internal"
+	"strings"
+)
 
-func (x *CondBuilderX) Sub(s string, f func(sb *BuilderX)) *CondBuilderX {
-
-	b := new(BuilderX)
-	f(b)
-	bb := Bb{
-		op:    SUB,
-		key:   s,
-		value: b,
+func (built *Built) toUpdateSql(bp *strings.Builder, vs *[]interface{}) {
+	if built.Updates == nil {
+		return
 	}
-	x.bbs = append(x.bbs, bb)
-	return x
+
+	bp.WriteString(SET)
+	length := len(*built.Updates)
+
+	for i := 0; i < length; i++ {
+		u := (*built.Updates)[i]
+		bp.WriteString(u.key)
+		if !strings.Contains(u.key, EQ) {
+			bp.WriteString(SPACE)
+			bp.WriteString(EQ)
+		}
+		if u.value != nil {
+			bp.WriteString(PLACE_HOLDER)
+			*vs = append(*vs, u.value)
+		}
+		if i < length-1 {
+			bp.WriteString(COMMA)
+		} else {
+			bp.WriteString(SPACE)
+		}
+	}
 }

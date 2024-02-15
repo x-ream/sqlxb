@@ -25,6 +25,8 @@ const (
 	GROUP_BY              = " GROUP BY "
 	HAVING                = " HAVING "
 	SELECT                = "SELECT "
+	UPDATE                = "UPDATE "
+	SET                   = " SET "
 	WHERE                 = " WHERE "
 	FROM                  = "FROM "
 	ON_SCRIPT             = " ON "

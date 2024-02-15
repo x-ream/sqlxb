@@ -24,6 +24,7 @@ import (
 
 type Built struct {
 	ResultKeys []string
+	Updates    *[]Bb
 	Conds      []Bb
 	Sorts      []Sort
 	Havings    []Bb
@@ -35,15 +36,6 @@ type Built struct {
 	Svs        []interface{}
 
 	PageCondition *PageCondition
-}
-
-type Qr struct {
-	Rs []Bb
-	Cs []Bb
-
-	Svs []interface{}
-
-	Po Po
 }
 
 func (built *Built) toFromSqlOfCount(bpCount *strings.Builder) {
@@ -270,6 +262,13 @@ func (built *Built) countBuilder() *strings.Builder {
 	return sbCount
 }
 
+func (built *Built) SqlOfUpdate() (string, []interface{}) {
+	vs := []interface{}{}
+	km := make(map[string]string) //nil for sub From builder,
+	dataSql, _ := built.sqlData(&vs, km)
+	return dataSql, vs
+}
+
 func (built *Built) SqlOfCond() (string, string, []interface{}) {
 	vs := []interface{}{}
 
@@ -305,7 +304,9 @@ func (built *Built) countSqlWhere(sbCount *strings.Builder) {
 }
 
 func (built *Built) sqlFrom(bp *strings.Builder) {
-	bp.WriteString(FROM)
+	if built.Updates == nil {
+		bp.WriteString(FROM)
+	}
 }
 
 func (built *Built) sqlWhere(bp *strings.Builder) {
@@ -329,6 +330,7 @@ func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, ma
 	built.toResultKeySql(&sb, km)
 	built.sqlFrom(&sb)
 	built.toFromSql(vs, &sb)
+	built.toUpdateSql(&sb, vs)
 	built.sqlWhere(&sb)
 	built.toCondSql(built.Conds, &sb, vs, built.filterLast)
 	built.toAggSql(vs, &sb)
