@@ -14,13 +14,13 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
     var Db *sqlx.DB
     ....
 
-    c := Cat{}
+    var c Cat
 	builder := sqlxb.Of(&c).Gt("id", 10000).And(func(cb *CondBuilder) {
 		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
     })
 
     vs, dataSql, countSql, _ := builder.Build().Sql()
-    catList := []Cat{}
+    var catList []Cat
 	err = Db.Select(&catList, dataSql, vs...)
 
 
@@ -99,7 +99,7 @@ func main() {
 		}
 	}
 
-	c := Cat{}
+	var c Cat
 	var builder = Of(&c)
 	builder.LikeLeft("name",catRo.Name)
 	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will NOT ignore
