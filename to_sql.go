@@ -262,6 +262,22 @@ func (built *Built) countBuilder() *strings.Builder {
 	return sbCount
 }
 
+func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]string) {
+	vs := []interface{}{}
+	km := make(map[string]string) //nil for sub From builder,
+	dataSql, kmp := built.sqlData(&vs, km)
+	countSql := built.sqlCount()
+
+	return countSql, dataSql, vs, kmp
+}
+
+func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
+	vs := []interface{}{}
+	km := make(map[string]string) //nil for sub From builder,
+	dataSql, kmp := built.sqlData(&vs, km)
+	return dataSql, vs, kmp
+}
+
 func (built *Built) SqlOfUpdate() (string, []interface{}) {
 	vs := []interface{}{}
 	km := make(map[string]string) //nil for sub From builder,
@@ -314,15 +330,6 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 		return
 	}
 	bp.WriteString(WHERE)
-}
-
-func (built *Built) Sql() ([]interface{}, string, string, map[string]string) {
-	vs := []interface{}{}
-	km := make(map[string]string) //nil for sub From builder,
-	dataSql, kmp := built.sqlData(&vs, km)
-	countSql := built.sqlCount()
-
-	return vs, dataSql, countSql, kmp
 }
 
 func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {

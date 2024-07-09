@@ -19,7 +19,7 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
     })
 
-    vs, dataSql, countSql, _ := builder.Build().Sql()
+    countSql, dataSql, vs, _ := builder.Build().Sql()
     var catList []Cat
 	err = Db.Select(&catList, dataSql, vs...)
 
@@ -120,7 +120,7 @@ func main() {
         builder.Paged(func(pb *PageBuilder) {
                 pb.Page(1).Rows(10).IgnoreTotalRows()
             })
-	vs, dataSql, countSql, _ := builder.Build().Sql()
+    countSql, dataSql, vs, _ := builder.Build().SqlOfPage()
     // ....
 
     //dataSql: SELECT * FROM t_cat WHERE id > ? AND name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
