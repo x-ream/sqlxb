@@ -16,6 +16,8 @@
 // limitations under the License.
 package sqlxb
 
+import "fmt"
+
 // To build sql, like: SELECT DISTINCT f.id FROM foo f INNER_JOIN JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
 // Sql for MySQL, Clickhouse....
 //
@@ -27,6 +29,7 @@ type BuilderX struct {
 	sorts                 []Sort
 	resultKeys            []string
 	orFromSql             string
+	inserts               *[]Bb
 	updates               *[]Bb
 	sxs                   []*FromX
 	svs                   []interface{}
@@ -48,6 +51,8 @@ func Of(tableNameOrPo interface{}) *BuilderX {
 			x.orFromSql = tableNameOrPo.(string)
 		case Po:
 			x.orFromSql = tableNameOrPo.(Po).TableName()
+		default:
+			panic("No  `func (* Po) TableName() string` of interface Po: " + fmt.Sprintf("%s", tableNameOrPo))
 		}
 	}
 	return x
@@ -254,9 +259,16 @@ func (x *BuilderX) Last(last string) *BuilderX {
 }
 
 func (x *BuilderX) Update(f func(ub *UpdateBuilder)) *BuilderX {
-	updateBuilder := new(UpdateBuilder)
-	x.updates = &updateBuilder.bbs
-	f(updateBuilder)
+	builder := new(UpdateBuilder)
+	x.updates = &builder.bbs
+	f(builder)
+	return x
+}
+
+func (x *BuilderX) Insert(f func(b *InsertBuilder)) *BuilderX {
+	builder := new(InsertBuilder)
+	x.inserts = &builder.bbs
+	f(builder)
 	return x
 }
 
@@ -264,7 +276,17 @@ func (x *BuilderX) Build() *Built {
 	if x == nil {
 		panic("sqlxb.Builder is nil")
 	}
+
+	if x.inserts != nil && len(*(x.inserts)) > 0 {
+		built := Built{
+			OrFromSql: x.orFromSql,
+			Inserts:   x.inserts,
+		}
+		return &built
+	}
+
 	x.optimizeFromBuilder()
+
 	built := Built{
 		ResultKeys: x.resultKeys,
 		Updates:    x.updates,

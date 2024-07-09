@@ -21,38 +21,39 @@ import (
 	"time"
 )
 
-type UpdateBuilder struct {
+type InsertBuilder struct {
 	bbs []Bb
 }
 
-func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
+func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 
-	defer func() *UpdateBuilder {
+	defer func() *InsertBuilder {
 		if s := recover(); s != nil {
 			bytes, _ := json.Marshal(v)
-			ub.bbs = append(ub.bbs, Bb{
+			b.bbs = append(b.bbs, Bb{
+				op:    "SET",
 				key:   k,
 				value: string(bytes),
 			})
 		}
-		return ub
+		return b
 	}()
 
 	switch v.(type) {
 	case string:
 		if v.(string) == "" {
-			return ub
+			return b
 		}
 		break
 	case uint64, uint, int64, int, int32, int16, int8, bool, byte, float64, float32:
 		if v == 0 {
-			return ub
+			return b
 		}
 		break
 	case *uint64, *uint, *int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
 		isNil, n := NilOrNumber(v)
 		if isNil {
-			return ub
+			return b
 		}
 		v = n
 		break
@@ -66,40 +67,14 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 		break
 	default:
 		if v == nil {
-			return ub
+			return b
 		}
 	}
 
-	ub.bbs = append(ub.bbs, Bb{
+	b.bbs = append(b.bbs, Bb{
+		op:    "SET",
 		key:   k,
 		value: v,
 	})
-	return ub
-}
-
-func (ub *UpdateBuilder) X(s string) *UpdateBuilder {
-	ub.bbs = append(ub.bbs, Bb{
-		op:  "SET",
-		key: s,
-	})
-	return ub
-}
-
-func (ub *UpdateBuilder) Any(f func(*UpdateBuilder)) *UpdateBuilder {
-	f(ub)
-	return ub
-}
-
-func (ub *UpdateBuilder) Bool(preCond BoolFunc, f func(cb *UpdateBuilder)) *UpdateBuilder {
-	if preCond == nil {
-		panic("UpdateBuilder.Bool para of BoolFunc can not nil")
-	}
-	if !preCond() {
-		return ub
-	}
-	if f == nil {
-		panic("UpdateBuilder.Bool para of func(k string, vs... interface{}) can not nil")
-	}
-	f(ub)
-	return ub
+	return b
 }

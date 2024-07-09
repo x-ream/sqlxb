@@ -24,6 +24,7 @@ import (
 
 type Built struct {
 	ResultKeys []string
+	Inserts    *[]Bb
 	Updates    *[]Bb
 	Conds      []Bb
 	Sorts      []Sort
@@ -278,9 +279,15 @@ func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 	return dataSql, vs, kmp
 }
 
+func (built *Built) SqlOfInsert() (string, []interface{}) {
+	vs := []interface{}{}
+	sql := built.sqlInsert(&vs)
+	return sql, vs
+}
+
 func (built *Built) SqlOfUpdate() (string, []interface{}) {
 	vs := []interface{}{}
-	km := make(map[string]string) //nil for sub From builder,
+	km := make(map[string]string) //nil for builder,
 	dataSql, _ := built.sqlData(&vs, km)
 	return dataSql, vs
 }
@@ -365,4 +372,35 @@ func (built *Built) sqlCount() string {
 	built.toHavingSqlOfCount(sbCount)
 	countSql := built.toSqlCount(sbCount)
 	return countSql
+}
+
+func (built *Built) sqlInsert(vs *[]interface{}) string {
+
+	bp := strings.Builder{}
+	bp.WriteString(INSERT)
+	bp.WriteString(built.OrFromSql)
+	bp.WriteString(SPACE)
+	bp.WriteString(BEGIN_SUB)
+	length := len(*built.Inserts)
+	for i := 0; i < length; i++ {
+		v := (*built.Inserts)[i]
+		bp.WriteString(v.key)
+		if i < length-1 {
+			bp.WriteString(COMMA)
+		}
+		*vs = append(*vs, v.value)
+	}
+
+	bp.WriteString(END_SUB)
+	bp.WriteString(VALUES)
+	bp.WriteString(BEGIN_SUB)
+	for i := 0; i < length; i++ {
+		bp.WriteString(PLACE_HOLDER)
+		if i < length-1 {
+			bp.WriteString(COMMA)
+		}
+	}
+	bp.WriteString(END_SUB)
+
+	return bp.String()
 }

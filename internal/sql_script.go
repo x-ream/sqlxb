@@ -25,6 +25,8 @@ const (
 	GROUP_BY              = " GROUP BY "
 	HAVING                = " HAVING "
 	SELECT                = "SELECT "
+	INSERT                = "INSERT INTO" + " "
+	VALUES                = " VALUES "
 	UPDATE                = "UPDATE "
 	SET                   = " SET "
 	WHERE                 = " WHERE "
