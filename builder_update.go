@@ -16,13 +16,26 @@
 // limitations under the License.
 package sqlxb
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type UpdateBuilder struct {
 	bbs []Bb
 }
 
 func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
+
+	defer func() *UpdateBuilder {
+		bytes, _ := json.Marshal(v)
+		ub.bbs = append(ub.bbs, Bb{
+			op:    "SET",
+			key:   k,
+			value: string(bytes),
+		})
+		return ub
+	}()
 
 	switch v.(type) {
 	case string:
@@ -42,8 +55,9 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 	case time.Time:
 		ts := v.(time.Time).Format("2006-01-02 15:04:05")
 		v = ts
-	case []interface{}:
-		panic("Builder.doGLE(ke, []arr), [] ?")
+	case interface{}:
+		bytes, _ := json.Marshal(v)
+		v = string(bytes)
 	default:
 		if v == nil {
 			return ub

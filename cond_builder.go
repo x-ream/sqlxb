@@ -63,10 +63,10 @@ func (cb *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBuilder 
 				continue
 			}
 			ss = append(ss, s)
-		case []interface{}:
-			panic("Builder.doIn(ke, ([]arr)), ([]arr) ?")
+		case interface{}:
+			panic("Builder.doIn(ke, (obj), ([]arr) ? ...")
 		default:
-			panic("Builder.doIn(ke, (*[]arr)), (*[]arr) ?")
+			panic("Builder.doIn(ke, (*obj)), (*[]arr) ? ...")
 		}
 	}
 
@@ -112,8 +112,8 @@ func (cb *CondBuilder) doGLE(p string, k string, v interface{}) *CondBuilder {
 	case time.Time:
 		ts := v.(time.Time).Format("2006-01-02 15:04:05")
 		return cb.addBb(p, k, ts)
-	case []interface{}:
-		panic("Builder.doGLE(ke, []arr), [] ?")
+	case interface{}:
+		panic("Builder.doGLE(ke, obj, [] ? ...")
 	default:
 		if v == nil {
 			return cb
