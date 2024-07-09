@@ -19,7 +19,7 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
     })
 
-    countSql, dataSql, vs, _ := builder.Build().Sql()
+    countSql, dataSql, vs, _ := builder.Build().SqlOfPage()
     var catList []Cat
 	err = Db.Select(&catList, dataSql, vs...)
 
