@@ -8,7 +8,7 @@ a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmo
 or build condition sql for some orm framework, like [xorm](https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
 
 ## Program feature:
-* ignore building of nil and empty string
+* ignore building nil or empty string
 
 ## Available field of struct:
     
