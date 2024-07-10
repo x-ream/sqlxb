@@ -6,6 +6,7 @@
 
 a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like [xorm](https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
+while ignore building of nil and empty string
 
 ## Example
 
