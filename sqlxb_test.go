@@ -1,7 +1,6 @@
 package sqlxb
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -26,16 +25,9 @@ func TestInsert(t *testing.T) {
 
 	t.Run("insert", func(t *testing.T) {
 
-		str := "eHh4eHh4eHh4eHg="
-		buffer, _ := json.Marshal(str)
-		fmt.Println("-------------")
-		fmt.Println(string(buffer))
-		fmt.Println("+++++++++++++")
-
 		mm := make(map[string]string)
 		mm["xxxx"] = "zzzzz"
 		body := []byte("xxxxxxxxxxx")
-		fmt.Println(string(body))
 
 		var po Pet
 		sql, vs := Of(&po).
@@ -72,7 +64,8 @@ func TestUpdate(t *testing.T) {
 				b.Set("one", Cat{
 					Id: 2,
 					M:  mm,
-				})
+					}).
+					Set("body", []byte("yyyyyyyyyyyy"))
 			}).
 			Eq("id", 2).
 			Build().
