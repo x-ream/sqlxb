@@ -27,6 +27,15 @@ type UpdateBuilder struct {
 
 func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 
+	buffer, ok := v.([]byte)
+	if ok {
+		ub.bbs = append(ub.bbs, Bb{
+			key:   k,
+			value: buffer,
+		})
+		return ub
+	}
+
 	defer func() *UpdateBuilder {
 		if s := recover(); s != nil {
 			bytes, _ := json.Marshal(v)
@@ -43,27 +52,22 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 		if v.(string) == "" {
 			return ub
 		}
-		break
 	case uint64, uint, int64, int, int32, int16, int8, bool, byte, float64, float32:
 		if v == 0 {
 			return ub
 		}
-		break
 	case *uint64, *uint, *int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
 		isNil, n := NilOrNumber(v)
 		if isNil {
 			return ub
 		}
 		v = n
-		break
 	case time.Time:
 		ts := v.(time.Time).Format("2006-01-02 15:04:05")
 		v = ts
-		break
 	case interface{}:
 		bytes, _ := json.Marshal(v)
 		v = string(bytes)
-		break
 	default:
 		if v == nil {
 			return ub

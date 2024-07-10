@@ -27,11 +27,19 @@ type InsertBuilder struct {
 
 func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 
+	buffer, ok := v.([]byte)
+	if ok {
+		b.bbs = append(b.bbs, Bb{
+			key:   k,
+			value: buffer,
+		})
+		return b
+	}
+
 	defer func() *InsertBuilder {
 		if s := recover(); s != nil {
 			bytes, _ := json.Marshal(v)
 			b.bbs = append(b.bbs, Bb{
-				op:    "SET",
 				key:   k,
 				value: string(bytes),
 			})
@@ -44,27 +52,22 @@ func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 		if v.(string) == "" {
 			return b
 		}
-		break
 	case uint64, uint, int64, int, int32, int16, int8, bool, byte, float64, float32:
 		if v == 0 {
 			return b
 		}
-		break
 	case *uint64, *uint, *int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
 		isNil, n := NilOrNumber(v)
 		if isNil {
 			return b
 		}
 		v = n
-		break
 	case time.Time:
 		ts := v.(time.Time).Format("2006-01-02 15:04:05")
 		v = ts
-		break
 	case interface{}:
 		bytes, _ := json.Marshal(v)
 		v = string(bytes)
-		break
 	default:
 		if v == nil {
 			return b
@@ -72,7 +75,6 @@ func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 	}
 
 	b.bbs = append(b.bbs, Bb{
-		op:    "SET",
 		key:   k,
 		value: v,
 	})

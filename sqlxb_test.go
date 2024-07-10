@@ -1,6 +1,7 @@
 package sqlxb
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -12,8 +13,9 @@ type Cat struct {
 }
 
 type Pet struct {
-	One Cat
-	Id  int64
+	One  Cat
+	Id   int64
+	Body []byte
 }
 
 func (*Pet) TableName() string {
@@ -24,16 +26,26 @@ func TestInsert(t *testing.T) {
 
 	t.Run("insert", func(t *testing.T) {
 
+		str := "eHh4eHh4eHh4eHg="
+		buffer, _ := json.Marshal(str)
+		fmt.Println("-------------")
+		fmt.Println(string(buffer))
+		fmt.Println("+++++++++++++")
+
 		mm := make(map[string]string)
 		mm["xxxx"] = "zzzzz"
+		body := []byte("xxxxxxxxxxx")
+		fmt.Println(string(body))
 
 		var po Pet
 		sql, vs := Of(&po).
 			Insert(func(b *InsertBuilder) {
-				b.Set("id", 1).Set("one", Cat{
-					Id: 2,
-					M:  mm,
-				})
+				b.Set("id", 1).
+					Set("one", Cat{
+						Id: 2,
+						M:  mm,
+					}).
+					Set("body", body)
 			}).
 			Build().
 			SqlOfInsert()
