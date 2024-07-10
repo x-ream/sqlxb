@@ -26,11 +26,11 @@ type BuilderX struct {
 	CondBuilderX
 	pageBuilder *PageBuilder
 
+	inserts               *[]Bb
+	updates               *[]Bb
 	sorts                 []Sort
 	resultKeys            []string
 	orFromSql             string
-	inserts               *[]Bb
-	updates               *[]Bb
 	sxs                   []*FromX
 	svs                   []interface{}
 	havings               []Bb

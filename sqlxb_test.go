@@ -76,3 +76,27 @@ func TestUpdate(t *testing.T) {
 	})
 
 }
+
+func TestDelete(t *testing.T) {
+
+	t.Run("delete", func(t *testing.T) {
+
+		var po Pet
+		sql, vs := Of(&po).Eq("id", 2).
+			Any(func(x *BuilderX) {
+				if po.Id != 4 {
+					x.Gt("id", 1)
+				}
+			}).
+			Build().
+			SqlOfDelete()
+
+		if !strings.Contains(sql, "t_pet") {
+			t.Error("sql erro")
+		}
+
+		fmt.Println(vs)
+		fmt.Println(sql)
+	})
+
+}

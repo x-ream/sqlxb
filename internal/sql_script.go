@@ -27,6 +27,7 @@ const (
 	SELECT                = "SELECT "
 	INSERT                = "INSERT INTO" + " "
 	VALUES                = " VALUES "
+	DELETE                = "DELETE "
 	UPDATE                = "UPDATE "
 	SET                   = " SET "
 	WHERE                 = " WHERE "

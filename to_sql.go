@@ -23,9 +23,10 @@ import (
 )
 
 type Built struct {
-	ResultKeys []string
+	Delete     bool
 	Inserts    *[]Bb
 	Updates    *[]Bb
+	ResultKeys []string
 	Conds      []Bb
 	Sorts      []Sort
 	Havings    []Bb
@@ -292,6 +293,12 @@ func (built *Built) SqlOfUpdate() (string, []interface{}) {
 	return dataSql, vs
 }
 
+func (built *Built) SqlOfDelete() (string, []interface{}) {
+	vs := []interface{}{}
+	sql := built.sqlDelete(&vs)
+	return sql, vs
+}
+
 func (built *Built) SqlOfCond() (string, string, []interface{}) {
 	vs := []interface{}{}
 
@@ -339,6 +346,28 @@ func (built *Built) sqlWhere(bp *strings.Builder) {
 	bp.WriteString(WHERE)
 }
 
+func (built *Built) toDelete(bp *strings.Builder) {
+	bp.WriteString(DELETE)
+}
+
+func (built *Built) sqlDelete(vs *[]interface{}) string {
+	sb := strings.Builder{}
+	built.toDelete(&sb)
+	built.sqlFrom(&sb)
+	built.toFromSql(vs, &sb)
+	built.toUpdateSql(&sb, vs)
+	built.sqlWhere(&sb)
+	built.toCondSql(built.Conds, &sb, vs, built.filterLast)
+	built.toAggSql(vs, &sb)
+	built.toGroupBySql(&sb)
+	built.toHavingSql(vs, &sb)
+	built.toSortSql(&sb)
+	built.toPageSql(&sb)
+	built.toLastSql(&sb)
+	deleteSql := sb.String()
+	return deleteSql
+}
+
 func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
 	sb := strings.Builder{}
 	built.toResultKeySql(&sb, km)
@@ -372,35 +401,4 @@ func (built *Built) sqlCount() string {
 	built.toHavingSqlOfCount(sbCount)
 	countSql := built.toSqlCount(sbCount)
 	return countSql
-}
-
-func (built *Built) sqlInsert(vs *[]interface{}) string {
-
-	bp := strings.Builder{}
-	bp.WriteString(INSERT)
-	bp.WriteString(built.OrFromSql)
-	bp.WriteString(SPACE)
-	bp.WriteString(BEGIN_SUB)
-	length := len(*built.Inserts)
-	for i := 0; i < length; i++ {
-		v := (*built.Inserts)[i]
-		bp.WriteString(v.key)
-		if i < length-1 {
-			bp.WriteString(COMMA)
-		}
-		*vs = append(*vs, v.value)
-	}
-
-	bp.WriteString(END_SUB)
-	bp.WriteString(VALUES)
-	bp.WriteString(BEGIN_SUB)
-	for i := 0; i < length; i++ {
-		bp.WriteString(PLACE_HOLDER)
-		if i < length-1 {
-			bp.WriteString(COMMA)
-		}
-	}
-	bp.WriteString(END_SUB)
-
-	return bp.String()
 }
