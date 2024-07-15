@@ -266,7 +266,7 @@ func (built *Built) countBuilder() *strings.Builder {
 
 func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]string) {
 	vs := []interface{}{}
-	km := make(map[string]string) //nil for sub From builder,
+	km := make(map[string]string) //nil for sub FromId builder,
 	dataSql, kmp := built.sqlData(&vs, km)
 	countSql := built.sqlCount()
 
@@ -275,7 +275,7 @@ func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]strin
 
 func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 	vs := []interface{}{}
-	km := make(map[string]string) //nil for sub From builder,
+	km := make(map[string]string) //nil for sub FromId builder,
 	dataSql, kmp := built.sqlData(&vs, km)
 	return dataSql, vs, kmp
 }

@@ -18,7 +18,7 @@ package sqlxb
 
 import "fmt"
 
-// To build sql, like: SELECT DISTINCT f.id FROM foo f INNER_JOIN JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
+// ToId build sql, like: SELECT DISTINCT f.id FROM foo f INNER_JOIN JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
 // Sql for MySQL, Clickhouse....
 //
 // @author Sim

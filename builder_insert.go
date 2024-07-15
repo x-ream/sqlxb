@@ -49,9 +49,6 @@ func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 
 	switch v.(type) {
 	case string:
-		if v.(string) == "" {
-			return b
-		}
 	case uint64, uint, int64, int, int32, int16, int8, bool, byte, float64, float32:
 		if v == 0 {
 			return b
