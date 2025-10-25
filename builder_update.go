@@ -81,10 +81,11 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 	return ub
 }
 
-func (ub *UpdateBuilder) X(s string) *UpdateBuilder {
+func (ub *UpdateBuilder) X(s string, vs ...interface{}) *UpdateBuilder {
 	ub.bbs = append(ub.bbs, Bb{
-		op:  "SET",
-		key: s,
+		op:    "SET",
+		key:   s,
+		value: vs,
 	})
 	return ub
 }
