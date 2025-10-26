@@ -11,9 +11,15 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 
 ---
 
-## 🚀 NEW: Vector Database Support (v0.8.1)
+## 🚀 NEW: Vector Database Support (v0.9.0)
 
 **The first unified ORM for both Relational and Vector Databases!**
+
+**✨ New in v0.9.0**:
+- 🎯 **Vector Diversity Queries** - 3 strategies to solve result similarity
+- 🔄 **Qdrant JSON Generation** - Native Qdrant support
+- 🎨 **Graceful Degradation** - Same code, multiple backends
+- 🔧 **9-Layer Auto Filtering** - Zero manual checks
 
 ```go
 // MySQL (existing)

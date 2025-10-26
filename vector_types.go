@@ -166,3 +166,46 @@ func (v Vector) Dim() int {
 	return len(v)
 }
 
+// DiversityStrategy 多样性策略
+type DiversityStrategy string
+
+const (
+	// DiversityByHash 基于语义哈希去重
+	DiversityByHash DiversityStrategy = "hash"
+
+	// DiversityByDistance 基于向量距离去重
+	DiversityByDistance DiversityStrategy = "distance"
+
+	// DiversityByMMR 使用 MMR（Maximal Marginal Relevance）算法
+	DiversityByMMR DiversityStrategy = "mmr"
+)
+
+// DiversityParams 多样性查询参数
+type DiversityParams struct {
+	// Enabled 是否启用多样性
+	Enabled bool
+
+	// Strategy 多样性策略
+	Strategy DiversityStrategy
+
+	// HashField 语义哈希字段名（用于 DiversityByHash）
+	// 例如: "semantic_hash", "content_hash"
+	HashField string
+
+	// MinDistance 结果之间的最小距离（用于 DiversityByDistance）
+	// 例如: 0.3 表示结果之间的距离至少为 0.3
+	MinDistance float32
+
+	// Lambda MMR 平衡参数（用于 DiversityByMMR）
+	// 范围: 0-1
+	// 0 = 完全多样性
+	// 1 = 完全相关性
+	// 0.5 = 平衡（推荐）
+	Lambda float32
+
+	// OverFetchFactor 过度获取因子
+	// 先获取 TopK * OverFetchFactor 个结果，再应用多样性过滤
+	// 默认: 5（获取 5 倍的结果后过滤）
+	OverFetchFactor int
+}
+

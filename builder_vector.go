@@ -53,3 +53,52 @@ func (x *BuilderX) VectorDistanceFilter(
 	x.CondBuilder.VectorDistanceFilter(field, queryVector, op, threshold)
 	return x
 }
+
+// WithDiversity 设置多样性参数（BuilderX 扩展）
+// ⭐ 核心：如果数据库不支持，会被自动忽略
+//
+// 示例:
+//   sqlxb.Of(&CodeVector{}).
+//       VectorSearch("embedding", vec, 20).
+//       WithDiversity(sqlxb.DiversityByHash, "semantic_hash").
+//       Build()
+func (x *BuilderX) WithDiversity(strategy DiversityStrategy, params ...interface{}) *BuilderX {
+	x.CondBuilder.WithDiversity(strategy, params...)
+	return x
+}
+
+// WithMinDistance 设置最小距离多样性（BuilderX 扩展）
+//
+// 示例:
+//   sqlxb.Of(&CodeVector{}).
+//       VectorSearch("embedding", vec, 20).
+//       WithMinDistance(0.3).
+//       Build()
+func (x *BuilderX) WithMinDistance(minDistance float32) *BuilderX {
+	x.CondBuilder.WithMinDistance(minDistance)
+	return x
+}
+
+// WithHashDiversity 设置哈希去重（BuilderX 扩展）
+//
+// 示例:
+//   sqlxb.Of(&CodeVector{}).
+//       VectorSearch("embedding", vec, 20).
+//       WithHashDiversity("semantic_hash").
+//       Build()
+func (x *BuilderX) WithHashDiversity(hashField string) *BuilderX {
+	x.CondBuilder.WithHashDiversity(hashField)
+	return x
+}
+
+// WithMMR 设置 MMR 算法（BuilderX 扩展）
+//
+// 示例:
+//   sqlxb.Of(&CodeVector{}).
+//       VectorSearch("embedding", vec, 20).
+//       WithMMR(0.5).
+//       Build()
+func (x *BuilderX) WithMMR(lambda float32) *BuilderX {
+	x.CondBuilder.WithMMR(lambda)
+	return x
+}
