@@ -4,8 +4,37 @@
 [![GitHub tag](https://img.shields.io/github/tag/x-ream/sqlxb.svg?style=flat)](https://github.com/x-ream/sqlxb/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
 
+**AI-First SQL Builder** for Relational and Vector Databases
+
 a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like [xorm](https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
+
+---
+
+## 🚀 NEW: Vector Database Support (v0.8.0 RFC)
+
+**The first unified ORM for both Relational and Vector Databases!**
+
+```go
+// MySQL (existing)
+sqlxb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
+
+// VectorDB (coming soon) - Same API!
+sqlxb.Of(&CodeVector{}).
+    Eq("language", "golang").
+    VectorSearch("embedding", queryVector, 10).
+    Build().SqlOfVectorSearch()
+```
+
+📖 **[Read the Vector Database Design Docs →](./VECTOR_README.md)**
+
+**Features**:
+- ✅ Unified API for MySQL + VectorDB
+- ✅ Type-safe ORM for vectors
+- ✅ Auto-optimized hybrid queries
+- ✅ 100% backward compatible
+
+---
 
 ## Program feature:
 * ignore building nil or empty string

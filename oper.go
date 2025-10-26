@@ -73,3 +73,9 @@ func IsNull() string {
 func NonNull() string {
 	return NON_NULL
 }
+
+// 向量操作符（v0.8.0 新增）
+const (
+	VECTOR_SEARCH          = "VECTOR_SEARCH"
+	VECTOR_DISTANCE_FILTER = "VECTOR_DISTANCE_FILTER"
+)
