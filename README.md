@@ -32,7 +32,7 @@ sqlxb.Of(&CodeVector{}).
     Build().SqlOfVectorSearch()
 ```
 
-📖 **[Read the Vector Database Design Docs →](./VECTOR_README.md)**
+📖 **[Read the Vector Database Design Docs →](./doc/VECTOR_README.md)**
 
 **Features**:
 - ✅ Unified API for MySQL + VectorDB
@@ -88,7 +88,7 @@ This makes sqlxb **one of the first major Go ORM projects successfully maintaine
 
     var c Cat
 	builder := sqlxb.Of(&c).Gt("id", 10000).And(func(cb *CondBuilder) {
-		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold))
+		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold)
     })
 
     countSql, dataSql, vs, _ := builder.Build().SqlOfPage()
@@ -96,10 +96,21 @@ This makes sqlxb **one of the first major Go ORM projects successfully maintaine
 	err = Db.Select(&catList, dataSql, vs...)
 
 
+## 📚 Documentation
+
+**[Complete Documentation Index →](./doc/README.md)**
+
+Quick links:
+- [Vector Database Quick Start](./doc/VECTOR_QUICKSTART.md)
+- [Vector Diversity + Qdrant Guide](./doc/VECTOR_DIVERSITY_QDRANT.md)
+- [API Design](./doc/VECTOR_DIVERSITY_API_DESIGN.md)
+- [All Filtering Mechanisms](./doc/ALL_FILTERING_MECHANISMS.md)
+- [Contributors](./doc/CONTRIBUTORS.md)
+
 ## Contributing
 
 Contributors are welcomed to join the sqlxb project. <br>
-Please check [CONTRIBUTING](./CONTRIBUTING.md)
+Please check [CONTRIBUTING](./doc/CONTRIBUTING.md)
 
 ## Quickstart
 

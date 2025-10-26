@@ -73,10 +73,10 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 	if len(allConds) > 0 {
 		sb.WriteString(" WHERE ")
 
-		// 构建标量条件
-		condSql, condArgs := buildConditionSql(scalarConds)
-		sb.WriteString(condSql)
-		args = append(args, condArgs...)
+		// ⭐ 使用 toCondSql 而不是 buildConditionSql，以正确处理 OR/AND 子查询
+		if len(scalarConds) > 0 {
+			built.toCondSql(scalarConds, &sb, &args, nil)
+		}
 
 		// 构建向量距离过滤条件
 		if len(vectorDistConds) > 0 {
@@ -115,11 +115,26 @@ func findVectorSearchBb(bbs []Bb) *Bb {
 func filterScalarConds(bbs []Bb) []Bb {
 	result := []Bb{}
 	for _, bb := range bbs {
-		if bb.op != VECTOR_SEARCH && bb.op != VECTOR_DISTANCE_FILTER {
-			result = append(result, bb)
+		// 跳过向量操作符
+		if bb.op == VECTOR_SEARCH || bb.op == VECTOR_DISTANCE_FILTER {
+			continue
 		}
+		// ⭐ 跳过 Qdrant 专属操作符（PostgreSQL 不支持）
+		if isQdrantSpecificOp(bb.op) {
+			continue
+		}
+		result = append(result, bb)
 	}
 	return result
+}
+
+// isQdrantSpecificOp 判断是否为 Qdrant 专属操作符
+func isQdrantSpecificOp(op string) bool {
+	return op == QDRANT_HNSW_EF ||
+		op == QDRANT_EXACT ||
+		op == QDRANT_SCORE_THRESHOLD ||
+		op == QDRANT_WITH_VECTOR ||
+		op == QDRANT_XX
 }
 
 // 辅助函数：过滤向量距离条件

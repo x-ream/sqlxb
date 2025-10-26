@@ -1,0 +1,55 @@
+fix(core): 修复 float64/int 零值过滤和 OR/AND 子查询处理
+
+**问题 (Issues Fixed)**:
+
+1. **float64/int 零值无法过滤**
+   - `interface{} == 0` 对 float64 类型无效
+   - 需要类型断言后再比较：`v.(float64) == 0.0`
+   
+2. **向量查询中 OR/AND 子查询渲染错误**
+   - `SqlOfVectorSearch` 使用简化的 `buildConditionSql`
+   - 该方法忽略 `subs`，导致 OR_SUB 输出为 `OR OR ?`
+   - 修复：改用正确的 `toCondSql()`
+
+3. **OR_SUB 使用错误的连接符**
+   - OR_SUB（有 subs）应使用 AND 连接前后条件
+   - 纯 OR 操作符（无 subs）才使用 OR 连接
+   - `toCondSql` 中增加对 `len(next.subs) > 0` 的判断
+
+4. **纯 OR/AND 操作符被错误过滤**
+   - `orAndSub` 原本过滤掉所有纯操作符
+   - 纯操作符用于连接同级条件，不应过滤
+   - 修复：只过滤"仅包含纯操作符"的子查询
+
+**修改文件 (Changed Files)**:
+
+- `cond_builder.go`: 修复 `doGLE` 的零值过滤和 `orAndSub` 的纯操作符处理
+- `to_sql.go`: 修复 OR_SUB 的连接符逻辑
+- `to_vector_sql.go`: 使用 `toCondSql` 替代简化的 `buildConditionSql`
+
+**影响 (Impact)**:
+
+✅ 所有现有测试通过
+✅ 向后兼容
+✅ 修复 9 层自动过滤机制中的关键 bug
+
+**回归测试 (Regression Tests)**:
+
+- `regression_test.go`: 新增 6 个回归测试
+  - README 示例验证
+  - float64/float32/int 零值过滤
+  - 向量查询 + And/Or 组合
+  - API 一致性验证
+  - 空 And/Or 跨 API 验证
+  - 嵌套 And/Or 测试
+- `doc/TESTING_STRATEGY.md`: 测试策略与改进计划
+
+**根本原因 (Root Cause)**:
+
+1. 测试分裂：向量查询缺少组合测试
+2. 类型覆盖不全：缺少 float64/float32 测试
+3. API 一致性未验证：SqlOfSelect 和 SqlOfVectorSearch 行为不一致
+4. 临时实现被遗忘：buildConditionSql 的 TODO 未处理
+
+**版本 (Version)**: v0.9.1
+

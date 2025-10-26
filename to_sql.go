@@ -17,9 +17,10 @@
 package sqlxb
 
 import (
-	. "github.com/x-ream/sqlxb/internal"
 	"strconv"
 	"strings"
+
+	. "github.com/x-ream/sqlxb/internal"
 )
 
 type Built struct {
@@ -156,6 +157,7 @@ func (built *Built) toCondSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, 
 			next := bbs[nextIdx]
 			if built.isOr(next) {
 				if built.isOR(next) {
+					// next 是纯 OR 操作符（由 OR() 方法创建）
 					if i+1 < length-1 {
 						nextNext := bbs[nextIdx+1]
 						if !built.isOR(nextNext) {
@@ -163,7 +165,11 @@ func (built *Built) toCondSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, 
 						}
 						i++
 					}
+				} else if len(next.subs) > 0 {
+					// next 是 OR_SUB（有 subs），使用 AND 连接
+					bp.WriteString(AND_SCRIPT)
 				} else {
+					// 其他 OR 情况（理论上不应该发生）
 					bp.WriteString(OR_SCRIPT)
 				}
 			} else {

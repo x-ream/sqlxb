@@ -99,8 +99,48 @@ func (cb *CondBuilder) doGLE(p string, k string, v interface{}) *CondBuilder {
 		if v.(string) == "" {
 			return cb
 		}
-	case uint64, uint, int64, int, int32, int16, int8, bool, byte, float64, float32:
-		if v == 0 {
+	case float64:
+		if v.(float64) == 0.0 {
+			return cb
+		}
+	case float32:
+		if v.(float32) == 0.0 {
+			return cb
+		}
+	case uint64:
+		if v.(uint64) == 0 {
+			return cb
+		}
+	case uint:
+		if v.(uint) == 0 {
+			return cb
+		}
+	case int64:
+		if v.(int64) == 0 {
+			return cb
+		}
+	case int:
+		if v.(int) == 0 {
+			return cb
+		}
+	case int32:
+		if v.(int32) == 0 {
+			return cb
+		}
+	case int16:
+		if v.(int16) == 0 {
+			return cb
+		}
+	case int8:
+		if v.(int8) == 0 {
+			return cb
+		}
+	case byte:
+		if v.(byte) == 0 {
+			return cb
+		}
+	case bool:
+		if v.(bool) == false {
 			return cb
 		}
 	case *uint64, *uint, *int64, *int, *int32, *int16, *int8, *bool, *byte, *float64, *float32:
@@ -149,10 +189,26 @@ func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuil
 		return cb
 	}
 
+	// ⭐ 检查是否有实际的条件（不仅仅是纯操作符）
+	hasRealCondition := false
+	for _, b := range c.bbs {
+		// 纯操作符 Bb：op=OR/AND, key="", value=nil, subs=nil/empty
+		isPureOperator := (b.op == OR || b.op == AND) && b.key == "" && b.value == nil && (b.subs == nil || len(b.subs) == 0)
+		if !isPureOperator {
+			hasRealCondition = true
+			break
+		}
+	}
+
+	// 如果没有实际条件（只有纯操作符），不添加此 OR/AND 子查询
+	if !hasRealCondition {
+		return cb
+	}
+
 	bb := Bb{
 		op:   orAnd,
 		key:  orAnd,
-		subs: c.bbs,
+		subs: c.bbs, // ⭐ 保留所有 bbs（包括纯操作符，它们用于连接条件）
 	}
 	cb.bbs = append(cb.bbs, bb)
 	return cb

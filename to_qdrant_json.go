@@ -91,12 +91,52 @@ func (built *Built) ToQdrantJSON() (string, error) {
 		return "", err
 	}
 
-	bytes, err := json.MarshalIndent(req, "", "  ")
+	// ⭐ 检查是否有用户自定义参数（QDRANT_XX）
+	customParams := extractQdrantCustomParams(built.Conds)
+	
+	if len(customParams) == 0 {
+		// 无自定义参数，直接序列化
+		bytes, err := json.MarshalIndent(req, "", "  ")
+		if err != nil {
+			return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
+		}
+		return string(bytes), nil
+	}
+
+	// 有自定义参数，先序列化为 map，再添加自定义字段
+	bytes, err := json.Marshal(req)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
 	}
 
-	return string(bytes), nil
+	var reqMap map[string]interface{}
+	if err := json.Unmarshal(bytes, &reqMap); err != nil {
+		return "", fmt.Errorf("failed to unmarshal to map: %w", err)
+	}
+
+	// ⭐ 添加用户自定义参数
+	for k, v := range customParams {
+		reqMap[k] = v
+	}
+
+	// 重新序列化
+	finalBytes, err := json.MarshalIndent(reqMap, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal final JSON: %w", err)
+	}
+
+	return string(finalBytes), nil
+}
+
+// extractQdrantCustomParams 提取用户自定义 Qdrant 参数
+func extractQdrantCustomParams(bbs []Bb) map[string]interface{} {
+	params := make(map[string]interface{})
+	for _, bb := range bbs {
+		if bb.op == QDRANT_XX {
+			params[bb.key] = bb.value
+		}
+	}
+	return params
 }
 
 // ToQdrantRequest 转换为 Qdrant 请求结构
@@ -140,12 +180,62 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 
 	// 设置搜索参数
 	req.Params = &QdrantSearchParams{
-		HnswEf:      128, // 默认值，可优化
+		HnswEf:      128,
 		Exact:       false,
 		IndexedOnly: false,
 	}
 
+	// ⭐ 应用 Qdrant 专属配置（从 Conds 中提取）
+	applyQdrantSpecificConfig(built.Conds, req)
+
+	// 应用分页配置（如果有）
+	if built.PageCondition != nil {
+		req.Limit = int(built.PageCondition.rows)
+		if built.PageCondition.page > 1 {
+			req.Offset = int((built.PageCondition.page - 1) * built.PageCondition.rows)
+		}
+
+		// 如果启用了多样性，需要覆盖 limit
+		if params.Diversity != nil && params.Diversity.Enabled {
+			factor := params.Diversity.OverFetchFactor
+			if factor <= 0 {
+				factor = 5
+			}
+			req.Limit = int(built.PageCondition.rows) * factor
+		}
+	}
+
 	return req, nil
+}
+
+// applyQdrantSpecificConfig 从 Bb 中提取 Qdrant 专属配置
+func applyQdrantSpecificConfig(bbs []Bb, req *QdrantSearchRequest) {
+	for _, bb := range bbs {
+		switch bb.op {
+		case QDRANT_HNSW_EF:
+			if ef, ok := bb.value.(int); ok {
+				req.Params.HnswEf = ef
+			}
+		case QDRANT_EXACT:
+			if exact, ok := bb.value.(bool); ok {
+				req.Params.Exact = exact
+			}
+		case QDRANT_SCORE_THRESHOLD:
+			if threshold, ok := bb.value.(float32); ok {
+				req.ScoreThreshold = &threshold
+			}
+		case QDRANT_WITH_VECTOR:
+			if withVec, ok := bb.value.(bool); ok {
+				req.WithVector = withVec
+			}
+		case QDRANT_XX:
+			// ⭐ 用户自定义参数
+			// 注意：这些参数会被添加到 JSON 的顶层
+			// 由于 QdrantSearchRequest 是固定结构，
+			// QDRANT_XX 参数在 ToQdrantJSON() 中特殊处理
+			// 这里只是标记，实际处理在 ToQdrantJSON()
+		}
+	}
 }
 
 // buildQdrantFilter 构建 Qdrant 过滤器
@@ -155,8 +245,13 @@ func buildQdrantFilter(bbs []Bb) (*QdrantFilter, error) {
 	}
 
 	for _, bb := range bbs {
-		// 跳过向量检索和向量距离过滤（单独处理）
-		if bb.op == VECTOR_SEARCH || bb.op == VECTOR_DISTANCE_FILTER {
+		// ⭐ 跳过向量专属操作符（单独处理）
+		if isVectorOp(bb.op) {
+			continue
+		}
+
+		// ⭐ 跳过 Qdrant 专属操作符（单独处理）
+		if isQdrantOp(bb.op) {
 			continue
 		}
 
@@ -172,6 +267,20 @@ func buildQdrantFilter(bbs []Bb) (*QdrantFilter, error) {
 	}
 
 	return filter, nil
+}
+
+// isVectorOp 判断是否为向量操作符
+func isVectorOp(op string) bool {
+	return op == VECTOR_SEARCH || op == VECTOR_DISTANCE_FILTER
+}
+
+// isQdrantOp 判断是否为 Qdrant 专属操作符
+func isQdrantOp(op string) bool {
+	return op == QDRANT_HNSW_EF ||
+		op == QDRANT_EXACT ||
+		op == QDRANT_SCORE_THRESHOLD ||
+		op == QDRANT_WITH_VECTOR ||
+		op == QDRANT_XX
 }
 
 // bbToQdrantCondition 将 Bb 转换为 Qdrant 条件
