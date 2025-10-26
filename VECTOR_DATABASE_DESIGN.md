@@ -1,6 +1,6 @@
 # sqlxb 向量数据库支持 - 技术设计文档
 
-**版本**: v0.8.0 (草案)  
+**版本**: v0.8.1  
 **作者**: AI-First Design Committee  
 **日期**: 2025-01-20  
 **状态**: RFC (Request for Comments)

@@ -61,7 +61,7 @@ Assistance Level:
 
 ## 📊 Contribution History
 
-### v0.8.0-alpha - Vector Database Support (January 2025)
+### v0.8.1 - Vector Database Support (January 2025)
 
 **The first unified ORM for relational and vector databases**
 

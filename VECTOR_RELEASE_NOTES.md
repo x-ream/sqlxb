@@ -1,7 +1,7 @@
-# sqlxb v0.8.0-alpha - Release Notes
+# sqlxb v0.8.1 - Release Notes
 
 **发布日期**: 2025-01-20  
-**版本**: v0.8.0-alpha  
+**版本**: v0.8.1  
 **重大更新**: 向量数据库支持
 
 ---
@@ -390,8 +390,8 @@ results := sqlxb.Of(&Article{}).
 
 ---
 
-**版本**: v0.8.0-alpha  
+**版本**: v0.8.1  
 **日期**: 2025-01-20  
 **License**: Apache 2.0  
-**Status**: ✅ Ready for Review
+**Status**: ✅ Released
 

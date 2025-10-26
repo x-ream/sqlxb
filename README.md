@@ -11,7 +11,7 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 
 ---
 
-## 🚀 NEW: Vector Database Support (v0.8.0 RFC)
+## 🚀 NEW: Vector Database Support (v0.8.1)
 
 **The first unified ORM for both Relational and Vector Databases!**
 
@@ -51,7 +51,7 @@ sqlxb v0.8.0+ is developed using an innovative **AI-First** approach:
 - **15%** of code: AI assists, human reviews (medium complexity)
 - **5%** of code: Human leads, AI assists (critical algorithms like `from_builder_optimization.go`)
 
-### v0.8.0-alpha Vector Database Support
+### v0.8.1 Vector Database Support
 
 **Achieved entirely through AI-First development**:
 - Architecture & Design: AI Assistant (Claude)

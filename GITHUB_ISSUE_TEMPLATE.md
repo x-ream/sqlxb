@@ -1,6 +1,6 @@
 # GitHub Issue 内容（待创建）
 
-**标题**: feat: Add vector database support (v0.8.0-alpha)
+**标题**: feat: Add vector database support (v0.8.1)
 
 **标签**: enhancement, v0.8.0
 
