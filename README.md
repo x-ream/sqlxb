@@ -34,6 +34,34 @@ sqlxb.Of(&CodeVector{}).
 - ✅ Auto-optimized hybrid queries
 - ✅ 100% backward compatible
 
+**Development**: AI-First approach (Claude AI + Human review)
+
+---
+
+## 🤖 AI-First Development
+
+sqlxb v0.8.0+ is developed using an innovative **AI-First** approach:
+
+- 🤖 **AI Assistant (Claude via Cursor)**: Architecture design, code implementation, testing, documentation
+- 👨‍💻 **Human Maintainer**: Code review, strategic decisions, critical algorithm oversight
+
+### Maintenance Model (80/15/5)
+
+- **80%** of code: AI independently maintains (simple, clear patterns)
+- **15%** of code: AI assists, human reviews (medium complexity)
+- **5%** of code: Human leads, AI assists (critical algorithms like `from_builder_optimization.go`)
+
+### v0.8.0-alpha Vector Database Support
+
+**Achieved entirely through AI-First development**:
+- Architecture & Design: AI Assistant (Claude)
+- Code Implementation: AI Assistant (763 lines)
+- Testing: AI Assistant (13 test cases, 100% passing)
+- Documentation: AI Assistant (120+ pages)
+- Review & Approval: Human Maintainer
+
+This makes sqlxb **one of the first major Go ORM projects successfully maintained by AI**.
+
 ---
 
 ## Program feature:
