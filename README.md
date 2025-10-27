@@ -9,6 +9,8 @@
 a tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like [xorm](https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
 
+> 📅 **v1.0.0 Roadmap**: Planning for release in June 2026. See [ROADMAP_v1.0.0.md](doc/ROADMAP_v1.0.0.md) for details.
+
 ---
 
 ## 🚀 NEW: Vector Database Support (v0.9.0)
