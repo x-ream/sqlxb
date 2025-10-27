@@ -15,6 +15,20 @@
 
 ---
 
+### 🤖 AI 应用集成
+
+**[完整 AI 应用文档 →](./ai_application/README.md)**
+
+快速链接：
+- 🤖 [AI Agent 工具链](./ai_application/AGENT_TOOLKIT.md) - JSON Schema、OpenAPI 集成
+- 📚 [RAG 最佳实践](./ai_application/RAG_BEST_PRACTICES.md) - 文档检索应用构建
+- 🐍 [LangChain 集成](./ai_application/LANGCHAIN_INTEGRATION.md) - Python 生态
+- 🦙 [LlamaIndex 集成](./ai_application/LLAMAINDEX_INTEGRATION.md) - 数据框架
+- 🔧 [混合检索](./ai_application/HYBRID_SEARCH.md) - 标量 + 向量
+- ⚡ [性能优化](./ai_application/PERFORMANCE.md) - AI 应用调优
+
+---
+
 ### 📖 深入了解
 
 #### 1. [向量多样性与 Qdrant](./VECTOR_DIVERSITY_QDRANT.md)

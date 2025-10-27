@@ -1,0 +1,51 @@
+feat: Add Limit/Offset API + Comprehensive ai_application docs fix (v0.10.1)
+
+🚀 New Features
+- ✨ Add Limit(int) API: Simple query pagination without Paged()
+- ✨ Add Offset(int) API: Skip records for manual pagination
+- 🛡️ Paged() Priority Protection: Web pagination auto-overrides Limit/Offset to prevent conflicts
+
+📚 Comprehensive Documentation Fixes (ai_application/ directory, 70+ locations)
+- 🔧 API Usage Corrections (50+ locations)
+  - ToQdrantSearch() → Build().ToQdrantJSON()
+  - WithLimit()/WithScoreThreshold() → functional parameters
+  - VectorSearch() parameter order fixes
+  - BuildInsert() call fixes
+- 🧹 Remove Unnecessary Checks (16 locations)
+  - Remove `if username != ""` redundant checks
+  - Leverage sqlxb's 9-layer auto-filtering
+- 🎯 Like() Usage Fixes (2 locations)
+  - "%"+keyword+"%" → keyword (auto-add wildcards)
+  - LikeLeft() semantic fix: keyword% not %keyword
+- 🔗 GitHub Username Fixes (14 locations)
+  - yourusername → x-ream
+- 🏷️ Type Fixes (3 locations)
+  - DocID int64 → DocID *int64 (support nil)
+
+✅ Tests
+- Add limit_offset_test.go (7 tests)
+- All tests pass
+- 100% backward compatible
+
+📋 Related Documentation
+- Update doc/ROADMAP_v1.0.0.md
+- Fix 10 ai_application/ docs
+  - AGENT_TOOLKIT.md
+  - QUICKSTART.md
+  - PERFORMANCE.md
+  - NL2SQL.md
+  - LANGCHAIN_INTEGRATION.md
+  - LLAMAINDEX_INTEGRATION.md
+  - SEMANTIC_KERNEL_INTEGRATION.md
+  - RAG_BEST_PRACTICES.md
+  - FAQ.md
+  - README.md
+
+🎯 Impact
+- ✅ Fully backward compatible
+- ✅ Simplified API usage (auto-filtering + Limit/Offset)
+- ✅ Improved documentation quality (clearer AI application scenarios)
+
+---
+Co-authored-by: Claude (Anthropic)
+

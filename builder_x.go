@@ -18,6 +18,7 @@ package sqlxb
 
 import (
 	"fmt"
+
 	"github.com/x-ream/sqlxb/interceptor"
 )
 
@@ -43,8 +44,10 @@ type BuilderX struct {
 	isDistinct            bool
 	isWithoutOptimization bool
 
-	alia string
-	meta *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
+	alia        string
+	limitValue  int                   // ⭐ 新增：LIMIT 值（v0.10.1）
+	offsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
+	meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
 }
 
 // Meta 获取元数据
@@ -265,6 +268,24 @@ func (x *BuilderX) Paged(f func(pb *PageBuilder)) *BuilderX {
 	return x
 }
 
+// Limit 设置返回记录数量（适用于简单查询，非分页场景）
+// 支持 PostgreSQL 和 MySQL
+func (x *BuilderX) Limit(limit int) *BuilderX {
+	if limit > 0 {
+		x.limitValue = limit
+	}
+	return x
+}
+
+// Offset 设置跳过记录数量（通常与 Limit 配合使用）
+// 支持 PostgreSQL 和 MySQL
+func (x *BuilderX) Offset(offset int) *BuilderX {
+	if offset > 0 {
+		x.offsetValue = offset
+	}
+	return x
+}
+
 func (x *BuilderX) Last(last string) *BuilderX {
 	x.last = last
 	return x
@@ -316,18 +337,20 @@ func (x *BuilderX) Build() *Built {
 	x.optimizeFromBuilder()
 
 	built := Built{
-		ResultKeys: x.resultKeys,
-		Updates:    x.updates,
-		Conds:      x.bbs,
-		Sorts:      x.sorts,
-		Aggs:       x.aggs,
-		Havings:    x.havings,
-		GroupBys:   x.groupBys,
-		Last:       x.last,
-		OrFromSql:  x.orFromSql,
-		Fxs:        x.sxs,
-		Svs:        x.svs,
-		Meta:       x.meta, // ⭐ 传递元数据
+		ResultKeys:  x.resultKeys,
+		Updates:     x.updates,
+		Conds:       x.bbs,
+		Sorts:       x.sorts,
+		Aggs:        x.aggs,
+		Havings:     x.havings,
+		GroupBys:    x.groupBys,
+		Last:        x.last,
+		OrFromSql:   x.orFromSql,
+		Fxs:         x.sxs,
+		Svs:         x.svs,
+		LimitValue:  x.limitValue,  // ⭐ 传递 Limit
+		OffsetValue: x.offsetValue, // ⭐ 传递 Offset
+		Meta:        x.meta,        // ⭐ 传递元数据
 	}
 
 	if x.pageBuilder != nil {

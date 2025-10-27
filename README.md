@@ -118,6 +118,13 @@ Quick links:
 - [Custom JOINs Guide](./doc/CUSTOM_JOINS_GUIDE.md) - 扩展自定义 JOIN
 - [Contributors](./doc/CONTRIBUTORS.md)
 
+**AI Application Ecosystem**:
+- **[AI Application Docs →](./doc/ai_application/README.md)** - Complete AI/RAG/Agent integration guide
+- [AI Agent Toolkit](./doc/ai_application/AGENT_TOOLKIT.md) - JSON Schema, OpenAPI
+- [RAG Best Practices](./doc/ai_application/RAG_BEST_PRACTICES.md) - Document retrieval guide
+- [LangChain Integration](./doc/ai_application/LANGCHAIN_INTEGRATION.md) - Python LangChain
+- [Performance Optimization](./doc/ai_application/PERFORMANCE.md) - AI app tuning
+
 ## Contributing
 
 Contributors are welcomed to join the sqlxb project. <br>

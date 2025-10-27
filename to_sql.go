@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/x-ream/sqlxb/internal"
 	"github.com/x-ream/sqlxb/interceptor"
+	. "github.com/x-ream/sqlxb/internal"
 )
 
 type Built struct {
@@ -40,6 +40,8 @@ type Built struct {
 	Svs        []interface{}
 
 	PageCondition *PageCondition
+	LimitValue    int                   // ⭐ 新增：LIMIT 值（v0.10.1）
+	OffsetValue   int                   // ⭐ 新增：OFFSET 值（v0.10.1）
 	Meta          *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
 }
 
@@ -234,17 +236,32 @@ func (built *Built) toSortSql(bp *strings.Builder) {
 }
 
 func (built *Built) toPageSql(bp *strings.Builder) {
-	if built.PageCondition == nil || built.PageCondition.rows < 1 {
-		return
-	}
-	bp.WriteString(LIMIT)
-	bp.WriteString(strconv.Itoa(int(built.PageCondition.rows)))
-	if built.PageCondition.last < 1 {
-		if built.PageCondition.page < 1 {
-			built.PageCondition.page = 1
+	// ⭐ 优先使用 Paged()（Web 分页，支持 COUNT + Last 优化）
+	// 如果 PageCondition 存在，忽略 Limit/Offset
+	if built.PageCondition != nil {
+		if built.PageCondition.rows >= 1 {
+			bp.WriteString(LIMIT)
+			bp.WriteString(strconv.Itoa(int(built.PageCondition.rows)))
+			if built.PageCondition.last < 1 {
+				if built.PageCondition.page < 1 {
+					built.PageCondition.page = 1
+				}
+				bp.WriteString(OFFSET)
+				bp.WriteString(strconv.Itoa(int((built.PageCondition.page - 1) * built.PageCondition.rows)))
+			}
 		}
+		return // ⭐ 直接返回，忽略 Limit/Offset
+	}
+
+	// ⭐ 只有在没有 Paged() 时，才使用 Limit/Offset（简单查询）
+	if built.LimitValue > 0 {
+		bp.WriteString(LIMIT)
+		bp.WriteString(strconv.Itoa(built.LimitValue))
+	}
+
+	if built.OffsetValue > 0 {
 		bp.WriteString(OFFSET)
-		bp.WriteString(strconv.Itoa(int((built.PageCondition.page - 1) * built.PageCondition.rows)))
+		bp.WriteString(strconv.Itoa(built.OffsetValue))
 	}
 }
 

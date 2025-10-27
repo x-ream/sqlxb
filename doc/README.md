@@ -16,6 +16,23 @@
 
 ---
 
+### 🤖 AI 应用生态
+
+- **[AI 应用文档入口](./ai_application/README.md)** - AI/RAG/Agent 应用集成完整指南
+
+**核心文档**:
+- **[AI Agent 工具链](./ai_application/AGENT_TOOLKIT.md)** - JSON Schema、OpenAPI 集成
+- **[RAG 最佳实践](./ai_application/RAG_BEST_PRACTICES.md)** - 文档检索应用指南
+- **[LangChain 集成](./ai_application/LANGCHAIN_INTEGRATION.md)** - Python LangChain
+- **[LlamaIndex 集成](./ai_application/LLAMAINDEX_INTEGRATION.md)** - Python LlamaIndex
+- **[Semantic Kernel 集成](./ai_application/SEMANTIC_KERNEL_INTEGRATION.md)** - .NET SK
+- **[混合检索策略](./ai_application/HYBRID_SEARCH.md)** - 标量 + 向量混合
+- **[NL2SQL](./ai_application/NL2SQL.md)** - 自然语言查询转换
+- **[性能优化](./ai_application/PERFORMANCE.md)** - AI 应用性能调优
+- **[FAQ](./ai_application/FAQ.md)** - 常见问题
+
+---
+
 ### 📖 核心文档
 
 #### API 设计
@@ -99,16 +116,19 @@
 
 ## 📊 文档统计
 
-- **总文档数**: 23
+- **总文档数**: 35
 - **项目规划**: 3 (ROADMAP, V1_CHECKLIST, TESTING_STRATEGY)
 - **用户指南**: 2 (VECTOR_QUICKSTART, VECTOR_DIVERSITY_QDRANT)
+- **AI 应用生态**: 12 (ai_application 目录)
+  - Agent 工具链、RAG 最佳实践、LangChain/LlamaIndex/SK 集成
+  - 混合检索、NL2SQL、性能优化、FAQ 等
 - **API 设计**: 1 (QDRANT_NIL_FILTER_AND_JOIN)
-- **Qdrant 专题**: 3 (WHY_QDRANT, QDRANT_X_USAGE, QDRANT_API_SYNC_STRATEGY)
+- **Qdrant 专题**: 4 (WHY_QDRANT, QDRANT_X_USAGE, QDRANT_ADVANCED_API, QDRANT_API_SYNC_STRATEGY)
 - **扩展指南**: 2 (CUSTOM_VECTOR_DB_GUIDE, CUSTOM_JOINS_GUIDE)
 - **测试与质量**: 3 (TESTING_STRATEGY, ALL_FILTERING, EMPTY_OR_AND)
 - **AI-First 开发**: 3 (CONTRIBUTORS, AI_MAINTAINABILITY, MAINTENANCE_STRATEGY)
 - **发布文档**: 2 (RELEASE_NOTES_v0.9.0, RELEASE_v0.9.0_GUIDE)
-- **其他**: 4 (README, CONTRIBUTING, GITHUB_ISSUE_TEMPLATE, FROM_BUILDER_OPTIMIZATION)
+- **其他**: 3 (README, CONTRIBUTING, FROM_BUILDER_OPTIMIZATION)
 
 ---
 
