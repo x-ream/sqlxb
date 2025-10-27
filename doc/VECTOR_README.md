@@ -315,7 +315,7 @@ Month 3: 生态完善 → v0.8.0
 **维护团队**: AI-First Design Committee  
 **License**: Apache 2.0  
 
-**状态**: ✅ 已实现并发布（v0.9.2）
+**状态**: ✅ 已实现并发布（v0.10.0）
 
 ---
 

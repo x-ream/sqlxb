@@ -13,25 +13,31 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 
 ---
 
-## 🚀 NEW: Vector Database Support (v0.9.0)
+## 🚀 NEW: Qdrant Advanced API (v0.10.0)
 
 **The first unified ORM for both Relational and Vector Databases!**
 
-**✨ New in v0.9.0**:
-- 🎯 **Vector Diversity Queries** - 3 strategies to solve result similarity
-- 🔄 **Qdrant JSON Generation** - Native Qdrant support
-- 🎨 **Graceful Degradation** - Same code, multiple backends
-- 🔧 **9-Layer Auto Filtering** - Zero manual checks
+**✨ New in v0.10.0**:
+- 🎯 **Recommend API** - Personalized recommendations with positive/negative samples
+- 🔍 **Discover API** - Explore common themes from user context
+- 🔄 **Scroll API** - Efficient traversal for large datasets
+- 🎨 **Functional Parameters** - Unified builder style
+- 🔧 **100% Backward Compatible** - All existing features preserved
 
 ```go
 // MySQL (existing)
 sqlxb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
 
-// VectorDB (coming soon) - Same API!
+// VectorDB (v0.10.0) - Same API!
 sqlxb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).
-    Build().SqlOfVectorSearch()
+    QdrantX(func(qx *QdrantBuilderX) {
+        qx.Recommend(func(rb *RecommendBuilder) {
+            rb.Positive(123, 456).Limit(20)
+        })
+    }).
+    Build()
 ```
 
 📖 **[Read the Vector Database Design Docs →](./doc/VECTOR_README.md)**

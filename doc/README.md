@@ -26,6 +26,7 @@
 
 - **[WHY_QDRANT.md](./WHY_QDRANT.md)** - 为什么选择 Qdrant
 - **[QDRANT_X_USAGE.md](./QDRANT_X_USAGE.md)** - QdrantX 使用指南
+- **[QDRANT_ADVANCED_API.md](./QDRANT_ADVANCED_API.md)** - Recommend, Discover, Scroll API (v0.10.0)
 - **[QDRANT_API_SYNC_STRATEGY.md](./QDRANT_API_SYNC_STRATEGY.md)** - Qdrant API 同步策略
 
 #### 高级主题

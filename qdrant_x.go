@@ -116,6 +116,115 @@ func (qx *QdrantBuilderX) HighSpeed() *QdrantBuilderX {
 	return qx.HnswEf(32).Exact(false)
 }
 
+// Recommend 基于正负样本的推荐查询
+//
+// 示例:
+//   qx.Recommend(func(rb *RecommendBuilder) {
+//       rb.Positive(123, 456, 789)
+//       rb.Negative(111, 222)
+//       rb.Limit(20)
+//   })
+func (qx *QdrantBuilderX) Recommend(fn func(rb *RecommendBuilder)) *QdrantBuilderX {
+	rb := &RecommendBuilder{}
+	fn(rb)
+
+	if len(rb.positive) > 0 && rb.limit > 0 {
+		bb := Bb{
+			op:  QDRANT_RECOMMEND,
+			key: "recommend",
+			value: map[string]interface{}{
+				"positive": rb.positive,
+				"negative": rb.negative,
+				"limit":    rb.limit,
+			},
+		}
+		qx.builder.bbs = append(qx.builder.bbs, bb)
+	}
+	return qx
+}
+
+// RecommendBuilder 推荐查询构建器
+type RecommendBuilder struct {
+	positive []int64
+	negative []int64
+	limit    int
+}
+
+// Positive 设置正样本（用户喜欢的）
+func (rb *RecommendBuilder) Positive(ids ...int64) *RecommendBuilder {
+	rb.positive = ids
+	return rb
+}
+
+// Negative 设置负样本（用户不喜欢的）
+func (rb *RecommendBuilder) Negative(ids ...int64) *RecommendBuilder {
+	rb.negative = ids
+	return rb
+}
+
+// Limit 设置返回数量
+func (rb *RecommendBuilder) Limit(limit int) *RecommendBuilder {
+	rb.limit = limit
+	return rb
+}
+
+// Discover 基于上下文向量的探索性查询
+// 在一组向量的"中间地带"发现新内容
+//
+// 示例:
+//   qx.Discover(func(db *DiscoverBuilder) {
+//       db.Context(101, 102, 103)  // 用户浏览历史
+//       db.Limit(20)
+//   })
+func (qx *QdrantBuilderX) Discover(fn func(db *DiscoverBuilder)) *QdrantBuilderX {
+	db := &DiscoverBuilder{}
+	fn(db)
+
+	if len(db.context) > 0 && db.limit > 0 {
+		bb := Bb{
+			op:  QDRANT_DISCOVER,
+			key: "discover",
+			value: map[string]interface{}{
+				"context": db.context,
+				"limit":   db.limit,
+			},
+		}
+		qx.builder.bbs = append(qx.builder.bbs, bb)
+	}
+	return qx
+}
+
+// DiscoverBuilder 探索查询构建器
+type DiscoverBuilder struct {
+	context []int64
+	limit   int
+}
+
+// Context 设置上下文样本（用户浏览/交互历史）
+func (db *DiscoverBuilder) Context(ids ...int64) *DiscoverBuilder {
+	db.context = ids
+	return db
+}
+
+// Limit 设置返回数量
+func (db *DiscoverBuilder) Limit(limit int) *DiscoverBuilder {
+	db.limit = limit
+	return db
+}
+
+// ScrollID 设置 Scroll 查询 ID（用于大数据集遍历）
+func (qx *QdrantBuilderX) ScrollID(scrollID string) *QdrantBuilderX {
+	if scrollID != "" {
+		bb := Bb{
+			op:    QDRANT_SCROLL,
+			key:   "scroll_id",
+			value: scrollID,
+		}
+		qx.builder.bbs = append(qx.builder.bbs, bb)
+	}
+	return qx
+}
+
 // X Qdrant 用户自定义专属参数
 // 用于设置 Qdrant 未来可能新增的参数，或 sqlxb 未封装的参数
 //

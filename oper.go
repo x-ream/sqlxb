@@ -86,5 +86,9 @@ const (
 	QDRANT_EXACT           = "QDRANT_EXACT"
 	QDRANT_SCORE_THRESHOLD = "QDRANT_SCORE_THRESHOLD"
 	QDRANT_WITH_VECTOR     = "QDRANT_WITH_VECTOR"
-	QDRANT_XX              = "QDRANT_XX" // 用户自定义 Qdrant 专属参数
+	QDRANT_RECOMMEND       = "QDRANT_RECOMMEND"    // Recommend API (v0.10.0)
+	QDRANT_SCROLL          = "QDRANT_SCROLL"       // Scroll API (v0.10.0)
+	QDRANT_BATCH_SEARCH    = "QDRANT_BATCH_SEARCH" // Batch Search (v0.10.1)
+	QDRANT_DISCOVER        = "QDRANT_DISCOVER"     // Discover API (v0.10.1)
+	QDRANT_XX              = "QDRANT_XX"           // 用户自定义 Qdrant 专属参数
 )

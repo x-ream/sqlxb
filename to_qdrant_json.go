@@ -69,6 +69,44 @@ type QdrantSearchParams struct {
 	IndexedOnly bool `json:"indexed_only,omitempty"`
 }
 
+// QdrantRecommendRequest Qdrant 推荐请求结构 (v0.10.0)
+// 文档: https://qdrant.tech/documentation/concepts/explore/#recommendation-api
+type QdrantRecommendRequest struct {
+	Positive       []int64             `json:"positive"`           // 正样本 ID 列表
+	Negative       []int64             `json:"negative,omitempty"` // 负样本 ID 列表（可选）
+	Limit          int                 `json:"limit"`
+	Filter         *QdrantFilter       `json:"filter,omitempty"`
+	WithPayload    interface{}         `json:"with_payload,omitempty"` // true, false, or []string
+	WithVector     bool                `json:"with_vector,omitempty"`
+	ScoreThreshold *float32            `json:"score_threshold,omitempty"`
+	Offset         int                 `json:"offset,omitempty"`
+	Params         *QdrantSearchParams `json:"params,omitempty"`
+	Strategy       string              `json:"strategy,omitempty"` // "average_vector" or "best_score"
+}
+
+// QdrantScrollRequest Qdrant Scroll 请求结构 (v0.10.0)
+// 文档: https://qdrant.tech/documentation/concepts/points/#scroll-points
+type QdrantScrollRequest struct {
+	ScrollID    string        `json:"scroll_id,omitempty"`
+	Limit       int           `json:"limit,omitempty"`
+	Filter      *QdrantFilter `json:"filter,omitempty"`
+	WithPayload interface{}   `json:"with_payload,omitempty"`
+	WithVector  bool          `json:"with_vector,omitempty"`
+}
+
+// QdrantDiscoverRequest Qdrant Discover 请求结构 (v0.10.0)
+// 文档: https://qdrant.tech/documentation/concepts/explore/#discovery-api
+type QdrantDiscoverRequest struct {
+	Context        []int64             `json:"context"` // 上下文样本 ID 列表
+	Limit          int                 `json:"limit"`
+	Filter         *QdrantFilter       `json:"filter,omitempty"`
+	WithPayload    interface{}         `json:"with_payload,omitempty"` // true, false, or []string
+	WithVector     bool                `json:"with_vector,omitempty"`
+	ScoreThreshold *float32            `json:"score_threshold,omitempty"`
+	Offset         int                 `json:"offset,omitempty"`
+	Params         *QdrantSearchParams `json:"params,omitempty"`
+}
+
 // ToQdrantJSON 转换为 Qdrant 搜索 JSON
 // 返回: JSON 字符串, error
 //
@@ -93,7 +131,7 @@ func (built *Built) ToQdrantJSON() (string, error) {
 
 	// ⭐ 检查是否有用户自定义参数（QDRANT_XX）
 	customParams := extractQdrantCustomParams(built.Conds)
-	
+
 	if len(customParams) == 0 {
 		// 无自定义参数，直接序列化
 		bytes, err := json.MarshalIndent(req, "", "  ")
@@ -137,6 +175,225 @@ func extractQdrantCustomParams(bbs []Bb) map[string]interface{} {
 		}
 	}
 	return params
+}
+
+// ToQdrantRecommendJSON 转换为 Qdrant 推荐 JSON (v0.10.0)
+// 返回: JSON 字符串, error
+//
+// 示例输出:
+//
+//	{
+//	  "positive": [123, 456, 789],
+//	  "negative": [111, 222],
+//	  "limit": 20,
+//	  "filter": {...},
+//	  "strategy": "best_score"
+//	}
+func (built *Built) ToQdrantRecommendJSON() (string, error) {
+	// 查找推荐参数
+	recommendBb := findRecommendBb(built.Conds)
+	if recommendBb == nil {
+		return "", fmt.Errorf("no recommend configuration found")
+	}
+
+	recommendData := recommendBb.value.(map[string]interface{})
+
+	// 构建推荐请求
+	req := &QdrantRecommendRequest{
+		Positive:    recommendData["positive"].([]int64),
+		Negative:    []int64{},
+		Limit:       recommendData["limit"].(int),
+		WithPayload: true,
+		WithVector:  false,
+	}
+
+	// 处理负样本（可选）
+	if negative, ok := recommendData["negative"].([]int64); ok && len(negative) > 0 {
+		req.Negative = negative
+	}
+
+	// 应用 Qdrant 专属参数
+	applyQdrantParamsToRecommend(built.Conds, req)
+
+	// 应用过滤器
+	filter, err := buildQdrantFilter(built.Conds)
+	if err == nil && (len(filter.Must) > 0 || len(filter.Should) > 0 || len(filter.MustNot) > 0) {
+		req.Filter = filter
+	}
+
+	// 序列化
+	bytes, err := json.MarshalIndent(req, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal Qdrant recommend request: %w", err)
+	}
+	return string(bytes), nil
+}
+
+// ToQdrantScrollJSON 转换为 Qdrant Scroll JSON (v0.10.0)
+// 返回: JSON 字符串, error
+//
+// 示例输出:
+//
+//	{
+//	  "scroll_id": "xxxx-yyyy-zzzz",
+//	  "limit": 100,
+//	  "filter": {...}
+//	}
+func (built *Built) ToQdrantScrollJSON() (string, error) {
+	// 查找 Scroll ID
+	scrollBb := findScrollBb(built.Conds)
+	if scrollBb == nil {
+		return "", fmt.Errorf("no scroll_id found")
+	}
+
+	// 构建 Scroll 请求
+	req := &QdrantScrollRequest{
+		ScrollID:    scrollBb.value.(string),
+		Limit:       100, // 默认值
+		WithPayload: true,
+		WithVector:  false,
+	}
+
+	// 应用过滤器
+	filter, err := buildQdrantFilter(built.Conds)
+	if err == nil && (len(filter.Must) > 0 || len(filter.Should) > 0 || len(filter.MustNot) > 0) {
+		req.Filter = filter
+	}
+
+	// 应用 WithVector 参数
+	for _, bb := range built.Conds {
+		if bb.op == QDRANT_WITH_VECTOR {
+			req.WithVector = bb.value.(bool)
+			break
+		}
+	}
+
+	// 序列化
+	bytes, err := json.MarshalIndent(req, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal Qdrant scroll request: %w", err)
+	}
+	return string(bytes), nil
+}
+
+// findRecommendBb 查找推荐配置
+func findRecommendBb(bbs []Bb) *Bb {
+	for i := range bbs {
+		if bbs[i].op == QDRANT_RECOMMEND {
+			return &bbs[i]
+		}
+	}
+	return nil
+}
+
+// findScrollBb 查找 Scroll ID
+func findScrollBb(bbs []Bb) *Bb {
+	for i := range bbs {
+		if bbs[i].op == QDRANT_SCROLL {
+			return &bbs[i]
+		}
+	}
+	return nil
+}
+
+// findDiscoverBb 查找 Discover 配置
+func findDiscoverBb(bbs []Bb) *Bb {
+	for i := range bbs {
+		if bbs[i].op == QDRANT_DISCOVER {
+			return &bbs[i]
+		}
+	}
+	return nil
+}
+
+// applyQdrantParamsToRecommend 应用 Qdrant 专属参数到推荐请求
+func applyQdrantParamsToRecommend(bbs []Bb, req *QdrantRecommendRequest) {
+	for _, bb := range bbs {
+		switch bb.op {
+		case QDRANT_HNSW_EF:
+			if req.Params == nil {
+				req.Params = &QdrantSearchParams{}
+			}
+			req.Params.HnswEf = bb.value.(int)
+		case QDRANT_EXACT:
+			if req.Params == nil {
+				req.Params = &QdrantSearchParams{}
+			}
+			req.Params.Exact = bb.value.(bool)
+		case QDRANT_SCORE_THRESHOLD:
+			threshold := bb.value.(float32)
+			req.ScoreThreshold = &threshold
+		case QDRANT_WITH_VECTOR:
+			req.WithVector = bb.value.(bool)
+		}
+	}
+}
+
+// applyQdrantParamsToDiscover 应用 Qdrant 专属参数到探索请求
+func applyQdrantParamsToDiscover(bbs []Bb, req *QdrantDiscoverRequest) {
+	for _, bb := range bbs {
+		switch bb.op {
+		case QDRANT_HNSW_EF:
+			if req.Params == nil {
+				req.Params = &QdrantSearchParams{}
+			}
+			req.Params.HnswEf = bb.value.(int)
+		case QDRANT_EXACT:
+			if req.Params == nil {
+				req.Params = &QdrantSearchParams{}
+			}
+			req.Params.Exact = bb.value.(bool)
+		case QDRANT_SCORE_THRESHOLD:
+			threshold := bb.value.(float32)
+			req.ScoreThreshold = &threshold
+		case QDRANT_WITH_VECTOR:
+			req.WithVector = bb.value.(bool)
+		}
+	}
+}
+
+// ToQdrantDiscoverJSON 转换为 Qdrant Discover JSON (v0.10.0)
+// 返回: JSON 字符串, error
+//
+// 示例输出:
+//
+//	{
+//	  "context": [101, 102, 103],
+//	  "limit": 20,
+//	  "filter": {...}
+//	}
+func (built *Built) ToQdrantDiscoverJSON() (string, error) {
+	// 查找探索配置
+	discoverBb := findDiscoverBb(built.Conds)
+	if discoverBb == nil {
+		return "", fmt.Errorf("no discover configuration found")
+	}
+
+	discoverData := discoverBb.value.(map[string]interface{})
+
+	// 构建探索请求
+	req := &QdrantDiscoverRequest{
+		Context:     discoverData["context"].([]int64),
+		Limit:       discoverData["limit"].(int),
+		WithPayload: true,
+		WithVector:  false,
+	}
+
+	// 应用 Qdrant 专属参数
+	applyQdrantParamsToDiscover(built.Conds, req)
+
+	// 应用过滤器
+	filter, err := buildQdrantFilter(built.Conds)
+	if err == nil && (len(filter.Must) > 0 || len(filter.Should) > 0 || len(filter.MustNot) > 0) {
+		req.Filter = filter
+	}
+
+	// 序列化
+	bytes, err := json.MarshalIndent(req, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal Qdrant discover request: %w", err)
+	}
+	return string(bytes), nil
 }
 
 // ToQdrantRequest 转换为 Qdrant 请求结构
