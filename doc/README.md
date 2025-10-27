@@ -35,6 +35,18 @@
 
 ### 📖 核心文档
 
+#### 最佳实践
+
+- **[BUILDER_BEST_PRACTICES.md](./BUILDER_BEST_PRACTICES.md)** - Builder 使用最佳实践
+- **[COMMON_ERRORS.md](./COMMON_ERRORS.md)** - 常见错误和解决方法
+
+#### 完整应用示例
+
+- **[Examples](../examples/README.md)** - 完整应用示例代码
+  - [PostgreSQL + pgvector 应用](../examples/pgvector-app/)
+  - [Qdrant 集成应用](../examples/qdrant-app/)
+  - [RAG 检索应用](../examples/rag-app/)
+
 #### API 设计
 
 - **[QDRANT_NIL_FILTER_AND_JOIN.md](./QDRANT_NIL_FILTER_AND_JOIN.md)** - nil/0 过滤和 JOIN 方案
@@ -116,9 +128,11 @@
 
 ## 📊 文档统计
 
-- **总文档数**: 35
+- **总文档数**: 38
 - **项目规划**: 3 (ROADMAP, V1_CHECKLIST, TESTING_STRATEGY)
 - **用户指南**: 2 (VECTOR_QUICKSTART, VECTOR_DIVERSITY_QDRANT)
+- **最佳实践**: 2 (BUILDER_BEST_PRACTICES, COMMON_ERRORS) ← v0.10.3 新增
+- **完整示例**: 3 (pgvector-app, qdrant-app, rag-app) ← v0.10.3 新增
 - **AI 应用生态**: 12 (ai_application 目录)
   - Agent 工具链、RAG 最佳实践、LangChain/LlamaIndex/SK 集成
   - 混合检索、NL2SQL、性能优化、FAQ 等

@@ -125,6 +125,12 @@ Quick links:
 - [LangChain Integration](./doc/ai_application/LANGCHAIN_INTEGRATION.md) - Python LangChain
 - [Performance Optimization](./doc/ai_application/PERFORMANCE.md) - AI app tuning
 
+**Complete Application Examples**:
+- **[Examples →](./examples/README.md)** - Full working applications
+- [PostgreSQL + pgvector App](./examples/pgvector-app/) - Code search
+- [Qdrant Integration App](./examples/qdrant-app/) - Document retrieval
+- [RAG Application](./examples/rag-app/) - Full RAG system
+
 ## Contributing
 
 Contributors are welcomed to join the sqlxb project. <br>
