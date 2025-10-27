@@ -284,7 +284,9 @@ func (built *Built) countBuilder() *strings.Builder {
 	var sbCount *strings.Builder
 	pageCondition := built.PageCondition
 	if pageCondition != nil && pageCondition.rows > 1 && !pageCondition.isTotalRowsIgnored {
-		sbCount = &strings.Builder{}
+		sb := strings.Builder{}
+		sb.Grow(128) // 预分配 128 字节
+		sbCount = &sb
 	}
 	return sbCount
 }
@@ -328,6 +330,7 @@ func (built *Built) SqlOfCond() (string, string, []interface{}) {
 	vs := []interface{}{}
 
 	joinB := strings.Builder{}
+	joinB.Grow(128) // 预分配 128 字节用于 JOIN 语句
 	if built.Fxs != nil {
 		for i, fx := range built.Fxs {
 			if i > 0 {
@@ -337,6 +340,7 @@ func (built *Built) SqlOfCond() (string, string, []interface{}) {
 	}
 
 	condB := strings.Builder{}
+	condB.Grow(256) // 预分配 256 字节用于 WHERE 条件
 	built.toCondSql(built.Conds, &condB, &vs, built.filterLast)
 
 	return joinB.String(), condB.String(), vs
@@ -377,6 +381,7 @@ func (built *Built) toDelete(bp *strings.Builder) {
 
 func (built *Built) sqlDelete(vs *[]interface{}) string {
 	sb := strings.Builder{}
+	sb.Grow(128) // 预分配 128 字节，减少内存重新分配
 	built.toDelete(&sb)
 	built.sqlFrom(&sb)
 	built.toFromSql(vs, &sb)
@@ -395,6 +400,7 @@ func (built *Built) sqlDelete(vs *[]interface{}) string {
 
 func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
 	sb := strings.Builder{}
+	sb.Grow(256) // 预分配 256 字节，SELECT 语句通常较长
 	built.toResultKeySql(&sb, km)
 	built.sqlFrom(&sb)
 	built.toFromSql(vs, &sb)
@@ -416,6 +422,7 @@ func (built *Built) sqlCount() string {
 	if sbCount == nil {
 		return ""
 	}
+	sbCount.Grow(128) // 预分配 128 字节，COUNT 语句相对较短
 	built.toResultKeySqlOfCount(sbCount)
 	built.countSqlFrom(sbCount)
 	built.toFromSqlOfCount(sbCount)

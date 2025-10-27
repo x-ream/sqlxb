@@ -24,6 +24,7 @@ import (
 func (built *Built) sqlInsert(vs *[]interface{}) string {
 
 	bp := strings.Builder{}
+	bp.Grow(128) // 预分配 128 字节，INSERT 语句通常不太长
 	bp.WriteString(INSERT)
 	bp.WriteString(built.OrFromSql)
 	bp.WriteString(SPACE)
