@@ -342,13 +342,14 @@ for _, result := range qdrantResults {
 }
 
 // Step 2: PostgreSQL 关系查询（带 JOIN）
-results := sqlxb.Of(&CodeWithAuthor{}).
-    In("code.id", codeIDs...).
-    Eq("author.department", "后端组").
-    // 假设有 JOIN 能力
-    Join("authors", "author_id", "id").
-    Build().
-    Query()
+// 使用原生 SQL 或 sqlx
+query := `
+    SELECT c.*, a.name, a.department
+    FROM codes c
+    JOIN authors a ON c.author_id = a.id
+    WHERE c.id IN (?) AND a.department = ?
+`
+results := db.Query(query, codeIDs, "后端组")
 ```
 
 **优点**：

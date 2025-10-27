@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-`sqlxb v0.9.0` 添加了向量结果多样性支持和 Qdrant JSON 生成功能。
+`sqlxb v0.9.x` 添加了向量结果多样性支持和 Qdrant JSON 生成功能。
 
 **核心特性**：
 - ✅ 三种多样性策略：哈希去重、最小距离、MMR 算法
@@ -57,7 +57,7 @@
 ### 1. 安装
 
 ```bash
-go get github.com/x-ream/sqlxb@v0.9.0
+go get github.com/x-ream/sqlxb@v0.9.2
 ```
 
 ### 2. 数据模型
@@ -635,13 +635,13 @@ ToQdrantRequest() (*QdrantSearchRequest, error)
 **开始使用**：
 
 ```bash
-go get github.com/x-ream/sqlxb@v0.9.0
+go get github.com/x-ream/sqlxb@v0.9.2
 ```
 
 **文档**：
-- [向量数据库设计文档](./VECTOR_DATABASE_DESIGN.md)
 - [向量快速开始](./VECTOR_QUICKSTART.md)
-- [发布说明](./VECTOR_RELEASE_NOTES.md)
+- [为什么选择 Qdrant](./WHY_QDRANT.md)
+- [QdrantX 使用指南](./QDRANT_X_USAGE.md)
 
 ---
 

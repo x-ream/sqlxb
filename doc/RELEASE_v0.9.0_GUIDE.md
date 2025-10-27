@@ -141,7 +141,7 @@ go get github.com/x-ream/sqlxb@v0.9.0
 
 ### 文档
 - `VECTOR_DIVERSITY_QDRANT.md` - 用户指南
-- `VECTOR_DIVERSITY_API_DESIGN.md` - API 设计
+- `WHY_QDRANT.md` - 为什么选择 Qdrant
 - `QDRANT_NIL_FILTER_AND_JOIN.md` - nil/0 过滤和 JOIN
 - `EMPTY_OR_AND_FILTERING.md` - 空 OR/AND 过滤
 - `ALL_FILTERING_MECHANISMS.md` - 完整过滤机制
@@ -219,7 +219,7 @@ go get github.com/x-ream/sqlxb@v0.9.0
 - **GitHub Repo**: https://github.com/x-ream/sqlxb
 - **Release Notes**: RELEASE_NOTES_v0.9.0.md
 - **User Guide**: VECTOR_DIVERSITY_QDRANT.md
-- **API Design**: VECTOR_DIVERSITY_API_DESIGN.md
+- **Why Qdrant**: WHY_QDRANT.md
 - **Contributors**: CONTRIBUTORS.md
 
 ---

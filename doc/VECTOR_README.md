@@ -8,76 +8,60 @@
 
 ### 🎯 快速开始
 
-**如果您只有 5 分钟**：阅读 [执行摘要](./VECTOR_EXECUTIVE_SUMMARY.md)
-- 核心价值
-- 竞争优势
-- 决策建议
+**如果您只有 5 分钟**：阅读 [快速开始](./VECTOR_QUICKSTART.md)
+- 基础用法
+- 代码示例
+- 核心特性
 
 ---
 
 ### 📖 深入了解
 
-#### 1. [技术设计文档](./VECTOR_DATABASE_DESIGN.md)
+#### 1. [向量多样性与 Qdrant](./VECTOR_DIVERSITY_QDRANT.md)
 
-**适合**: 技术决策者、架构师、核心开发者
+**适合**: 所有开发者
 
 **内容**:
-- ✅ 完整的技术设计方案
-- ✅ API 设计（20+ 代码示例）
-- ✅ 数据结构扩展
-- ✅ SQL 生成逻辑
-- ✅ 向后兼容性保证
-- ✅ 实施路线图（12 周）
-- ✅ 参考实现（完整示例）
-
-**关键亮点**:
-```go
-// 统一 API 示例
-sqlxb.Of(&CodeVector{}).
-    Eq("language", "golang").
-    VectorSearch("embedding", queryVector, 10).
-    Build().
-    SqlOfVectorSearch()
-```
+- 🎯 向量搜索结果多样性策略
+- 📊 Qdrant 数据库集成指南
+- 🔧 QdrantX 高级 API 使用
+- ✅ 完整代码示例
 
 ---
 
-#### 2. [痛点深度分析](./VECTOR_PAIN_POINTS_ANALYSIS.md)
+#### 2. [为什么选择 Qdrant](./WHY_QDRANT.md)
 
-**适合**: 产品经理、市场人员、投资人
+**适合**: 架构师、技术决策者
 
 **内容**:
-- ⚠️ 10 个未解决的痛点
-- ✅ sqlxb 的解决方案
-- 📊 竞品对比分析
-- 💡 技术债务分析
-- 🎯 痛点分级（P0-P4）
-
-**核心发现**:
-```
-最痛的 5 个痛点：
-1. API 碎片化        ⚠️⚠️⚠️⚠️⚠️ → sqlxb 完全解决
-2. ORM 缺失         ⚠️⚠️⚠️⚠️⚠️ → sqlxb 完全解决
-3. 混合查询性能差    ⚠️⚠️⚠️⚠️  → sqlxb 解决
-4. 元数据过滤弱      ⚠️⚠️⚠️⚠️  → sqlxb 完全解决
-5. SQL 标准缺失     ⚠️⚠️⚠️⚠️  → sqlxb 部分解决
-```
+- 📊 Qdrant vs LanceDB 对比
+- 🎯 选型建议
+- ⚡ 性能特点
+- 🏗️ 架构设计
 
 ---
 
-#### 3. [执行摘要](./VECTOR_EXECUTIVE_SUMMARY.md)
+#### 3. [自定义向量数据库支持](./CUSTOM_VECTOR_DB_GUIDE.md)
 
-**适合**: 决策者、管理层、投资人
+**适合**: 高级开发者、框架维护者
 
 **内容**:
-- 📊 一句话总结
-- 💰 投入产出比（ROI 极高）
-- 🎯 核心优势
-- 📅 3 个月交付计划
-- 🛡️ 风险评估（低）
-- 🚀 竞争优势
+- 🔧 如何扩展支持 Milvus, Weaviate 等
+- 📦 完整的实现示例
+- 🎯 设计原则和最佳实践
+- ✅ 不修改 sqlxb 核心代码
 
-**决策建议**: ✅ 立即批准
+---
+
+#### 4. [自定义 JOIN 扩展](./CUSTOM_JOINS_GUIDE.md)
+
+**适合**: 高级开发者、数据库专家
+
+**内容**:
+- 🔧 如何扩展自定义 JOIN 类型
+- 📊 ClickHouse, PostgreSQL 特定 JOIN
+- 🎯 性能优化 JOIN 策略
+- ✅ JOIN 构建器实现
 
 ---
 
@@ -85,60 +69,45 @@ sqlxb.Of(&CodeVector{}).
 
 ### 如果您是...
 
-#### 🧑‍💼 决策者/管理层
+#### 👨‍💻 开发者
 
 **阅读顺序**:
-1. [执行摘要](./VECTOR_EXECUTIVE_SUMMARY.md) - 5 分钟
-2. [痛点分析 - 总结部分](./VECTOR_PAIN_POINTS_ANALYSIS.md#总结) - 3 分钟
+1. [快速开始](./VECTOR_QUICKSTART.md) - 5 分钟
+2. [向量多样性与 Qdrant](./VECTOR_DIVERSITY_QDRANT.md) - 10 分钟
+3. [测试用例](../vector_test.go) 和 [Qdrant 测试](../qdrant_x_test.go) - 15 分钟
 
 **关键问题**:
-- ✅ 为什么现在做？（市场机会窗口期）
-- ✅ 投入产出比？（ROI 极高）
-- ✅ 风险如何？（低，向后兼容）
-- ✅ 多久交付？（3 个月）
+- ✅ 如何使用？（查看快速开始）
+- ✅ 有哪些功能？（向量搜索、过滤、多样性）
+- ✅ 如何集成？（无缝集成现有代码）
 
 ---
 
-#### 👨‍💻 技术架构师/核心开发
+#### 🏗️ 架构师
 
 **阅读顺序**:
-1. [技术设计 - API 设计](./VECTOR_DATABASE_DESIGN.md#api-设计) - 10 分钟
-2. [技术设计 - 技术设计](./VECTOR_DATABASE_DESIGN.md#技术设计) - 20 分钟
-3. [技术设计 - 参考实现](./VECTOR_DATABASE_DESIGN.md#参考实现) - 15 分钟
+1. [为什么选择 Qdrant](./WHY_QDRANT.md) - 10 分钟
+2. [QdrantX 使用指南](./QDRANT_X_USAGE.md) - 15 分钟
+3. [自动过滤机制](./ALL_FILTERING_MECHANISMS.md) - 10 分钟
 
 **关键问题**:
-- ✅ API 如何设计？（统一、简洁、向后兼容）
-- ✅ 实现难度？（中等，12 周可完成）
-- ✅ 性能如何？（优于现有方案 10-100 倍）
-- ✅ 如何集成？（无缝集成现有架构）
+- ✅ 架构设计如何？（优雅降级、类型安全）
+- ✅ 性能如何？（优于现有方案）
+- ✅ 如何扩展？（QdrantX 扩展点）
 
 ---
 
-#### 📊 产品经理/市场人员
+#### 🔧 框架维护者/高级开发者
 
 **阅读顺序**:
-1. [痛点分析 - 未解决的痛点](./VECTOR_PAIN_POINTS_ANALYSIS.md#未解决的痛点) - 15 分钟
-2. [痛点分析 - sqlxb 的解决方案](./VECTOR_PAIN_POINTS_ANALYSIS.md#sqlxb-的解决方案) - 10 分钟
-3. [执行摘要 - 竞争优势](./VECTOR_EXECUTIVE_SUMMARY.md#竞争优势) - 5 分钟
+1. [自定义向量数据库支持](./CUSTOM_VECTOR_DB_GUIDE.md) - 15 分钟
+2. [自定义 JOIN 扩展](./CUSTOM_JOINS_GUIDE.md) - 15 分钟
+3. [FROM 构建器优化详解](./FROM_BUILDER_OPTIMIZATION_EXPLAINED.md) - 20 分钟
 
 **关键问题**:
-- ✅ 用户痛点？（API 碎片化、无 ORM）
-- ✅ 竞争优势？（唯一的统一 ORM）
-- ✅ 目标用户？（政府/企业，亿级市场）
-- ✅ 商业价值？（AI 时代基础设施）
-
----
-
-#### 🔬 研究人员/学者
-
-**阅读顺序**:
-1. [技术设计 - 完整文档](./VECTOR_DATABASE_DESIGN.md) - 60 分钟
-2. [痛点分析 - 完整文档](./VECTOR_PAIN_POINTS_ANALYSIS.md) - 40 分钟
-
-**关键问题**:
-- ✅ 技术创新点？（统一 ORM、AI-First）
-- ✅ 理论基础？（函数式、声明式）
-- ✅ 行业影响？（可能成为标准）
+- ✅ 如何扩展支持其他向量数据库？（Milvus, Weaviate）
+- ✅ 如何自定义 JOIN 类型？（LATERAL, ASOF）
+- ✅ 如何贡献代码？（参考 FROM 优化）
 
 ---
 
@@ -295,8 +264,8 @@ Month 3: 生态完善 → v0.8.0
 
 ### 技术问题
 
-- 阅读 [技术设计文档](./VECTOR_DATABASE_DESIGN.md)
-- 查看 [参考实现](./VECTOR_DATABASE_DESIGN.md#参考实现)
+- 阅读 [自动过滤机制](./ALL_FILTERING_MECHANISMS.md)
+- 查看 [测试用例](../vector_test.go) 和 [Qdrant 测试](../qdrant_x_test.go)
 
 ### 商务合作
 
@@ -309,42 +278,44 @@ Month 3: 生态完善 → v0.8.0
 
 | 文档 | 页数 | 阅读时间 | 更新日期 |
 |------|------|---------|---------|
-| [执行摘要](./VECTOR_EXECUTIVE_SUMMARY.md) | 12 | 5-10 分钟 | 2025-01-20 |
-| [技术设计](./VECTOR_DATABASE_DESIGN.md) | 40+ | 60+ 分钟 | 2025-01-20 |
-| [痛点分析](./VECTOR_PAIN_POINTS_ANALYSIS.md) | 30+ | 40+ 分钟 | 2025-01-20 |
+| [快速开始](./VECTOR_QUICKSTART.md) | 5+ | 5 分钟 | 2025-01-20 |
+| [向量多样性与 Qdrant](./VECTOR_DIVERSITY_QDRANT.md) | 15+ | 15 分钟 | 2025-01-25 |
+| [为什么选择 Qdrant](./WHY_QDRANT.md) | 10+ | 10 分钟 | 2025-01-25 |
+| [自定义向量数据库](./CUSTOM_VECTOR_DB_GUIDE.md) | 8+ | 15 分钟 | 2025-10-27 |
+| [自定义 JOIN 扩展](./CUSTOM_JOINS_GUIDE.md) | 8+ | 15 分钟 | 2025-10-27 |
 
-**总计**: 80+ 页专业技术文档
+**总计**: 45+ 页技术文档
 
 ---
 
 ## ✅ 下一步
 
-### 如果您是决策者
+### 如果您是开发者
 
-1. 阅读 [执行摘要](./VECTOR_EXECUTIVE_SUMMARY.md) (5 分钟)
-2. 查看 [决策建议](./VECTOR_EXECUTIVE_SUMMARY.md#决策建议)
-3. 批准项目启动
+1. 阅读 [快速开始](./VECTOR_QUICKSTART.md) (5 分钟)
+2. 查看 [测试用例](../vector_test.go) (10 分钟)
+3. 开始使用
 
-### 如果您是技术人员
+### 如果您是架构师
 
-1. 阅读 [技术设计](./VECTOR_DATABASE_DESIGN.md) (60 分钟)
-2. 查看 [API 设计](./VECTOR_DATABASE_DESIGN.md#api-设计)
-3. 参与讨论和开发
+1. 阅读 [为什么选择 Qdrant](./WHY_QDRANT.md) (10 分钟)
+2. 查看 [QdrantX 使用指南](./QDRANT_X_USAGE.md) (15 分钟)
+3. 进行技术评估
 
-### 如果您是用户
+### 如果您需要扩展 sqlxb
 
-1. 阅读 [痛点分析](./VECTOR_PAIN_POINTS_ANALYSIS.md) (40 分钟)
-2. 提供反馈和需求
-3. 等待 v0.8.0-alpha (约 1 个月)
+1. 阅读 [自定义向量数据库支持](./CUSTOM_VECTOR_DB_GUIDE.md) (15 分钟)
+2. 阅读 [自定义 JOIN 扩展](./CUSTOM_JOINS_GUIDE.md) (15 分钟)
+3. 开始实现
 
 ---
 
-**文档版本**: v1.0  
-**最后更新**: 2025-01-20  
+**文档版本**: v2.0  
+**最后更新**: 2025-10-27  
 **维护团队**: AI-First Design Committee  
 **License**: Apache 2.0  
 
-**状态**: 📋 待决策 → 即将进入开发阶段
+**状态**: ✅ 已实现并发布（v0.9.2）
 
 ---
 

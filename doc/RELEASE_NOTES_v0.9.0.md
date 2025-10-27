@@ -171,9 +171,9 @@ type QdrantSearchRequest struct {
 - `QDRANT_NIL_FILTER_AND_JOIN.md` - nil/0 过滤和 JOIN 查询说明
 
 ### 设计文档
-- `VECTOR_DIVERSITY_API_DESIGN.md` - API 设计文档
 - `EMPTY_OR_AND_FILTERING.md` - 空 OR/AND 过滤机制
 - `ALL_FILTERING_MECHANISMS.md` - 完整的过滤机制文档（9 层过滤）
+- `WHY_QDRANT.md` - 为什么选择 Qdrant
 
 ---
 
@@ -348,7 +348,7 @@ json, _ := built.ToQdrantJSON()
 
 - **文档**：[VECTOR_README.md](./VECTOR_README.md)
 - **快速开始**：[VECTOR_QUICKSTART.md](./VECTOR_QUICKSTART.md)
-- **API 设计**：[VECTOR_DIVERSITY_API_DESIGN.md](./VECTOR_DIVERSITY_API_DESIGN.md)
+- **Qdrant 指南**：[VECTOR_DIVERSITY_QDRANT.md](./VECTOR_DIVERSITY_QDRANT.md)
 - **GitHub**：https://github.com/x-ream/sqlxb
 - **Issues**：https://github.com/x-ream/sqlxb/issues
 

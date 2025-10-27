@@ -354,7 +354,7 @@ Qdrant 能力:
 | Milvus | ⭐⭐⭐ | 性能过剩，部署过重 |
 | pgvector | ⭐⭐⭐⭐ | 小规模可以，>10M 性能不够 |
 | Weaviate | ⭐⭐⭐ | GraphQL 学习成本高 |
-| Pinecone | ⭐⭐ | 闭源收费，数据托管（政府不接受） |
+| Pinecone | ⭐⭐ | 闭源收费，数据托管 |
 
 ---
 

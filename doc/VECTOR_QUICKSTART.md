@@ -267,15 +267,15 @@ sqlxb.Of(&CodeVector{}).
 
 ## 📚 更多示例
 
-查看完整示例代码：[examples/vector_example.go](./examples/vector_example.go)
+查看完整示例代码：[vector_test.go](../vector_test.go) 和 [qdrant_x_test.go](../qdrant_x_test.go)
 
 ---
 
 ## 📖 深入学习
 
-- **[技术设计文档](./VECTOR_DATABASE_DESIGN.md)** - 完整的 API 和实现细节
-- **[痛点分析](./VECTOR_PAIN_POINTS_ANALYSIS.md)** - 为什么需要 sqlxb
-- **[执行摘要](./VECTOR_EXECUTIVE_SUMMARY.md)** - 商业和技术价值
+- **[向量多样性与 Qdrant](./VECTOR_DIVERSITY_QDRANT.md)** - Qdrant 使用指南
+- **[为什么选择 Qdrant](./WHY_QDRANT.md)** - Qdrant vs LanceDB
+- **[QdrantX 使用指南](./QDRANT_X_USAGE.md)** - 高级 Qdrant API
 
 ---
 

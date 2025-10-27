@@ -105,8 +105,9 @@ This makes sqlxb **one of the first major Go ORM projects successfully maintaine
 Quick links:
 - [Vector Database Quick Start](./doc/VECTOR_QUICKSTART.md)
 - [Vector Diversity + Qdrant Guide](./doc/VECTOR_DIVERSITY_QDRANT.md)
-- [API Design](./doc/VECTOR_DIVERSITY_API_DESIGN.md)
 - [All Filtering Mechanisms](./doc/ALL_FILTERING_MECHANISMS.md)
+- [Custom Vector DB Guide](./doc/CUSTOM_VECTOR_DB_GUIDE.md) - 扩展其他向量数据库
+- [Custom JOINs Guide](./doc/CUSTOM_JOINS_GUIDE.md) - 扩展自定义 JOIN
 - [Contributors](./doc/CONTRIBUTORS.md)
 
 ## Contributing

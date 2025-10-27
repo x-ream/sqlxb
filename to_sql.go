@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	. "github.com/x-ream/sqlxb/internal"
+	"github.com/x-ream/sqlxb/interceptor"
 )
 
 type Built struct {
@@ -39,6 +40,7 @@ type Built struct {
 	Svs        []interface{}
 
 	PageCondition *PageCondition
+	Meta          *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
 }
 
 func (built *Built) toFromSqlOfCount(bpCount *strings.Builder) {

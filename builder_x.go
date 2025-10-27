@@ -16,7 +16,10 @@
 // limitations under the License.
 package sqlxb
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/x-ream/sqlxb/interceptor"
+)
 
 // ToId build sql, like: SELECT DISTINCT f.id FROM foo f INNER_JOIN JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
 // Sql for MySQL, Clickhouse....
@@ -41,6 +44,15 @@ type BuilderX struct {
 	isWithoutOptimization bool
 
 	alia string
+	meta *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
+}
+
+// Meta 获取元数据
+func (x *BuilderX) Meta() *interceptor.Metadata {
+	if x.meta == nil {
+		x.meta = &interceptor.Metadata{}
+	}
+	return x.meta
 }
 
 func Of(tableNameOrPo interface{}) *BuilderX {
@@ -277,11 +289,27 @@ func (x *BuilderX) Build() *Built {
 		panic("sqlxb.Builder is nil")
 	}
 
+	// ⭐ 执行 BeforeBuild 拦截器（只设置元数据）
+	for _, ic := range interceptor.GetAll() {
+		if err := ic.BeforeBuild(x.Meta()); err != nil {
+			panic(fmt.Sprintf("Interceptor %s BeforeBuild failed: %v", ic.Name(), err))
+		}
+	}
+
 	if x.inserts != nil && len(*(x.inserts)) > 0 {
 		built := Built{
 			OrFromSql: x.orFromSql,
 			Inserts:   x.inserts,
+			Meta:      x.meta, // ⭐ 传递元数据
 		}
+
+		// ⭐ 执行 AfterBuild 拦截器
+		for _, ic := range interceptor.GetAll() {
+			if err := ic.AfterBuild(&built); err != nil {
+				panic(fmt.Sprintf("Interceptor %s AfterBuild failed: %v", ic.Name(), err))
+			}
+		}
+
 		return &built
 	}
 
@@ -299,10 +327,18 @@ func (x *BuilderX) Build() *Built {
 		OrFromSql:  x.orFromSql,
 		Fxs:        x.sxs,
 		Svs:        x.svs,
+		Meta:       x.meta, // ⭐ 传递元数据
 	}
 
 	if x.pageBuilder != nil {
 		built.PageCondition = &x.pageBuilder.condition
+	}
+
+	// ⭐ 执行 AfterBuild 拦截器
+	for _, ic := range interceptor.GetAll() {
+		if err := ic.AfterBuild(&built); err != nil {
+			panic(fmt.Sprintf("Interceptor %s AfterBuild failed: %v", ic.Name(), err))
+		}
 	}
 
 	return &built
