@@ -290,7 +290,7 @@ func TestEqAutoFiltering(t *testing.T) {
 ### External Test Projects
 
 Welcome to submit test PRs to:
-- https://github.com/sim-wangyan/sqlxb-test-on-sqlx
+- https://github.com/sim-wangyan/xb-test-on-sqlx
 - Or your own project: `https://github.com/YOUR_USERNAME/xb-test-YOUR_PROJECT`
 
 ---
