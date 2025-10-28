@@ -1,92 +1,426 @@
 # Contributing to xb
 
-It is warmly welcomed if you have interest to hack on xb. First, we encourage this kind of willing very much. And here is a list of contributing guide for you.
+Thank you for considering contributing to `xb`! 🎉
 
+We warmly welcome all forms of contributions. This guide will help you get started.
 
-## Topics
+---
 
-* [Reporting security issues](#reporting-security-issues)
-* [Reporting general issues](#reporting-general-issues)
-* [Code and doc contribution](#code-and-doc-contribution)
-* [Test case contribution](#test-case-contribution)
-* [Engage to help anything](#engage-to-help-anything)
+## 📋 Table of Contents
 
-## Reporting security issues
+* [Reporting Security Issues](#reporting-security-issues)
+* [Reporting General Issues](#reporting-general-issues)
+* [Proposing Features](#proposing-features)
+* [Code Contribution](#code-contribution)
+* [Test Contribution](#test-contribution)
+* [Documentation](#documentation)
+* [Community Engagement](#community-engagement)
 
-Security issues are always treated seriously. As our usual principle, we discourage anyone to spread security issues. If you find a security issue of xb, please do not discuss it in public and even do not open a public issue. Instead we encourage you to send us a private email to  [8966188@gmail.com](mailto:8966188@gmail.com) to report this.
+---
 
-## Reporting general issues
+## 🔒 Reporting Security Issues
 
-To be honest, we regard every user of xb as a very kind contributor. After experiencing xb, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE](https://github.com/fndome/xb/issues/new/choose).
+Security issues are always treated seriously. We discourage anyone from spreading security issues publicly. 
 
-Since we collaborate project xb in a distributed way, we appreciate ***WELL-WRITTEN***, ***DETAILED***, ***EXPLICIT*** issue reports. To make the communication more efficient, we wish everyone could search if your issue is an existing one in the searching list. If you find it existing, please add your details in comments under the existing issue instead of opening a brand new one.
+If you find a security vulnerability in xb:
+- ❌ **DO NOT** discuss it in public
+- ❌ **DO NOT** open a public issue
+- ✅ **DO** send a private email to [8966188@gmail.com](mailto:8966188@gmail.com)
 
-To make the issue details as standard as possible, we setup an [ISSUE TEMPLATE](./.github/ISSUE_TEMPLATE) for issue reporters. Please ***BE SURE*** to follow the instructions to fill fields in template.
+---
 
-There are a lot of cases when you could open an issue:
+## 🐛 Reporting General Issues
 
-* bug report
-* feature request
-* performance issues
-* feature proposal
-* feature design
-* help wanted
-* doc incomplete
-* test improvement
-* any questions on project
-* and so on
+We regard every user of xb as a valued contributor. After using xb, if you have feedback, please feel free to open an issue via [NEW ISSUE](https://github.com/fndome/xb/issues/new/choose).
 
-Also we must remind that when filling a new issue, please remember to remove the sensitive data from your post. Sensitive data could be password, secret key, network locations, private business data and so on.
+### Issue Guidelines
 
-## Code and doc contribution
+We appreciate **WELL-WRITTEN**, **DETAILED**, **EXPLICIT** issue reports. Before opening a new issue:
+1. Search existing issues to avoid duplicates
+2. Add details to existing issues rather than creating new ones
+3. Follow the issue template
+4. Remove sensitive data (passwords, keys, private data, etc.)
 
-Every action to make project xb better is encouraged. On GitHub, every improvement for xb could be via a PR (short for pull request).
+### Issue Template
 
-* If you find a typo, try to fix it!
-* If you find a bug, try to fix it!
-* If you find some redundant codes, try to remove them!
-* If you find some test cases missing, try to add them!
-* If you could enhance a feature, please ***DO NOT*** hesitate!
-* If you find code implicit, try to add comments to make it clear!
-* If you find code ugly, try to refactor that!
-* If you can help to improve documents, it could not be better!
-* If you find document incorrect, just do it and fix that!
-* ...
+```markdown
+**Describe the Issue**:
+Clear description of the problem
 
-Actually it is impossible to list them completely. Just remember one principle:
+**Steps to Reproduce**:
+1. ...
+2. ...
+3. ...
 
-> WE ARE LOOKING FORWARD TO ANY PR FROM YOU.
+**Expected Behavior**:
+What should happen
 
-Since you are ready to improve xb with a PR, we suggest you could take a look at the PR rules here.
+**Actual Behavior**:
+What actually happened
 
-* [Workspace Preparation](#workspace-preparation)
+**Environment**:
+- Go version:
+- xb version:
+- Database: PostgreSQL / MySQL / Qdrant
+- OS:
+```
 
-### Workspace Preparation
+### Types of Issues
 
-git clone https://github.com/fndome/xb.git <br>
-or fork it ....
+* 🐛 Bug report
+* ✨ Feature request
+* ⚡ Performance issues
+* 💡 Feature proposal
+* 📐 Feature design
+* 🆘 Help wanted
+* 📖 Documentation incomplete
+* 🧪 Test improvement
+* ❓ Questions about the project
 
-For test: <br>
-git clone https://github.com/sim-wangyan/sqlxb-test-on-sqlx.git <br>
-or fork it ....
+---
 
-## Test case contribution
+## 💡 Proposing Features
 
-Any test case would be welcomed. Currently, xb function test cases are high priority.
-Welcome to submit PR of test case to https://github.com/sim-wangyan/sqlxb-test-on-sqlx , <br>
-or to your own project like https://github.com/xxxxx/sqlxb-test-xxxxx
+For feature requests, use the `[Feature Request]` label on [Issues](https://github.com/fndome/xb/issues):
 
-## Engage to help anything
+### Feature Request Template
 
-We choose GitHub as the primary place for xb to collaborate. So the latest updates of xb are always here. Although contributions via PR is an explicit way to help, we still call for any other ways.
+```markdown
+**Business Scenario**:
+Why is this feature needed?
 
-* reply to other's issues if you could;
-* help solve other user's problems;
-* help review other's PR design;
-* help review other's codes in PR;
-* discuss about xb to make things clearer;
-* advocate xb technology beyond GitHub;
-* write blogs on xb and so on.
+**Expected API**:
+```go
+// How you'd like to use it
+xb.NewFeature()...
+```
 
+**Alternatives**:
+What alternatives exist today?
 
-In a word, ***ANY HELP IS CONTRIBUTION.***
+**References**:
+Links to relevant docs or projects
+```
+
+### Decision Process
+
+We evaluate features based on:
+1. ✅ Real user needs
+2. ✅ Alignment with xb's vision
+3. ✅ API backward compatibility
+4. ✅ Community maintainer availability
+
+See [VISION.md](../VISION.md) for our approach to technical evolution.
+
+---
+
+## 💻 Code Contribution
+
+Every improvement to xb is encouraged! On GitHub, contributions come via Pull Requests (PRs).
+
+### What to Contribute
+
+* Fix typos
+* Fix bugs
+* Remove redundant code
+* Add missing test cases
+* Enhance features
+* Add clarifying comments
+* Refactor ugly code
+* Improve documentation
+* **And more!**
+
+> **WE ARE LOOKING FORWARD TO ANY PR FROM YOU.**
+
+### Workspace Setup
+
+```bash
+# Fork and clone
+git clone https://github.com/YOUR_USERNAME/xb.git
+cd xb
+
+# Create feature branch
+git checkout -b feature/your-feature-name
+```
+
+### Development Workflow
+
+1. **Write Code**
+   - Follow existing code style
+   - Add necessary comments
+   - Ensure type safety
+
+2. **Add Tests**
+   ```bash
+   # Run tests
+   go test ./...
+   
+   # Check coverage
+   go test -cover
+   ```
+
+3. **Update Docs**
+   - Update `README.md` for new features
+   - Add examples to `examples/`
+   - Update relevant `.md` files
+
+4. **Commit Changes**
+   ```bash
+   git add .
+   git commit -m "feat: add XXX feature"
+   ```
+
+### Commit Message Convention
+
+```
+type: short description
+
+Detailed description (optional)
+
+- Change 1
+- Change 2
+```
+
+**Types**:
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation
+- `test`: Testing
+- `refactor`: Code refactoring
+- `perf`: Performance optimization
+- `chore`: Build/tools config
+
+**Example**:
+```
+feat: add Milvus vector database support
+
+- Implement MilvusX Builder
+- Add unit tests
+- Update docs and examples
+```
+
+### Code Style
+
+```go
+// ✅ Good example
+func (b *Builder) Eq(key string, value interface{}) *Builder {
+    if value == nil {
+        return b  // Auto-filter nil
+    }
+    b.conds = append(b.conds, Condition{
+        Key:   key,
+        Op:    "=",
+        Value: value,
+    })
+    return b
+}
+
+// ❌ Avoid
+func (b *Builder) eq(k string, v interface{}) *Builder {  // Should be exported
+    b.conds = append(b.conds, Condition{k, "=", v})  // Use field names
+    return b
+}
+```
+
+### Submitting Pull Requests
+
+1. **Push to Fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+2. **Create PR**
+   - Create Pull Request on GitHub
+   - Fill out the PR template
+   - Wait for review
+
+3. **Address Feedback**
+   - Respond to review comments
+   - Make requested changes
+   - Push updates (PR auto-updates)
+
+---
+
+## 🧪 Test Contribution
+
+Any test case is welcomed! Currently, xb function test cases are high priority.
+
+### Test Requirements
+
+New features must include:
+
+1. **Unit Tests**
+   - Cover core logic
+   - Include edge cases
+   - Test auto-filtering
+
+2. **Examples** (for important features)
+   - Add complete example to `examples/`
+   - Include README.md
+   - Must be runnable
+
+3. **Documentation**
+   - API docs
+   - Usage examples
+   - Important notes
+
+### Test Style
+
+```go
+// ✅ Good test
+func TestEqAutoFiltering(t *testing.T) {
+    // Arrange
+    builder := Of(&User{})
+    
+    // Act
+    builder.Eq("status", nil).  // Should be ignored
+            Eq("name", "Alice")  // Should work
+    
+    // Assert
+    sql, args, _ := builder.Build().SqlOfSelect()
+    if !strings.Contains(sql, "name = ?") {
+        t.Errorf("Expected name condition")
+    }
+    if len(args) != 1 {
+        t.Errorf("Expected 1 arg, got %d", len(args))
+    }
+}
+```
+
+### External Test Projects
+
+Welcome to submit test PRs to:
+- https://github.com/sim-wangyan/sqlxb-test-on-sqlx
+- Or your own project: `https://github.com/YOUR_USERNAME/xb-test-YOUR_PROJECT`
+
+---
+
+## 📖 Documentation
+
+Documentation improvements are highly valued!
+
+### What to Improve
+
+- Fix typos and errors
+- Add missing documentation
+- Create more examples
+- Improve clarity
+- Translate to other languages
+
+### Documentation Structure
+
+```
+xb/
+├── README.md              # Main docs
+├── VISION.md             # Project vision
+├── MIGRATION.md          # Migration guide
+├── doc/
+│   ├── CONTRIBUTING.md   # This file
+│   ├── ai_application/   # AI app guides
+│   └── ...
+└── examples/             # Example apps
+    ├── pgvector-app/
+    ├── qdrant-app/
+    ├── rag-app/
+    └── pageindex-app/
+```
+
+---
+
+## 🤝 Community Engagement
+
+GitHub is our primary collaboration platform. Besides PRs, you can help in many ways:
+
+### Ways to Contribute
+
+- 💬 Reply to others' issues
+- 🆘 Help solve user problems
+- 👀 Review PR designs
+- 🔍 Review code in PRs
+- 💭 Discuss to clarify ideas
+- 📢 Advocate xb beyond GitHub
+- ✍️ Write blogs about xb
+- 🎓 Share best practices in [Discussions](https://github.com/fndome/xb/discussions)
+
+### Communication Channels
+
+- 💬 **Technical Discussion**: [GitHub Discussions](https://github.com/fndome/xb/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/fndome/xb/issues)
+- 📖 **Documentation**: [README.md](../README.md)
+
+---
+
+## 🎯 Priority Contributions
+
+### High-Value Areas
+
+1. **Bug Fixes** 🐛
+   - Resolve reported issues
+   - Fix edge cases
+   - Improve error messages
+
+2. **Documentation** 📖
+   - Fill documentation gaps
+   - Add more examples
+   - Improve explanations
+
+3. **Performance** ⚡
+   - Reduce memory allocations
+   - Optimize SQL generation
+   - Improve query performance
+
+4. **Database Support** 🗄️
+   - Milvus / Weaviate / Pinecone
+   - Maintain API consistency
+   - Provide tests and docs
+
+5. **AI Use Cases** 🤖
+   - RAG best practices
+   - Agent tool integration
+   - Prompt engineering helpers
+
+---
+
+## 📏 Code of Conduct
+
+- ✅ Respect all contributors
+- ✅ Provide constructive feedback
+- ✅ Welcome newcomers' questions
+- ❌ No personal attacks or harassment
+
+---
+
+## 🏗️ Project Structure
+
+```
+xb/
+├── builder_x.go          # Core Builder
+├── cond_builder_x.go     # Condition builder
+├── to_sql.go            # SQL generation
+├── qdrant_x.go          # Qdrant client
+├── to_qdrant_json.go    # Qdrant JSON generation
+├── vector_types.go      # Vector types
+├── doc/                 # Documentation
+│   ├── ai_application/  # AI app docs
+│   └── ...
+├── examples/            # Example apps
+│   ├── pgvector-app/
+│   ├── qdrant-app/
+│   ├── rag-app/
+│   └── pageindex-app/
+└── *_test.go           # Test files
+```
+
+---
+
+## 🌟 Final Words
+
+> **In the era of rapid technological iteration, flexibility matters more than perfect planning.**
+
+See [VISION.md](../VISION.md) for our approach to embracing change and community-driven development.
+
+---
+
+**In a word: ANY HELP IS CONTRIBUTION.** 🚀
+
+Thank you for making xb better!

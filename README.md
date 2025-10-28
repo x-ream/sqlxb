@@ -4,8 +4,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/fndome/xb.svg?style=flat)](https://github.com/fndome/xb/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fndome/xb)](https://goreportcard.com/report/github.com/fndome/xb)
 
-> 🔄 **Project Renamed (v0.10.5)**: `sqlxb` → `xb`  
-> 📖 **[Migration Guide](./MIGRATION.md)** - Update your `go.mod` and imports in 2 minutes
+
 
 **AI-First SQL Builder** for Relational and Vector Databases
 
@@ -14,7 +13,7 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
 
-> 📅 **v1.0.0 Roadmap**: Planning for release in June 2026. See [ROADMAP_v1.0.0.md](doc/ROADMAP_v1.0.0.md) for details.
+> 🎉 **v1.0.0 Released**: Production-ready! See [VISION.md](./VISION.md) for our approach to rapid tech iteration.
 
 ---
 
@@ -117,8 +116,8 @@ Quick links:
 - [Vector Database Quick Start](./doc/VECTOR_QUICKSTART.md)
 - [Vector Diversity + Qdrant Guide](./doc/VECTOR_DIVERSITY_QDRANT.md)
 - [All Filtering Mechanisms](./doc/ALL_FILTERING_MECHANISMS.md)
-- [Custom Vector DB Guide](./doc/CUSTOM_VECTOR_DB_GUIDE.md) - 扩展其他向量数据库
-- [Custom JOINs Guide](./doc/CUSTOM_JOINS_GUIDE.md) - 扩展自定义 JOIN
+- [Custom Vector DB Guide](./doc/CUSTOM_VECTOR_DB_GUIDE.md)
+- [Custom JOINs Guide](./doc/CUSTOM_JOINS_GUIDE.md)
 - [Contributors](./doc/CONTRIBUTORS.md)
 
 **AI Application Ecosystem**:
@@ -137,8 +136,14 @@ Quick links:
 
 ## Contributing
 
-Contributors are welcomed to join the xb project. <br>
-Please check [CONTRIBUTING](./doc/CONTRIBUTING.md)
+We warmly welcome all forms of contributions! 🎉
+
+- 🐛 **Report bugs**: [GitHub Issues](https://github.com/fndome/xb/issues)
+- 💡 **Request features**: [GitHub Issues](https://github.com/fndome/xb/issues)
+- 💬 **Discuss ideas**: [GitHub Discussions](https://github.com/fndome/xb/discussions)
+- 💻 **Submit code**: See [CONTRIBUTING](./doc/CONTRIBUTING.md)
+
+> In the era of rapid tech iteration, we embrace change and listen to the community. See [VISION.md](./VISION.md) for our development philosophy.
 
 ## Quickstart
 
