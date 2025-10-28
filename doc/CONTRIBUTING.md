@@ -17,7 +17,7 @@ Security issues are always treated seriously. As our usual principle, we discour
 
 ## Reporting general issues
 
-To be honest, we regard every user of sqlxb as a very kind contributor. After experiencing sqlxb, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE](https://github.com/x-ream/sqlxb/issues/new/choose).
+To be honest, we regard every user of sqlxb as a very kind contributor. After experiencing sqlxb, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE](https://github.com/x-ream/xb/issues/new/choose).
 
 Since we collaborate project sqlxb in a distributed way, we appreciate ***WELL-WRITTEN***, ***DETAILED***, ***EXPLICIT*** issue reports. To make the communication more efficient, we wish everyone could search if your issue is an existing one in the searching list. If you find it existing, please add your details in comments under the existing issue instead of opening a brand new one.
 
@@ -63,7 +63,7 @@ Since you are ready to improve sqlxb with a PR, we suggest you could take a look
 
 ### Workspace Preparation
 
-git clone https://github.com/x-ream/sqlxb.git <br>
+git clone https://github.com/x-ream/xb.git <br>
 or fork it ....
 
 For test: <br>

@@ -167,8 +167,8 @@
 ### 📞 反馈
 
 如有问题或建议，请：
-- 提交 [GitHub Issue](https://github.com/x-ream/sqlxb/issues)
-- 参与 [GitHub Discussions](https://github.com/x-ream/sqlxb/discussions)
+- 提交 [GitHub Issue](https://github.com/x-ream/xb/issues)
+- 参与 [GitHub Discussions](https://github.com/x-ream/xb/discussions)
 
 ---
 

@@ -1,3 +1,3 @@
-module github.com/x-ream/sqlxb
+module github.com/x-ream/xb
 
 go 1.15

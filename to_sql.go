@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/x-ream/sqlxb/interceptor"
-	. "github.com/x-ream/sqlxb/internal"
+	"github.com/x-ream/xb/interceptor"
+	. "github.com/x-ream/xb/internal"
 )
 
 type Built struct {

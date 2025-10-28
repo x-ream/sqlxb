@@ -130,7 +130,7 @@ Total: 10/10 (100%)
 ```go
 package main
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 type CodeVector struct {
     Id        int64        `db:"id"`

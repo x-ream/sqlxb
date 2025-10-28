@@ -1,4 +1,4 @@
-# sqlxb Contributors
+# xb Contributors
 
 ## 🎯 Project Leadership
 
@@ -230,9 +230,9 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) and [MAINTENANCE_STRATEGY.md](./MAINTEN
 ## 📞 Contact
 
 - **Project Owner**: sim-wangyan
-- **GitHub**: https://github.com/x-ream/sqlxb
-- **Issues**: https://github.com/x-ream/sqlxb/issues
-- **Discussions**: https://github.com/x-ream/sqlxb/discussions
+- **GitHub**: https://github.com/x-ream/xb
+- **Issues**: https://github.com/x-ream/xb/issues
+- **Discussions**: https://github.com/x-ream/xb/discussions
 
 ---
 

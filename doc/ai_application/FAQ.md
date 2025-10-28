@@ -455,8 +455,8 @@ fmt.Printf("Qdrant Query: %s\n", json)
 
 ## 🙋 还有问题？
 
-- 查看 [GitHub Issues](https://github.com/x-ream/sqlxb/issues)
-- 加入 [GitHub Discussions](https://github.com/x-ream/sqlxb/discussions)
+- 查看 [GitHub Issues](https://github.com/x-ream/xb/issues)
+- 加入 [GitHub Discussions](https://github.com/x-ream/xb/discussions)
 - 阅读完整文档 [README.md](./README.md)
 
 ---

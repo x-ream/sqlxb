@@ -1,8 +1,11 @@
-# sqlxb  
-[![OSCS Status](https://www.oscs1024.com/platform/badge/x-ream/sqlxb.svg?size=small)](https://www.oscs1024.com/project/x-ream/sqlxb?ref=badge_small)
-![workflow build](https://github.com/x-ream/sqlxb/actions/workflows/go.yml/badge.svg)
-[![GitHub tag](https://img.shields.io/github/tag/x-ream/sqlxb.svg?style=flat)](https://github.com/x-ream/sqlxb/tags)
-[![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/sqlxb)](https://goreportcard.com/report/github.com/x-ream/sqlxb)
+# xb  
+[![OSCS Status](https://www.oscs1024.com/platform/badge/x-ream/xb.svg?size=small)](https://www.oscs1024.com/project/x-ream/xb?ref=badge_small)
+![workflow build](https://github.com/x-ream/xb/actions/workflows/go.yml/badge.svg)
+[![GitHub tag](https://img.shields.io/github/tag/x-ream/xb.svg?style=flat)](https://github.com/x-ream/xb/tags)
+[![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/xb)](https://goreportcard.com/report/github.com/x-ream/xb)
+
+> 🔄 **Project Renamed (v0.10.5)**: `sqlxb` → `xb`  
+> 📖 **[Migration Guide](./MIGRATION.md)** - Update your `go.mod` and imports in 2 minutes
 
 **AI-First SQL Builder** for Relational and Vector Databases
 
@@ -56,7 +59,7 @@ sqlxb.Of(&CodeVector{}).
 
 ## 🤖 AI-First Development
 
-sqlxb v0.8.0+ is developed using an innovative **AI-First** approach:
+xb v0.8.0+ is developed using an innovative **AI-First** approach:
 
 - 🤖 **AI Assistant (Claude via Cursor)**: Architecture design, code implementation, testing, documentation
 - 👨‍💻 **Human Maintainer**: Code review, strategic decisions, critical algorithm oversight
@@ -76,7 +79,7 @@ sqlxb v0.8.0+ is developed using an innovative **AI-First** approach:
 - Documentation: AI Assistant (120+ pages)
 - Review & Approval: Human Maintainer
 
-This makes sqlxb **one of the first major Go ORM projects successfully maintained by AI**.
+This makes xb **one of the first major Go ORM projects successfully maintained by AI**.
 
 ---
 
@@ -134,7 +137,7 @@ Quick links:
 
 ## Contributing
 
-Contributors are welcomed to join the sqlxb project. <br>
+Contributors are welcomed to join the xb project. <br>
 Please check [CONTRIBUTING](./doc/CONTRIBUTING.md)
 
 ## Quickstart
@@ -148,7 +151,7 @@ Please check [CONTRIBUTING](./doc/CONTRIBUTING.md)
 ```Go
 
 import (
-    . "github.com/x-ream/sqlxb"
+    . "github.com/x-ream/xb"
 )
 
 type Cat struct {
@@ -250,7 +253,7 @@ func main() {
 
 ```Go
 import (
-        . "github.com/x-ream/sqlxb"
+        . "github.com/x-ream/xb"
     )
     
 func main() {
@@ -437,5 +440,5 @@ Don't debate technology choices — Look at data characteristics:
    → Hybrid approach
 ```
 
-**sqlxb supports all scenarios — One API for everything!** ✅
+**xb supports all scenarios — One API for everything!** ✅
 

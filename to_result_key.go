@@ -17,9 +17,10 @@
 package sqlxb
 
 import (
-	. "github.com/x-ream/sqlxb/internal"
 	"strconv"
 	"strings"
+
+	. "github.com/x-ream/xb/internal"
 )
 
 func adapterResultKeyAlia(km map[string]string, k string, reg string) {

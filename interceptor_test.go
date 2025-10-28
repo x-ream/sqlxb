@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/x-ream/sqlxb/interceptor"
+	"github.com/x-ream/xb/interceptor"
 )
 
 // 测试元数据设置
@@ -104,13 +104,13 @@ func TestInterceptor_Order(t *testing.T) {
 
 	// 拦截器 1
 	interceptor.Register(&OrderTestInterceptor{
-		name: "first",
+		name:  "first",
 		order: &executionOrder,
 	})
 
 	// 拦截器 2
 	interceptor.Register(&OrderTestInterceptor{
-		name: "second",
+		name:  "second",
 		order: &executionOrder,
 	})
 
@@ -295,4 +295,3 @@ func (t *TypeSafeInterceptor) BeforeBuild(meta *interceptor.Metadata) error {
 func (t *TypeSafeInterceptor) AfterBuild(built interface{}) error {
 	return nil
 }
-

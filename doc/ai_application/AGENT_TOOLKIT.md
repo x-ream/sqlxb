@@ -20,7 +20,7 @@ package main
 
 import (
     "encoding/json"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 type User struct {

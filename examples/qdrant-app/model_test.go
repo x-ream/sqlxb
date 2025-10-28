@@ -9,7 +9,7 @@ import (
 func TestDocumentTableName(t *testing.T) {
 	doc := &Document{}
 	tableName := doc.TableName()
-	
+
 	if tableName != "documents" {
 		t.Errorf("Expected table name 'documents', got '%s'", tableName)
 	}
@@ -122,4 +122,3 @@ func contains(s, substr string) bool {
 	}
 	return false
 }
-

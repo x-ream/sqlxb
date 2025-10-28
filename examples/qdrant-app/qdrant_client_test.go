@@ -86,8 +86,8 @@ func TestAutoFiltering(t *testing.T) {
 
 	built := sqlxb.Of(&Document{}).
 		VectorSearch("embedding", make([]float32, 768), 10).
-		Eq("doc_type", emptyDocType).   // 应被自动过滤
-		Eq("language", emptyLanguage).  // 应被自动过滤
+		Eq("doc_type", emptyDocType).  // 应被自动过滤
+		Eq("language", emptyLanguage). // 应被自动过滤
 		Build()
 
 	jsonStr, err := built.ToQdrantJSON()
@@ -107,9 +107,8 @@ func TestAutoFiltering(t *testing.T) {
 }
 
 func containsString(s, substr string) bool {
-	return len(s) > 0 && len(substr) > 0 && len(s) >= len(substr) && 
-		(s == substr || len(s) > len(substr) && (
-			s[:len(substr)] == substr ||
+	return len(s) > 0 && len(substr) > 0 && len(s) >= len(substr) &&
+		(s == substr || len(s) > len(substr) && (s[:len(substr)] == substr ||
 			s[len(s)-len(substr):] == substr ||
 			containsInMiddle(s, substr)))
 }
@@ -122,4 +121,3 @@ func containsInMiddle(s, substr string) bool {
 	}
 	return false
 }
-

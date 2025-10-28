@@ -1,4 +1,4 @@
-# sqlxb AI 应用生态
+# xb AI 应用生态
 
 ## 📋 概述
 
@@ -47,7 +47,7 @@
 package main
 
 import (
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 type DocumentChunk struct {

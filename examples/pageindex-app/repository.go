@@ -143,4 +143,3 @@ func (r *DocumentRepository) FindPageRange(docID int64, startPage, endPage int) 
 	err := r.db.Select(&nodes, sql, args...)
 	return nodes, err
 }
-

@@ -412,7 +412,7 @@ package rag
 
 import (
     "context"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 type RAGService struct {

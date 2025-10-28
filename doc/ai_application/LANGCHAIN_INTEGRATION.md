@@ -36,7 +36,7 @@ package main
 import (
     "encoding/json"
     "net/http"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 type SearchRequest struct {
@@ -737,7 +737,7 @@ asyncio.run(index_documents_async(documents))
 ## 🤝 社区资源
 
 - [LangChain 官方文档](https://python.langchain.com/)
-- [sqlxb 示例仓库](https://github.com/x-ream/sqlxb-examples)
+- [sqlxb 示例仓库](https://github.com/x-ream/xb-examples)
 - [常见问题解答](./FAQ.md)
 
 ---

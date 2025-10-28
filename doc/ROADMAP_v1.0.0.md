@@ -1,4 +1,4 @@
-# sqlxb v1.0.0 路线图
+# xb v1.0.0 路线图
 
 ## 🎯 发布目标
 
@@ -83,23 +83,33 @@
   - 层级结构查询最佳实践
 - [x] 100% 向后兼容
 
-#### v0.10.5 (计划: 2025年9月)
-**重点：API 稳定性与迁移指南**
+#### v0.10.5 ✅ (已完成)
+**重点：项目重命名 sqlxb → xb**
 
-- [ ] **API 审查**
-  - 确保命名一致性
-  - 检查是否有废弃 API
-  - 标记 experimental API
+- [x] **核心重命名**
+  - go.mod: module 名称改为 github.com/x-ream/xb
+  - 所有 import 语句更新
+  - 包名保持 sqlxb（向后兼容）
   
-- [ ] **迁移指南**
-  - 从 GORM 迁移到 sqlxb
-  - 从 XORM 迁移到 sqlxb
-  - sqlxb 版本升级指南
+- [x] **文档更新**
+  - README.md 所有引用
+  - doc/ 所有文档（40+ 文件）
+  - examples/ 所有示例
   
-- [ ] **API 完整性检查**
-  - 所有 API 都有文档
-  - 所有 API 都有示例
-  - 所有 API 都有测试
+- [x] **示例更新**
+  - 所有示例的 go.mod
+  - 4 个应用的依赖更新
+  
+- [x] **迁移指南**
+  - 添加 MIGRATION.md（从 sqlxb 迁移）
+  - 批量替换命令（Linux/macOS/Windows）
+  - 常见问题解答
+  - README.md 迁移通知
+  
+- [x] **测试验证**
+  - 所有测试通过
+  - go mod tidy 无错误
+  - 100% 向后兼容
 
 ---
 

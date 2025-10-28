@@ -1,6 +1,6 @@
-# sqlxb 向量数据库支持 - 文档索引
+# xb 向量数据库支持 - 文档索引
 
-欢迎！这里是 sqlxb 向量数据库支持的完整技术文档。
+欢迎！这里是 xb 向量数据库支持的完整技术文档。
 
 ---
 
@@ -273,8 +273,8 @@ Month 3: 生态完善 → v0.8.0
 ### 文档反馈
 
 发现问题或有建议？
-- GitHub Issues: [新建 Issue](https://github.com/x-ream/sqlxb/issues)
-- GitHub Discussions: [参与讨论](https://github.com/x-ream/sqlxb/discussions)
+- GitHub Issues: [新建 Issue](https://github.com/x-ream/xb/issues)
+- GitHub Discussions: [参与讨论](https://github.com/x-ream/xb/discussions)
 
 ### 技术问题
 

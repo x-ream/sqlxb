@@ -35,7 +35,7 @@ package main
 
 import (
     "fmt"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 // 1. 定义文档结构
@@ -109,7 +109,7 @@ func main() {
 运行：
 ```bash
 go mod init demo
-go get github.com/x-ream/sqlxb
+go get github.com/x-ream/xb
 go run main.go
 ```
 
@@ -126,7 +126,7 @@ import (
     "os"
     
     openai "github.com/sashabaranov/go-openai"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 func main() {
@@ -306,8 +306,8 @@ for i := 0; i < len(documents); i += batchSize {
 
 如有问题，请查看：
 - [FAQ.md](./FAQ.md) - 常见问题
-- [GitHub Issues](https://github.com/x-ream/sqlxb/issues)
-- [GitHub Discussions](https://github.com/x-ream/sqlxb/discussions)
+- [GitHub Issues](https://github.com/x-ream/xb/issues)
+- [GitHub Discussions](https://github.com/x-ream/xb/discussions)
 
 ---
 

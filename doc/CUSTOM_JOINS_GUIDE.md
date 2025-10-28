@@ -62,7 +62,7 @@ func ANTI_JOIN() string {
 
 // 使用
 import (
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
     "your-project/sqlx_ext"
 )
 
@@ -150,7 +150,7 @@ sqlxb.Of(&Order{}).
 // ClickHouse 专属 JOIN
 package clickhouse_ext
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 // ASOF_LEFT ClickHouse ASOF LEFT JOIN
 // 用于时序数据：找到时间戳最接近且不晚于的记录
@@ -287,7 +287,7 @@ sql, args := sqlxb.Of(&DistributedOrder{}).
 // your_project/sqlx_ext/join_builder.go
 package sqlx_ext
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 // JoinBuilderX JOIN 专属构建器
 type JoinBuilderX struct {
@@ -361,7 +361,7 @@ sqlxb.Of(&Order{}).
 // your_project/business/order_joins.go
 package business
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 // ORDER_DETAIL_JOIN 订单详情 JOIN（业务特定）
 // 自动过滤已删除的详情
@@ -401,7 +401,7 @@ sql, args := sqlxb.Of(&Order{}).
 package performance
 
 import (
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
     "time"
 )
 
@@ -437,7 +437,7 @@ sql, args := sqlxb.Of(&Order{}).
 // your_project/database/mysql_joins.go
 package database
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 // STRAIGHT_JOIN MySQL 强制按顺序 JOIN
 func STRAIGHT_JOIN() string {
@@ -477,7 +477,7 @@ package sqlx_ext
 
 import (
     "fmt"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
     "strings"
 )
 
@@ -587,7 +587,7 @@ sql, args := sqlxb.Of(&Order{}).
 // your_project/constants/joins.go
 package constants
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 // 业务特定的 JOIN 常量
 var (
@@ -659,7 +659,7 @@ package sqlx_ext
 
 import (
     "testing"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 func TestCustomJoin_LATERAL(t *testing.T) {

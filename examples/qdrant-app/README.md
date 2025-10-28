@@ -15,7 +15,7 @@
 ### 1. 安装依赖
 
 ```bash
-go get github.com/x-ream/sqlxb
+go get github.com/x-ream/xb
 go get github.com/qdrant/go-client
 go get github.com/gin-gonic/gin
 ```

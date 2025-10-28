@@ -149,4 +149,3 @@ func TestHybridSearch(t *testing.T) {
 
 	t.Logf("Hybrid search found %d golang results", len(results))
 }
-

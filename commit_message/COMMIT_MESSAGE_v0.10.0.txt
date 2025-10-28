@@ -192,7 +192,7 @@ Discover API:
 ### 安装
 
 ```bash
-go get github.com/x-ream/sqlxb@v0.10.0
+go get github.com/x-ream/xb@v0.10.0
 ```
 
 ### 向后兼容

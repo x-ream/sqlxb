@@ -344,7 +344,7 @@ for text in streaming_response.response_gen:
 ## 📚 参考资源
 
 - [LlamaIndex 官方文档](https://docs.llamaindex.ai/)
-- [sqlxb 示例项目](https://github.com/x-ream/sqlxb/tree/main/examples)
+- [sqlxb 示例项目](https://github.com/x-ream/xb/tree/main/examples)
 
 ---
 

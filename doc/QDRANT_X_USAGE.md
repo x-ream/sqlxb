@@ -21,7 +21,7 @@
 ### 基础用法
 
 ```go
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 queryVector := sqlxb.Vector{0.1, 0.2, 0.3, 0.4}
 
@@ -362,7 +362,7 @@ qx.WithVector(true)
 package main
 
 import (
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
     "github.com/qdrant/go-client/qdrant"
 )
 

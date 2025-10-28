@@ -1,4 +1,4 @@
-# sqlxb v0.9.0 Release Notes
+# xb v0.9.0 Release Notes
 
 **Release Date**: 2025-10-26
 
@@ -295,7 +295,7 @@ results := sqlxb.Of(&CodeWithAuthor{}).
 
 ```bash
 # 更新依赖
-go get github.com/x-ream/sqlxb@v0.9.0
+go get github.com/x-ream/xb@v0.9.0
 go mod tidy
 ```
 
@@ -349,8 +349,8 @@ json, _ := built.ToQdrantJSON()
 - **文档**：[VECTOR_README.md](./VECTOR_README.md)
 - **快速开始**：[VECTOR_QUICKSTART.md](./VECTOR_QUICKSTART.md)
 - **Qdrant 指南**：[VECTOR_DIVERSITY_QDRANT.md](./VECTOR_DIVERSITY_QDRANT.md)
-- **GitHub**：https://github.com/x-ream/sqlxb
-- **Issues**：https://github.com/x-ream/sqlxb/issues
+- **GitHub**：https://github.com/x-ream/xb
+- **Issues**：https://github.com/x-ream/xb/issues
 
 ---
 

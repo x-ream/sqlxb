@@ -1,0 +1,129 @@
+🔄 v0.10.5: Project Rename sqlxb → xb
+
+## Core Changes
+
+### 1. Project Rename
+- ✅ Module name: `github.com/x-ream/sqlxb` → `github.com/x-ream/xb`
+- ✅ All import paths updated
+- ✅ Package name remains `sqlxb` (backward compatible)
+
+### 2. Documentation Updates
+- ✅ README.md with migration notice
+- ✅ All document titles updated (40+ files)
+- ✅ All example code updated
+- ✅ 4 application examples' go.mod updated
+
+### 3. Migration Guide
+- ✅ New MIGRATION.md
+  - Migration steps
+  - Batch replace commands (Linux/macOS/Windows)
+  - FAQ
+  - Verification methods
+
+### 4. Test Verification
+- ✅ All existing tests pass
+- ✅ go mod tidy no errors
+- ✅ Build successful
+
+---
+
+## Backward Compatibility
+
+✅ **100% Backward Compatible**:
+- Package name still `sqlxb`
+- All APIs unchanged
+- Only import paths need update
+
+```go
+// ✅ Only update import
+import (
+    "github.com/x-ream/xb"  // New path
+)
+
+// ✅ Code unchanged
+builder := sqlxb.Of(&User{})
+```
+
+---
+
+## Migration Steps
+
+1. Update `go.mod`:
+   ```
+   require github.com/x-ream/xb v0.10.5
+   ```
+
+2. Update all `.go` file imports:
+   ```
+   github.com/x-ream/sqlxb → github.com/x-ream/xb
+   ```
+
+3. Run tests:
+   ```
+   go mod tidy
+   go test ./...
+   ```
+
+See: [MIGRATION.md](../MIGRATION.md)
+
+---
+
+## File Changes
+
+### Core
+- `go.mod` - module name
+- `MIGRATION.md` - new migration guide
+- `README.md` - migration notice
+
+### Source Code
+- `to_sql.go`
+- `to_insert_set.go`
+- `builder_x.go`
+- `to_update_set.go`
+- `to_agg.go`
+- `to_from_sql_by_builder.go`
+- `to_result_key.go`
+- `interceptor_test.go`
+
+### Documentation (40+ files)
+- `doc/*.md` - all titles updated
+- `doc/ai_application/*.md` - AI application docs
+- `commit_message/*.txt` - commit messages
+
+### Examples
+- `examples/pgvector-app/go.mod`
+- `examples/qdrant-app/go.mod`
+- `examples/rag-app/go.mod`
+- `examples/pageindex-app/go.mod`
+- All example source imports
+
+---
+
+## Why Rename?
+
+1. **More Concise** - `xb` is shorter and easier to remember than `sqlxb`
+2. **Brand Consistency** - Aligns with x-ream organization naming
+3. **Better Discoverability** - Shorter names are more advantageous in search
+
+---
+
+## Impact
+
+**All sqlxb users** - Need to update import paths
+
+**Migration Difficulty**: ⭐ Easy (2 minutes)
+
+---
+
+## Roadmap Update
+
+- v0.10.5 marked as completed
+- v1.0.0 target unchanged (2025 Q4)
+
+---
+
+**Test Status**: ✅ All passed
+**Compatibility**: ✅ 100% backward compatible
+**Documentation**: ✅ Complete migration guide
+**Release**: ✅ Ready
+

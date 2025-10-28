@@ -522,7 +522,7 @@ builder.Services.AddTransient<Kernel>(sp =>
 ## 📚 参考资源
 
 - [Semantic Kernel 官方文档](https://learn.microsoft.com/en-us/semantic-kernel/)
-- [sqlxb GitHub](https://github.com/x-ream/sqlxb)
+- [sqlxb GitHub](https://github.com/x-ream/xb)
 
 ---
 

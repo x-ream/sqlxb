@@ -1,4 +1,4 @@
-# sqlxb v0.9.0 发布指南
+# xb v0.9.0 发布指南
 
 ## 📋 发布检查清单
 
@@ -93,7 +93,7 @@ git push origin v0.9.0
 
 ### 5. 在 GitHub 创建 Release
 
-访问：https://github.com/x-ream/sqlxb/releases/new
+访问：https://github.com/x-ream/xb/releases/new
 
 **Tag**: v0.9.0
 
@@ -107,7 +107,7 @@ git push origin v0.9.0
 
 ### 1. 验证 pkg.go.dev
 
-访问：https://pkg.go.dev/github.com/x-ream/sqlxb@v0.9.0
+访问：https://pkg.go.dev/github.com/x-ream/xb@v0.9.0
 
 （可能需要等待几分钟）
 
@@ -117,16 +117,16 @@ git push origin v0.9.0
 
 ```bash
 # 在另一个项目中测试
-go get github.com/x-ream/sqlxb@v0.9.0
+go get github.com/x-ream/xb@v0.9.0
 ```
 
 ---
 
 ### 3. 验证文档可访问
 
-- https://github.com/x-ream/sqlxb/blob/main/VECTOR_README.md
-- https://github.com/x-ream/sqlxb/blob/main/VECTOR_DIVERSITY_QDRANT.md
-- https://github.com/x-ream/sqlxb/blob/main/RELEASE_NOTES_v0.9.0.md
+- https://github.com/x-ream/xb/blob/main/VECTOR_README.md
+- https://github.com/x-ream/xb/blob/main/VECTOR_DIVERSITY_QDRANT.md
+- https://github.com/x-ream/xb/blob/main/RELEASE_NOTES_v0.9.0.md
 
 ---
 
@@ -216,7 +216,7 @@ go get github.com/x-ream/sqlxb@v0.9.0
 
 ## 🔗 相关链接
 
-- **GitHub Repo**: https://github.com/x-ream/sqlxb
+- **GitHub Repo**: https://github.com/x-ream/xb
 - **Release Notes**: RELEASE_NOTES_v0.9.0.md
 - **User Guide**: VECTOR_DIVERSITY_QDRANT.md
 - **Why Qdrant**: WHY_QDRANT.md

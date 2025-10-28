@@ -1,4 +1,4 @@
-# sqlxb Vector Database - Quick Start
+# xb Vector Database - Quick Start
 
 **5 分钟快速上手 sqlxb 向量数据库支持**
 
@@ -14,7 +14,7 @@ package main
 import (
     "fmt"
     "time"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 type CodeVector struct {

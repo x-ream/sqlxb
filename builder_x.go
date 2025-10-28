@@ -19,7 +19,7 @@ package sqlxb
 import (
 	"fmt"
 
-	"github.com/x-ream/sqlxb/interceptor"
+	"github.com/x-ream/xb/interceptor"
 )
 
 // ToId build sql, like: SELECT DISTINCT f.id FROM foo f INNER_JOIN JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id

@@ -51,4 +51,3 @@ type SearchResponse struct {
 	Results []*Document `json:"results"`
 	Total   int         `json:"total"`
 }
-

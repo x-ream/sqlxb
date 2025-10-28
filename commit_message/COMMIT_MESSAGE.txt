@@ -57,7 +57,7 @@ Performance:
 
 Migration:
 No code changes required. Fully backward compatible.
-go get github.com/x-ream/sqlxb@v0.9.0
+go get github.com/x-ream/xb@v0.9.0
 
 Design philosophy:
 Builder-time filtering > JSON post-filtering

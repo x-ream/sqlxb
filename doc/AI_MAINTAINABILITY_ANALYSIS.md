@@ -1,4 +1,4 @@
-# sqlxb AI 可维护性分析
+# xb AI 可维护性分析
 
 **目标**: 让 AI 能轻松维护框架，同时程序员也能看懂  
 **日期**: 2025-01-20  
@@ -786,7 +786,7 @@ func TestJoinOptimization_EdgeCases(t *testing.T) {
 ```markdown
 // MAINTENANCE_LEVELS.md
 
-# sqlxb 维护等级清单
+# xb 维护等级清单
 
 ## Level 1: AI 独立维护（80%）
 

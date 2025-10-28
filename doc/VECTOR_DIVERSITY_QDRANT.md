@@ -1,4 +1,4 @@
-# sqlxb 向量多样性查询 + Qdrant 支持
+# xb 向量多样性查询 + Qdrant 支持
 
 ## 📋 概述
 
@@ -57,7 +57,7 @@
 ### 1. 安装
 
 ```bash
-go get github.com/x-ream/sqlxb@v0.9.2
+go get github.com/x-ream/xb@v0.9.2
 ```
 
 ### 2. 数据模型
@@ -79,7 +79,7 @@ func (CodeVector) TableName() string {
 ### 3. 基础用法
 
 ```go
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
@@ -517,7 +517,7 @@ import (
     "database/sql"
     "encoding/json"
     "fmt"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 type CodeVector struct {
@@ -635,7 +635,7 @@ ToQdrantRequest() (*QdrantSearchRequest, error)
 **开始使用**：
 
 ```bash
-go get github.com/x-ream/sqlxb@v0.9.2
+go get github.com/x-ream/xb@v0.9.2
 ```
 
 **文档**：
@@ -645,5 +645,5 @@ go get github.com/x-ream/sqlxb@v0.9.2
 
 ---
 
-**问题反馈**：https://github.com/x-ream/sqlxb/issues
+**问题反馈**：https://github.com/x-ream/xb/issues
 

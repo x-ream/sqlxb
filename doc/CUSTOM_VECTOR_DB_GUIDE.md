@@ -17,7 +17,7 @@
 package vectordb
 
 import (
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 // MilvusBuilderX Milvus 专属构建器
@@ -69,7 +69,7 @@ const (
 // MilvusBuilderX 的方法实现
 package vectordb
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 // Nprobe 设置 Milvus 的 nprobe 参数
 // nprobe 越大，精度越高，但速度越慢
@@ -143,7 +143,7 @@ package vectordb
 
 import (
     "encoding/json"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
 )
 
 // MilvusSearchRequest Milvus 搜索请求结构
@@ -267,7 +267,7 @@ package main
 
 import (
     "fmt"
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
     "your-project/vectordb"
 )
 
@@ -448,7 +448,7 @@ func (mx *MilvusBuilderX) HighSpeed() *MilvusBuilderX {
 // your_project/vectordb/weaviate_x.go
 package vectordb
 
-import "github.com/x-ream/sqlxb"
+import "github.com/x-ream/xb"
 
 // Weaviate 专属操作符
 const (
@@ -564,7 +564,7 @@ func (built *sqlxb.Built) ToWeaviateGraphQL(className string) (string, error) {
 package main
 
 import (
-    "github.com/x-ream/sqlxb"
+    "github.com/x-ream/xb"
     "your-project/vectordb"
 )
 

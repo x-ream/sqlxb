@@ -17,8 +17,9 @@
 package sqlxb
 
 import (
-	. "github.com/x-ream/sqlxb/internal"
 	"strings"
+
+	. "github.com/x-ream/xb/internal"
 )
 
 func (built *Built) sqlInsert(vs *[]interface{}) string {

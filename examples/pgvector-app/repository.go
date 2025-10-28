@@ -116,4 +116,3 @@ func (r *CodeRepository) KeywordSearch(keyword, language string, page, rows int)
 
 	return codes, total, nil
 }
-
