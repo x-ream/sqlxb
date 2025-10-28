@@ -33,14 +33,14 @@ func (imp *PageIndexImporter) Import(req ImportRequest) error {
 func (imp *PageIndexImporter) importNode(docID int64, jsonNode PageIndexJSON, parentID string, level int) error {
 	// 创建当前节点
 	node := &PageIndexNode{
-		DocID:     docID,
+		DocID:     &docID,
 		NodeID:    jsonNode.NodeID,
 		ParentID:  parentID,
 		Title:     jsonNode.Title,
 		StartPage: jsonNode.StartIndex,
 		EndPage:   jsonNode.EndIndex,
 		Summary:   jsonNode.Summary,
-		Level:     level,
+		Level:     &level,
 	}
 
 	if err := imp.repo.CreateNode(node); err != nil {

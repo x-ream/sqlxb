@@ -35,15 +35,15 @@ type SearchRequest struct {
 	QueryVector []float32 `json:"query_vector" binding:"required"`
 	DocType     string    `json:"doc_type"`
 	Language    string    `json:"language"`
-	MinScore    float64   `json:"min_score"`
-	Limit       int       `json:"limit"`
+	MinScore    *float64  `json:"min_score"`
+	Limit       *int      `json:"limit"`
 }
 
 // RecommendRequest 推荐请求
 type RecommendRequest struct {
 	Positive []int64 `json:"positive" binding:"required"`
 	Negative []int64 `json:"negative"`
-	Limit    int     `json:"limit"`
+	Limit    *int    `json:"limit"`
 }
 
 // SearchResponse 搜索响应

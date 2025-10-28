@@ -32,7 +32,7 @@ type CreateCodeRequest struct {
 type SearchRequest struct {
 	QueryVector []float32 `json:"query_vector" binding:"required"`
 	Language    string    `json:"language"`
-	Limit       int       `json:"limit"`
+	Limit       *int      `json:"limit"`
 }
 
 // SearchResponse 搜索响应

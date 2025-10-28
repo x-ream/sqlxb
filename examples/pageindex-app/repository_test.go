@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/fndome/xb"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -58,7 +59,7 @@ func TestCreateDocument(t *testing.T) {
 
 	doc := &Document{
 		Name:       "Annual Report 2024",
-		TotalPages: 100,
+		TotalPages: xb.Int(100),
 	}
 
 	err := repo.CreateDocument(doc)
@@ -83,18 +84,18 @@ func TestFindNodesByTitle(t *testing.T) {
 	repo := NewDocumentRepository(db)
 
 	// 创建测试数据
-	doc := &Document{Name: "Test Doc", TotalPages: 50}
+	doc := &Document{Name: "Test Doc", TotalPages: xb.Int(50)}
 	repo.CreateDocument(doc)
 
 	node := &PageIndexNode{
-		DocID:     doc.ID,
+		DocID:     &doc.ID,
 		NodeID:    "0001",
 		ParentID:  "",
 		Title:     "Financial Stability",
-		StartPage: 10,
-		EndPage:   20,
+		StartPage: xb.Int(10),
+		EndPage:   xb.Int(20),
 		Summary:   "Summary of financial stability",
-		Level:     1,
+		Level:     xb.Int(1),
 	}
 	repo.CreateNode(node)
 
@@ -124,17 +125,17 @@ func TestFindNodesByPage(t *testing.T) {
 
 	repo := NewDocumentRepository(db)
 
-	doc := &Document{Name: "Test Doc", TotalPages: 50}
+	doc := &Document{Name: "Test Doc", TotalPages: xb.Int(50)}
 	repo.CreateDocument(doc)
 
 	// 创建节点：页码范围 10-20
 	node := &PageIndexNode{
-		DocID:     doc.ID,
+		DocID:     &doc.ID,
 		NodeID:    "0001",
 		Title:     "Chapter 1",
-		StartPage: 10,
-		EndPage:   20,
-		Level:     1,
+		StartPage: xb.Int(10),
+		EndPage:   xb.Int(20),
+		Level:     xb.Int(1),
 	}
 	repo.CreateNode(node)
 
@@ -170,34 +171,34 @@ func TestFindChildNodes(t *testing.T) {
 
 	repo := NewDocumentRepository(db)
 
-	doc := &Document{Name: "Test Doc", TotalPages: 50}
+	doc := &Document{Name: "Test Doc", TotalPages: xb.Int(50)}
 	repo.CreateDocument(doc)
 
 	// 创建父节点
 	parent := &PageIndexNode{
-		DocID:    doc.ID,
-		NodeID:   "0001",
-		Title:    "Chapter 1",
-		Level:    1,
+		DocID:  &doc.ID,
+		NodeID: "0001",
+		Title:  "Chapter 1",
+		Level:  xb.Int(1),
 	}
 	repo.CreateNode(parent)
 
 	// 创建子节点
 	child1 := &PageIndexNode{
-		DocID:    doc.ID,
+		DocID:    &doc.ID,
 		NodeID:   "0002",
 		ParentID: "0001",
 		Title:    "Section 1.1",
-		Level:    2,
+		Level:    xb.Int(2),
 	}
 	repo.CreateNode(child1)
 
 	child2 := &PageIndexNode{
-		DocID:    doc.ID,
+		DocID:    &doc.ID,
 		NodeID:   "0003",
 		ParentID: "0001",
 		Title:    "Section 1.2",
-		Level:    2,
+		Level:    xb.Int(2),
 	}
 	repo.CreateNode(child2)
 
@@ -223,7 +224,7 @@ func TestAutoFiltering(t *testing.T) {
 
 	repo := NewDocumentRepository(db)
 
-	doc := &Document{Name: "Test Doc", TotalPages: 50}
+	doc := &Document{Name: "Test Doc", TotalPages: xb.Int(50)}
 	repo.CreateDocument(doc)
 
 	// 测试自动过滤（空字符串）
@@ -237,4 +238,3 @@ func TestAutoFiltering(t *testing.T) {
 	// 返回所有该文档的节点
 	t.Logf("Auto-filtering works: empty keyword returned %d results", len(results))
 }
-

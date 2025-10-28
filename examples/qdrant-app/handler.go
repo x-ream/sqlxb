@@ -15,16 +15,23 @@ func SearchHandler(client *QdrantClient) gin.HandlerFunc {
 			return
 		}
 
-		if req.Limit <= 0 {
-			req.Limit = 10
+		// 设置默认值
+		limit := 10
+		if req.Limit != nil && *req.Limit > 0 {
+			limit = *req.Limit
+		}
+
+		minScore := 0.0
+		if req.MinScore != nil {
+			minScore = *req.MinScore
 		}
 
 		docs, err := client.Search(
 			req.QueryVector,
 			req.DocType,
 			req.Language,
-			req.MinScore,
-			req.Limit,
+			minScore,
+			limit,
 		)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -47,11 +54,13 @@ func RecommendHandler(client *QdrantClient) gin.HandlerFunc {
 			return
 		}
 
-		if req.Limit <= 0 {
-			req.Limit = 10
+		// 设置默认值
+		limit := 10
+		if req.Limit != nil && *req.Limit > 0 {
+			limit = *req.Limit
 		}
 
-		docs, err := client.Recommend(req.Positive, req.Negative, req.Limit)
+		docs, err := client.Recommend(req.Positive, req.Negative, limit)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -63,4 +72,3 @@ func RecommendHandler(client *QdrantClient) gin.HandlerFunc {
 		})
 	}
 }
-

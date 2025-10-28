@@ -25,15 +25,15 @@ func TestSearchRequestValidation(t *testing.T) {
 			name: "valid request",
 			req: SearchRequest{
 				QueryVector: make([]float32, 768),
-				Limit:       10,
+				Limit:       xb.Int(10),
 			},
 			wantErr: false,
 		},
 		{
-			name: "zero limit auto-corrected",
+			name: "nil limit auto-corrected",
 			req: SearchRequest{
 				QueryVector: make([]float32, 768),
-				Limit:       0, // 应该在处理器中被设置为默认值
+				Limit:       nil, // 应该在处理器中被设置为默认值
 			},
 			wantErr: false,
 		},

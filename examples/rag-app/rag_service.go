@@ -8,9 +8,9 @@ import (
 
 // RAGService RAG 服务
 type RAGService struct {
-	repo      *ChunkRepository
-	embedder  EmbeddingService
-	llm       LLMService
+	repo     *ChunkRepository
+	embedder EmbeddingService
+	llm      LLMService
 }
 
 func NewRAGService(repo *ChunkRepository, embedder EmbeddingService, llm LLMService) *RAGService {
@@ -30,9 +30,9 @@ func (s *RAGService) Query(ctx context.Context, req RAGQueryRequest) (*RAGQueryR
 	}
 
 	// 2. 检索相关文档
-	topK := req.TopK
-	if topK <= 0 {
-		topK = 5
+	topK := 5 // 默认值
+	if req.TopK != nil && *req.TopK > 0 {
+		topK = *req.TopK
 	}
 
 	chunks, err := s.repo.VectorSearch(queryVector, req.DocType, req.Language, topK)
@@ -70,19 +70,19 @@ func (s *RAGService) Query(ctx context.Context, req RAGQueryRequest) (*RAGQueryR
 // buildPrompt 构建 LLM 提示词
 func (s *RAGService) buildPrompt(question string, chunks []*DocumentChunk) string {
 	var sb strings.Builder
-	
+
 	sb.WriteString("请根据以下文档内容回答问题。\n\n")
 	sb.WriteString("相关文档：\n")
-	
+
 	for i, chunk := range chunks {
 		sb.WriteString(fmt.Sprintf("\n[文档 %d]\n", i+1))
 		sb.WriteString(chunk.Content)
 		sb.WriteString("\n")
 	}
-	
+
 	sb.WriteString(fmt.Sprintf("\n问题：%s\n\n", question))
 	sb.WriteString("请基于上述文档内容进行回答。如果文档中没有相关信息，请明确说明。")
-	
+
 	return sb.String()
 }
 
@@ -116,4 +116,3 @@ func (s *MockLLMService) Generate(ctx context.Context, prompt string) (string, e
 	// 实际应用中应该调用真实的 LLM API（如 OpenAI, DeepSeek）
 	return "这是基于检索文档生成的答案...", nil
 }
-

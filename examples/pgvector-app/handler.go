@@ -84,11 +84,13 @@ func HybridSearchHandler(repo *CodeRepository) gin.HandlerFunc {
 			return
 		}
 
-		if req.Limit <= 0 {
-			req.Limit = 10
+		// 设置默认值
+		limit := 10
+		if req.Limit != nil && *req.Limit > 0 {
+			limit = *req.Limit
 		}
 
-		codes, err := repo.HybridSearch(req.QueryVector, req.Language, req.Limit)
+		codes, err := repo.HybridSearch(req.QueryVector, req.Language, limit)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -100,4 +102,3 @@ func HybridSearchHandler(repo *CodeRepository) gin.HandlerFunc {
 		})
 	}
 }
-

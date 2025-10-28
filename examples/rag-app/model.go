@@ -36,7 +36,7 @@ type RAGQueryRequest struct {
 	Question string `json:"question" binding:"required"`
 	DocType  string `json:"doc_type"`
 	Language string `json:"language"`
-	TopK     int    `json:"top_k"`
+	TopK     *int   `json:"top_k"`
 }
 
 // RAGQueryResponse RAG 查询响应
