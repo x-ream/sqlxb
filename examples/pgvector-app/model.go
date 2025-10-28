@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/x-ream/sqlxb"
+	sqlxb "github.com/x-ream/xb"
 )
 
 // CodeSnippet 代码片段模型

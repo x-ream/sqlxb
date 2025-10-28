@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/x-ream/sqlxb"
+	sqlxb "github.com/x-ream/xb"
 )
 
 // QdrantClient Qdrant 客户端

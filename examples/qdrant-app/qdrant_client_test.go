@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/x-ream/sqlxb"
+	sqlxb "github.com/x-ream/xb"
 )
 
 // 注意：这些测试需要实际的 Qdrant 环境

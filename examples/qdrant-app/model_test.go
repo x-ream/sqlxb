@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/x-ream/sqlxb"
+	sqlxb "github.com/x-ream/xb"
 )
 
 func TestDocumentTableName(t *testing.T) {

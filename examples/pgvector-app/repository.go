@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/x-ream/sqlxb"
+	sqlxb "github.com/x-ream/xb"
 )
 
 // CodeRepository 代码仓库
@@ -57,7 +57,7 @@ func (r *CodeRepository) VectorSearch(queryVector []float32, limit int) ([]*Code
 		limit = 10
 	}
 
-	sql, args, _ := sqlxb.Of(&CodeSnippet{}).
+	sql, args := sqlxb.Of(&CodeSnippet{}).
 		VectorSearch("embedding", queryVector, limit).
 		Build().
 		SqlOfVectorSearch()
@@ -76,7 +76,7 @@ func (r *CodeRepository) HybridSearch(queryVector []float32, language string, li
 		limit = 10
 	}
 
-	sql, args, _ := sqlxb.Of(&CodeSnippet{}).
+	sql, args := sqlxb.Of(&CodeSnippet{}).
 		VectorSearch("embedding", queryVector, limit).
 		Eq("language", language). // 自动过滤空字符串
 		Build().
@@ -96,7 +96,7 @@ func (r *CodeRepository) KeywordSearch(keyword, language string, page, rows int)
 		Like("content", keyword).
 		Eq("language", language).
 		Paged(func(pb *sqlxb.PageBuilder) {
-			pb.Page(int64(page)).Rows(int64(rows))
+			pb.Page(uint(page)).Rows(uint(rows))
 		})
 
 	countSql, dataSql, args, _ := builder.Build().SqlOfPage()

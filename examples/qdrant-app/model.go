@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/x-ream/sqlxb"
+	sqlxb "github.com/x-ream/xb"
 )
 
 // Document 文档模型
