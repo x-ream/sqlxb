@@ -21,7 +21,7 @@
 
 ## 🏗️ Contribution Model
 
-sqlxb follows an innovative **AI-First** development model, pioneering human-AI collaboration in open source.
+xb follows an innovative **AI-First** development model, pioneering human-AI collaboration in open source.
 
 ### Human Responsibilities
 
@@ -160,7 +160,7 @@ This demonstrates:
 
 ### AI-First Development Model
 
-sqlxb v0.8.0 proves that:
+xb v0.8.0 proves that:
 
 ```
 AI can:
@@ -254,7 +254,7 @@ Apache License 2.0
 
 ---
 
-**sqlxb = AI-First ORM for the AI Era** 🚀
+**xb = AI-First ORM for the AI Era** 🚀
 
 _Last updated: January 20, 2025_
 

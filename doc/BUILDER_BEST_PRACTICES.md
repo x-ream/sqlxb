@@ -104,7 +104,7 @@ func SearchUsers(username string, minAge int, status string) {
 }
 ```
 
-**原因**：sqlxb 有 9 层自动过滤机制，会自动忽略 nil/0/空字符串。
+**原因**：xb 有 9 层自动过滤机制，会自动忽略 nil/0/空字符串。
 
 ---
 

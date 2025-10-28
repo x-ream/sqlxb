@@ -474,7 +474,7 @@ AI 生成:
 
 ---
 
-**sqlxb = AI-First ORM，但不是 AI-Only ORM**
+**xb = AI-First ORM，但不是 AI-Only ORM**
 
 **人类 + AI = 最强组合！** 🚀
 

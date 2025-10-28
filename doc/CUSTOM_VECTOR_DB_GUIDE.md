@@ -656,7 +656,7 @@ built := xb.Of(&CodeVector{}).
 
 ```go
 // ❌ 错误：修改 xb 核心
-// sqlxb/builder_x.go
+// xb/builder_x.go
 func (x *BuilderX) MilvusX(...) {  // ❌ 不要在 xb 内添加
 }
 

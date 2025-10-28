@@ -19,7 +19,7 @@
 ### 🤖 AI 应用生态
 
 - **[AI 应用文档入口](./ai_application/README.md)** - AI/RAG/Agent 应用集成完整指南
-- **[PageIndex 集成指南](./PAGEINDEX_INTEGRATION.md)** - 结构化文档检索（Vectify AI PageIndex + sqlxb）
+- **[PageIndex 集成指南](./PAGEINDEX_INTEGRATION.md)** - 结构化文档检索（Vectify AI PageIndex + xb）
 - **[使用场景决策指南](./USE_CASE_GUIDE_ZH.md)** - 向量数据库 vs PageIndex vs 传统 SQL 选型指南
 
 **核心文档**:

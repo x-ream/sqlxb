@@ -21,7 +21,7 @@
 ### 1. 确认所有文件已暂存
 
 ```bash
-cd D:\MyDev\server\sqlxb
+cd D:\MyDev\server\xb
 
 # 查看状态
 git status

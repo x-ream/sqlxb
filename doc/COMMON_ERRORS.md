@@ -215,7 +215,7 @@ builder.Like("username", username).
         Gte("age", age)
 ```
 
-sqlxb 会自动忽略空字符串、nil 和 0 值。
+xb 会自动忽略空字符串、nil 和 0 值。
 
 ---
 

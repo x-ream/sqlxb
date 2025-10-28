@@ -206,7 +206,7 @@ JSON 构建后过滤（传统方式）:
   构建完整对象 → 检查 → 过滤 → 重新构建
   ❌ 多次遍历，效率低
 
-Builder 构建时过滤（sqlxb 方式）:
+Builder 构建时过滤（xb 方式）:
   构建即过滤 → 直接转换
   ✅ 一次遍历，高效
   ✅ 代码简洁 80%
@@ -365,7 +365,7 @@ json, _ := built.ToQdrantJSON()
 
 ---
 
-**sqlxb v0.9.0 - AI-First ORM for the Modern Era** 🚀
+**xb v0.9.0 - AI-First ORM for the Modern Era** 🚀
 
 **一个 API，多种后端（PostgreSQL, Qdrant, ...）**
 

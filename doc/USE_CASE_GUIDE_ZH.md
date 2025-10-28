@@ -1,4 +1,4 @@
-# xb 使用场景决策指南
+# xb (Extensible Builder) 使用场景决策指南
 
 **根据数据特征选择合适的技术方案**
 
@@ -20,7 +20,7 @@
 - 需要相似度匹配
 - 无明确结构
 
-**sqlxb 示例**：
+**xb 示例**：
 ```go
 xb.Of(&Product{}).
     VectorSearch("embedding", userVector, 20).
@@ -49,7 +49,7 @@ xb.Of(&Product{}).
 - 有明确的章节结构
 - 需要保留上下文
 
-**sqlxb 示例**：
+**xb 示例**：
 ```go
 xb.Of(&PageIndexNode{}).
     Eq("doc_id", docID).
@@ -76,7 +76,7 @@ xb.Of(&PageIndexNode{}).
 - 既有结构，又需语义
 - 长文档 + 精确匹配需求
 
-**sqlxb 示例**：
+**xb 示例**：
 ```go
 // 第一步：PageIndex 定位章节
 xb.Of(&PageIndexNode{}).
@@ -110,7 +110,7 @@ xb.Of(&DocumentChunk{}).
 - 精确条件匹配
 - 无需语义理解
 
-**sqlxb 示例**：
+**xb 示例**：
 ```go
 xb.Of(&User{}).
     Gte("age", 18).
@@ -253,10 +253,10 @@ xb.Of(&User{}).
 
 ---
 
-**sqlxb 支持所有场景 —— 一套 API，全部搞定！** ✅
+**xb 支持所有场景 —— 一套 API，全部搞定！** ✅
 
 ---
 
-**最后更新**: 2025-02-27  
-**版本**: v0.10.4
+**最后更新**: 2025-10-28  
+**版本**: v1.0.0
 

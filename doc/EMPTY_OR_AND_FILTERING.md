@@ -201,7 +201,7 @@ $ go test -v -run TestEmptyOr_Filtered
 
 ## 📝 过滤层级
 
-sqlxb 有 **两层过滤**：
+xb 有 **两层过滤**：
 
 ### 第 1 层：单个条件过滤（`doGLE()`）
 
@@ -341,7 +341,7 @@ json, _ := built.ToQdrantJSON()
 
 ## 🔗 相关过滤
 
-sqlxb 还有其他自动过滤：
+xb 还有其他自动过滤：
 
 | 过滤类型 | 位置 | 说明 |
 |---------|------|------|

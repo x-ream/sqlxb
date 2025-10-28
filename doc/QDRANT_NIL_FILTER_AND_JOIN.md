@@ -200,7 +200,7 @@ $ go test -v -run TestPostgreSQL_NilZeroFilter
 }
 ```
 
-**sqlxb 查询**：
+**xb 查询**：
 
 ```go
 // 一次查询获取所有数据
@@ -468,7 +468,7 @@ json, _ := built.ToQdrantJSON()
 ```
 向量检索 → Qdrant
 关系查询 → PostgreSQL
-统一 API → sqlxb
+统一 API → xb
 ```
 
 ---
@@ -492,5 +492,5 @@ json, _ := built.ToQdrantJSON()
 
 ---
 
-**sqlxb：一个 API，多种后端，AI-First！** 🎉
+**xb：一个 API，多种后端，AI-First！** 🎉
 

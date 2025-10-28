@@ -415,7 +415,7 @@ func searchCodesPaged(query string, page, pageSize int) ([]CodeVector, error) {
     
     built := xb.Of(&CodeVector{}).
         VectorSearch("embedding", queryVector, pageSize).  // ⭐ 通用向量检索
-        Paged(page, pageSize).                             // ⭐ 通用分页（sqlxb 方法）
+        Paged(page, pageSize).                             // ⭐ 通用分页（xb 方法）
         QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.Balanced()                                  // ⭐ Qdrant 专属：平衡模式
         }).

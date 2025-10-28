@@ -14,7 +14,7 @@
 ### xb 已支持的 JOIN
 
 ```go
-// sqlxb/joins.go
+// xb/joins.go
 
 const (
     inner_join      = "INNER JOIN"
@@ -759,8 +759,8 @@ NewJoin().
 
 ## 🔗 相关资源
 
-- **sqlxb JOIN 源码**: [joins.go](../joins.go)
-- **sqlxb FROM 构建器**: [from_builder.go](../from_builder.go)
+- **xb JOIN 源码**: [joins.go](../joins.go)
+- **xb FROM 构建器**: [from_builder.go](../from_builder.go)
 - **ClickHouse JOIN 文档**: https://clickhouse.com/docs/en/sql-reference/statements/select/join
 - **PostgreSQL LATERAL**: https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-LATERAL
 

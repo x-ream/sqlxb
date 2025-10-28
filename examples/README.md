@@ -153,7 +153,7 @@ go test -v
 
 ## 🔗 相关文档
 
-- [sqlxb README](../README.md)
+- [xb README](../README.md)
 - [Vector Database Quick Start](../doc/VECTOR_QUICKSTART.md)
 - [Builder Best Practices](../doc/BUILDER_BEST_PRACTICES.md)
 - [AI Application Docs](../doc/ai_application/README.md)

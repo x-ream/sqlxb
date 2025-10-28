@@ -129,7 +129,7 @@
 
 ### 一句话
 
-**sqlxb 是首个统一关系数据库和向量数据库的 AI-First ORM。**
+**xb 是首个统一关系数据库和向量数据库的 AI-First ORM。**
 
 ### 三个独特优势
 
@@ -181,11 +181,11 @@
 ```
 代码量:
 - 手动构建: 100 行
-- sqlxb:    20 行 (减少 80%)
+- xb:    20 行 (减少 80%)
 
 学习时间:
 - 学新的向量 DB: 2-3 天
-- sqlxb:          0 天 (会用 MySQL 就会用)
+- xb:          0 天 (会用 MySQL 就会用)
 ```
 
 ---
@@ -216,7 +216,7 @@ results = collection.search(
 
 ---
 
-#### sqlxb（解决方案）
+#### xb（解决方案）
 
 ```go
 // xb (Golang)
@@ -316,7 +316,7 @@ Month 3: 生态完善 → v0.8.0
 2. 查看 [QdrantX 使用指南](./QDRANT_X_USAGE.md) (15 分钟)
 3. 进行技术评估
 
-### 如果您需要扩展 sqlxb
+### 如果您需要扩展 xb
 
 1. 阅读 [自定义向量数据库支持](./CUSTOM_VECTOR_DB_GUIDE.md) (15 分钟)
 2. 阅读 [自定义 JOIN 扩展](./CUSTOM_JOINS_GUIDE.md) (15 分钟)

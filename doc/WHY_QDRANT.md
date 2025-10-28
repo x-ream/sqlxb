@@ -17,7 +17,7 @@
 ### 核心理由
 
 ```
-sqlxb 是面向"生产级应用开发"的 ORM
+xb 是面向"生产级应用开发"的 ORM
   ↓
 需要"生产级向量数据库"
   ↓
@@ -129,7 +129,7 @@ Pinecone:
 
 ---
 
-## 🎯 为什么 Qdrant 适合 sqlxb？
+## 🎯 为什么 Qdrant 适合 xb？
 
 ### 对比分析
 
@@ -151,7 +151,7 @@ Pinecone:
 ### 1. 定位契合
 
 ```
-sqlxb 定位:
+xb 定位:
   AI-First ORM for 生产级应用
 
 Qdrant 定位:
@@ -242,7 +242,7 @@ Qdrant 能力:
 
 ## 🚫 常见误区
 
-### 误区 1: "LanceDB 支持 SQL，应该更适合 sqlxb"
+### 误区 1: "LanceDB 支持 SQL，应该更适合 xb"
 
 ```
 错误理解:
@@ -462,7 +462,7 @@ Qdrant 能力:
 ### 1. 定位匹配
 
 ```
-sqlxb:
+xb:
   AI-First ORM for 生产级应用开发
 
 Qdrant:
@@ -476,7 +476,7 @@ Qdrant:
 ### 2. 场景匹配
 
 ```
-sqlxb 目标场景:
+xb 目标场景:
   政府/企业内部管理系统
   微服务架构
   Golang 后端
@@ -500,7 +500,7 @@ Qdrant 擅长场景:
 
 Golang 微服务:
   ├── Gin/Echo（Web 框架）
-  ├── sqlxb（ORM）⭐
+  ├── xb（ORM）⭐
   ├── MySQL（业务数据）
   ├── Qdrant（向量数据）⭐
   └── Redis（缓存）
@@ -552,7 +552,7 @@ Golang 微服务:
    → Pinecone
 ```
 
-**sqlxb 用户 99% 是场景 2 → Qdrant ⭐**
+**xb 用户 99% 是场景 2 → Qdrant ⭐**
 
 ---
 
@@ -566,7 +566,7 @@ Golang 微服务:
 你的工具:
   Python + Pandas + Jupyter + LanceDB
 
-不需要 sqlxb:
+不需要 xb:
   你不写 Golang 生产代码
 ```
 
@@ -578,7 +578,7 @@ Golang 微服务:
 你的工具:
   Golang + Gin + xb + Qdrant ⭐
 
-需要 sqlxb:
+需要 xb:
   类型安全的向量查询
   自动过滤
   混合查询优化
@@ -596,7 +596,7 @@ Golang 微服务:
 你的选择:
   Milvus（性能最强）
   
-可能不需要 sqlxb:
+可能不需要 xb:
   自己封装 Milvus SDK
   或者，等 xb 支持 Milvus（v1.0+）
 ```
@@ -634,7 +634,7 @@ Golang 微服务:
 ### 2. 未来可以替换
 
 ```
-sqlxb 架构:
+xb 架构:
 
 用户代码（不变）:
   xb.Of(&CodeVector{}).
@@ -705,7 +705,7 @@ sqlxb 架构:
 
 **LanceDB - 数据工作者的向量平台**
 
-**sqlxb + Qdrant = 生产级 AI 应用的最佳组合** 🚀
+**xb + Qdrant = 生产级 AI 应用的最佳组合** 🚀
 
 **不要纠结，快速开始！** ✨
 

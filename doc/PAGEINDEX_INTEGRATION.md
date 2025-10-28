@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档介绍如何将 **Vectify AI PageIndex** 与 **sqlxb** 结合，构建结构化文档检索系统。
+本文档介绍如何将 **Vectify AI PageIndex** 与 **xb** 结合，构建结构化文档检索系统。
 
 ---
 
@@ -57,7 +57,7 @@ PageIndex:
 第一步（Python）：
   PDF → PageIndex 处理 → JSON 结构
 
-第二步（Golang + sqlxb）：
+第二步（Golang + xb）：
   JSON → 扁平化 → PostgreSQL 存储
 
 第三步（查询）：
@@ -519,7 +519,7 @@ PageIndex 识别：
   - Chapter 3: Risk Management
 
 查询："2024 年财务稳定性如何？"
-  → sqlxb: 查找 title 包含 "Financial Stability"
+  → xb: 查找 title 包含 "Financial Stability"
   → 返回 Chapter 2 及其子节点
   → LLM: 基于这些节点内容回答
 ```
@@ -539,7 +539,7 @@ PageIndex 识别：
     - 2.2 GraphQL
 
 查询："如何安装？"
-  → sqlxb: 查找 level=1, title 包含 "Installation"
+  → xb: 查找 level=1, title 包含 "Installation"
   → 返回 Part 1 及所有子节点
   → LLM: 提取具体安装步骤
 ```
@@ -559,7 +559,7 @@ PageIndex 识别：
 - [GitHub Repository](https://github.com/VectifyAI/PageIndex)
 - [技术博客]（待更新）
 
-### sqlxb
+### xb
 
 - [Builder Best Practices](./BUILDER_BEST_PRACTICES.md)
 - [RAG Best Practices](./ai_application/RAG_BEST_PRACTICES.md)

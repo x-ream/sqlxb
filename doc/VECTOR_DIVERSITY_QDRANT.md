@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-`sqlxb v0.9.x` 添加了向量结果多样性支持和 Qdrant JSON 生成功能。
+`xb v0.9.x` 添加了向量结果多样性支持和 Qdrant JSON 生成功能。
 
 **核心特性**：
 - ✅ 三种多样性策略：哈希去重、最小距离、MMR 算法
@@ -624,7 +624,7 @@ ToQdrantRequest() (*QdrantSearchRequest, error)
 
 ## 🎊 总结
 
-**sqlxb 向量多样性查询**：
+**xb 向量多样性查询**：
 
 ✅ 解决了查询结果缺乏多样性的问题  
 ✅ 三种策略满足不同场景  
