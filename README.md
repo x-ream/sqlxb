@@ -1,4 +1,4 @@
-# xb  
+# xb  (Extensible Builder)
 [![OSCS Status](https://www.oscs1024.com/platform/badge/fndome/xb.svg?size=small)](https://www.oscs1024.com/project/fndome/xb?ref=badge_small)
 ![workflow build](https://github.com/fndome/xb/actions/workflows/go.yml/badge.svg)
 [![GitHub tag](https://img.shields.io/github/tag/fndome/xb.svg?style=flat)](https://github.com/fndome/xb/tags)
@@ -8,7 +8,7 @@
 
 **AI-First SQL Builder** for Relational and Vector Databases
 
-A tool of sql query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx), [gorp](https://github.com/go-gorp/gorp),
+A tool of sql or json query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like [xorm](https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
@@ -17,7 +17,7 @@ also can build json for some json parameter db, like [Qdrant](https://github.com
 
 ---
 
-## 🚀 NEW: Qdrant Advanced API (v0.10.0)
+## 🚀 NEW: Qdrant Advanced API (since v0.10.0)
 
 **The first unified ORM for both Relational and Vector Databases!**
 
