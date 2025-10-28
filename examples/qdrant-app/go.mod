@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/fndome/xb v0.11.0
+	github.com/fndome/xb v1.0.0
 )
 
 replace github.com/fndome/xb => ../..
