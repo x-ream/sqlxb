@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档介绍如何将 sqlxb 集成到 AI Agent 系统中，使 AI 能够安全、高效地查询和操作数据库。
+本文档介绍如何将 xb 集成到 AI Agent 系统中，使 AI 能够安全、高效地查询和操作数据库。
 
 ## 🎯 核心特性
 
@@ -20,7 +20,7 @@ package main
 
 import (
     "encoding/json"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 type User struct {
@@ -76,9 +76,9 @@ func GenerateSearchUserSchema() map[string]interface{} {
 
 // 执行 AI Agent 的查询请求
 func ExecuteSearchUsers(params map[string]interface{}) (string, []interface{}, error) {
-    builder := sqlxb.Of(&User{})
+    builder := xb.Of(&User{})
 
-    // ⭐ sqlxb 自动过滤 nil/0/空字符串，无需判断
+    // ⭐ xb 自动过滤 nil/0/空字符串，无需判断
     username, _ := params["username"].(string)
     email, _ := params["email"].(string)
     status, _ := params["status"].(string)
@@ -91,7 +91,7 @@ func ExecuteSearchUsers(params map[string]interface{}) (string, []interface{}, e
     }
 
     built := builder.
-        Like("username", username).  // ⭐ sqlxb 自动添加 %username%
+        Like("username", username).  // ⭐ xb 自动添加 %username%
         Eq("email", email).
         Eq("status", status).
         Gte("age", int(minAge)).
@@ -347,10 +347,10 @@ func ExecuteRAGSearch(params map[string]interface{}, embeddingFunc func(string) 
     }
 
     // 构建查询
-    builder := sqlxb.Of(&DocumentChunk{}).
+    builder := xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", queryVector, topK)
 
-    // ⭐ sqlxb 自动过滤 nil/0/空字符串，无需判断
+    // ⭐ xb 自动过滤 nil/0/空字符串，无需判断
     docType, _ := params["doc_type"].(string)
     lang, _ := params["language"].(string)
     
@@ -359,7 +359,7 @@ func ExecuteRAGSearch(params map[string]interface{}, embeddingFunc func(string) 
 
     // 构建并生成 Qdrant JSON
     built := builder.
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(float32(scoreThreshold))
         }).
         Build()
@@ -458,7 +458,7 @@ func GenerateOpenAPISpec() map[string]interface{} {
         "openapi": "3.0.0",
         "info": map[string]interface{}{
             "title":       "User Search API",
-            "description": "AI-powered user search API built with sqlxb",
+            "description": "AI-powered user search API built with xb",
             "version":     "1.0.0",
         },
         "paths": map[string]interface{}{
@@ -593,7 +593,7 @@ func TestAIAgentQuery(t *testing.T) {
 
 ### 4. 安全控制
 - 永远不要执行 DELETE/UPDATE（除非明确需要）
-- 使用参数化查询（sqlxb 默认支持）
+- 使用参数化查询（xb 默认支持）
 - 实现访问控制（RBAC）
 
 ## 📚 参考资源

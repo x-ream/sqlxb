@@ -1,4 +1,4 @@
-// Copyright 2020 io.xream.sqlxb
+// Copyright 2025 me.fndo.xb
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -20,7 +20,7 @@ package xb
 // 与 CondBuilder.VectorSearch() 功能相同，但返回 *BuilderX 用于链式调用
 //
 // 示例:
-//   sqlxb.Of(&CodeVector{}).
+//   xb.Of(&CodeVector{}).
 //       Eq("language", "golang").
 //       VectorSearch("embedding", queryVector, 10).
 //       Build().
@@ -34,7 +34,7 @@ func (x *BuilderX) VectorSearch(field string, queryVector Vector, topK int) *Bui
 //
 // 示例:
 //   builder.VectorSearch("embedding", vec, 10).
-//       VectorDistance(sqlxb.L2Distance)
+//       VectorDistance(xb.L2Distance)
 func (x *BuilderX) VectorDistance(metric VectorDistance) *BuilderX {
 	x.CondBuilder.VectorDistance(metric)
 	return x
@@ -58,9 +58,9 @@ func (x *BuilderX) VectorDistanceFilter(
 // ⭐ 核心：如果数据库不支持，会被自动忽略
 //
 // 示例:
-//   sqlxb.Of(&CodeVector{}).
+//   xb.Of(&CodeVector{}).
 //       VectorSearch("embedding", vec, 20).
-//       WithDiversity(sqlxb.DiversityByHash, "semantic_hash").
+//       WithDiversity(xb.DiversityByHash, "semantic_hash").
 //       Build()
 func (x *BuilderX) WithDiversity(strategy DiversityStrategy, params ...interface{}) *BuilderX {
 	x.CondBuilder.WithDiversity(strategy, params...)
@@ -70,7 +70,7 @@ func (x *BuilderX) WithDiversity(strategy DiversityStrategy, params ...interface
 // WithMinDistance 设置最小距离多样性（BuilderX 扩展）
 //
 // 示例:
-//   sqlxb.Of(&CodeVector{}).
+//   xb.Of(&CodeVector{}).
 //       VectorSearch("embedding", vec, 20).
 //       WithMinDistance(0.3).
 //       Build()
@@ -82,7 +82,7 @@ func (x *BuilderX) WithMinDistance(minDistance float32) *BuilderX {
 // WithHashDiversity 设置哈希去重（BuilderX 扩展）
 //
 // 示例:
-//   sqlxb.Of(&CodeVector{}).
+//   xb.Of(&CodeVector{}).
 //       VectorSearch("embedding", vec, 20).
 //       WithHashDiversity("semantic_hash").
 //       Build()
@@ -94,7 +94,7 @@ func (x *BuilderX) WithHashDiversity(hashField string) *BuilderX {
 // WithMMR 设置 MMR 算法（BuilderX 扩展）
 //
 // 示例:
-//   sqlxb.Of(&CodeVector{}).
+//   xb.Of(&CodeVector{}).
 //       VectorSearch("embedding", vec, 20).
 //       WithMMR(0.5).
 //       Build()

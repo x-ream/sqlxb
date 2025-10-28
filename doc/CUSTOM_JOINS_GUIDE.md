@@ -2,7 +2,7 @@
 
 ## 🎯 概述
 
-`sqlxb` 提供了基础的 JOIN 类型，但你可以扩展自定义 JOIN 以支持：
+`xb` 提供了基础的 JOIN 类型，但你可以扩展自定义 JOIN 以支持：
 - 特定数据库的 JOIN 语法（如 ClickHouse 的 `GLOBAL JOIN`, `ASOF JOIN`）
 - 业务特定的 JOIN 逻辑
 - 性能优化的 JOIN 变体
@@ -11,7 +11,7 @@
 
 ## 📚 内置 JOIN 类型
 
-### sqlxb 已支持的 JOIN
+### xb 已支持的 JOIN
 
 ```go
 // sqlxb/joins.go
@@ -62,13 +62,13 @@ func ANTI_JOIN() string {
 
 // 使用
 import (
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
     "your-project/sqlx_ext"
 )
 
 // ⭐ 自定义 JOIN 可以直接使用
-sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, sqlx_ext.LATERAL_JOIN)
     })
 ```
@@ -82,22 +82,22 @@ sqlxb.Of(&Order{}).
 package sqlx_ext
 
 // HASH_JOIN 哈希连接（可指定算法）
-func HASH_JOIN(algorithm string) sqlxb.JOIN {
+func HASH_JOIN(algorithm string) xb.JOIN {
     return func() string {
         return fmt.Sprintf("/*+ HASH_JOIN(%s) */ INNER JOIN", algorithm)
     }
 }
 
 // INDEX_JOIN 索引连接（指定索引）
-func INDEX_JOIN(indexName string) sqlxb.JOIN {
+func INDEX_JOIN(indexName string) xb.JOIN {
     return func() string {
         return fmt.Sprintf("/*+ INDEX_JOIN(%s) */ INNER JOIN", indexName)
     }
 }
 
 // 使用
-sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, sqlx_ext.HASH_JOIN("user_idx"))
     })
 ```
@@ -111,7 +111,7 @@ sqlxb.Of(&Order{}).
 package sqlx_ext
 
 // SmartJoin 根据数据量自动选择 JOIN 类型
-func SmartJoin(leftSize, rightSize int64) sqlxb.JOIN {
+func SmartJoin(leftSize, rightSize int64) xb.JOIN {
     return func() string {
         // 小表驱动
         if leftSize < 1000 && rightSize > 1000000 {
@@ -132,8 +132,8 @@ func SmartJoin(leftSize, rightSize int64) sqlxb.JOIN {
 leftCount := getOrderCount()
 rightCount := getUserCount()
 
-sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, sqlx_ext.SmartJoin(leftCount, rightCount))
     })
 ```
@@ -150,7 +150,7 @@ sqlxb.Of(&Order{}).
 // ClickHouse 专属 JOIN
 package clickhouse_ext
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 // ASOF_LEFT ClickHouse ASOF LEFT JOIN
 // 用于时序数据：找到时间戳最接近且不晚于的记录
@@ -181,8 +181,8 @@ func (Trade) TableName() string { return "trades" }
 func (Order) TableName() string { return "orders" }
 
 // 查询：找到每个订单时刻最接近的交易价格
-sql, args := sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+sql, args := xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&Trade{}, clickhouse_ext.ASOF_LEFT).
             On(&Order{}, "symbol", &Trade{}, "symbol").         // 连接条件 1
             On(&Order{}, "order_time", &Trade{}, "timestamp")   // 连接条件 2（时间）
@@ -229,9 +229,9 @@ func getRecentOrders(userIDs []int64) {
     WHERE u.id IN (?)
     `
     
-    // sqlxb 可能的未来支持：
-    // sqlxb.Of(&User{}).
-    //     SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+    // xb 可能的未来支持：
+    // xb.Of(&User{}).
+    //     SourceBuilder.From(func(fb *xb.FromBuilder) {
     //         fb.SubQuery(&Order{}, postgres_ext.LATERAL, func(sb *SubQueryBuilder) {
     //             sb.Eq("user_id", fb.Field("id")).
     //                 OrderBy("created_at", DESC).
@@ -262,8 +262,8 @@ func GLOBAL_LEFT() string {
 }
 
 // 使用
-sql, args := sqlxb.Of(&DistributedOrder{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+sql, args := xb.Of(&DistributedOrder{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, clickhouse_ext.GLOBAL_INNER).
             On(&DistributedOrder{}, "user_id", &User{}, "id")
     }).
@@ -287,7 +287,7 @@ sql, args := sqlxb.Of(&DistributedOrder{}).
 // your_project/sqlx_ext/join_builder.go
 package sqlx_ext
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 // JoinBuilderX JOIN 专属构建器
 type JoinBuilderX struct {
@@ -325,7 +325,7 @@ func (jb *JoinBuilderX) UseMerge() *JoinBuilderX {
 }
 
 // Build 构建 JOIN 函数
-func (jb *JoinBuilderX) Build() sqlxb.JOIN {
+func (jb *JoinBuilderX) Build() xb.JOIN {
     return func() string {
         if len(jb.hints) > 0 {
             hints := strings.Join(jb.hints, ", ")
@@ -341,8 +341,8 @@ joinFunc := NewJoinBuilder().
     WithHint("PARALLEL").   // ⭐ 并行执行
     Build()
 
-sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, joinFunc)
     })
 
@@ -361,11 +361,11 @@ sqlxb.Of(&Order{}).
 // your_project/business/order_joins.go
 package business
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 // ORDER_DETAIL_JOIN 订单详情 JOIN（业务特定）
 // 自动过滤已删除的详情
-func ORDER_DETAIL_JOIN() sqlxb.JOIN {
+func ORDER_DETAIL_JOIN() xb.JOIN {
     return func() string {
         return `LEFT JOIN order_details 
                 ON orders.id = order_details.order_id 
@@ -374,7 +374,7 @@ func ORDER_DETAIL_JOIN() sqlxb.JOIN {
 }
 
 // WITH_VALID_USER 只连接有效用户
-func WITH_VALID_USER() sqlxb.JOIN {
+func WITH_VALID_USER() xb.JOIN {
     return func() string {
         return `INNER JOIN users 
                 ON orders.user_id = users.id 
@@ -383,8 +383,8 @@ func WITH_VALID_USER() sqlxb.JOIN {
 }
 
 // 使用
-sql, args := sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+sql, args := xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, business.WITH_VALID_USER).
             From(&OrderDetail{}, business.ORDER_DETAIL_JOIN)
     }).
@@ -401,12 +401,12 @@ sql, args := sqlxb.Of(&Order{}).
 package performance
 
 import (
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
     "time"
 )
 
 // TimeBasedJoin 根据时间智能选择 JOIN 策略
-func TimeBasedJoin(isPeakHour bool) sqlxb.JOIN {
+func TimeBasedJoin(isPeakHour bool) xb.JOIN {
     return func() string {
         if isPeakHour {
             // 高峰期：使用索引 JOIN，减少锁
@@ -421,8 +421,8 @@ func TimeBasedJoin(isPeakHour bool) sqlxb.JOIN {
 // 使用
 isPeak := time.Now().Hour() >= 18 && time.Now().Hour() <= 22
 
-sql, args := sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+sql, args := xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, performance.TimeBasedJoin(isPeak))
     }).
     Build().
@@ -437,7 +437,7 @@ sql, args := sqlxb.Of(&Order{}).
 // your_project/database/mysql_joins.go
 package database
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 // STRAIGHT_JOIN MySQL 强制按顺序 JOIN
 func STRAIGHT_JOIN() string {
@@ -445,15 +445,15 @@ func STRAIGHT_JOIN() string {
 }
 
 // FORCE_INDEX MySQL 强制使用索引
-func FORCE_INDEX(indexName string) sqlxb.JOIN {
+func FORCE_INDEX(indexName string) xb.JOIN {
     return func() string {
         return fmt.Sprintf("INNER JOIN FORCE INDEX (%s)", indexName)
     }
 }
 
 // 使用
-sql, args := sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+sql, args := xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, database.FORCE_INDEX("idx_user_id"))
     }).
     Build().
@@ -477,7 +477,7 @@ package sqlx_ext
 
 import (
     "fmt"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
     "strings"
 )
 
@@ -535,7 +535,7 @@ func (jb *JoinBuilderX) WithCondition(condition string) *JoinBuilderX {
 }
 
 // Build 构建 JOIN 函数
-func (jb *JoinBuilderX) Build() sqlxb.JOIN {
+func (jb *JoinBuilderX) Build() xb.JOIN {
     return func() string {
         var parts []string
         
@@ -564,8 +564,8 @@ customJoin := NewJoin().
     UseIndex("idx_user_id").
     Build()
 
-sql, args := sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+sql, args := xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, customJoin)
     }).
     Build().
@@ -587,7 +587,7 @@ sql, args := sqlxb.Of(&Order{}).
 // your_project/constants/joins.go
 package constants
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 // 业务特定的 JOIN 常量
 var (
@@ -603,8 +603,8 @@ var (
 )
 
 // 使用
-sql, args := sqlxb.Of(&Order{}).
-    SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+sql, args := xb.Of(&Order{}).
+    SourceBuilder.From(func(fb *xb.FromBuilder) {
         fb.From(&User{}, constants.ORDER_USER_JOIN)
     })
 ```
@@ -659,12 +659,12 @@ package sqlx_ext
 
 import (
     "testing"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 func TestCustomJoin_LATERAL(t *testing.T) {
-    sql, args := sqlxb.Of(&User{}).
-        SourceBuilder.From(func(fb *sqlxb.FromBuilder) {
+    sql, args := xb.Of(&User{}).
+        SourceBuilder.From(func(fb *xb.FromBuilder) {
             fb.From(&Order{}, LATERAL_JOIN)
         }).
         Build().
@@ -720,7 +720,7 @@ func LATERAL_JOIN() string {
 #### 2. 参数化闭包（中等）
 
 ```go
-func HASH_JOIN(indexName string) sqlxb.JOIN {
+func HASH_JOIN(indexName string) xb.JOIN {
     return func() string {
         return fmt.Sprintf("/*+ HASH_JOIN(%s) */ INNER JOIN", indexName)
     }
@@ -748,9 +748,9 @@ NewJoin().
 ### 核心原则
 
 ```
-1. ✅ 不修改 sqlxb 核心代码
+1. ✅ 不修改 xb 核心代码
 2. ✅ 在自己的包内扩展
-3. ✅ 遵循 sqlxb 的函数式风格
+3. ✅ 遵循 xb 的函数式风格
 4. ✅ 提供清晰的文档和示例
 5. ✅ 编写完整的测试
 ```
@@ -766,6 +766,6 @@ NewJoin().
 
 ---
 
-**通过扩展而非修改，让 sqlxb 适应你的业务场景！** 🚀
+**通过扩展而非修改，让 xb 适应你的业务场景！** 🚀
 
 

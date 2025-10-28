@@ -1,8 +1,8 @@
 # xb  
-[![OSCS Status](https://www.oscs1024.com/platform/badge/x-ream/xb.svg?size=small)](https://www.oscs1024.com/project/x-ream/xb?ref=badge_small)
-![workflow build](https://github.com/x-ream/xb/actions/workflows/go.yml/badge.svg)
-[![GitHub tag](https://img.shields.io/github/tag/x-ream/xb.svg?style=flat)](https://github.com/x-ream/xb/tags)
-[![Go Report Card](https://goreportcard.com/badge/github.com/x-ream/xb)](https://goreportcard.com/report/github.com/x-ream/xb)
+[![OSCS Status](https://www.oscs1024.com/platform/badge/fndome/xb.svg?size=small)](https://www.oscs1024.com/project/fndome/xb?ref=badge_small)
+![workflow build](https://github.com/fndome/xb/actions/workflows/go.yml/badge.svg)
+[![GitHub tag](https://img.shields.io/github/tag/fndome/xb.svg?style=flat)](https://github.com/fndome/xb/tags)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fndome/xb)](https://goreportcard.com/report/github.com/fndome/xb)
 
 > 🔄 **Project Renamed (v0.10.5)**: `sqlxb` → `xb`  
 > 📖 **[Migration Guide](./MIGRATION.md)** - Update your `go.mod` and imports in 2 minutes
@@ -31,10 +31,10 @@ also can build json for some json parameter db, like [Qdrant](https://github.com
 
 ```go
 // MySQL (existing)
-sqlxb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
+xb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
 
 // VectorDB (v0.10.0) - Same API!
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).
     QdrantX(func(qx *QdrantBuilderX) {
@@ -99,8 +99,8 @@ This makes xb **one of the first major Go ORM projects successfully maintained b
     var Db *sqlx.DB
     ....
 
-    var c Cat
-	builder := sqlxb.Of(&c).Gt("id", 10000).And(func(cb *CondBuilder) {
+	var c Cat
+	builder := xb.Of(&c).Gt("id", 10000).And(func(cb *CondBuilder) {
 		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold)
     })
 
@@ -151,7 +151,7 @@ Please check [CONTRIBUTING](./doc/CONTRIBUTING.md)
 ```Go
 
 import (
-    . "github.com/x-ream/xb"
+    . "github.com/fndome/xb"
 )
 
 type Cat struct {
@@ -170,8 +170,8 @@ func (*Cat) TableName() string {
 }
 
 // IsSold, Price, fields can be zero, must be pointer, like Java Boolean....
-// sqlxb has func: Bool(true), Int(v) ....
-// sqlxb no relect, not support omitempty, should rewrite ro, dto
+// xb has func: Bool(true), Int(v) ....
+// xb no relect, not support omitempty, should rewrite ro, dto
 type CatRo struct {
 	Name   string   `json:"name, string"`
 	IsSold *bool    `json:"isSold, *bool"`
@@ -253,7 +253,7 @@ func main() {
 
 ```Go
 import (
-        . "github.com/x-ream/xb"
+        . "github.com/fndome/xb"
     )
     
 func main() {
@@ -311,7 +311,7 @@ Characteristics:
   - No clear structure
 
 Example:
-  sqlxb.Of(&Product{}).
+  xb.Of(&Product{}).
       VectorSearch("embedding", userVector, 20).
       Eq("category", "electronics")
 ```
@@ -336,7 +336,7 @@ Characteristics:
   - Context preservation required
 
 Example:
-  sqlxb.Of(&PageIndexNode{}).
+  xb.Of(&PageIndexNode{}).
       Eq("doc_id", docID).
       Like("title", "Financial Stability").
       Eq("level", 1)
@@ -361,12 +361,12 @@ Characteristics:
 
 Example:
   // Step 1: PageIndex locates chapter
-  sqlxb.Of(&PageIndexNode{}).
+  xb.Of(&PageIndexNode{}).
       Like("title", "Investment Advice").
       Eq("level", 2)
   
   // Step 2: Vector search within chapter
-  sqlxb.Of(&DocumentChunk{}).
+  xb.Of(&DocumentChunk{}).
       VectorSearch("embedding", queryVector, 10).
       Gte("page", chapterStartPage).
       Lte("page", chapterEndPage)
@@ -391,7 +391,7 @@ Characteristics:
   - No semantic understanding needed
 
 Example:
-  sqlxb.Of(&User{}).
+  xb.Of(&User{}).
       Gte("age", 18).
       Eq("status", "active").
       Paged(...)

@@ -11,9 +11,9 @@
 
 ## 基础问题
 
-### Q1: sqlxb 与传统 ORM 有什么区别？
+### Q1: xb 与传统 ORM 有什么区别？
 
-**A**: sqlxb 的核心区别：
+**A**: xb 的核心区别：
 
 1. **AI-First 设计**
    - 函数式 API，易于 AI 理解和生成
@@ -27,14 +27,14 @@
 
 3. **向量检索能力**
    ```go
-   // sqlxb
-   sqlxb.Of(&Doc{}).VectorSearch("embedding", vector).Build()
+   // xb
+   xb.Of(&Doc{}).VectorSearch("embedding", vector).Build()
    
    // 传统 ORM
    // ❌ 不支持向量检索
    ```
 
-### Q2: sqlxb 适合什么场景？
+### Q2: xb 适合什么场景？
 
 **A**: 推荐使用场景：
 
@@ -49,7 +49,7 @@
 - 超复杂的 JOIN 查询
 - 遗留系统迁移
 
-### Q3: sqlxb 的学习曲线如何？
+### Q3: xb 的学习曲线如何？
 
 **A**: 
 
@@ -128,7 +128,7 @@ Latency (P95): < 50ms  (延迟)
 2. **混合检索**
    ```go
    // 结合标量过滤
-   sqlxb.Of(&Doc{}).
+   xb.Of(&Doc{}).
        VectorSearch("embedding", vec).
        Eq("category", "tech").  // 过滤类别
        Gte("score", 0.7)        // 质量过滤
@@ -314,9 +314,9 @@ chunks := SemanticChunk(doc)  // 自动识别段落
 
 快速示例：
 ```python
-from langchain.vectorstores import SqlxbVectorStore
+from langchain.vectorstores import XbVectorStore
 
-vector_store = SqlxbVectorStore(
+vector_store = XbVectorStore(
     backend_url="http://localhost:8080",
     embedding=OpenAIEmbeddings()
 )
@@ -378,7 +378,7 @@ vector_store = SqlxbVectorStore(
 4. 检查过滤条件
    ```go
    // 移除所有过滤，只测试向量检索
-   sqlxb.Of(&Doc{}).VectorSearch("embedding", vec)
+   xb.Of(&Doc{}).VectorSearch("embedding", vec)
    ```
 
 ### Q18: Embedding API 调用失败
@@ -431,18 +431,18 @@ rerankTime := measureRerank()
 2. 向量检索 → 优化索引
 3. 网络延迟 → 本地部署
 
-### Q20: 如何调试 sqlxb 查询？
+### Q20: 如何调试 xb 查询？
 
 **方法 1: 打印 SQL**
 ```go
-sql, args, _ := sqlxb.Of(&User{}).Eq("status", "active").Build()
+sql, args, _ := xb.Of(&User{}).Eq("status", "active").Build()
 fmt.Printf("SQL: %s\nArgs: %+v\n", sql, args)
 ```
 
 **方法 2: 使用 Interceptor**
 ```go
-sqlxb.RegisterInterceptor(func(sql string, args []interface{}) {
-    log.Printf("[SQLXB] %s | %+v", sql, args)
+xb.RegisterInterceptor(func(sql string, args []interface{}) {
+    log.Printf("[XB] %s | %+v", sql, args)
 })
 ```
 
@@ -455,8 +455,8 @@ fmt.Printf("Qdrant Query: %s\n", json)
 
 ## 🙋 还有问题？
 
-- 查看 [GitHub Issues](https://github.com/x-ream/xb/issues)
-- 加入 [GitHub Discussions](https://github.com/x-ream/xb/discussions)
+- 查看 [GitHub Issues](https://github.com/fndome/xb/issues)
+- 加入 [GitHub Discussions](https://github.com/fndome/xb/discussions)
 - 阅读完整文档 [README.md](./README.md)
 
 ---

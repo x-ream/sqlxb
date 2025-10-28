@@ -11,7 +11,7 @@
 
 ## 📋 概述
 
-NL2SQL 允许用户用自然语言描述查询需求，自动转换为 sqlxb 查询代码。
+NL2SQL 允许用户用自然语言描述查询需求，自动转换为 xb 查询代码。
 
 ## 🎯 基础实现
 
@@ -78,20 +78,20 @@ func (g *QueryGenerator) GenerateQuery(ctx context.Context, naturalQuery string)
 func (g *QueryGenerator) buildPrompt(query string) string {
     schemaJSON, _ := json.MarshalIndent(g.schema, "", "  ")
     
-    return fmt.Sprintf(`根据以下数据库表结构，将自然语言查询转换为 sqlxb 查询代码。
+    return fmt.Sprintf(`根据以下数据库表结构，将自然语言查询转换为 xb 查询代码。
 
 表结构:
 %s
 
 自然语言查询: %s
 
-请生成 Go 代码（只包含 sqlxb 查询部分）:`, schemaJSON, query)
+请生成 Go 代码（只包含 xb 查询部分）:`, schemaJSON, query)
 }
 
-const systemPrompt = `你是一个数据库查询专家。你的任务是将自然语言查询转换为 sqlxb 查询代码。
+const systemPrompt = `你是一个数据库查询专家。你的任务是将自然语言查询转换为 xb 查询代码。
 
 规则:
-1. 只生成 sqlxb 查询代码，不要包含其他内容
+1. 只生成 xb 查询代码，不要包含其他内容
 2. 使用正确的字段名和类型
 3. 对于模糊匹配使用 Like()
 4. 对于精确匹配使用 Eq()
@@ -101,10 +101,10 @@ const systemPrompt = `你是一个数据库查询专家。你的任务是将自�
 
 示例:
 输入: "查找所有活跃用户"
-输出: sqlxb.Of(&User{}).Eq("status", "active").Limit(100).Build()
+输出: xb.Of(&User{}).Eq("status", "active").Limit(100).Build()
 
 输入: "查找年龄在18到30岁之间的用户"
-输出: sqlxb.Of(&User{}).Gte("age", 18).Lte("age", 30).Limit(100).Build()
+输出: xb.Of(&User{}).Gte("age", 18).Lte("age", 30).Limit(100).Build()
 `
 ```
 
@@ -167,7 +167,7 @@ func main() {
 
 ```go
 func (g *QueryGenerator) GenerateVectorQuery(ctx context.Context, naturalQuery string) (string, error) {
-    prompt := fmt.Sprintf(`将自然语言查询转换为 sqlxb 向量检索查询。
+    prompt := fmt.Sprintf(`将自然语言查询转换为 xb 向量检索查询。
 
 查询: %s
 
@@ -179,7 +179,7 @@ func (g *QueryGenerator) GenerateVectorQuery(ctx context.Context, naturalQuery s
 
 示例输出:
 queryVector, _ := embedText(query)
-built := sqlxb.Of(&DocumentChunk{}).
+built := xb.Of(&DocumentChunk{}).
     VectorSearch("embedding", queryVector, 10).
     Eq("language", "zh").
     Build()
@@ -272,12 +272,12 @@ func NL2SQLDemo() {
     // 输出:
     // queryVector, _ := embedText("人工智能")
     // sevenDaysAgo := time.Now().AddDate(0, 0, -7)
-    // result, _ := sqlxb.Of(&Article{}).
+    // result, _ := xb.Of(&Article{}).
     //     VectorSearch("embedding", queryVector).
     //     Eq("language", "zh").
     //     Eq("category", "tech").
     //     Gte("published_at", sevenDaysAgo).
-    //     QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+    //     QdrantX(func(qx *xb.QdrantBuilderX) {
     //         qx.ScoreThreshold(0.7)
     //     }).
     //     Build().ToQdrantJSON()

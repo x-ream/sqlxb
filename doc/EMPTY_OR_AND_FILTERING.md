@@ -41,7 +41,7 @@ func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuil
 
 ```
 用户代码:
-  sqlxb.Of(&User{}).
+  xb.Of(&User{}).
       Eq("language", "golang").  // ✅ 有效
       Or(func(cb *CondBuilder) {
           cb.Eq("category", "")   // ⭐ 空字符串
@@ -283,7 +283,7 @@ if category != "" || tag1 != "" || tag2 != "" {
     })
 }
 
-✅ sqlxb 自动过滤（简洁）:
+✅ xb 自动过滤（简洁）:
 builder.Or(func(cb *CondBuilder) {
     cb.Eq("category", category)  // 自动过滤
     cb.Eq("tag1", tag1)          // 自动过滤
@@ -310,7 +310,7 @@ builder.Or(func(cb *CondBuilder) {
 ### 3. Qdrant JSON 也受益
 
 ```go
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Or(func(cb *CondBuilder) {
         cb.Eq("category", "")
@@ -380,5 +380,5 @@ sqlxb 还有其他自动过滤：
 
 ---
 
-**这就是 sqlxb AI-First 设计的体现：用户只需关注业务逻辑，底层自动处理各种边界情况！** ✨
+**这就是 xb AI-First 设计的体现：用户只需关注业务逻辑，底层自动处理各种边界情况！** ✨
 

@@ -46,5 +46,5 @@
 
 ---
 
-**升级**：`go get github.com/x-ream/xb@v0.9.2`
+**升级**：`go get github.com/fndome/xb@v0.9.2`
 

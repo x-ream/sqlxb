@@ -1,6 +1,6 @@
 # RAG 检索应用完整示例
 
-这是一个使用 sqlxb 构建的完整 RAG (Retrieval Augmented Generation) 应用，展示如何将文档检索与 LLM 结合。
+这是一个使用 xb 构建的完整 RAG (Retrieval Augmented Generation) 应用，展示如何将文档检索与 LLM 结合。
 
 ## 📋 功能
 
@@ -13,7 +13,7 @@
 ## 🏗️ 架构
 
 ```
-用户查询 → 向量化 → sqlxb 检索 → 重排序 → LLM 生成 → 回答
+用户查询 → 向量化 → xb 检索 → 重排序 → LLM 生成 → 回答
             ↓           ↓          ↓
          Embedding   PostgreSQL  Application
                      或 Qdrant    Layer
@@ -24,7 +24,7 @@
 ### 1. 安装依赖
 
 ```bash
-go get github.com/x-ream/xb
+go get github.com/fndome/xb
 go get github.com/jmoiron/sqlx
 go get github.com/lib/pq
 go get github.com/gin-gonic/gin

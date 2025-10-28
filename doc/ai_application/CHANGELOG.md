@@ -162,13 +162,13 @@
 
 ### 🙏 致谢
 
-感谢所有为 sqlxb AI 应用生态做出贡献的开发者！
+感谢所有为 xb AI 应用生态做出贡献的开发者！
 
 ### 📞 反馈
 
 如有问题或建议，请：
-- 提交 [GitHub Issue](https://github.com/x-ream/xb/issues)
-- 参与 [GitHub Discussions](https://github.com/x-ream/xb/discussions)
+- 提交 [GitHub Issue](https://github.com/fndome/xb/issues)
+- 参与 [GitHub Discussions](https://github.com/fndome/xb/discussions)
 
 ---
 

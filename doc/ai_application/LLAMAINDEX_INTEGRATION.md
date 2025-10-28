@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档介绍如何将 sqlxb 与 Python LlamaIndex 框架集成，构建高性能的 RAG 和数据查询应用。
+本文档介绍如何将 xb 与 Python LlamaIndex 框架集成，构建高性能的 RAG 和数据查询应用。
 
 ## 🚀 快速开始
 
@@ -18,8 +18,8 @@ from llama_index.core.schema import NodeWithScore, TextNode
 from typing import List, Optional, Any
 import requests
 
-class SqlxbVectorStore(VectorStore):
-    """sqlxb 向量存储适配器"""
+class XbVectorStore(VectorStore):
+    """xb 向量存储适配器"""
     
     def __init__(self, backend_url: str, collection_name: str = "default"):
         self.backend_url = backend_url
@@ -101,7 +101,7 @@ embed_model = OpenAIEmbedding()
 llm = OpenAI(model="gpt-4", temperature=0)
 
 # 创建向量存储
-vector_store = SqlxbVectorStore(
+vector_store = XbVectorStore(
     backend_url="http://localhost:8080",
     collection_name="my_docs"
 )
@@ -124,7 +124,7 @@ index = VectorStoreIndex.from_documents(
 
 # 查询
 query_engine = index.as_query_engine(similarity_top_k=5)
-response = query_engine.query("如何使用 sqlxb 进行向量检索？")
+response = query_engine.query("如何使用 xb 进行向量检索？")
 
 print(response)
 ```
@@ -153,7 +153,7 @@ query_engine = RetrieverQueryEngine.from_args(
     service_context=service_context
 )
 
-response = query_engine.query("sqlxb 的核心特性")
+response = query_engine.query("xb 的核心特性")
 ```
 
 ### 子问题查询
@@ -176,14 +176,14 @@ query_engine_tools = [
         query_engine=tutorial_index.as_query_engine(),
         metadata=ToolMetadata(
             name="tutorial_docs",
-            description="包含 sqlxb 教程和使用指南"
+            description="包含 xb 教程和使用指南"
         ),
     ),
     QueryEngineTool(
         query_engine=api_index.as_query_engine(),
         metadata=ToolMetadata(
             name="api_docs",
-            description="包含 sqlxb API 参考文档"
+            description="包含 xb API 参考文档"
         ),
     ),
 ]
@@ -195,7 +195,7 @@ sub_question_engine = SubQuestionQueryEngine.from_defaults(
 )
 
 response = sub_question_engine.query(
-    "sqlxb 如何集成 Qdrant？有哪些 API 可以使用？"
+    "xb 如何集成 Qdrant？有哪些 API 可以使用？"
 )
 ```
 
@@ -214,7 +214,7 @@ chat_engine = ContextChatEngine.from_defaults(
 )
 
 # 多轮对话
-response1 = chat_engine.chat("sqlxb 支持哪些数据库？")
+response1 = chat_engine.chat("xb 支持哪些数据库？")
 print(response1)
 
 response2 = chat_engine.chat("Qdrant 怎么集成？")  # 有上下文记忆
@@ -262,7 +262,7 @@ print(response)
 ```python
 class DocQASystem:
     def __init__(self, backend_url: str):
-        self.vector_store = SqlxbVectorStore(backend_url=backend_url)
+        self.vector_store = XbVectorStore(backend_url=backend_url)
         self.embed_model = OpenAIEmbedding()
         self.llm = OpenAI(model="gpt-4")
         
@@ -306,7 +306,7 @@ class DocQASystem:
 # 使用
 qa_system = DocQASystem("http://localhost:8080")
 qa_system.index_directory("./docs")
-response = qa_system.query("如何使用 sqlxb？")
+response = qa_system.query("如何使用 xb？")
 print(response)
 ```
 
@@ -335,7 +335,7 @@ asyncio.run(async_index_documents(documents))
 ```python
 # 流式查询响应
 query_engine = index.as_query_engine(streaming=True)
-streaming_response = query_engine.query("sqlxb 的特性")
+streaming_response = query_engine.query("xb 的特性")
 
 for text in streaming_response.response_gen:
     print(text, end="", flush=True)
@@ -344,7 +344,7 @@ for text in streaming_response.response_gen:
 ## 📚 参考资源
 
 - [LlamaIndex 官方文档](https://docs.llamaindex.ai/)
-- [sqlxb 示例项目](https://github.com/x-ream/xb/tree/main/examples)
+- [xb 示例项目](https://github.com/fndome/xb/tree/main/examples)
 
 ---
 

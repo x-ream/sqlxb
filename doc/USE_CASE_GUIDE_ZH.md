@@ -22,7 +22,7 @@
 
 **sqlxb 示例**：
 ```go
-sqlxb.Of(&Product{}).
+xb.Of(&Product{}).
     VectorSearch("embedding", userVector, 20).
     Eq("category", "electronics")
 ```
@@ -51,7 +51,7 @@ sqlxb.Of(&Product{}).
 
 **sqlxb 示例**：
 ```go
-sqlxb.Of(&PageIndexNode{}).
+xb.Of(&PageIndexNode{}).
     Eq("doc_id", docID).
     Like("title", "财务稳定").
     Eq("level", 1)
@@ -79,12 +79,12 @@ sqlxb.Of(&PageIndexNode{}).
 **sqlxb 示例**：
 ```go
 // 第一步：PageIndex 定位章节
-sqlxb.Of(&PageIndexNode{}).
+xb.Of(&PageIndexNode{}).
     Like("title", "投资建议").
     Eq("level", 2)
 
 // 第二步：在章节内向量检索
-sqlxb.Of(&DocumentChunk{}).
+xb.Of(&DocumentChunk{}).
     VectorSearch("embedding", queryVector, 10).
     Gte("page", chapterStartPage).
     Lte("page", chapterEndPage)
@@ -112,7 +112,7 @@ sqlxb.Of(&DocumentChunk{}).
 
 **sqlxb 示例**：
 ```go
-sqlxb.Of(&User{}).
+xb.Of(&User{}).
     Gte("age", 18).
     Eq("status", "active").
     Paged(...)
@@ -186,8 +186,8 @@ sqlxb.Of(&User{}).
   - 用户管理 → 标准 SQL
 
 方案：
-  sqlxb.Of(&Product{}).VectorSearch(...)  // 推荐
-  sqlxb.Of(&Order{}).Eq("user_id", ...)   // 查询
+  xb.Of(&Product{}).VectorSearch(...)  // 推荐
+  xb.Of(&Order{}).Eq("user_id", ...)   // 查询
 ```
 
 ---
@@ -201,9 +201,9 @@ sqlxb.Of(&User{}).
   - 客户信息 → 标准 SQL
 
 方案：
-  sqlxb.Of(&PageIndexNode{}).Like("title", ...)  // 年报
-  sqlxb.Of(&Company{}).VectorSearch(...)         // 相似企业
-  sqlxb.Of(&Customer{}).Eq("region", ...)        // 客户
+  xb.Of(&PageIndexNode{}).Like("title", ...)  // 年报
+  xb.Of(&Company{}).VectorSearch(...)         // 相似企业
+  xb.Of(&Customer{}).Eq("region", ...)        // 客户
 ```
 
 ---
@@ -217,9 +217,9 @@ sqlxb.Of(&User{}).
   - 博客文章 → 传统 RAG
 
 方案：
-  sqlxb.Of(&PageIndexNode{}).Eq("level", 2)     // 手册章节
-  sqlxb.Of(&CodeSnippet{}).VectorSearch(...)    // 代码
-  sqlxb.Of(&ArticleChunk{}).VectorSearch(...)   // 博客
+  xb.Of(&PageIndexNode{}).Eq("level", 2)     // 手册章节
+  xb.Of(&CodeSnippet{}).VectorSearch(...)    // 代码
+  xb.Of(&ArticleChunk{}).VectorSearch(...)   // 博客
 ```
 
 ---

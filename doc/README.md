@@ -152,6 +152,6 @@
 ## 🔗 快速链接
 
 - **[返回主页](../README.md)**
-- **[GitHub Repository](https://github.com/x-ream/xb)**
-- **[pkg.go.dev](https://pkg.go.dev/github.com/x-ream/xb)**
+- **[GitHub Repository](https://github.com/fndome/xb)**
+- **[pkg.go.dev](https://pkg.go.dev/github.com/fndome/xb)**
 

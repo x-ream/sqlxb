@@ -1,4 +1,4 @@
-# PageIndex + sqlxb 集成指南
+# PageIndex + xb 集成指南
 
 ## 📋 概述
 
@@ -61,7 +61,7 @@ PageIndex:
   JSON → 扁平化 → PostgreSQL 存储
 
 第三步（查询）：
-  用户查询 → sqlxb 查询 → 返回相关节点
+  用户查询 → xb 查询 → 返回相关节点
   
 第四步（应用层）：
   节点 → LLM 推理 → 精确内容定位
@@ -121,7 +121,7 @@ CREATE INDEX ON page_index_nodes (start_page, end_page);
 ```
 
 **优点**：
-- ✅ 使用 sqlxb 高效查询
+- ✅ 使用 xb 高效查询
 - ✅ 支持复杂过滤条件
 - ✅ 性能更好
 
@@ -130,18 +130,18 @@ CREATE INDEX ON page_index_nodes (start_page, end_page);
 
 ---
 
-## 🔧 使用 sqlxb 查询
+## 🔧 使用 xb 查询
 
 ### 1. 按标题搜索
 
 ```go
 // 模糊搜索标题
 func SearchByTitle(docID int64, keyword string) ([]*PageIndexNode, error) {
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Like("title", keyword).  // ✅ 自动添加 %
-        Sort("level", sqlxb.ASC).
-        Sort("start_page", sqlxb.ASC).
+        Sort("level", xb.ASC).
+        Sort("start_page", xb.ASC).
         Build().
         SqlOfSelect()
     
@@ -162,11 +162,11 @@ func SearchByTitle(docID int64, keyword string) ([]*PageIndexNode, error) {
 ```go
 // 查询包含第 25 页的所有节点
 func FindByPage(docID int64, page int) ([]*PageIndexNode, error) {
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Lte("start_page", page).  // ✅ start_page <= 25
         Gte("end_page", page).    // ✅ end_page >= 25
-        Sort("level", sqlxb.ASC).
+        Sort("level", xb.ASC).
         Build().
         SqlOfSelect()
     
@@ -182,7 +182,7 @@ func FindByPage(docID int64, page int) ([]*PageIndexNode, error) {
 
 **为什么用 `Lte` 和 `Gte`？**
 ```go
-// ✅ 更好：使用 sqlxb API
+// ✅ 更好：使用 xb API
 Lte("start_page", page).Gte("end_page", page)
 
 // ❌ 不好：手写 SQL
@@ -201,10 +201,10 @@ X("start_page <= ? AND end_page >= ?", page, page)
 ```go
 // 查询第一层节点（章节）
 func FindTopLevel(docID int64) ([]*PageIndexNode, error) {
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Eq("level", 1).  // 第一层
-        Sort("start_page", sqlxb.ASC).
+        Sort("start_page", xb.ASC).
         Build().
         SqlOfSelect()
     
@@ -215,7 +215,7 @@ func FindTopLevel(docID int64) ([]*PageIndexNode, error) {
 
 // 查询特定层级范围
 func FindByLevelRange(docID int64, minLevel, maxLevel int) ([]*PageIndexNode, error) {
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Gte("level", minLevel).
         Lte("level", maxLevel).
@@ -235,10 +235,10 @@ func FindByLevelRange(docID int64, minLevel, maxLevel int) ([]*PageIndexNode, er
 ```go
 // 查询子节点
 func FindChildren(docID int64, parentNodeID string) ([]*PageIndexNode, error) {
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Eq("parent_id", parentNodeID).
-        Sort("start_page", sqlxb.ASC).
+        Sort("start_page", xb.ASC).
         Build().
         SqlOfSelect()
     
@@ -279,7 +279,7 @@ func SearchInChapter(docID int64, chapterNodeID, keyword string) ([]*PageIndexNo
     chapter, _ := FindNodeByID(docID, chapterNodeID)
     
     // 2. 在该章节的页码范围内搜索
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Like("title", keyword).
         Gte("start_page", chapter.StartPage).
@@ -294,7 +294,7 @@ func SearchInChapter(docID int64, chapterNodeID, keyword string) ([]*PageIndexNo
 
 // 查询跨多个层级的节点
 func FindCrossLevel(docID int64, keyword string, levels []int) ([]*PageIndexNode, error) {
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Like("title", keyword).
         In("level", toInterfaces(levels)...).
@@ -340,9 +340,9 @@ func AnalyzeQuery(question string) ([]string, error) {
     return relevantNodeIDs, nil
 }
 
-// 第二步：使用 sqlxb 查询相关节点
+// 第二步：使用 xb 查询相关节点
 func RetrieveRelevantNodes(docID int64, nodeIDs []string) ([]*PageIndexNode, error) {
-    sql, args, _ := sqlxb.Of(&PageIndexNode{}).
+    sql, args, _ := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         In("node_id", toInterfaces(nodeIDs)...).
         Build().
@@ -454,9 +454,9 @@ func importNode(docID int64, node PageIndexJSON, parentID string, level int) {
 ### 1. 查询优化
 
 ```go
-// ✅ 充分利用 sqlxb 的自动过滤
+// ✅ 充分利用 xb 的自动过滤
 func SearchNodes(docID int64, params SearchParams) ([]*PageIndexNode, error) {
-    builder := sqlxb.Of(&PageIndexNode{}).
+    builder := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Like("title", params.Keyword).       // 空字符串自动忽略
         Gte("level", params.MinLevel).       // 0 自动忽略
@@ -480,10 +480,10 @@ func SearchNodes(docID int64, params SearchParams) ([]*PageIndexNode, error) {
 ```go
 // 分页查询节点
 func PagedNodes(docID int64, level, page, rows int) ([]*PageIndexNode, int64, error) {
-    builder := sqlxb.Of(&PageIndexNode{}).
+    builder := xb.Of(&PageIndexNode{}).
         Eq("doc_id", docID).
         Eq("level", level).
-        Paged(func(pb *sqlxb.PageBuilder) {
+        Paged(func(pb *xb.PageBuilder) {
             pb.Page(int64(page)).Rows(int64(rows))
         })
     

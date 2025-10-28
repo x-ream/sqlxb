@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/fndome/xb"
 	"github.com/jmoiron/sqlx"
-	"github.com/x-ream/xb"
 )
 
 // CodeRepository 代码仓库

@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/x-ream/xb"
+	"github.com/fndome/xb"
 )
 
 // QdrantClient Qdrant 客户端
@@ -27,7 +27,7 @@ func NewQdrantClient(baseURL, collection string) *QdrantClient {
 
 // Search 向量搜索
 func (c *QdrantClient) Search(queryVector []float32, docType, language string, minScore float64, limit int) ([]*Document, error) {
-	// 使用 sqlxb 构建查询
+	// 使用 xb 构建查询
 	built := xb.Of(&Document{}).
 		VectorSearch("embedding", queryVector, limit).
 		Eq("doc_type", docType).

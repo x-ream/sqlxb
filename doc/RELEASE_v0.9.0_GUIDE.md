@@ -93,11 +93,11 @@ git push origin v0.9.0
 
 ### 5. 在 GitHub 创建 Release
 
-访问：https://github.com/x-ream/xb/releases/new
+访问：https://github.com/fndome/xb/releases/new
 
 **Tag**: v0.9.0
 
-**Release Title**: sqlxb v0.9.0 - Vector Diversity Queries + Qdrant Support
+**Release Title**: xb v0.9.0 - Vector Diversity Queries + Qdrant Support
 
 **Description**:（复制 `RELEASE_NOTES_v0.9.0.md` 的内容）
 
@@ -107,7 +107,7 @@ git push origin v0.9.0
 
 ### 1. 验证 pkg.go.dev
 
-访问：https://pkg.go.dev/github.com/x-ream/xb@v0.9.0
+访问：https://pkg.go.dev/github.com/fndome/xb@v0.9.0
 
 （可能需要等待几分钟）
 
@@ -117,16 +117,16 @@ git push origin v0.9.0
 
 ```bash
 # 在另一个项目中测试
-go get github.com/x-ream/xb@v0.9.0
+go get github.com/fndome/xb@v0.9.0
 ```
 
 ---
 
 ### 3. 验证文档可访问
 
-- https://github.com/x-ream/xb/blob/main/VECTOR_README.md
-- https://github.com/x-ream/xb/blob/main/VECTOR_DIVERSITY_QDRANT.md
-- https://github.com/x-ream/xb/blob/main/RELEASE_NOTES_v0.9.0.md
+- https://github.com/fndome/xb/blob/main/VECTOR_README.md
+- https://github.com/fndome/xb/blob/main/VECTOR_DIVERSITY_QDRANT.md
+- https://github.com/fndome/xb/blob/main/RELEASE_NOTES_v0.9.0.md
 
 ---
 
@@ -216,7 +216,7 @@ go get github.com/x-ream/xb@v0.9.0
 
 ## 🔗 相关链接
 
-- **GitHub Repo**: https://github.com/x-ream/xb
+- **GitHub Repo**: https://github.com/fndome/xb
 - **Release Notes**: RELEASE_NOTES_v0.9.0.md
 - **User Guide**: VECTOR_DIVERSITY_QDRANT.md
 - **Why Qdrant**: WHY_QDRANT.md

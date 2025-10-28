@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档列出使用 sqlxb 时可能遇到的常见错误及其解决方法。
+本文档列出使用 xb 时可能遇到的常见错误及其解决方法。
 
 ---
 
@@ -18,7 +18,7 @@ type User struct {
 }
 
 // ❌ 没有实现 TableName() 方法
-builder := sqlxb.Of(&User{})
+builder := xb.Of(&User{})
 ```
 
 **解决方法**：
@@ -33,23 +33,23 @@ func (*User) TableName() string {
     return "users"
 }
 
-builder := sqlxb.Of(&User{})
+builder := xb.Of(&User{})
 ```
 
 ---
 
-### 2. `sqlxb.Builder is nil`
+### 2. `xb.Builder is nil`
 
 **错误原因**：
 ```go
-var builder *sqlxb.BuilderX // nil
+var builder *xb.BuilderX // nil
 builder.Build() // panic
 ```
 
 **解决方法**：
 ```go
 // ✅ 正确初始化
-builder := sqlxb.Of(&User{})
+builder := xb.Of(&User{})
 builder.Build()
 ```
 
@@ -61,14 +61,14 @@ builder.Build()
 
 **错误原因**：
 ```go
-builder.Paged(func(pb *sqlxb.PageBuilder) {
+builder.Paged(func(pb *xb.PageBuilder) {
     pb.Page(1).Rows(0) // ❌ rows 不能为 0
 })
 ```
 
 **解决方法**：
 ```go
-builder.Paged(func(pb *sqlxb.PageBuilder) {
+builder.Paged(func(pb *xb.PageBuilder) {
     pb.Page(1).Rows(10) // ✅ rows 必须 > 0
 })
 ```
@@ -79,15 +79,15 @@ builder.Paged(func(pb *sqlxb.PageBuilder) {
 
 **错误原因**：
 ```go
-builder.Paged(func(pb *sqlxb.PageBuilder) {
+builder.Paged(func(pb *xb.PageBuilder) {
     pb.Last(12345) // ❌ 使用 Last 但没有设置 Sort
 })
 ```
 
 **解决方法**：
 ```go
-builder.Sort("id", sqlxb.ASC). // ✅ 必须先设置数值字段排序
-    Paged(func(pb *sqlxb.PageBuilder) {
+builder.Sort("id", xb.ASC). // ✅ 必须先设置数值字段排序
+    Paged(func(pb *xb.PageBuilder) {
         pb.Last(12345)
     })
 ```
@@ -98,16 +98,16 @@ builder.Sort("id", sqlxb.ASC). // ✅ 必须先设置数值字段排序
 
 **错误原因**：
 ```go
-fb.Cond(func(on *sqlxb.ON) {
+fb.Cond(func(on *xb.ON) {
     // ❌ 没有先调用 ON()
 })
 ```
 
 **解决方法**：
 ```go
-fb.JOIN(sqlxb.INNER).Of("orders").As("o").
+fb.JOIN(xb.INNER).Of("orders").As("o").
    ON("o.user_id = u.id"). // ✅ 必须先调用 ON()
-   Cond(func(on *sqlxb.ON) {
+   Cond(func(on *xb.ON) {
        on.Gt("o.amount", 100)
    })
 ```
@@ -137,10 +137,10 @@ fb.JOIN(nil) // ❌ join 不能为 nil
 
 **解决方法**：
 ```go
-fb.JOIN(sqlxb.INNER) // ✅ 使用预定义的 JOIN 类型
+fb.JOIN(xb.INNER) // ✅ 使用预定义的 JOIN 类型
 // 或
-fb.JOIN(sqlxb.LEFT)
-fb.JOIN(sqlxb.RIGHT)
+fb.JOIN(xb.LEFT)
+fb.JOIN(xb.RIGHT)
 ```
 
 ---
@@ -151,7 +151,7 @@ fb.JOIN(sqlxb.RIGHT)
 
 **问题**：
 ```go
-var baseBuilder = sqlxb.Of(&User{})
+var baseBuilder = xb.Of(&User{})
 
 func GetUser1() {
     sql, _, _ := baseBuilder.Eq("id", 1).Build().SqlOfSelect()
@@ -168,11 +168,11 @@ func GetUser2() {
 ```go
 // ✅ 每次创建新的 Builder
 func GetUser1() {
-    sql, _, _ := sqlxb.Of(&User{}).Eq("id", 1).Build().SqlOfSelect()
+    sql, _, _ := xb.Of(&User{}).Eq("id", 1).Build().SqlOfSelect()
 }
 
 func GetUser2() {
-    sql, _, _ := sqlxb.Of(&User{}).Eq("id", 2).Build().SqlOfSelect()
+    sql, _, _ := xb.Of(&User{}).Eq("id", 2).Build().SqlOfSelect()
 }
 ```
 
@@ -225,17 +225,17 @@ sqlxb 会自动忽略空字符串、nil 和 0 值。
 
 **错误原因**：
 ```go
-vec1 := sqlxb.Vector{1, 2, 3}
-vec2 := sqlxb.Vector{1, 2, 3, 4, 5}
-distance := vec1.Distance(vec2, sqlxb.DistanceCosine) // panic: vectors must have same dimension
+vec1 := xb.Vector{1, 2, 3}
+vec2 := xb.Vector{1, 2, 3, 4, 5}
+distance := vec1.Distance(vec2, xb.DistanceCosine) // panic: vectors must have same dimension
 ```
 
 **解决方法**：
 ```go
 // ✅ 确保向量维度相同
-vec1 := sqlxb.Vector{1, 2, 3}
-vec2 := sqlxb.Vector{4, 5, 6}
-distance := vec1.Distance(vec2, sqlxb.DistanceCosine)
+vec1 := xb.Vector{1, 2, 3}
+vec2 := xb.Vector{4, 5, 6}
+distance := vec1.Distance(vec2, xb.DistanceCosine)
 ```
 
 ---
@@ -252,7 +252,7 @@ func (i *BadInterceptor) BeforeBuild(meta *interceptor.Metadata) error {
     return fmt.Errorf("something wrong") // ❌ 返回错误
 }
 
-func (i *BadInterceptor) AfterBuild(built *sqlxb.Built) error {
+func (i *BadInterceptor) AfterBuild(built *xb.Built) error {
     return nil
 }
 ```
@@ -274,17 +274,17 @@ func (i *GoodInterceptor) BeforeBuild(meta *interceptor.Metadata) error {
 
 **问题**：
 ```go
-builder := sqlxb.Of(&User{}) // ❌ 可能返回数百万条记录
+builder := xb.Of(&User{}) // ❌ 可能返回数百万条记录
 ```
 
 **解决方法**：
 ```go
 // ✅ 使用 Limit
-builder := sqlxb.Of(&User{}).Limit(100)
+builder := xb.Of(&User{}).Limit(100)
 
 // 或使用 Paged
-builder := sqlxb.Of(&User{}).
-    Paged(func(pb *sqlxb.PageBuilder) {
+builder := xb.Of(&User{}).
+    Paged(func(pb *xb.PageBuilder) {
         pb.Page(1).Rows(10)
     })
 ```

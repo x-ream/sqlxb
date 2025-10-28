@@ -4,10 +4,10 @@ go 1.21
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/x-ream/xb v0.10.5
+	github.com/fndome/xb v0.11.0
 )
 
-replace github.com/x-ream/xb => ../..
+replace github.com/fndome/xb => ../..
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect

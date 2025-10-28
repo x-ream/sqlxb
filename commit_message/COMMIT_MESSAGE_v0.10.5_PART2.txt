@@ -1,0 +1,85 @@
+feat!: 更改包名 sqlxb → xb
+
+## ⚠️ 破坏性变更
+
+**包名从 `sqlxb` 改为 `xb`**
+
+### 变更内容
+
+**之前（v0.10.4）**:
+```go
+import "github.com/x-ream/sqlxb"  // 旧模块
+builder := sqlxb.Of(&User{})      // 包名 sqlxb
+```
+
+**现在（v0.10.5）**:
+```go
+import "github.com/fndome/xb"  // ✅ 新模块
+builder := xb.Of(&User{})      // ✅ 新包名
+```
+
+---
+
+## 📝 文件变更
+
+### 核心源文件（42个）
+- ✅ 所有源文件 `package sqlxb` → `package xb`
+- ✅ 所有测试文件更新
+
+### 示例应用（11个）
+- ✅ `examples/pgvector-app/` - 所有 `sqlxb.` → `xb.`
+- ✅ `examples/qdrant-app/` - 所有 `sqlxb.` → `xb.`
+- ✅ `examples/rag-app/` - 所有 `sqlxb.` → `xb.`
+- ✅ `examples/pageindex-app/` - 所有 `sqlxb.` → `xb.`
+
+### 文档
+- ✅ `MIGRATION.md` - 更新迁移指南，说明包名变更
+
+---
+
+## 🔄 用户迁移步骤
+
+### 1️⃣ 更新 go.mod
+```go
+require github.com/fndome/xb v0.10.5
+```
+
+### 2️⃣ 批量替换代码
+```bash
+# Linux/macOS
+find . -name "*.go" -type f -exec sed -i 's/sqlxb\./xb\./g' {} +
+
+# Windows PowerShell
+Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object {
+    (Get-Content $_.FullName) -replace 'sqlxb\.', 'xb.' | Set-Content $_.FullName
+}
+```
+
+### 3️⃣ 运行测试
+```bash
+go mod tidy
+go test ./...
+```
+
+---
+
+## ✅ 验证
+
+- ✅ 主项目测试通过: `ok github.com/fndome/xb`
+- ✅ 4 个示例应用编译成功
+- ✅ 所有文档已更新
+
+---
+
+## 💡 为什么这样做？
+
+1. **简洁性** - `xb.Of()` 比 `sqlxb.Of()` 更简洁
+2. **一致性** - 模块名 `xb` 与包名 `xb` 一致
+3. **易用性** - 更短的包名，更好的开发体验
+
+---
+
+**影响**: 所有用户需要更新代码  
+**难度**: ⭐⭐ 中等（批量替换 2 分钟）  
+**收益**: 长期开发体验提升
+

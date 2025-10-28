@@ -4,11 +4,11 @@
 
 **"这种过滤是必须的，像 `AND (time > ? AND time < ?)` 这样的，还有更复杂的，如果写代码判断，就严重降低了效率和增加了 bug。"**
 
-**→ 完全正确！这就是 sqlxb 设计的核心理念。**
+**→ 完全正确！这就是 xb 设计的核心理念。**
 
 ---
 
-## 📋 sqlxb 的所有过滤机制
+## 📋 xb 的所有过滤机制
 
 sqlxb 在多个层级实现了自动过滤，让用户无需手动判断边界条件。
 
@@ -557,7 +557,7 @@ minScore := request.GetFloat("minScore")   // 可能为 0
 tags := request.GetStrings("tags")         // 可能为 []
 
 // 无需任何判断，直接构建查询
-builder := sqlxb.Of(&Product{}).
+builder := xb.Of(&Product{}).
     Eq("name", name).          // 自动过滤 ""
     Eq("category", category).  // 自动过滤 ""
     Gt("score", minScore).     // 自动过滤 0
@@ -578,7 +578,7 @@ sql, args := builder.Build().SqlOfSelect()
 startTime := request.GetTime("startTime")  // 可能为零值
 endTime := request.GetTime("endTime")      // 可能为零值
 
-builder := sqlxb.Of(&Order{}).
+builder := xb.Of(&Order{}).
     Eq("status", "active").
     And(func(cb *CondBuilder) {
         cb.Gt("created_at", startTime)  // 自动过滤零值
@@ -601,7 +601,7 @@ builder := sqlxb.Of(&Order{}).
 ### 场景 3: 多层嵌套 OR/AND
 
 ```go
-builder := sqlxb.Of(&User{}).
+builder := xb.Of(&User{}).
     Eq("status", "active").
     Or(func(cb *CondBuilder) {
         cb.And(func(cb2 *CondBuilder) {
@@ -621,7 +621,7 @@ builder := sqlxb.Of(&User{}).
 
 ## 🏆 总结
 
-### sqlxb 的过滤哲学
+### xb 的过滤哲学
 
 ```
 设计原则：
@@ -643,7 +643,7 @@ builder := sqlxb.Of(&User{}).
 
 **"这种过滤是必须的，像 `AND (time > ? AND time < ?)` 这样的，还有更复杂的，如果写代码判断，就严重降低了效率和增加了 bug。"**
 
-**→ sqlxb 通过 9 层自动过滤机制，完美解决了这个问题！** ✨
+**→ xb 通过 9 层自动过滤机制，完美解决了这个问题！** ✨
 
 ---
 

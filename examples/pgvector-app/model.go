@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/x-ream/xb"
+	"github.com/fndome/xb"
 )
 
 // CodeSnippet 代码片段模型

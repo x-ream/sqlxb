@@ -417,7 +417,7 @@ AI 不应该做:
 // ⚠️⚠️⚠️ LEVEL 3 - CRITICAL CODE ⚠️⚠️⚠️
 //
 // This file contains the JOIN optimization algorithm.
-// It's the most complex part of sqlxb.
+// It's the most complex part of xb.
 //
 // DO NOT modify without:
 // 1. Deep understanding of SQL JOIN semantics
@@ -566,7 +566,7 @@ builder := X().
 - JOIN 优化是高级特性
 - 实现复杂度极高
 - 大部分 ORM 都不做
-- sqlxb 做了，说明技术追求高
+- xb 做了，说明技术追求高
 
 ---
 
@@ -612,7 +612,7 @@ builder := X().
 
 ## 🎊 结论
 
-**from_builder_optimization.go 是 sqlxb 中最复杂的 5%**
+**from_builder_optimization.go 是 xb 中最复杂的 5%**
 
 **处理策略**:
 

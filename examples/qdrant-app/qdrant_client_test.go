@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/x-ream/xb"
+	"github.com/fndome/xb"
 )
 
 // 注意：这些测试需要实际的 Qdrant 环境
@@ -11,7 +11,7 @@ import (
 // docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
 
 func TestBuildQdrantSearchJSON(t *testing.T) {
-	// 测试 sqlxb 生成的 Qdrant JSON 是否正确
+	// 测试 xb 生成的 Qdrant JSON 是否正确
 	queryVector := make([]float32, 768)
 	for i := range queryVector {
 		queryVector[i] = 0.1

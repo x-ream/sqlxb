@@ -1,0 +1,85 @@
+feat!: Change package name from sqlxb to xb
+
+## ⚠️ BREAKING CHANGE
+
+**Package name changed from `sqlxb` to `xb`**
+
+### Changes
+
+**Before (v0.10.4)**:
+```go
+import "github.com/x-ream/sqlxb"  // Old module
+builder := sqlxb.Of(&User{})      // Package name sqlxb
+```
+
+**Now (v0.10.5)**:
+```go
+import "github.com/fndome/xb"  // ✅ New module
+builder := xb.Of(&User{})      // ✅ New package name
+```
+
+---
+
+## 📝 File Changes
+
+### Core Source Files (42)
+- ✅ All source files `package sqlxb` → `package xb`
+- ✅ All test files updated
+
+### Example Applications (11)
+- ✅ `examples/pgvector-app/` - All `sqlxb.` → `xb.`
+- ✅ `examples/qdrant-app/` - All `sqlxb.` → `xb.`
+- ✅ `examples/rag-app/` - All `sqlxb.` → `xb.`
+- ✅ `examples/pageindex-app/` - All `sqlxb.` → `xb.`
+
+### Documentation
+- ✅ `MIGRATION.md` - Updated migration guide with package name change
+
+---
+
+## 🔄 User Migration Steps
+
+### 1️⃣ Update go.mod
+```go
+require github.com/fndome/xb v0.10.5
+```
+
+### 2️⃣ Batch Replace Code
+```bash
+# Linux/macOS
+find . -name "*.go" -type f -exec sed -i 's/sqlxb\./xb\./g' {} +
+
+# Windows PowerShell
+Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object {
+    (Get-Content $_.FullName) -replace 'sqlxb\.', 'xb.' | Set-Content $_.FullName
+}
+```
+
+### 3️⃣ Run Tests
+```bash
+go mod tidy
+go test ./...
+```
+
+---
+
+## ✅ Verification
+
+- ✅ Main project tests pass: `ok github.com/fndome/xb`
+- ✅ 4 example applications build successfully
+- ✅ All documentation updated
+
+---
+
+## 💡 Why This Change?
+
+1. **Conciseness** - `xb.Of()` is shorter than `sqlxb.Of()`
+2. **Consistency** - Module name `xb` matches package name `xb`
+3. **Usability** - Shorter package name, better developer experience
+
+---
+
+**Impact**: All users need to update their code  
+**Difficulty**: ⭐⭐ Medium (2 minutes with batch replace)  
+**Benefit**: Long-term developer experience improvement
+

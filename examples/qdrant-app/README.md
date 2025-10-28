@@ -1,6 +1,6 @@
 # Qdrant 集成完整应用示例
 
-这是一个使用 sqlxb + Qdrant 构建的完整文档检索应用。
+这是一个使用 xb + Qdrant 构建的完整文档检索应用。
 
 ## 📋 功能
 
@@ -15,7 +15,7 @@
 ### 1. 安装依赖
 
 ```bash
-go get github.com/x-ream/xb
+go get github.com/fndome/xb
 go get github.com/qdrant/go-client
 go get github.com/gin-gonic/gin
 ```

@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档介绍如何将 sqlxb 与 Microsoft Semantic Kernel (.NET) 集成，构建企业级 AI 应用。
+本文档介绍如何将 xb 与 Microsoft Semantic Kernel (.NET) 集成，构建企业级 AI 应用。
 
 ## 🚀 快速开始
 
@@ -136,7 +136,7 @@ class Program
             .AddOpenAIChatCompletion("gpt-4", "your-api-key")
             .Build();
 
-        // 2. 配置 sqlxb Memory Store
+        // 2. 配置 xb Memory Store
         var memoryStore = new SqlxbMemoryStore(
             backendUrl: "http://localhost:8080",
             collectionName: "my_docs"
@@ -153,19 +153,19 @@ class Program
         await memory.SaveInformationAsync(
             collection: "docs",
             id: "doc1",
-            text: "sqlxb 是一个 AI-First 的 ORM 库，支持向量数据库。",
-            description: "sqlxb 介绍"
+            text: "xb 是一个 AI-First 的 ORM 库，支持向量数据库。",
+            description: "xb 介绍"
         );
 
         await memory.SaveInformationAsync(
             collection: "docs",
             id: "doc2",
-            text: "sqlxb 支持 PostgreSQL 和 Qdrant 两种后端。",
+            text: "xb 支持 PostgreSQL 和 Qdrant 两种后端。",
             description: "支持的数据库"
         );
 
         // 4. 查询
-        var query = "sqlxb 支持哪些数据库？";
+        var query = "xb 支持哪些数据库？";
         
         var results = memory.SearchAsync(
             collection: "docs",
@@ -293,7 +293,7 @@ var planner = new HandlebarsPlanner(new HandlebarsPlannerOptions
 });
 
 // 定义目标
-var goal = "帮我了解 sqlxb 的向量检索功能，并给出代码示例";
+var goal = "帮我了解 xb 的向量检索功能，并给出代码示例";
 
 // 生成计划
 var plan = await planner.CreatePlanAsync(kernel, goal);
@@ -364,7 +364,7 @@ public class RAGChatService
 // 使用
 var chatService = new RAGChatService(kernel, memory);
 
-Console.WriteLine(await chatService.ChatAsync("sqlxb 是什么？"));
+Console.WriteLine(await chatService.ChatAsync("xb 是什么？"));
 Console.WriteLine(await chatService.ChatAsync("它支持哪些数据库？"));  // 有上下文
 ```
 
@@ -522,7 +522,7 @@ builder.Services.AddTransient<Kernel>(sp =>
 ## 📚 参考资源
 
 - [Semantic Kernel 官方文档](https://learn.microsoft.com/en-us/semantic-kernel/)
-- [sqlxb GitHub](https://github.com/x-ream/xb)
+- [xb GitHub](https://github.com/fndome/xb)
 
 ---
 

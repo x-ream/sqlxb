@@ -1,3 +1,3 @@
-module github.com/x-ream/xb
+module github.com/fndome/xb
 
 go 1.15

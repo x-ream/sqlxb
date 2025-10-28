@@ -1,4 +1,4 @@
-// Copyright 2020 io.xream.sqlxb
+// Copyright 2025 me.fndo.xb
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -56,7 +56,7 @@ func (cb *CondBuilder) VectorSearch(field string, queryVector Vector, topK int) 
 // 必须在 VectorSearch() 之后调用
 //
 // 示例:
-//   builder.VectorSearch("embedding", vec, 10).VectorDistance(sqlxb.L2Distance)
+//   builder.VectorSearch("embedding", vec, 10).VectorDistance(xb.L2Distance)
 func (cb *CondBuilder) VectorDistance(metric VectorDistance) *CondBuilder {
 
 	// 找到最后一个 VECTOR_SEARCH
@@ -140,7 +140,7 @@ type VectorDistanceFilterParams struct {
 //
 // 示例:
 //   builder.VectorSearch("embedding", vec, 20).
-//       WithDiversity(sqlxb.DiversityByHash, "semantic_hash")
+//       WithDiversity(xb.DiversityByHash, "semantic_hash")
 func (cb *CondBuilder) WithDiversity(strategy DiversityStrategy, params ...interface{}) *CondBuilder {
 	// 找到最后一个 VECTOR_SEARCH
 	length := len(cb.bbs)

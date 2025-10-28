@@ -84,10 +84,10 @@
 - [x] 100% 向后兼容
 
 #### v0.10.5 ✅ (已完成)
-**重点：项目重命名 sqlxb → xb**
+**重点：项目重命名 xb → xb**
 
 - [x] **核心重命名**
-  - go.mod: module 名称改为 github.com/x-ream/xb
+  - go.mod: module 名称改为 github.com/fndome/xb
   - 所有 import 语句更新
   - 包名保持 sqlxb（向后兼容）
   
@@ -101,7 +101,7 @@
   - 4 个应用的依赖更新
   
 - [x] **迁移指南**
-  - 添加 MIGRATION.md（从 sqlxb 迁移）
+  - 添加 MIGRATION.md（从 xb 迁移）
   - 批量替换命令（Linux/macOS/Windows）
   - 常见问题解答
   - README.md 迁移通知
@@ -332,7 +332,7 @@ v1.0.0 承诺：
 
 ```go
 // ✅ AI 能轻松理解和生成
-sqlxb.Of(&User{}).
+xb.Of(&User{}).
     Eq("status", "active").
     Or(func(cb *CondBuilder) {
         cb.Gte("age", 18).OR().Eq("verified", true)

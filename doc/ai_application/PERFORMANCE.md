@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档介绍在 AI 应用场景下如何优化 sqlxb 的性能，涵盖向量检索、RAG 应用和大规模部署。
+本文档介绍在 AI 应用场景下如何优化 xb 的性能，涵盖向量检索、RAG 应用和大规模部署。
 
 ## 🎯 性能指标
 
@@ -118,14 +118,14 @@ embedding, _ := cache.GetOrCompute(query, embeddingFunc)
 
 ```go
 // ❌ 不推荐：直接返回大量结果
-built1 := sqlxb.Of(&Doc{}).
+built1 := xb.Of(&Doc{}).
     VectorSearch("embedding", vector, 100).
     Build()
 json1, _ := built1.ToQdrantJSON()  // 返回太多
 
 // ✅ 推荐：分阶段获取
 // 阶段1: 粗召回
-built2 := sqlxb.Of(&Doc{}).
+built2 := xb.Of(&Doc{}).
     VectorSearch("embedding", vector, 50).
     Build()
 json2, _ := built2.ToQdrantJSON()
@@ -143,7 +143,7 @@ allResults := vectorSearch(vector, 1000)
 filtered := filterByDate(allResults, last7Days)  // 浪费
 
 // ✅ 先过滤再检索
-built := sqlxb.Of(&Doc{}).
+built := xb.Of(&Doc{}).
     VectorSearch("embedding", vector, 20).
     Gte("created_at", last7Days).  // 减少候选集
     Build()

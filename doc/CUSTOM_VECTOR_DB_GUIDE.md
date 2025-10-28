@@ -2,7 +2,7 @@
 
 ## 🎯 概述
 
-本指南演示如何为 `sqlxb` 添加自定义向量数据库支持（如 Milvus, Weaviate, Pinecone 等）。
+本指南演示如何为 `xb` 添加自定义向量数据库支持（如 Milvus, Weaviate, Pinecone 等）。
 
 **核心思路**：参照 `QdrantBuilderX` 的实现模式，创建自己的 `XxxxBuilderX`。
 
@@ -17,24 +17,24 @@
 package vectordb
 
 import (
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 // MilvusBuilderX Milvus 专属构建器
 type MilvusBuilderX struct {
-    builder *sqlxb.BuilderX
+    builder *xb.BuilderX
 }
 
 // MilvusX 创建 Milvus 专属构建器
 // 用法:
-//   sqlxb.Of(&CodeVector{}).
+//   xb.Of(&CodeVector{}).
 //       Eq("language", "golang").
 //       VectorSearch("embedding", vec, 20).
 //       MilvusX(func(mx *MilvusBuilderX) {
 //           mx.Nprobe(10).
 //               RoundDecimal(2)
 //       })
-func (x *sqlxb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *sqlxb.BuilderX {
+func (x *xb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *xb.BuilderX {
     mx := &MilvusBuilderX{
         builder: x,
     }
@@ -69,13 +69,13 @@ const (
 // MilvusBuilderX 的方法实现
 package vectordb
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 // Nprobe 设置 Milvus 的 nprobe 参数
 // nprobe 越大，精度越高，但速度越慢
 func (mx *MilvusBuilderX) Nprobe(nprobe int) *MilvusBuilderX {
     if nprobe > 0 {
-        bb := sqlxb.Bb{
+        bb := xb.Bb{
             Op:    MILVUS_NPROBE,
             Key:   "nprobe",
             Value: nprobe,
@@ -87,7 +87,7 @@ func (mx *MilvusBuilderX) Nprobe(nprobe int) *MilvusBuilderX {
 
 // RoundDecimal 设置 Milvus 的距离小数位数
 func (mx *MilvusBuilderX) RoundDecimal(decimal int) *MilvusBuilderX {
-    bb := sqlxb.Bb{
+    bb := xb.Bb{
         Op:    MILVUS_ROUND_DECIMAL,
         Key:   "round_decimal",
         Value: decimal,
@@ -98,7 +98,7 @@ func (mx *MilvusBuilderX) RoundDecimal(decimal int) *MilvusBuilderX {
 
 // MetricType 设置 Milvus 的距离度量类型
 func (mx *MilvusBuilderX) MetricType(metricType string) *MilvusBuilderX {
-    bb := sqlxb.Bb{
+    bb := xb.Bb{
         Op:    MILVUS_METRIC_TYPE,
         Key:   "metric_type",
         Value: metricType,
@@ -110,7 +110,7 @@ func (mx *MilvusBuilderX) MetricType(metricType string) *MilvusBuilderX {
 // X 自定义 Milvus 参数（扩展点）
 // 用于未封装的 Milvus 参数
 func (mx *MilvusBuilderX) X(k string, v interface{}) *MilvusBuilderX {
-    bb := sqlxb.Bb{
+    bb := xb.Bb{
         Op:    MILVUS_XX,
         Key:   k,
         Value: v,
@@ -143,7 +143,7 @@ package vectordb
 
 import (
     "encoding/json"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 // MilvusSearchRequest Milvus 搜索请求结构
@@ -163,7 +163,7 @@ type MilvusSearchParams struct {
 }
 
 // ToMilvusJSON 转换为 Milvus JSON
-func (built *sqlxb.Built) ToMilvusJSON(collectionName string) (string, error) {
+func (built *xb.Built) ToMilvusJSON(collectionName string) (string, error) {
     req, err := built.ToMilvusRequest(collectionName)
     if err != nil {
         return "", err
@@ -178,7 +178,7 @@ func (built *sqlxb.Built) ToMilvusJSON(collectionName string) (string, error) {
 }
 
 // ToMilvusRequest 转换为 Milvus 请求结构
-func (built *sqlxb.Built) ToMilvusRequest(collectionName string) (*MilvusSearchRequest, error) {
+func (built *xb.Built) ToMilvusRequest(collectionName string) (*MilvusSearchRequest, error) {
     req := &MilvusSearchRequest{
         CollectionName: collectionName,
         SearchParams: MilvusSearchParams{
@@ -189,16 +189,16 @@ func (built *sqlxb.Built) ToMilvusRequest(collectionName string) (*MilvusSearchR
     
     // 1. 提取向量搜索参数
     for _, bb := range built.Conds {
-        if bb.Op == sqlxb.VECTOR_SEARCH {
-            params := bb.Value.(sqlxb.VectorSearchParams)
+        if bb.Op == xb.VECTOR_SEARCH {
+            params := bb.Value.(xb.VectorSearchParams)
             req.Data = [][]float32{params.QueryVector}
             req.Limit = params.TopK
             
             // 距离度量映射
             switch params.DistanceMetric {
-            case sqlxb.CosineDistance:
+            case xb.CosineDistance:
                 req.SearchParams.MetricType = "IP"  // Inner Product
-            case sqlxb.L2Distance:
+            case xb.L2Distance:
                 req.SearchParams.MetricType = "L2"
             }
             break
@@ -230,18 +230,18 @@ func (built *sqlxb.Built) ToMilvusRequest(collectionName string) (*MilvusSearchR
 }
 
 // buildMilvusExpr 构建 Milvus 的过滤表达式
-func buildMilvusExpr(bbs []sqlxb.Bb) string {
+func buildMilvusExpr(bbs []xb.Bb) string {
     var conditions []string
     
     for _, bb := range bbs {
         switch bb.Op {
-        case sqlxb.EQ:
+        case xb.EQ:
             conditions = append(conditions, fmt.Sprintf(`%s == "%v"`, bb.Key, bb.Value))
-        case sqlxb.GT:
+        case xb.GT:
             conditions = append(conditions, fmt.Sprintf(`%s > %v`, bb.Key, bb.Value))
-        case sqlxb.LT:
+        case xb.LT:
             conditions = append(conditions, fmt.Sprintf(`%s < %v`, bb.Key, bb.Value))
-        case sqlxb.IN:
+        case xb.IN:
             // 处理 IN 条件
             values := []string{}
             // ... 转换为 Milvus 的 IN 表达式
@@ -267,15 +267,15 @@ package main
 
 import (
     "fmt"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
     "your-project/vectordb"
 )
 
 func main() {
-    queryVector := sqlxb.Vector{0.1, 0.2, 0.3, 0.4}
+    queryVector := xb.Vector{0.1, 0.2, 0.3, 0.4}
     
     // 构建查询
-    built := sqlxb.Of(&CodeVector{}).
+    built := xb.Of(&CodeVector{}).
         Eq("language", "golang").                      // 通用条件
         Gt("quality_score", 0.7).                      // 通用条件
         VectorSearch("embedding", queryVector, 20).    // ⭐ 通用向量检索
@@ -323,7 +323,7 @@ func main() {
 
 ```go
 // ✅ 正确设计
-sqlxb.Of(&Model{}).
+xb.Of(&Model{}).
     VectorSearch("embedding", vec, 20).      // ⭐ 通用方法（外部）
     WithHashDiversity("hash").                // ⭐ 通用方法（外部）
     MilvusX(func(mx *MilvusBuilderX) {
@@ -343,7 +343,7 @@ MilvusX(func(mx *MilvusBuilderX) {
 
 ```go
 // ⭐ 通过扩展 BuilderX 而非修改
-func (x *sqlxb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *sqlxb.BuilderX {
+func (x *xb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *xb.BuilderX {
     // 实现...
     return x  // ⭐ 返回 BuilderX，保持链式调用
 }
@@ -355,7 +355,7 @@ func (x *sqlxb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *sqlxb.BuilderX {
 
 ```go
 // ✅ 正确：使用 Bb 存储 Milvus 参数
-bb := sqlxb.Bb{
+bb := xb.Bb{
     Op:    MILVUS_NPROBE,
     Key:   "nprobe",
     Value: nprobe,
@@ -370,7 +370,7 @@ mx.builder.Bbs = append(mx.builder.Bbs, bb)
 ```go
 // ⭐ 必须提供 X() 方法用于未封装的参数
 func (mx *MilvusBuilderX) X(k string, v interface{}) *MilvusBuilderX {
-    bb := sqlxb.Bb{
+    bb := xb.Bb{
         Op:    MILVUS_XX,  // 专属的 XX 操作符
         Key:   k,
         Value: v,
@@ -393,7 +393,7 @@ MilvusX(func(mx *MilvusBuilderX) {
 ### 1. 命名规范
 
 ```go
-// ✅ 遵循 sqlxb 的 X 后缀命名
+// ✅ 遵循 xb 的 X 后缀命名
 QdrantBuilderX   ✅
 MilvusBuilderX   ✅
 WeaviateBuilderX ✅
@@ -448,7 +448,7 @@ func (mx *MilvusBuilderX) HighSpeed() *MilvusBuilderX {
 // your_project/vectordb/weaviate_x.go
 package vectordb
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 // Weaviate 专属操作符
 const (
@@ -459,11 +459,11 @@ const (
 
 // WeaviateBuilderX Weaviate 专属构建器
 type WeaviateBuilderX struct {
-    builder *sqlxb.BuilderX
+    builder *xb.BuilderX
 }
 
 // WeaviateX 创建 Weaviate 专属构建器
-func (x *sqlxb.BuilderX) WeaviateX(f func(wx *WeaviateBuilderX)) *sqlxb.BuilderX {
+func (x *xb.BuilderX) WeaviateX(f func(wx *WeaviateBuilderX)) *xb.BuilderX {
     wx := &WeaviateBuilderX{builder: x}
     f(wx)
     return x
@@ -472,7 +472,7 @@ func (x *sqlxb.BuilderX) WeaviateX(f func(wx *WeaviateBuilderX)) *sqlxb.BuilderX
 // Certainty 设置 Weaviate 的确定性阈值（0-1）
 func (wx *WeaviateBuilderX) Certainty(certainty float32) *WeaviateBuilderX {
     if certainty > 0 && certainty <= 1 {
-        bb := sqlxb.Bb{
+        bb := xb.Bb{
             Op:    WEAVIATE_CERTAINTY,
             Key:   "certainty",
             Value: certainty,
@@ -484,7 +484,7 @@ func (wx *WeaviateBuilderX) Certainty(certainty float32) *WeaviateBuilderX {
 
 // Alpha 设置混合搜索的权重（0=纯向量, 1=纯关键词）
 func (wx *WeaviateBuilderX) Alpha(alpha float32) *WeaviateBuilderX {
-    bb := sqlxb.Bb{
+    bb := xb.Bb{
         Op:    WEAVIATE_ALPHA,
         Key:   "alpha",
         Value: alpha,
@@ -495,7 +495,7 @@ func (wx *WeaviateBuilderX) Alpha(alpha float32) *WeaviateBuilderX {
 
 // X 自定义参数
 func (wx *WeaviateBuilderX) X(k string, v interface{}) *WeaviateBuilderX {
-    bb := sqlxb.Bb{
+    bb := xb.Bb{
         Op:    WEAVIATE_XX,
         Key:   k,
         Value: v,
@@ -505,14 +505,14 @@ func (wx *WeaviateBuilderX) X(k string, v interface{}) *WeaviateBuilderX {
 }
 
 // ToWeaviateGraphQL 转换为 Weaviate GraphQL 查询
-func (built *sqlxb.Built) ToWeaviateGraphQL(className string) (string, error) {
+func (built *xb.Built) ToWeaviateGraphQL(className string) (string, error) {
     // 1. 提取向量搜索参数
     var queryVector []float32
     var limit int
     
     for _, bb := range built.Conds {
-        if bb.Op == sqlxb.VECTOR_SEARCH {
-            params := bb.Value.(sqlxb.VectorSearchParams)
+        if bb.Op == xb.VECTOR_SEARCH {
+            params := bb.Value.(xb.VectorSearchParams)
             queryVector = params.QueryVector
             limit = params.TopK
             break
@@ -564,7 +564,7 @@ func (built *sqlxb.Built) ToWeaviateGraphQL(className string) (string, error) {
 package main
 
 import (
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
     "your-project/vectordb"
 )
 
@@ -572,7 +572,7 @@ func search(query string, backend string) (interface{}, error) {
     queryVector := embedQuery(query)
     
     // 构建通用查询
-    builder := sqlxb.Of(&CodeVector{}).
+    builder := xb.Of(&CodeVector{}).
         Eq("language", "golang").
         VectorSearch("embedding", queryVector, 20).
         WithHashDiversity("semantic_hash")
@@ -581,7 +581,7 @@ func search(query string, backend string) (interface{}, error) {
     switch backend {
     case "qdrant":
         built := builder.
-            QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+            QdrantX(func(qx *xb.QdrantBuilderX) {
                 qx.HnswEf(256).ScoreThreshold(0.8)
             }).
             Build()
@@ -617,10 +617,10 @@ func search(query string, backend string) (interface{}, error) {
 package vectordb
 
 type LiteVectorBuilderX struct {
-    builder *sqlxb.BuilderX
+    builder *xb.BuilderX
 }
 
-func (x *sqlxb.BuilderX) LiteVectorX(f func(lx *LiteVectorBuilderX)) *sqlxb.BuilderX {
+func (x *xb.BuilderX) LiteVectorX(f func(lx *LiteVectorBuilderX)) *xb.BuilderX {
     lx := &LiteVectorBuilderX{builder: x}
     f(lx)
     return x
@@ -640,7 +640,7 @@ func (lx *LiteVectorBuilderX) InMemory(inMemory bool) *LiteVectorBuilderX {
 }
 
 // 使用
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     LiteVectorX(func(lx *LiteVectorBuilderX) {
         lx.InMemory(true).CacheSize(10000)
@@ -652,17 +652,17 @@ built := sqlxb.Of(&CodeVector{}).
 
 ## ⚠️ 注意事项
 
-### 1. 不要修改 sqlxb 核心代码
+### 1. 不要修改 xb 核心代码
 
 ```go
-// ❌ 错误：修改 sqlxb 核心
+// ❌ 错误：修改 xb 核心
 // sqlxb/builder_x.go
-func (x *BuilderX) MilvusX(...) {  // ❌ 不要在 sqlxb 内添加
+func (x *BuilderX) MilvusX(...) {  // ❌ 不要在 xb 内添加
 }
 
 // ✅ 正确：在自己的包内扩展
 // your_project/vectordb/milvus_x.go
-func (x *sqlxb.BuilderX) MilvusX(...) {  // ✅ 在自己包内添加
+func (x *xb.BuilderX) MilvusX(...) {  // ✅ 在自己包内添加
 }
 ```
 
@@ -677,7 +677,7 @@ const (
     WEAVIATE_CERTAINTY = "WEAVIATE_CERTAINTY"  // ✅
 )
 
-// ❌ 错误：可能与 sqlxb 冲突
+// ❌ 错误：可能与 xb 冲突
 const (
     NPROBE = "NPROBE"  // ❌ 太通用
 )
@@ -689,7 +689,7 @@ const (
 
 ```go
 // ⭐ 如果在 PostgreSQL 环境，Milvus 参数应被忽略
-func (built *sqlxb.Built) SqlOfVectorSearch() (string, []interface{}) {
+func (built *xb.Built) SqlOfVectorSearch() (string, []interface{}) {
     // 自动忽略 MILVUS_* 操作符
     for _, bb := range built.Conds {
         if strings.HasPrefix(bb.Op, "MILVUS_") {

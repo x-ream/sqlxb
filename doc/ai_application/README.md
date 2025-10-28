@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本目录包含 sqlxb 在 AI 应用场景下的集成指南、最佳实践和示例代码。sqlxb 的 AI-First 设计使其成为 RAG、AI Agent 和向量检索应用的理想选择。
+本目录包含 xb 在 AI 应用场景下的集成指南、最佳实践和示例代码。xb 的 AI-First 设计使其成为 RAG、AI Agent 和向量检索应用的理想选择。
 
 ## 🎯 核心特性
 
@@ -47,7 +47,7 @@
 package main
 
 import (
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 type DocumentChunk struct {
@@ -59,7 +59,7 @@ type DocumentChunk struct {
 }
 
 func SearchSimilarChunks(queryVector []float32, limit int) (string, []interface{}, error) {
-    return sqlxb.Of(&DocumentChunk{}).
+    return xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", queryVector).
         Limit(limit).
         Build()
@@ -70,11 +70,11 @@ func SearchSimilarChunks(queryVector []float32, limit int) (string, []interface{
 
 ```go
 func HybridSearch(queryVector []float32, docType string, minScore float64) (string, error) {
-    built := sqlxb.Of(&DocumentChunk{}).
+    built := xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", queryVector, 20).  // 返回 20 条
         Eq("doc_type", docType).                      // 标量过滤
         Ne("status", "deleted").                      // 排除已删除
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(float32(minScore))
         }).
         Build()
@@ -89,7 +89,7 @@ func HybridSearch(queryVector []float32, docType string, minScore float64) (stri
 from langchain.vectorstores import Qdrant
 from langchain.embeddings import OpenAIEmbeddings
 
-# 使用 sqlxb 生成的 Qdrant 查询
+# 使用 xb 生成的 Qdrant 查询
 vector_store = Qdrant(
     client=qdrant_client,
     collection_name="documents",
@@ -97,7 +97,7 @@ vector_store = Qdrant(
 )
 
 results = vector_store.similarity_search_with_score(
-    query="如何使用 sqlxb?",
+    query="如何使用 xb?",
     k=5,
     filter={
         "must": [
@@ -122,7 +122,7 @@ results = vector_store.similarity_search_with_score(
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│                  sqlxb 查询构建                          │
+│                  xb 查询构建                          │
 │   • VectorSearch() - 向量相似度                          │
 │   • Eq/Ne/In - 元数据过滤                                │
 │   • WithScoreThreshold - 相关性阈值                      │
@@ -161,7 +161,7 @@ results = vector_store.similarity_search_with_score(
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│           sqlxb 动态查询构建 (JSON Schema)               │
+│           xb 动态查询构建 (JSON Schema)               │
 │   • 参数验证                                            │
 │   • 查询优化                                            │
 │   • 安全检查                                            │
@@ -210,17 +210,17 @@ results = vector_store.similarity_search_with_score(
 
 ### 1. RAG 知识库 (Go + Qdrant)
 - **目录**: `examples/rag-knowledge-base/`
-- **技术栈**: Go, sqlxb, Qdrant, OpenAI
+- **技术栈**: Go, xb, Qdrant, OpenAI
 - **功能**: 文档上传、分块、向量化、检索
 
 ### 2. AI Agent 工具 (Python + LangChain)
 - **目录**: `examples/langchain-agent/`
-- **技术栈**: Python, LangChain, sqlxb (via API)
+- **技术栈**: Python, LangChain, xb (via API)
 - **功能**: 自然语言查询、多工具调用、结果合成
 
 ### 3. 混合检索 API (Go + PostgreSQL)
 - **目录**: `examples/hybrid-search-api/`
-- **技术栈**: Go, sqlxb, PostgreSQL+pgvector
+- **技术栈**: Go, xb, PostgreSQL+pgvector
 - **功能**: REST API、标量+向量检索、结果排序
 
 ## 📊 性能参考
@@ -286,7 +286,7 @@ go run ./tools/nl2sql -query "查找最近7天创建的活跃用户"
 
 ## 📄 许可证
 
-与 sqlxb 主项目相同，采用 MIT 许可证。
+与 xb 主项目相同，采用 MIT 许可证。
 
 ---
 

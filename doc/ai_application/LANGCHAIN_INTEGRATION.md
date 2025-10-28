@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档介绍如何将 sqlxb 与 Python LangChain 框架集成，构建强大的 RAG 应用。
+本文档介绍如何将 xb 与 Python LangChain 框架集成，构建强大的 RAG 应用。
 
 ## 🏗️ 架构设计
 
@@ -15,7 +15,7 @@
 └──────────────────────────────────────────┘
                     ↓ HTTP/gRPC
 ┌──────────────────────────────────────────┐
-│         Go Backend (sqlxb)                │
+│         Go Backend (xb)                │
 │  • VectorSearch API                       │
 │  • Hybrid Search API                      │
 │  • Document Management API                │
@@ -36,7 +36,7 @@ package main
 import (
     "encoding/json"
     "net/http"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 type SearchRequest struct {
@@ -66,7 +66,7 @@ func handleVectorSearch(w http.ResponseWriter, r *http.Request) {
     }
     
     // 构建查询
-    builder := sqlxb.Of(&DocumentChunk{}).
+    builder := xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", req.Embedding)
     
     // 添加过滤条件
@@ -79,7 +79,7 @@ func handleVectorSearch(w http.ResponseWriter, r *http.Request) {
     
     // 生成 Qdrant 查询
     built := builder.
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(float32(req.ScoreThreshold))
         }).
         Build()
@@ -122,8 +122,8 @@ from langchain.embeddings.base import Embeddings
 from typing import List, Tuple, Optional, Dict, Any
 import requests
 
-class SqlxbVectorStore(VectorStore):
-    """sqlxb 向量存储适配器"""
+class XbVectorStore(VectorStore):
+    """xb 向量存储适配器"""
     
     def __init__(
         self,
@@ -172,7 +172,7 @@ class SqlxbVectorStore(VectorStore):
         # 生成查询向量
         query_embedding = self.embedding.embed_query(query)
         
-        # 调用 sqlxb backend
+        # 调用 xb backend
         response = requests.post(
             f"{self.backend_url}/api/vector-search",
             json={
@@ -216,7 +216,7 @@ class SqlxbVectorStore(VectorStore):
         metadatas: Optional[List[dict]] = None,
         backend_url: str = "http://localhost:8080",
         **kwargs: Any
-    ) -> "SqlxbVectorStore":
+    ) -> "XbVectorStore":
         """从文本创建向量存储"""
         store = cls(backend_url, embedding)
         store.add_texts(texts, metadatas, **kwargs)
@@ -237,7 +237,7 @@ embeddings = OpenAIEmbeddings()
 llm = ChatOpenAI(model="gpt-4", temperature=0)
 
 # 2. 创建向量存储
-vector_store = SqlxbVectorStore(
+vector_store = XbVectorStore(
     backend_url="http://localhost:8080",
     embedding=embeddings,
     collection_name="my_docs"
@@ -282,7 +282,7 @@ qa_chain = RetrievalQA.from_chain_type(
 )
 
 # 5. 查询
-result = qa_chain({"query": "如何使用 sqlxb 构建向量查询？"})
+result = qa_chain({"query": "如何使用 xb 构建向量查询？"})
 
 print(f"回答: {result['result']}")
 print(f"\n来源文档:")
@@ -300,7 +300,7 @@ class SqlxbHybridRetriever(BaseRetriever):
     
     def __init__(
         self,
-        vector_store: SqlxbVectorStore,
+        vector_store: XbVectorStore,
         base_filters: Optional[Dict[str, Any]] = None,
         score_threshold: float = 0.7
     ):
@@ -376,12 +376,12 @@ multi_query_retriever = MultiQueryRetriever.from_llm(
 
 # 单次查询会自动生成多个变体并合并结果
 docs = multi_query_retriever.get_relevant_documents(
-    "sqlxb 如何处理向量查询？"
+    "xb 如何处理向量查询？"
 )
 # 内部可能生成:
-# - "sqlxb vector search usage"
-# - "how to use sqlxb for vector queries"
-# - "sqlxb vector query examples"
+# - "xb vector search usage"
+# - "how to use xb for vector queries"
+# - "xb vector query examples"
 ```
 
 ### 上下文压缩（Contextual Compression）
@@ -401,7 +401,7 @@ compression_retriever = ContextualCompressionRetriever(
 
 # 检索时自动压缩文档，只保留相关部分
 compressed_docs = compression_retriever.get_relevant_documents(
-    "sqlxb 的核心特性是什么？"
+    "xb 的核心特性是什么？"
 )
 ```
 
@@ -435,7 +435,7 @@ metadata_field_info = [
     ),
 ]
 
-document_content_description = "sqlxb 库的技术文档和教程"
+document_content_description = "xb 库的技术文档和教程"
 
 # 创建自查询检索器
 self_query_retriever = SelfQueryRetriever.from_llm(
@@ -460,7 +460,7 @@ docs = self_query_retriever.get_relevant_documents(
 
 ## 🤖 Agent 集成
 
-### 将 sqlxb 作为 Agent 工具
+### 将 xb 作为 Agent 工具
 
 ```python
 from langchain.agents import Tool, AgentType, initialize_agent
@@ -471,7 +471,7 @@ search_tool = Tool(
     name="KnowledgeBaseSearch",
     func=lambda q: vector_store.similarity_search(q, k=3),
     description="""
-    用于搜索 sqlxb 技术文档和教程。
+    用于搜索 xb 技术文档和教程。
     输入应该是一个清晰的问题或关键词。
     返回最相关的文档片段。
     """
@@ -489,7 +489,7 @@ agent = initialize_agent(
 )
 
 # 对话式查询
-response = agent.run("sqlxb 支持哪些数据库？")
+response = agent.run("xb 支持哪些数据库？")
 print(response)
 
 response = agent.run("那 Qdrant 的集成怎么用？")  # 基于历史上下文
@@ -530,7 +530,7 @@ agent = initialize_agent(
     verbose=True
 )
 
-result = agent.run("我想看看如何使用 sqlxb 进行向量检索的代码示例")
+result = agent.run("我想看看如何使用 xb 进行向量检索的代码示例")
 ```
 
 ## 📊 完整应用示例
@@ -547,7 +547,7 @@ class DocQASystem:
         self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
         self.llm = ChatOpenAI(model="gpt-4", temperature=0, openai_api_key=openai_api_key)
         
-        self.vector_store = SqlxbVectorStore(
+        self.vector_store = XbVectorStore(
             backend_url=backend_url,
             embedding=self.embeddings
         )
@@ -693,7 +693,7 @@ vector_store.add_texts_with_embeddings(texts, all_embeddings, metadatas)
 import asyncio
 from langchain.embeddings import OpenAIEmbeddings
 
-class AsyncSqlxbVectorStore(SqlxbVectorStore):
+class AsyncXbVectorStore(XbVectorStore):
     async def aadd_texts(
         self,
         texts: List[str],
@@ -727,7 +727,7 @@ asyncio.run(index_documents_async(documents))
 
 查看 `examples/langchain-rag-app/` 目录获取完整的项目模板，包括:
 
-- ✅ Go Backend API (使用 sqlxb)
+- ✅ Go Backend API (使用 xb)
 - ✅ Python LangChain 客户端
 - ✅ FastAPI REST API
 - ✅ Streamlit Web UI
@@ -737,7 +737,7 @@ asyncio.run(index_documents_async(documents))
 ## 🤝 社区资源
 
 - [LangChain 官方文档](https://python.langchain.com/)
-- [sqlxb 示例仓库](https://github.com/x-ream/xb-examples)
+- [xb 示例仓库](https://github.com/fndome/xb-examples)
 - [常见问题解答](./FAQ.md)
 
 ---

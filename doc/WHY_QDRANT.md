@@ -1,4 +1,4 @@
-# 为什么 sqlxb 选择 Qdrant？
+# 为什么 xb 选择 Qdrant？
 
 ## 🎯 问题：向量数据库选择困难
 
@@ -161,8 +161,8 @@ LanceDB 定位:
   向量化数据平台 for 数据工作者
 
 结论:
-  sqlxb + Qdrant = 完美匹配 ⭐
-  sqlxb + LanceDB = 场景不匹配
+  xb + Qdrant = 完美匹配 ⭐
+  xb + LanceDB = 场景不匹配
 ```
 
 ---
@@ -202,14 +202,14 @@ Qdrant API（简洁）:
   
   ✅ REST API，易于理解
   ✅ JSON，易于调试
-  ✅ sqlxb 易于生成
+  ✅ xb 易于生成
 
 LanceDB API（SQL，但非标准）:
   SELECT * FROM table
   WHERE vector_distance(embedding, [...]) < 0.3
   
   ⚠️ 非标准 SQL 语法
-  ⚠️ sqlxb 难以生成统一 SQL
+  ⚠️ xb 难以生成统一 SQL
 
 Milvus API（复杂）:
   需要先 load collection
@@ -217,7 +217,7 @@ Milvus API（复杂）:
   再执行 search
   
   ❌ 流程复杂
-  ❌ sqlxb 难以封装
+  ❌ xb 难以封装
 ```
 
 ---
@@ -246,12 +246,12 @@ Qdrant 能力:
 
 ```
 错误理解:
-  LanceDB 有 SQL → sqlxb 生成 SQL → 完美匹配
+  LanceDB 有 SQL → xb 生成 SQL → 完美匹配
 
 实际情况:
   ❌ LanceDB 的 SQL 是非标准的
   ❌ 向量语法与 PostgreSQL 不同
-  ❌ sqlxb 需要维护两套 SQL 生成逻辑
+  ❌ xb 需要维护两套 SQL 生成逻辑
   
   而 Qdrant JSON:
   ✅ 格式清晰
@@ -334,7 +334,7 @@ Qdrant 能力:
 
 ## 📊 场景匹配度
 
-### sqlxb 的目标场景
+### xb 的目标场景
 
 ```
 政府/企业内部管理系统:
@@ -401,7 +401,7 @@ Qdrant 能力:
   ✅ 运维友好
 ```
 
-**这就是 sqlxb 的目标用户！**
+**这就是 xb 的目标用户！**
 
 ---
 
@@ -448,7 +448,7 @@ Qdrant 能力:
 优势:
   ✅ 部署极简（PostgreSQL 插件）
   ✅ SQL 原生
-  ✅ 与 sqlxb SQL 生成完美契合
+  ✅ 与 xb SQL 生成完美契合
   
 劣势:
   ❌ 向量检索性能不如专用数据库
@@ -576,7 +576,7 @@ Golang 微服务:
 
 ```
 你的工具:
-  Golang + Gin + sqlxb + Qdrant ⭐
+  Golang + Gin + xb + Qdrant ⭐
 
 需要 sqlxb:
   类型安全的向量查询
@@ -598,7 +598,7 @@ Golang 微服务:
   
 可能不需要 sqlxb:
   自己封装 Milvus SDK
-  或者，等 sqlxb 支持 Milvus（v1.0+）
+  或者，等 xb 支持 Milvus（v1.0+）
 ```
 
 ---
@@ -637,7 +637,7 @@ Golang 微服务:
 sqlxb 架构:
 
 用户代码（不变）:
-  sqlxb.Of(&CodeVector{}).
+  xb.Of(&CodeVector{}).
       VectorSearch("embedding", vec, 20).
       Build()
 
@@ -668,7 +668,7 @@ sqlxb 架构:
 
 ## 📝 总结
 
-### sqlxb 选择 Qdrant 的原因
+### xb 选择 Qdrant 的原因
 
 ```
 ✅ 定位匹配: 应用开发 vs 数据工作者

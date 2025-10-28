@@ -1,4 +1,4 @@
-// Copyright 2020 io.xream.sqlxb
+// Copyright 2025 me.fndo.xb
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -19,7 +19,7 @@ package xb
 import (
 	"strings"
 
-	"github.com/x-ream/xb/internal"
+	"github.com/fndome/xb/internal"
 )
 
 func (built *Built) toAggSql(vs *[]interface{}, bp *strings.Builder) {

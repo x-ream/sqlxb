@@ -13,17 +13,17 @@
          ORDER BY embedding <=> query_vector
 ```
 
-## 🏗️ sqlxb 混合检索实现
+## 🏗️ xb 混合检索实现
 
 ### 基础混合查询
 
 ```go
 func HybridSearch(queryVector []float32, status string, category string) (string, error) {
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", queryVector, 20).  // 向量检索，返回 20 条
         Eq("status", status).                         // 标量过滤
         Eq("category", category).                     // 标量过滤
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.7)
         }).
         Build()
@@ -36,22 +36,22 @@ func HybridSearch(queryVector []float32, status string, category string) (string
 
 ```go
 func AdvancedHybridSearch(params SearchParams) (map[string]interface{}, error) {
-    // ⭐ sqlxb 自动过滤 nil/0/空字符串/time.Time零值，直接传参即可
-    builder := sqlxb.Of(&Document{}).
+    // ⭐ xb 自动过滤 nil/0/空字符串/time.Time零值，直接传参即可
+    builder := xb.Of(&Document{}).
         VectorSearch("embedding", params.QueryVector, params.TopK).
         Eq("status", params.Status).            // 自动过滤空字符串
         Gte("created_at", params.StartDate).    // 自动过滤零值
         Lte("created_at", params.EndDate).      // 自动过滤零值
         In("category", params.Categories...).   // 自动过滤空切片
         Ne("status", "deleted").
-        Or(func(cb *sqlxb.CondBuilder) {
+        Or(func(cb *xb.CondBuilder) {
             for _, tag := range params.Tags {
-                cb.Like("tags", tag).OR()  // ⭐ sqlxb 自动添加 %tag%
+                cb.Like("tags", tag).OR()  // ⭐ xb 自动添加 %tag%
             }
         })  // 空切片时 Or() 会被自动过滤
     
     built := builder.
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(float32(params.MinScore))
         }).
         Build()
@@ -67,7 +67,7 @@ func AdvancedHybridSearch(params SearchParams) (map[string]interface{}, error) {
 ```go
 // 适用于：过滤条件能显著减少候选集
 func FilterThenSearch(vector []float32, mustFilters map[string]interface{}) (string, error) {
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         Eq("status", mustFilters["status"]).       // 先过滤
         Eq("language", mustFilters["language"]).   // 缩小范围
         VectorSearch("embedding", vector, 10).      // 再向量检索，返回 10 条
@@ -82,9 +82,9 @@ func FilterThenSearch(vector []float32, mustFilters map[string]interface{}) (str
 ```go
 // 适用于：需要大量候选结果再精筛
 func SearchThenFilter(vector []float32, optionalFilters map[string]interface{}) (string, error) {
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", vector, 100).  // 粗召回，100 条
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.6)  // 相似度阈值
         }).
         Build()
@@ -99,10 +99,10 @@ func SearchThenFilter(vector []float32, optionalFilters map[string]interface{}) 
 ```go
 func MultiStageHybridSearch(params SearchParams) ([]Document, error) {
     // 阶段 1: 宽松向量检索 + 核心过滤
-    built1 := sqlxb.Of(&Document{}).
+    built1 := xb.Of(&Document{}).
         VectorSearch("embedding", params.Vector, 100).  // 粗召回 100 条
         Eq("language", params.Language).                 // 核心过滤
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.5)  // 宽松阈值
         }).
         Build()
@@ -137,11 +137,11 @@ func MultiStageHybridSearch(params SearchParams) ([]Document, error) {
 func TimeAwareSearch(query string, vector []float32) (string, error) {
     sevenDaysAgo := time.Now().AddDate(0, 0, -7)
     
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", vector, 20).  // 返回 20 条
         Gte("published_at", sevenDaysAgo).       // 最近 7 天
         Eq("status", "published").                // 已发布
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.65)
         }).
         Build()
@@ -155,9 +155,9 @@ func TimeAwareSearch(query string, vector []float32) (string, error) {
 ```go
 func MultilingualSearch(vector []float32, preferredLang string) (string, error) {
     // 优先返回首选语言，但也包含其他语言
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", vector, 20).
-        Or(func(cb *sqlxb.CondBuilder) {
+        Or(func(cb *xb.CondBuilder) {
             cb.Eq("language", preferredLang).OR().  // 首选语言
                Eq("language", "en")                  // 备选语言
         }).
@@ -171,9 +171,9 @@ func MultilingualSearch(vector []float32, preferredLang string) (string, error) 
 
 ```go
 func PermissionAwareSearch(vector []float32, userID int64, userRoles []string) (map[string]interface{}, error) {
-    return sqlxb.Of(&Document{}).
+    return xb.Of(&Document{}).
         VectorSearch("embedding", vector).
-        Or(func(cb *sqlxb.CondBuilder) {
+        Or(func(cb *xb.CondBuilder) {
             // 公开文档
             cb.Eq("visibility", "public").OR()
             
@@ -195,9 +195,9 @@ func PermissionAwareSearch(vector []float32, userID int64, userRoles []string) (
 ```go
 // 支持层级分类：科技 > 人工智能 > 机器学习
 func HierarchicalSearch(vector []float32, category string) (map[string]interface{}, error) {
-    return sqlxb.Of(&Document{}).
+    return xb.Of(&Document{}).
         VectorSearch("embedding", vector).
-        Or(func(cb *sqlxb.CondBuilder) {
+        Or(func(cb *xb.CondBuilder) {
             // 精确匹配
             cb.Eq("category", category).OR()
             
@@ -220,7 +220,7 @@ func HierarchicalSearch(vector []float32, category string) (map[string]interface
 ```go
 // 根据文档新鲜度调整相似度分数
 func FreshnessWeightedSearch(vector []float32) ([]Document, error) {
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", vector, 50).
         Build()
     
@@ -252,7 +252,7 @@ func PersonalizedSearch(vector []float32, userID int64) (map[string]interface{},
     // 获取用户偏好
     userPrefs := getUserPreferences(userID)
     
-    builder := sqlxb.Of(&Document{}).
+    builder := xb.Of(&Document{}).
         VectorSearch("embedding", vector)
     
     // 应用个性化过滤
@@ -279,7 +279,7 @@ func SearchWithNegativeFeedback(vector []float32, userID int64) (map[string]inte
     
     excludeIDs := append(viewedDocs, dislikedDocs...)
     
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", vector, 20).
         NotIn("id", excludeIDs).  // 排除已看过的
         Build()

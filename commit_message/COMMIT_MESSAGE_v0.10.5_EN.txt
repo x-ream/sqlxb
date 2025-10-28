@@ -3,7 +3,7 @@
 ## Core Changes
 
 ### 1. Project Rename
-- ✅ Module name: `github.com/x-ream/sqlxb` → `github.com/x-ream/xb`
+- ✅ Module name: `github.com/x-ream/sqlxb` → `github.com/fndome/xb`
 - ✅ All import paths updated
 - ✅ Package name remains `sqlxb` (backward compatible)
 
@@ -37,7 +37,7 @@
 ```go
 // ✅ Only update import
 import (
-    "github.com/x-ream/xb"  // New path
+    "github.com/fndome/xb"  // New path
 )
 
 // ✅ Code unchanged
@@ -50,12 +50,12 @@ builder := sqlxb.Of(&User{})
 
 1. Update `go.mod`:
    ```
-   require github.com/x-ream/xb v0.10.5
+   require github.com/fndome/xb v0.10.5
    ```
 
 2. Update all `.go` file imports:
    ```
-   github.com/x-ream/sqlxb → github.com/x-ream/xb
+   github.com/x-ream/sqlxb → github.com/fndome/xb
    ```
 
 3. Run tests:

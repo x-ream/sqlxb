@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档提供 sqlxb Builder 的最佳使用实践，帮助开发者避免常见错误，编写高效、可维护的查询代码。
+本文档提供 xb Builder 的最佳使用实践，帮助开发者避免常见错误，编写高效、可维护的查询代码。
 
 ---
 
@@ -13,7 +13,7 @@
 ```go
 // ✅ 正确：每次查询创建新的 Builder
 func GetUser(id int64) (*User, error) {
-    sql, args, _ := sqlxb.Of(&User{}).
+    sql, args, _ := xb.Of(&User{}).
         Eq("id", id).
         Build().
         SqlOfSelect()
@@ -24,7 +24,7 @@ func GetUser(id int64) (*User, error) {
 }
 
 // ❌ 错误：不要复用 Builder
-var userBuilder = sqlxb.Of(&User{}) // 不要这样做！
+var userBuilder = xb.Of(&User{}) // 不要这样做！
 
 func GetUser1() {
     userBuilder.Eq("id", 1).Build() // 危险！
@@ -47,7 +47,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
     id := r.URL.Query().Get("id")
     
     // 每次请求创建新的 Builder
-    sql, args, _ := sqlxb.Of(&User{}).
+    sql, args, _ := xb.Of(&User{}).
         Eq("id", id).
         Build().
         SqlOfSelect()
@@ -56,7 +56,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 // ❌ 错误：不要共享 Builder
-var sharedBuilder = sqlxb.Of(&User{})
+var sharedBuilder = xb.Of(&User{})
 
 func Handler1() {
     sharedBuilder.Eq("status", "active").Build() // 危险！
@@ -74,9 +74,9 @@ func Handler2() {
 ### 3. 充分利用自动过滤
 
 ```go
-// ✅ 正确：直接传递参数，让 sqlxb 自动过滤
+// ✅ 正确：直接传递参数，让 xb 自动过滤
 func SearchUsers(username string, minAge int, status string) {
-    builder := sqlxb.Of(&User{}).
+    builder := xb.Of(&User{}).
         Like("username", username).  // username 为空时自动忽略
         Gte("age", minAge).          // minAge 为 0 时自动忽略
         Eq("status", status)         // status 为空时自动忽略
@@ -87,7 +87,7 @@ func SearchUsers(username string, minAge int, status string) {
 
 // ❌ 错误：不要手动检查 nil/0/空字符串
 func SearchUsers(username string, minAge int, status string) {
-    builder := sqlxb.Of(&User{})
+    builder := xb.Of(&User{})
     
     // 不需要这些判断！
     if username != "" {
@@ -115,7 +115,7 @@ func SearchUsers(username string, minAge int, status string) {
 ```go
 // 获取单条记录
 func GetUser(id int64) (*User, error) {
-    sql, args, _ := sqlxb.Of(&User{}).
+    sql, args, _ := xb.Of(&User{}).
         Eq("id", id).
         Build().
         SqlOfSelect()
@@ -130,7 +130,7 @@ func GetUser(id int64) (*User, error) {
 
 // 获取列表
 func ListUsers(status string, limit int) ([]*User, error) {
-    sql, args, _ := sqlxb.Of(&User{}).
+    sql, args, _ := xb.Of(&User{}).
         Eq("status", status).
         Limit(limit).
         Build().
@@ -149,8 +149,8 @@ func ListUsers(status string, limit int) ([]*User, error) {
 ```go
 // OR 条件
 func SearchUsers(keyword string) ([]*User, error) {
-    sql, args, _ := sqlxb.Of(&User{}).
-        Or(func(cb *sqlxb.CondBuilder) {
+    sql, args, _ := xb.Of(&User{}).
+        Or(func(cb *xb.CondBuilder) {
             cb.Like("username", keyword).
                OR().
                Like("email", keyword)
@@ -165,14 +165,14 @@ func SearchUsers(keyword string) ([]*User, error) {
 
 // 复杂嵌套条件
 func AdvancedSearch(params SearchParams) ([]*User, error) {
-    builder := sqlxb.Of(&User{})
+    builder := xb.Of(&User{})
     
     // 基础条件
     builder.Eq("status", params.Status)
     
     // 年龄范围
     if params.MinAge > 0 || params.MaxAge > 0 {
-        builder.And(func(cb *sqlxb.CondBuilder) {
+        builder.And(func(cb *xb.CondBuilder) {
             cb.Gte("age", params.MinAge).
                Lte("age", params.MaxAge)
         })
@@ -180,7 +180,7 @@ func AdvancedSearch(params SearchParams) ([]*User, error) {
     
     // 关键词搜索
     if params.Keyword != "" {
-        builder.Or(func(cb *sqlxb.CondBuilder) {
+        builder.Or(func(cb *xb.CondBuilder) {
             cb.Like("username", params.Keyword).
                OR().
                Like("email", params.Keyword)
@@ -201,9 +201,9 @@ func AdvancedSearch(params SearchParams) ([]*User, error) {
 ```go
 // Web 分页（带 COUNT）
 func PagedUsers(page, rows int) ([]*User, int64, error) {
-    builder := sqlxb.Of(&User{}).
+    builder := xb.Of(&User{}).
         Eq("status", "active").
-        Paged(func(pb *sqlxb.PageBuilder) {
+        Paged(func(pb *xb.PageBuilder) {
             pb.Page(int64(page)).Rows(int64(rows))
         })
     
@@ -224,7 +224,7 @@ func PagedUsers(page, rows int) ([]*User, int64, error) {
 
 // 简单分页（无 COUNT）
 func ListUsers(limit, offset int) ([]*User, error) {
-    sql, args, _ := sqlxb.Of(&User{}).
+    sql, args, _ := xb.Of(&User{}).
         Limit(limit).
         Offset(offset).
         Build().
@@ -243,7 +243,7 @@ func ListUsers(limit, offset int) ([]*User, error) {
 ```go
 // 基础向量检索
 func SearchSimilarDocs(queryVector []float32, limit int) ([]*Document, error) {
-    sql, args, _ := sqlxb.Of(&Document{}).
+    sql, args, _ := xb.Of(&Document{}).
         VectorSearch("embedding", queryVector, limit).
         Build().
         SqlOfVectorSearch()
@@ -255,7 +255,7 @@ func SearchSimilarDocs(queryVector []float32, limit int) ([]*Document, error) {
 
 // 混合检索（向量 + 标量过滤）
 func HybridSearch(queryVector []float32, docType string, limit int) ([]*Document, error) {
-    sql, args, _ := sqlxb.Of(&Document{}).
+    sql, args, _ := xb.Of(&Document{}).
         VectorSearch("embedding", queryVector, limit).
         Eq("doc_type", docType).
         Ne("status", "deleted").
@@ -275,7 +275,7 @@ func HybridSearch(queryVector []float32, docType string, limit int) ([]*Document
 ```go
 // 基础 Qdrant 查询
 func QdrantSearch(queryVector []float32) (string, error) {
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", queryVector, 20).
         Eq("doc_type", "article").
         Build()
@@ -290,10 +290,10 @@ func QdrantSearch(queryVector []float32) (string, error) {
 
 // 高级 Qdrant 查询
 func QdrantAdvancedSearch(queryVector []float32) (string, error) {
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", queryVector, 20).
         Eq("language", "zh").
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.8).
                HnswEf(128).
                WithVector(true)
@@ -317,7 +317,7 @@ func QdrantAdvancedSearch(queryVector []float32) (string, error) {
 
 ```go
 // ❌ 错误
-var baseBuilder = sqlxb.Of(&User{}).Eq("status", "active")
+var baseBuilder = xb.Of(&User{}).Eq("status", "active")
 
 func GetUser1() {
     sql, _, _ := baseBuilder.Eq("id", 1).Build().SqlOfSelect()
@@ -331,7 +331,7 @@ func GetUser2() {
 
 // ✅ 正确
 func GetUser1() {
-    sql, _, _ := sqlxb.Of(&User{}).
+    sql, _, _ := xb.Of(&User{}).
         Eq("status", "active").
         Eq("id", 1).
         Build().
@@ -339,7 +339,7 @@ func GetUser1() {
 }
 
 func GetUser2() {
-    sql, _, _ := sqlxb.Of(&User{}).
+    sql, _, _ := xb.Of(&User{}).
         Eq("status", "active").
         Eq("id", 2).
         Build().
@@ -394,8 +394,8 @@ func TransferBalance(fromID, toID int64, amount float64) error {
     defer tx.Rollback()
     
     // 每个操作创建新的 Builder
-    sql1, args1, _ := sqlxb.Of(&Account{}).
-        Update(func(ub *sqlxb.UpdateBuilder) {
+    sql1, args1, _ := xb.Of(&Account{}).
+        Update(func(ub *xb.UpdateBuilder) {
             ub.Set("balance", "balance - ?", amount)
         }).
         Eq("id", fromID).
@@ -407,8 +407,8 @@ func TransferBalance(fromID, toID int64, amount float64) error {
         return err
     }
     
-    sql2, args2, _ := sqlxb.Of(&Account{}).
-        Update(func(ub *sqlxb.UpdateBuilder) {
+    sql2, args2, _ := xb.Of(&Account{}).
+        Update(func(ub *xb.UpdateBuilder) {
             ub.Set("balance", "balance + ?", amount)
         }).
         Eq("id", toID).
@@ -432,10 +432,10 @@ func TransferBalance(fromID, toID int64, amount float64) error {
 
 ```go
 // 查询所有字段（默认）
-builder := sqlxb.Of(&User{})
+builder := xb.Of(&User{})
 
 // 只查询部分字段
-builder := sqlxb.Of(&User{}).
+builder := xb.Of(&User{}).
     Select("id", "username", "email")
 ```
 
@@ -457,8 +457,8 @@ builder // 没有 Limit
 
 ```go
 // 封装常用查询
-func ActiveUsers() *sqlxb.BuilderX {
-    return sqlxb.Of(&User{}).Eq("status", "active")
+func ActiveUsers() *xb.BuilderX {
+    return xb.Of(&User{}).Eq("status", "active")
 }
 
 // 使用
@@ -486,7 +486,7 @@ type UserRepository struct {
 }
 
 func (r *UserRepository) GetByID(id int64) (*User, error) {
-    sql, args, _ := sqlxb.Of(&User{}).
+    sql, args, _ := xb.Of(&User{}).
         Eq("id", id).
         Build().
         SqlOfSelect()
@@ -500,7 +500,7 @@ func (r *UserRepository) GetByID(id int64) (*User, error) {
 }
 
 func (r *UserRepository) Search(params SearchParams) ([]*User, error) {
-    builder := sqlxb.Of(&User{}).
+    builder := xb.Of(&User{}).
         Like("username", params.Username).
         Gte("age", params.MinAge).
         Eq("status", params.Status)
@@ -573,7 +573,7 @@ if len(args) != placeholders {
 
 ## 📚 相关文档
 
-- [README](../README.md) - sqlxb 基础用法
+- [README](../README.md) - xb 基础用法
 - [VECTOR_QUICKSTART](./VECTOR_QUICKSTART.md) - 向量数据库快速开始
 - [QDRANT_X_USAGE](./QDRANT_X_USAGE.md) - QdrantX 使用指南
 - [AI Application Docs](./ai_application/README.md) - AI 应用集成

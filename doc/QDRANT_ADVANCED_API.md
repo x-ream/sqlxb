@@ -7,7 +7,7 @@
 
 ## 📋 概述
 
-sqlxb v0.10.0 新增 Qdrant 高级功能：
+ xb  v0.10.0 新增 Qdrant 高级功能：
 - **Recommend API**: 基于正负样本的推荐查询
 - **Discover API**: 基于上下文的探索性查询
 - **Scroll API**: 大数据集游标遍历
@@ -25,7 +25,7 @@ sqlxb v0.10.0 新增 Qdrant 高级功能：
 #### 基本推荐
 
 ```go
-built := sqlxb.Of(&Article{}).
+built := xb.Of(&Article{}).
     Eq("category", "tech").
     QdrantX(func(qx *QdrantBuilderX) {
         qx.Recommend(func(rb *RecommendBuilder) {
@@ -105,7 +105,7 @@ WithVector(true)           // 返回向量
 #### 基本探索
 
 ```go
-built := sqlxb.Of(&Article{}).
+built := xb.Of(&Article{}).
     Eq("category", "tech").
     QdrantX(func(qx *QdrantBuilderX) {
         qx.Discover(func(db *DiscoverBuilder) {
@@ -161,7 +161,7 @@ WithVector(true)
 
 ```go
 // 第一次查询（不设置 scroll_id）
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", queryVec, 100).
     Build()
@@ -183,7 +183,7 @@ response := qdrantClient.Search(collectionName, json)
 // 使用上一次 Qdrant 返回的 scroll_id
 scrollID := response.ScrollID  // ⭐ 从 Qdrant 响应中获取
 
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     QdrantX(func(qx *QdrantBuilderX) {
         qx.ScrollID(scrollID)  // ⭐ 设置 scroll_id
@@ -211,14 +211,14 @@ for {
     
     if scrollID == "" {
         // 初始查询
-        built := sqlxb.Of(&CodeVector{}).
+        built := xb.Of(&CodeVector{}).
             Eq("language", "golang").
             VectorSearch("embedding", queryVec, 100).
             Build()
         json, err = built.ToQdrantJSON()
     } else {
         // 继续滚动
-        built := sqlxb.Of(&CodeVector{}).
+        built := xb.Of(&CodeVector{}).
             Eq("language", "golang").
             QdrantX(func(qx *QdrantBuilderX) {
                 qx.ScrollID(scrollID)
@@ -266,7 +266,7 @@ fmt.Printf("Total: %d records\n", len(allResults))
 
 ```go
 // 用户阅读历史：喜欢 Golang 和分布式系统的文章，不喜欢 PHP
-built := sqlxb.Of(&Article{}).
+built := xb.Of(&Article{}).
     Eq("status", "published").
     QdrantX(func(qx *QdrantBuilderX) {
         qx.Recommend(func(rb *RecommendBuilder) {
@@ -285,7 +285,7 @@ built := sqlxb.Of(&Article{}).
 
 ```go
 // 基于用户 Star 的项目推荐类似项目
-built := sqlxb.Of(&Repository{}).
+built := xb.Of(&Repository{}).
     Eq("language", "go").
     QdrantX(func(qx *QdrantBuilderX) {
         qx.Recommend(func(rb *RecommendBuilder) {
@@ -303,7 +303,7 @@ built := sqlxb.Of(&Repository{}).
 
 ```go
 // 用户阅读了几篇文章后，系统发现"共同主题"
-built := sqlxb.Of(&Article{}).
+built := xb.Of(&Article{}).
     Eq("status", "published").
     QdrantX(func(qx *QdrantBuilderX) {
         qx.Discover(func(db *DiscoverBuilder) {
@@ -334,14 +334,14 @@ func ExportAllCodeVectors(qdrantClient *QdrantClient) error {
         
         if scrollID == "" {
             // ⭐ 初始查询（不设置 scroll_id）
-            built := sqlxb.Of(&CodeVector{}).
+            built := xb.Of(&CodeVector{}).
                 Eq("language", "golang").
                 VectorSearch("embedding", queryVec, batchSize).
                 Build()
             json, err = built.ToQdrantJSON()
         } else {
             // ⭐ 继续滚动（使用 scroll_id）
-            built := sqlxb.Of(&CodeVector{}).
+            built := xb.Of(&CodeVector{}).
                 Eq("language", "golang").
                 QdrantX(func(qx *QdrantBuilderX) {
                     qx.ScrollID(scrollID)

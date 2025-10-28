@@ -2,7 +2,7 @@
 
 ## 📋 概述
 
-本文档介绍如何使用 sqlxb 构建高性能的 RAG（Retrieval-Augmented Generation）应用。涵盖文档分块、向量存储、混合检索、重排序等关键技术。
+本文档介绍如何使用 xb 构建高性能的 RAG（Retrieval-Augmented Generation）应用。涵盖文档分块、向量存储、混合检索、重排序等关键技术。
 
 ## 🏗️ RAG 架构设计
 
@@ -12,18 +12,18 @@
 用户问题 → Embedding → 向量检索 → 重排序 → 上下文增强 → LLM 生成
 ```
 
-### sqlxb 在 RAG 中的角色
+### xb 在 RAG 中的角色
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    文档摄入流程                          │
 └─────────────────────────────────────────────────────────┘
-  原始文档 → 分块 → Embedding → sqlxb.Insert() → Qdrant
+  原始文档 → 分块 → Embedding → xb.Insert() → Qdrant
 
 ┌─────────────────────────────────────────────────────────┐
 │                    检索流程                              │
 └─────────────────────────────────────────────────────────┘
-  用户查询 → Embedding → sqlxb.VectorSearch() 
+  用户查询 → Embedding → xb.VectorSearch() 
            → 标量过滤 → 重排序 → 返回上下文
 ```
 
@@ -201,9 +201,9 @@ func BasicVectorSearch(query string, embeddingFunc func(string) ([]float32, erro
     }
     
     // 构建查询
-    built := sqlxb.Of(&DocumentChunk{}).
+    built := xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", queryVector, 10).
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.7)
         }).
         Build()
@@ -221,17 +221,17 @@ func HybridSearch(query string, filters SearchFilters, embeddingFunc func(string
         return nil, err
     }
     
-    builder := sqlxb.Of(&DocumentChunk{}).
+    builder := xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", queryVector)
     
     // 标量过滤
-    // ⭐ sqlxb 自动过滤 nil/0/空字符串/time.Time零值/空切片，直接传参
+    // ⭐ xb 自动过滤 nil/0/空字符串/time.Time零值/空切片，直接传参
     built := builder.
         Eq("doc_type", filters.DocType).        // 自动过滤空字符串
         Eq("language", filters.Language).       // 自动过滤空字符串
         In("tags", filters.Tags...).            // 自动过滤空切片
         Gte("created_at", filters.AfterDate).   // 自动过滤零值
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.65)
         }).
         Build()
@@ -252,9 +252,9 @@ type SearchFilters struct {
 ```go
 func MultiStageSearch(query string) ([]DocumentChunk, error) {
     // 阶段1: 粗召回（宽松条件，多返回结果）
-    built1 := sqlxb.Of(&DocumentChunk{}).
+    built1 := xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", queryVector, 100).
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.5) // 较低阈值
         }).
         Build()
@@ -296,19 +296,19 @@ func SearchWithContext(query string, expandWindow int) ([]DocumentChunk, error) 
     // 为每个相关 chunk 获取前后文
     for _, chunk := range relevantChunks {
         // 获取前面的 chunks
-        prevChunks, _ := sqlxb.Of(&DocumentChunk{}).
+        prevChunks, _ := xb.Of(&DocumentChunk{}).
             Eq("doc_id", chunk.DocID).
             Gte("chunk_id", chunk.ChunkID-expandWindow).
             Lt("chunk_id", chunk.ChunkID).
-            OrderBy("chunk_id", sqlxb.ASC).
+            OrderBy("chunk_id", xb.ASC).
             Build()
         
         // 获取后面的 chunks
-        nextChunks, _ := sqlxb.Of(&DocumentChunk{}).
+        nextChunks, _ := xb.Of(&DocumentChunk{}).
             Eq("doc_id", chunk.DocID).
             Gt("chunk_id", chunk.ChunkID).
             Lte("chunk_id", chunk.ChunkID+expandWindow).
-            OrderBy("chunk_id", sqlxb.ASC).
+            OrderBy("chunk_id", xb.ASC).
             Build()
         
         // 合并上下文
@@ -412,7 +412,7 @@ package rag
 
 import (
     "context"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 type RAGService struct {
@@ -440,11 +440,11 @@ func (s *RAGService) Query(ctx context.Context, query string, options QueryOptio
     }
     
     // 2. 向量检索 + 标量过滤
-    built := sqlxb.Of(&DocumentChunk{}).
+    built := xb.Of(&DocumentChunk{}).
         VectorSearch("embedding", queryVector, options.TopK * 2).  // 粗召回
         Eq("language", options.Language).
         In("doc_type", options.DocTypes...).
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.6)
         }).
         Build()

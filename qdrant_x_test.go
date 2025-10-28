@@ -1,4 +1,4 @@
-// Copyright 2020 io.xream.sqlxb
+// Copyright 2025 me.fndo.xb
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -119,11 +119,11 @@ func TestQdrantX_HighSpeed(t *testing.T) {
 	t.Logf("✅ 高速模式：HnswEf = %d", req.Params.HnswEf)
 }
 
-// 测试分页（使用 sqlxb 的 Paged()）⭐
+// 测试分页（使用 xb 的 Paged()）⭐
 func TestQdrantX_Paged(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// 使用 sqlxb 的 Paged() 方法
+	// 使用 xb 的 Paged() 方法
 	built := Of(&CodeVectorForQdrant{}).
 		VectorSearch("embedding", queryVector, 20).
 		Paged(func(pb *PageBuilder) {
@@ -150,7 +150,7 @@ func TestQdrantX_Paged(t *testing.T) {
 		t.Errorf("Expected limit 20, got %d", req.Limit)
 	}
 
-	t.Logf("✅ sqlxb Paged() 正确转换为 Qdrant offset/limit")
+	t.Logf("✅ xb Paged() 正确转换为 Qdrant offset/limit")
 }
 
 // 测试精确搜索

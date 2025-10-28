@@ -120,7 +120,7 @@ Key improvement: `X()` method now supports parameterized expressions with automa
 
 ### v0.7.0-v0.7.3 - Core Framework
 
-**Original sqlxb framework**
+**Original xb framework**
 
 | Role | Contributor |
 |------|-------------|
@@ -230,9 +230,9 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) and [MAINTENANCE_STRATEGY.md](./MAINTEN
 ## 📞 Contact
 
 - **Project Owner**: sim-wangyan
-- **GitHub**: https://github.com/x-ream/xb
-- **Issues**: https://github.com/x-ream/xb/issues
-- **Discussions**: https://github.com/x-ream/xb/discussions
+- **GitHub**: https://github.com/fndome/xb
+- **Issues**: https://github.com/fndome/xb/issues
+- **Discussions**: https://github.com/fndome/xb/discussions
 
 ---
 

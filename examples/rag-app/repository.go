@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/fndome/xb"
 	"github.com/jmoiron/sqlx"
-	"github.com/x-ream/xb"
 )
 
 // ChunkRepository 文档分块仓库

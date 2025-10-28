@@ -1,6 +1,6 @@
 # PageIndex 文档结构化检索应用
 
-这是一个结合 **Vectify AI PageIndex** 和 **sqlxb** 的完整应用，展示如何存储和查询文档的层级结构。
+这是一个结合 **Vectify AI PageIndex** 和 **xb** 的完整应用，展示如何存储和查询文档的层级结构。
 
 ## 📋 什么是 PageIndex？
 
@@ -17,7 +17,7 @@ PageIndex (Python) → 生成 JSON 结构
                      ↓
               PostgreSQL (存储)
                      ↓
-              sqlxb (查询)
+              xb (查询)
                      ↓
               应用层 (推理定位)
 ```
@@ -157,18 +157,18 @@ nodes := SearchNodesByTitle(docID, "Financial Stability")
 
 ## 🎯 与传统 RAG 的区别
 
-| 特性 | 传统 RAG | PageIndex + sqlxb |
+| 特性 | 传统 RAG | PageIndex + xb |
 |------|---------|------------------|
 | 分块策略 | 固定大小 | 逻辑结构 |
 | 检索方式 | 向量相似度 | 结构推理 + 查询 |
 | 上下文理解 | 弱 | 强（保留层级） |
-| 查询工具 | 向量数据库 | sqlxb + PostgreSQL |
+| 查询工具 | 向量数据库 | xb + PostgreSQL |
 | 适用场景 | 通用文档 | 结构化报告、书籍 |
 
 ## 📚 相关文档
 
 - [PageIndex GitHub](https://github.com/VectifyAI/PageIndex)
-- [sqlxb Builder Best Practices](../../doc/BUILDER_BEST_PRACTICES.md)
+- [xb Builder Best Practices](../../doc/BUILDER_BEST_PRACTICES.md)
 - [RAG Best Practices](../../doc/ai_application/RAG_BEST_PRACTICES.md)
 
 ---

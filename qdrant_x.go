@@ -1,4 +1,4 @@
-// Copyright 2020 io.xream.sqlxb
+// Copyright 2025 me.fndo.xb
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -28,7 +28,7 @@ type QdrantBuilderX struct {
 // ⭐ 通用方法（VectorSearch, WithHashDiversity）在外部调用
 //
 // 示例:
-//   sqlxb.Of(&CodeVector{}).
+//   xb.Of(&CodeVector{}).
 //       Eq("language", "golang").              // 通用条件
 //       VectorSearch("embedding", vec, 20).    // 通用向量检索
 //       WithHashDiversity("semantic_hash").    // 通用多样性
@@ -226,7 +226,7 @@ func (qx *QdrantBuilderX) ScrollID(scrollID string) *QdrantBuilderX {
 }
 
 // X Qdrant 用户自定义专属参数
-// 用于设置 Qdrant 未来可能新增的参数，或 sqlxb 未封装的参数
+// 用于设置 Qdrant 未来可能新增的参数，或 xb 未封装的参数
 //
 // 示例:
 //   qx.X("quantization", map[string]interface{}{

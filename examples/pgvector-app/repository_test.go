@@ -3,9 +3,9 @@ package main
 import (
 	"testing"
 
+	"github.com/fndome/xb"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/x-ream/xb"
 )
 
 // 注意：这些测试需要实际的 PostgreSQL + pgvector 环境

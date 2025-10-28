@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/x-ream/xb"
+	"github.com/fndome/xb"
 )
 
 func TestDocumentTableName(t *testing.T) {
@@ -49,7 +49,7 @@ func TestSearchRequestValidation(t *testing.T) {
 }
 
 func TestQdrantJSONGeneration(t *testing.T) {
-	// 测试 sqlxb 生成 Qdrant JSON
+	// 测试 xb 生成 Qdrant JSON
 	queryVector := make([]float32, 768)
 	for i := range queryVector {
 		queryVector[i] = 0.1

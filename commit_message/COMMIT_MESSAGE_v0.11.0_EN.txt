@@ -1,0 +1,110 @@
+feat!: GitHub organization migration x-ream → fndome
+
+## ⚠️ BREAKING CHANGE
+
+**GitHub organization migrated from `x-ream` to `fndome`**
+
+### Changes
+
+**Before (v0.10.5)**:
+```go
+module github.com/x-ream/xb
+import "github.com/x-ream/xb"
+```
+
+**Now (v0.11.0)**:
+```go
+module github.com/fndome/xb
+import "github.com/fndome/xb"
+```
+
+---
+
+## 📝 File Changes
+
+### Core Module
+- ✅ `go.mod` - module path: `github.com/fndome/xb`
+- ✅ 7 source files - internal import paths updated
+- ✅ 41 source files - Copyright updated: `2020 io.xream.sqlxb` → `2025 me.fndo.xb`
+
+### Example Applications (4)
+- ✅ `examples/pgvector-app/` - go.mod + 3 source files
+- ✅ `examples/qdrant-app/` - go.mod + 4 source files
+- ✅ `examples/rag-app/` - go.mod + 3 source files
+- ✅ `examples/pageindex-app/` - go.mod + 1 source file
+
+### Documentation
+- ✅ `README.md` - badges and import examples
+- ✅ `MIGRATION.md` - complete migration guide updated
+  - v0.11.0 organization migration instructions
+  - Three-step migration process
+  - Batch replace commands
+  - FAQ
+
+---
+
+## 🔄 User Migration Steps
+
+### 1️⃣ Update go.mod
+```bash
+# Migrate from v0.10.5
+go get github.com/fndome/xb@v0.11.0
+```
+
+### 2️⃣ Batch Replace Import Paths
+```bash
+# Linux/macOS
+find . -name "*.go" -type f -exec sed -i 's|github.com/x-ream/xb|github.com/fndome/xb|g' {} +
+
+# Windows PowerShell
+Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object {
+    (Get-Content $_.FullName) -replace 'github.com/x-ream/xb', 'github.com/fndome/xb' | Set-Content $_.FullName
+}
+```
+
+### 3️⃣ Run Tests
+```bash
+go mod tidy
+go test ./...
+```
+
+---
+
+## ✅ Verification
+
+- ✅ Main project tests pass: `ok github.com/fndome/xb`
+- ✅ All internal imports updated
+- ✅ 4 example applications dependencies updated
+- ✅ Documentation fully updated
+
+---
+
+## 📋 Migration History
+
+### v0.11.0 (2025-10-28)
+- GitHub organization: `x-ream` → `fndome`
+- Module path: `github.com/fndome/xb`
+- Repository URL: `https://github.com/fndome/xb`
+
+### v0.10.5 (2025-10-28)
+- Package name: `sqlxb` → `xb`
+- Module path: `github.com/x-ream/xb`
+
+### v0.10.4 and earlier
+- Package name: `sqlxb`
+- Module path: `github.com/x-ream/sqlxb`
+
+---
+
+## 💡 Why Migrate Organization?
+
+1. **Brand Unification** - All projects under `fndome` organization
+2. **Better Management** - Unified organizational structure
+3. **Long-term Planning** - Prepare for future development
+
+---
+
+**Impact**: All users need to update import paths  
+**Difficulty**: ⭐ Easy (1 minute with batch replace)  
+**Compatibility**: Package name remains `xb`, code unchanged
+

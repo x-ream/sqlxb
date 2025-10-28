@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/x-ream/xb"
+	"github.com/fndome/xb"
 )
 
 // Document 文档模型

@@ -1,6 +1,6 @@
-# Contributing to sqlxb
+# Contributing to xb
 
-It is warmly welcomed if you have interest to hack on sqlxb. First, we encourage this kind of willing very much. And here is a list of contributing guide for you.
+It is warmly welcomed if you have interest to hack on xb. First, we encourage this kind of willing very much. And here is a list of contributing guide for you.
 
 
 ## Topics
@@ -13,13 +13,13 @@ It is warmly welcomed if you have interest to hack on sqlxb. First, we encourage
 
 ## Reporting security issues
 
-Security issues are always treated seriously. As our usual principle, we discourage anyone to spread security issues. If you find a security issue of sqlxb, please do not discuss it in public and even do not open a public issue. Instead we encourage you to send us a private email to  [8966188@gmail.com](mailto:8966188@gmail.com) to report this.
+Security issues are always treated seriously. As our usual principle, we discourage anyone to spread security issues. If you find a security issue of xb, please do not discuss it in public and even do not open a public issue. Instead we encourage you to send us a private email to  [8966188@gmail.com](mailto:8966188@gmail.com) to report this.
 
 ## Reporting general issues
 
-To be honest, we regard every user of sqlxb as a very kind contributor. After experiencing sqlxb, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE](https://github.com/x-ream/xb/issues/new/choose).
+To be honest, we regard every user of xb as a very kind contributor. After experiencing xb, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE](https://github.com/fndome/xb/issues/new/choose).
 
-Since we collaborate project sqlxb in a distributed way, we appreciate ***WELL-WRITTEN***, ***DETAILED***, ***EXPLICIT*** issue reports. To make the communication more efficient, we wish everyone could search if your issue is an existing one in the searching list. If you find it existing, please add your details in comments under the existing issue instead of opening a brand new one.
+Since we collaborate project xb in a distributed way, we appreciate ***WELL-WRITTEN***, ***DETAILED***, ***EXPLICIT*** issue reports. To make the communication more efficient, we wish everyone could search if your issue is an existing one in the searching list. If you find it existing, please add your details in comments under the existing issue instead of opening a brand new one.
 
 To make the issue details as standard as possible, we setup an [ISSUE TEMPLATE](./.github/ISSUE_TEMPLATE) for issue reporters. Please ***BE SURE*** to follow the instructions to fill fields in template.
 
@@ -40,7 +40,7 @@ Also we must remind that when filling a new issue, please remember to remove the
 
 ## Code and doc contribution
 
-Every action to make project sqlxb better is encouraged. On GitHub, every improvement for sqlxb could be via a PR (short for pull request).
+Every action to make project xb better is encouraged. On GitHub, every improvement for xb could be via a PR (short for pull request).
 
 * If you find a typo, try to fix it!
 * If you find a bug, try to fix it!
@@ -57,13 +57,13 @@ Actually it is impossible to list them completely. Just remember one principle:
 
 > WE ARE LOOKING FORWARD TO ANY PR FROM YOU.
 
-Since you are ready to improve sqlxb with a PR, we suggest you could take a look at the PR rules here.
+Since you are ready to improve xb with a PR, we suggest you could take a look at the PR rules here.
 
 * [Workspace Preparation](#workspace-preparation)
 
 ### Workspace Preparation
 
-git clone https://github.com/x-ream/xb.git <br>
+git clone https://github.com/fndome/xb.git <br>
 or fork it ....
 
 For test: <br>
@@ -72,21 +72,21 @@ or fork it ....
 
 ## Test case contribution
 
-Any test case would be welcomed. Currently, sqlxb function test cases are high priority.
+Any test case would be welcomed. Currently, xb function test cases are high priority.
 Welcome to submit PR of test case to https://github.com/sim-wangyan/sqlxb-test-on-sqlx , <br>
 or to your own project like https://github.com/xxxxx/sqlxb-test-xxxxx
 
 ## Engage to help anything
 
-We choose GitHub as the primary place for sqlxb to collaborate. So the latest updates of sqlxb are always here. Although contributions via PR is an explicit way to help, we still call for any other ways.
+We choose GitHub as the primary place for xb to collaborate. So the latest updates of xb are always here. Although contributions via PR is an explicit way to help, we still call for any other ways.
 
 * reply to other's issues if you could;
 * help solve other user's problems;
 * help review other's PR design;
 * help review other's codes in PR;
-* discuss about sqlxb to make things clearer;
-* advocate sqlxb technology beyond GitHub;
-* write blogs on sqlxb and so on.
+* discuss about xb to make things clearer;
+* advocate xb technology beyond GitHub;
+* write blogs on xb and so on.
 
 
 In a word, ***ANY HELP IS CONTRIBUTION.***

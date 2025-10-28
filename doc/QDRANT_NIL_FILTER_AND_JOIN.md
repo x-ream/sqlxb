@@ -56,7 +56,7 @@ func (cb *CondBuilder) doGLE(p string, k string, v interface{}) *CondBuilder {
 ```
 用户代码
   ↓
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     Eq("language", "golang").      // ✅ 有效值
     Eq("category", "").            // ⭐ 空字符串
     Gt("score", 0.8).              // ✅ 有效值
@@ -87,7 +87,7 @@ ToQdrantJSON()
 
 ```go
 // 测试：包含 nil/0 的查询
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").      // ✅
     Eq("category", "").            // ⭐ 被过滤
     Gt("score", 0.8).              // ✅
@@ -204,7 +204,7 @@ $ go test -v -run TestPostgreSQL_NilZeroFilter
 
 ```go
 // 一次查询获取所有数据
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Eq("author.department", "后端组").  // ⭐ 嵌套过滤
     VectorSearch("embedding", queryVector, 20).
@@ -245,7 +245,7 @@ json, _ := built.ToQdrantJSON()
 
 ```go
 // 第 1 阶段：查询代码向量
-codeResults := sqlxb.Of(&CodeVector{}).
+codeResults := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 20).
     Build().
     QueryQdrant()  // 假设的方法
@@ -257,7 +257,7 @@ for _, code := range codeResults {
 }
 
 // 第 2 阶段：批量查询作者信息（从 MySQL 或另一个集合）
-authors := sqlxb.Of(&Author{}).
+authors := xb.Of(&Author{}).
     In("id", authorIDs...).
     Build().
     Query()
@@ -329,7 +329,7 @@ for _, code := range codeResults {
 
 ```go
 // Step 1: Qdrant 向量检索
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 100).
     Build()
 
@@ -384,14 +384,14 @@ results := db.Query(query, codeIDs, "后端组")
 
 ---
 
-## 🎯 sqlxb 的优势
+## 🎯 xb 的优势
 
 ### 优势 1: 统一 API
 
 ```go
 // 相同的代码
 
-builder := sqlxb.Of(&CodeVector{}).
+builder := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Eq("category", "").            // ⭐ 自动过滤
     VectorSearch("embedding", vec, 20)
@@ -420,7 +420,7 @@ if score > 0 {
     builder.Gt("score", score)
 }
 
-✅ sqlxb 自动过滤（简洁）:
+✅ xb 自动过滤（简洁）:
 builder.
     Eq("language", language).  // 空字符串自动忽略
     Gt("score", score)         // 0 自动忽略

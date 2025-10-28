@@ -63,7 +63,7 @@
 - 🔧 如何扩展支持 Milvus, Weaviate 等
 - 📦 完整的实现示例
 - 🎯 设计原则和最佳实践
-- ✅ 不修改 sqlxb 核心代码
+- ✅ 不修改 xb 核心代码
 
 ---
 
@@ -147,7 +147,7 @@
 
 ### 解决的核心痛点
 
-| 痛点 | 影响 | sqlxb 方案 |
+| 痛点 | 影响 | xb 方案 |
 |------|------|-----------|
 | API 碎片化 | 每个 DB 学 2-3 天 | 统一 API，零学习 |
 | 无 ORM | 手动拼接，易出错 | 类型安全 ORM |
@@ -219,8 +219,8 @@ results = collection.search(
 #### sqlxb（解决方案）
 
 ```go
-// sqlxb (Golang)
-results := sqlxb.Of(&model.CodeVector{}).
+// xb (Golang)
+results := xb.Of(&model.CodeVector{}).
     Eq("language", "golang").
     In("layer", []string{"repository", "service"}).
     VectorSearch("embedding", queryVector, 10).
@@ -264,7 +264,7 @@ Month 3: 生态完善 → v0.8.0
 2027+:   AI 基础设施
 ```
 
-**让 AI 成为 sqlxb 的维护者，开启开源新时代！** 🚀
+**让 AI 成为 xb 的维护者，开启开源新时代！** 🚀
 
 ---
 
@@ -273,8 +273,8 @@ Month 3: 生态完善 → v0.8.0
 ### 文档反馈
 
 发现问题或有建议？
-- GitHub Issues: [新建 Issue](https://github.com/x-ream/xb/issues)
-- GitHub Discussions: [参与讨论](https://github.com/x-ream/xb/discussions)
+- GitHub Issues: [新建 Issue](https://github.com/fndome/xb/issues)
+- GitHub Discussions: [参与讨论](https://github.com/fndome/xb/discussions)
 
 ### 技术问题
 

@@ -21,15 +21,15 @@
 ### 基础用法
 
 ```go
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
-queryVector := sqlxb.Vector{0.1, 0.2, 0.3, 0.4}
+queryVector := xb.Vector{0.1, 0.2, 0.3, 0.4}
 
 // 推荐用法：VectorSearch 在外部，QdrantX 只配置 Qdrant 专属参数
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").                    // 通用条件
     VectorSearch("embedding", queryVector, 20).  // ⭐ 通用向量检索
-    QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+    QdrantX(func(qx *xb.QdrantBuilderX) {
         // ⭐ 只有 Qdrant 专属配置
         qx.HnswEf(256).
             ScoreThreshold(0.8)
@@ -103,11 +103,11 @@ qx.WithVector(withVector bool)
 qx.X(key string, value interface{})
 ```
 
-**⚠️ 分页说明**: 不使用 `QdrantX` 设置分页，应该使用 `sqlxb` 的 `Paged()` 方法！
+**⚠️ 分页说明**: 不使用 `QdrantX` 设置分页，应该使用 `xb` 的 `Paged()` 方法！
 
 ```go
 // ✅ 正确的分页方式
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     Paged(3, 20).  // ⭐ 第 3 页，每页 20 条
     QdrantX(func(qx *QdrantBuilderX) {
@@ -126,11 +126,11 @@ sqlxb.Of(&CodeVector{}).
 // 需求：查找最相似的代码，要求高精度
 queryVector := embedding.Encode("用户登录逻辑")
 
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).  // ⭐ 通用向量检索
     WithHashDiversity("semantic_hash").           // ⭐ 通用多样性
-    QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+    QdrantX(func(qx *xb.QdrantBuilderX) {
         qx.HighPrecision().         // ⭐ Qdrant 专属：高精度模式
             ScoreThreshold(0.9)     // ⭐ Qdrant 专属：高阈值
     }).
@@ -165,11 +165,11 @@ json, _ := built.ToQdrantJSON()
 // 需求：快速推荐相关文章，可以容忍轻微误差
 articleVector := currentArticle.Embedding
 
-built := sqlxb.Of(&Article{}).
+built := xb.Of(&Article{}).
     Eq("category", "tech").
     VectorSearch("embedding", articleVector, 20).  // ⭐ 通用向量检索
     WithMMR(0.6).                                   // ⭐ 通用多样性
-    QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+    QdrantX(func(qx *xb.QdrantBuilderX) {
         qx.HighSpeed()                              // ⭐ Qdrant 专属：高速模式
     }).
     Build()
@@ -199,10 +199,10 @@ json, _ := built.ToQdrantJSON()
 page := 3      // 第 3 页
 pageSize := 20 // 每页 20 条
 
-built := sqlxb.Of(&Document{}).
+built := xb.Of(&Document{}).
     VectorSearch("embedding", queryVector, pageSize).  // ⭐ 通用向量检索
-    Paged(page, pageSize).                             // ⭐ 使用 sqlxb 的 Paged()
-    QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+    Paged(page, pageSize).                             // ⭐ 使用 xb 的 Paged()
+    QdrantX(func(qx *xb.QdrantBuilderX) {
         qx.Balanced()                                  // ⭐ Qdrant 专属：平衡模式
     }).
     Build()
@@ -229,14 +229,14 @@ json, _ := built.ToQdrantJSON()
 
 ```go
 // 需求：生产级查询，需要精细控制
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Gt("quality_score", 0.7).
     VectorSearch("embedding", queryVector, 20).       // ⭐ 通用向量检索
-    VectorDistance(sqlxb.CosineDistance).             // ⭐ 通用距离度量
+    VectorDistance(xb.CosineDistance).             // ⭐ 通用距离度量
     WithHashDiversity("semantic_hash").               // ⭐ 通用多样性
     Paged(1, 20).                                     // ⭐ 通用分页
-    QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+    QdrantX(func(qx *xb.QdrantBuilderX) {
         qx.HnswEf(256).                               // ⭐ Qdrant 专属：精度
             ScoreThreshold(0.75).                     // ⭐ Qdrant 专属：阈值
             WithVector(false)                         // ⭐ Qdrant 专属：不返回向量
@@ -255,11 +255,11 @@ json, _ := built.ToQdrantJSON()
 ```go
 // VectorSearch 和多样性在外部（通用方法）
 // QdrantX 只配置 Qdrant 专属参数
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").                     // 通用条件
     VectorSearch("embedding", vec, 20).           // ⭐ 通用向量检索
     WithHashDiversity("semantic_hash").           // ⭐ 通用多样性
-    QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+    QdrantX(func(qx *xb.QdrantBuilderX) {
         qx.HnswEf(256).                           // ⭐ Qdrant 专属
             ScoreThreshold(0.8).                  // ⭐ Qdrant 专属
             WithVector(false)                     // ⭐ Qdrant 专属
@@ -270,7 +270,7 @@ built := sqlxb.Of(&CodeVector{}).
 **优点**：
 - ✅ 清晰的职责分离（通用 vs Qdrant 专属）
 - ✅ 可以同时生成 PostgreSQL SQL 和 Qdrant JSON
-- ✅ 与 sqlxb 风格一致
+- ✅ 与 xb 风格一致
 
 ---
 
@@ -362,14 +362,14 @@ qx.WithVector(true)
 package main
 
 import (
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
     "github.com/qdrant/go-client/qdrant"
 )
 
 type CodeVector struct {
     Id           int64  `db:"id"`
     Content      string `db:"content"`
-    Embedding    sqlxb.Vector `db:"embedding"`
+    Embedding    xb.Vector `db:"embedding"`
     Language     string `db:"language"`
     SemanticHash string `db:"semantic_hash"`
 }
@@ -383,11 +383,11 @@ func searchCode(query string, language string) ([]CodeVector, error) {
     queryVector := callEmbeddingService(query)
     
     // 2. 构建 Qdrant 查询
-    built := sqlxb.Of(&CodeVector{}).
+    built := xb.Of(&CodeVector{}).
         Eq("language", language).
         VectorSearch("embedding", queryVector, 20).     // ⭐ 通用向量检索
         WithHashDiversity("semantic_hash").             // ⭐ 通用多样性
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.Balanced().                              // ⭐ Qdrant 专属：平衡模式
                 ScoreThreshold(0.7).                    // ⭐ Qdrant 专属：最低相似度
                 WithVector(false)                       // ⭐ Qdrant 专属：不返回向量
@@ -413,10 +413,10 @@ func searchCode(query string, language string) ([]CodeVector, error) {
 func searchCodesPaged(query string, page, pageSize int) ([]CodeVector, error) {
     queryVector := callEmbeddingService(query)
     
-    built := sqlxb.Of(&CodeVector{}).
+    built := xb.Of(&CodeVector{}).
         VectorSearch("embedding", queryVector, pageSize).  // ⭐ 通用向量检索
         Paged(page, pageSize).                             // ⭐ 通用分页（sqlxb 方法）
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.Balanced()                                  // ⭐ Qdrant 专属：平衡模式
         }).
         Build()
@@ -442,10 +442,10 @@ results3 := searchCodesPaged("user login", 3, 20) // 第 3 页
 func searchLegalCases(query string) ([]LegalCase, error) {
     queryVector := callEmbeddingService(query)
     
-    built := sqlxb.Of(&LegalCase{}).
+    built := xb.Of(&LegalCase{}).
         Eq("court_level", "最高法院").
         VectorSearch("case_embedding", queryVector, 10).  // ⭐ 通用向量检索
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.HighPrecision().         // ⭐ Qdrant 专属：高精度（ef=512）
                 ScoreThreshold(0.95)    // ⭐ Qdrant 专属：高阈值
         }).
@@ -464,12 +464,12 @@ func searchLegalCases(query string) ([]LegalCase, error) {
 
 ```go
 // 内容推荐：速度优先，轻微误差可接受
-func recommendArticles(userVector sqlxb.Vector) ([]Article, error) {
-    built := sqlxb.Of(&Article{}).
+func recommendArticles(userVector xb.Vector) ([]Article, error) {
+    built := xb.Of(&Article{}).
         Eq("status", "published").
         VectorSearch("embedding", userVector, 50).     // ⭐ 通用向量检索
         WithMMR(0.6).                                   // ⭐ 通用多样性（避免重复推荐）
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.HighSpeed().                             // ⭐ Qdrant 专属：高速模式（ef=32）
                 ScoreThreshold(0.5).                    // ⭐ Qdrant 专属：较低阈值（扩大范围）
                 WithVector(false)                       // ⭐ Qdrant 专属：不返回向量
@@ -515,9 +515,9 @@ func recommendArticles(userVector sqlxb.Vector) ([]Article, error) {
 func search(query string, precision string) {
     queryVector := callEmbeddingService(query)
     
-    built := sqlxb.Of(&CodeVector{}).
+    built := xb.Of(&CodeVector{}).
         VectorSearch("embedding", queryVector, 20).  // ⭐ 通用向量检索
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             // 根据用户选择调整精度
             switch precision {
             case "high":
@@ -540,7 +540,7 @@ func search(query string, precision string) {
 func search(query string, needDiversity bool) {
     queryVector := callEmbeddingService(query)
     
-    builder := sqlxb.Of(&CodeVector{}).
+    builder := xb.Of(&CodeVector{}).
         VectorSearch("embedding", queryVector, 20)  // ⭐ 通用向量检索
     
     // 条件性应用多样性（在外部）
@@ -549,7 +549,7 @@ func search(query string, needDiversity bool) {
     }
     
     built := builder.
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.Balanced()  // ⭐ Qdrant 专属配置
         }).
         Build()
@@ -585,7 +585,7 @@ func search(query string, needDiversity bool) {
 
 ```go
 // ⭐ 推荐：清晰分离通用方法和 Qdrant 专属配置
-sqlxb.Of(&Model{}).
+xb.Of(&Model{}).
     Eq("common_field", value).       // 通用条件
     VectorSearch("embedding", vec, 20).  // ⭐ 通用向量检索
     WithHashDiversity("hash_field").     // ⭐ 通用多样性

@@ -10,19 +10,19 @@
 
 ```go
 // 哈希去重
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     WithHashDiversity("semantic_hash").
     Build()
 
 // 最小距离
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     WithMinDistance(0.3).
     Build()
 
 // MMR 算法
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     WithMMR(0.5).
     Build()
@@ -40,7 +40,7 @@ sqlxb.Of(&CodeVector{}).
 生成 Qdrant 搜索 JSON，支持完整的混合查询。
 
 ```go
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Gt("quality_score", 0.8).
     VectorSearch("embedding", vec, 20).
@@ -80,7 +80,7 @@ json, err := built.ToQdrantJSON()
 
 ```go
 // 同一个 Builder
-builder := sqlxb.Of(&CodeVector{}).
+builder := xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     WithHashDiversity("semantic_hash")  // 多样性参数
 
@@ -221,12 +221,12 @@ Builder 构建时过滤（sqlxb 方式）:
 
 ```go
 // v0.8.1 代码（不变）
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     Build()
 
 // v0.9.0 新功能（可选）
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     WithHashDiversity("semantic_hash").  // ⭐ 新增
     Build().
@@ -243,7 +243,7 @@ sqlxb.Of(&CodeVector{}).
 // 问题：返回 20 个几乎重复的登录代码
 // 解决：基于语义哈希去重
 
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", vec, 20).
     WithHashDiversity("semantic_hash").
@@ -262,7 +262,7 @@ json, _ := built.ToQdrantJSON()
 
 ```go
 // 推荐相关但多样化的文章
-sqlxb.Of(&Article{}).
+xb.Of(&Article{}).
     Ne("id", currentArticle.Id).
     VectorSearch("embedding", currentArticle.Embedding, 10).
     WithMMR(0.6).  // 60% 相关性，40% 多样性
@@ -279,7 +279,7 @@ qdrantResults := qdrantClient.Search(built.ToQdrantJSON())
 
 // Step 2: PostgreSQL 关系查询
 codeIDs := extractIDs(qdrantResults)
-results := sqlxb.Of(&CodeWithAuthor{}).
+results := xb.Of(&CodeWithAuthor{}).
     In("code.id", codeIDs...).
     Build().
     Query()
@@ -295,7 +295,7 @@ results := sqlxb.Of(&CodeWithAuthor{}).
 
 ```bash
 # 更新依赖
-go get github.com/x-ream/xb@v0.9.0
+go get github.com/fndome/xb@v0.9.0
 go mod tidy
 ```
 
@@ -349,8 +349,8 @@ json, _ := built.ToQdrantJSON()
 - **文档**：[VECTOR_README.md](./VECTOR_README.md)
 - **快速开始**：[VECTOR_QUICKSTART.md](./VECTOR_QUICKSTART.md)
 - **Qdrant 指南**：[VECTOR_DIVERSITY_QDRANT.md](./VECTOR_DIVERSITY_QDRANT.md)
-- **GitHub**：https://github.com/x-ream/xb
-- **Issues**：https://github.com/x-ream/xb/issues
+- **GitHub**：https://github.com/fndome/xb
+- **Issues**：https://github.com/fndome/xb/issues
 
 ---
 

@@ -1,6 +1,6 @@
 # xb Vector Database - Quick Start
 
-**5 分钟快速上手 sqlxb 向量数据库支持**
+**5 分钟快速上手 xb 向量数据库支持**
 
 ---
 
@@ -14,13 +14,13 @@ package main
 import (
     "fmt"
     "time"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 type CodeVector struct {
     Id        int64        `db:"id"`
     Content   string       `db:"content"`
-    Embedding sqlxb.Vector `db:"embedding"`  // ⭐ 向量字段
+    Embedding xb.Vector `db:"embedding"`  // ⭐ 向量字段
     Language  string       `db:"language"`
     Layer     string       `db:"layer"`
     CreatedAt time.Time    `db:"created_at"`
@@ -37,9 +37,9 @@ func (CodeVector) TableName() string {
 
 ```go
 
-queryVector := sqlxb.Vector{0.1, 0.2, 0.3, 0.4, 0.5}
+queryVector := xb.Vector{0.1, 0.2, 0.3, 0.4, 0.5}
 
-sql, args := sqlxb.Of(&CodeVector{}).
+sql, args := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 10).
     Build().
     SqlOfVectorSearch()
@@ -57,7 +57,7 @@ fmt.Println(sql)
 ### 3. 向量 + 标量过滤
 
 ```go
-sql, args := sqlxb.Of(&CodeVector{}).
+sql, args := xb.Of(&CodeVector{}).
     Eq("language", "golang").        // 标量过滤
     Eq("layer", "repository").       // 标量过滤
     VectorSearch("embedding", queryVector, 10).
@@ -78,22 +78,22 @@ sql, args := sqlxb.Of(&CodeVector{}).
 
 ```go
 // 余弦距离（默认）
-sql, args := sqlxb.Of(&CodeVector{}).
+sql, args := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 10).
     Build().
     SqlOfVectorSearch()
 
 // L2 距离（欧氏距离）
-sql, args := sqlxb.Of(&CodeVector{}).
+sql, args := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 10).
-    VectorDistance(sqlxb.L2Distance).
+    VectorDistance(xb.L2Distance).
     Build().
     SqlOfVectorSearch()
 
 // 内积
-sql, args := sqlxb.Of(&CodeVector{}).
+sql, args := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 10).
-    VectorDistance(sqlxb.InnerProduct).
+    VectorDistance(xb.InnerProduct).
     Build().
     SqlOfVectorSearch()
 ```
@@ -104,7 +104,7 @@ sql, args := sqlxb.Of(&CodeVector{}).
 
 ```go
 // 只返回距离 < 0.3 的结果
-sql, args := sqlxb.Of(&CodeVector{}).
+sql, args := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorDistanceFilter("embedding", queryVector, "<", 0.3).
     Build().
@@ -123,9 +123,9 @@ sql, args := sqlxb.Of(&CodeVector{}).
 ### 6. 动态查询（自动忽略 nil）
 
 ```go
-// 完美利用 sqlxb 的自动忽略特性
+// 完美利用 xb 的自动忽略特性
 func SearchCode(filter SearchFilter) {
-    sql, args := sqlxb.Of(&CodeVector{}).
+    sql, args := xb.Of(&CodeVector{}).
         Eq("language", filter.Language).  // nil? 忽略
         Eq("layer", filter.Layer).        // nil? 忽略
         In("tags", filter.Tags).          // empty? 忽略
@@ -144,13 +144,13 @@ func SearchCode(filter SearchFilter) {
 ```go
 code := &CodeVector{
     Content:   "func main() { ... }",
-    Embedding: sqlxb.Vector{0.1, 0.2, 0.3},
+    Embedding: xb.Vector{0.1, 0.2, 0.3},
     Language:  "golang",
     Layer:     "main",
 }
 
-sql, args := sqlxb.Of(code).
-    Insert(func(ib *sqlxb.InsertBuilder) {
+sql, args := xb.Of(code).
+    Insert(func(ib *xb.InsertBuilder) {
         ib.Set("content", code.Content).
             Set("embedding", code.Embedding).
             Set("language", code.Language).
@@ -165,19 +165,19 @@ sql, args := sqlxb.Of(code).
 ### 8. 向量距离计算
 
 ```go
-vec1 := sqlxb.Vector{1.0, 0.0, 0.0}
-vec2 := sqlxb.Vector{0.0, 1.0, 0.0}
+vec1 := xb.Vector{1.0, 0.0, 0.0}
+vec2 := xb.Vector{0.0, 1.0, 0.0}
 
 // 余弦距离
-dist := vec1.Distance(vec2, sqlxb.CosineDistance)
+dist := vec1.Distance(vec2, xb.CosineDistance)
 fmt.Printf("余弦距离: %.4f\n", dist)  // 1.0000
 
 // L2 距离
-dist = vec1.Distance(vec2, sqlxb.L2Distance)
+dist = vec1.Distance(vec2, xb.L2Distance)
 fmt.Printf("L2 距离: %.4f\n", dist)  // 1.4142
 
 // 向量归一化
-vec := sqlxb.Vector{3.0, 4.0}
+vec := xb.Vector{3.0, 4.0}
 normalized := vec.Normalize()
 fmt.Println(normalized)  // [0.6, 0.8]
 ```
@@ -196,14 +196,14 @@ type CodeVectorRepo struct {
 }
 
 func (r *CodeVectorRepo) SearchSimilar(
-    queryVector sqlxb.Vector,
+    queryVector xb.Vector,
     language string,
     layer string,
     topK int,
 ) ([]*CodeVector, error) {
     
-    // 使用 sqlxb 构建查询
-    sql, args := sqlxb.Of(&CodeVector{}).
+    // 使用 xb 构建查询
+    sql, args := xb.Of(&CodeVector{}).
         Eq("language", language).
         Eq("layer", layer).
         VectorSearch("embedding", queryVector, topK).
@@ -246,14 +246,14 @@ func (s *CodeSearchService) SearchCode(query string, filter SearchFilter) ([]*Co
 
 ```go
 // MySQL 查询（现有）
-sqlxb.Of(&Order{}).
+xb.Of(&Order{}).
     Eq("status", 1).
     Gt("amount", 1000).
     Build().
     SqlOfSelect()
 
 // 向量检索（新增）- 完全相同的 API！
-sqlxb.Of(&CodeVector{}).
+xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Gt("created_at", yesterday).
     VectorSearch("embedding", queryVector, 10).

@@ -8,7 +8,7 @@
 
 ## 📋 Summary
 
-Add vector database support to sqlxb, making it **the first unified ORM for both relational and vector databases**.
+Add vector database support to xb, making it **the first unified ORM for both relational and vector databases**.
 
 ---
 
@@ -16,7 +16,7 @@ Add vector database support to sqlxb, making it **the first unified ORM for both
 
 ### Core Capabilities
 
-- ✅ **Vector Type**: `sqlxb.Vector` with database compatibility (driver.Valuer, sql.Scanner)
+- ✅ **Vector Type**: `xb.Vector` with database compatibility (driver.Valuer, sql.Scanner)
 - ✅ **Distance Metrics**: Cosine Distance, L2 Distance, Inner Product
 - ✅ **Vector Search API**: `VectorSearch()` for unified query interface
 - ✅ **Distance Control**: `VectorDistance()` for flexible metrics
@@ -29,10 +29,10 @@ Add vector database support to sqlxb, making it **the first unified ORM for both
 1. **Unified API** (Zero learning curve)
    ```go
    // MySQL (existing)
-   sqlxb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
+   xb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
    
    // VectorDB (new) - Same API!
-   sqlxb.Of(&CodeVector{}).
+   xb.Of(&CodeVector{}).
        Eq("language", "golang").
        VectorSearch("embedding", queryVector, 10).
        Build().SqlOfVectorSearch()
@@ -130,12 +130,12 @@ Total: 10/10 (100%)
 ```go
 package main
 
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 type CodeVector struct {
     Id        int64        `db:"id"`
     Content   string       `db:"content"`
-    Embedding sqlxb.Vector `db:"embedding"`
+    Embedding xb.Vector `db:"embedding"`
     Language  string       `db:"language"`
     Layer     string       `db:"layer"`
 }
@@ -145,10 +145,10 @@ func (CodeVector) TableName() string {
 }
 
 func main() {
-    queryVector := sqlxb.Vector{0.1, 0.2, 0.3, ...}
+    queryVector := xb.Vector{0.1, 0.2, 0.3, ...}
     
     // Search similar code
-    sql, args := sqlxb.Of(&CodeVector{}).
+    sql, args := xb.Of(&CodeVector{}).
         Eq("language", "golang").
         Eq("layer", "repository").
         VectorSearch("embedding", queryVector, 10).
@@ -172,7 +172,7 @@ LIMIT 10
 
 ## 📊 Comparison
 
-| Feature | sqlxb | Milvus | Qdrant | ChromaDB | pgvector |
+| Feature | xb | Milvus | Qdrant | ChromaDB | pgvector |
 |---------|-------|--------|--------|----------|----------|
 | Unified API | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
 | ORM Support | ⭐⭐⭐⭐⭐ | ❌ | ❌ | ❌ | ⭐⭐⭐ |
@@ -216,5 +216,5 @@ Comment below or join the discussion!
 
 ---
 
-**This is a major milestone for sqlxb - making it the AI-First ORM for the AI era!** 🚀
+**This is a major milestone for xb - making it the AI-First ORM for the AI era!** 🚀
 

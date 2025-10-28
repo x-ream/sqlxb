@@ -1,6 +1,6 @@
 # PostgreSQL + pgvector 完整应用示例
 
-这是一个使用 sqlxb + PostgreSQL + pgvector 构建的完整代码搜索应用。
+这是一个使用 xb + PostgreSQL + pgvector 构建的完整代码搜索应用。
 
 ## 📋 功能
 
@@ -14,7 +14,7 @@
 ### 1. 安装依赖
 
 ```bash
-go get github.com/x-ream/xb
+go get github.com/fndome/xb
 go get github.com/jmoiron/sqlx
 go get github.com/lib/pq
 ```
@@ -87,7 +87,7 @@ pgvector-app/
 
 ## 📚 相关文档
 
-- [sqlxb README](../../README.md)
+- [xb README](../../README.md)
 - [Vector Database Quick Start](../../doc/VECTOR_QUICKSTART.md)
 - [Builder Best Practices](../../doc/BUILDER_BEST_PRACTICES.md)
 

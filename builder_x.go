@@ -1,4 +1,4 @@
-// Copyright 2020 io.xream.sqlxb
+// Copyright 2025 me.fndo.xb
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -19,7 +19,7 @@ package xb
 import (
 	"fmt"
 
-	"github.com/x-ream/xb/interceptor"
+	"github.com/fndome/xb/interceptor"
 )
 
 // ToId build sql, like: SELECT DISTINCT f.id FROM foo f INNER_JOIN JOIN (SELECT foo_id FROM bar) b ON b.foo_id = f.id
@@ -307,7 +307,7 @@ func (x *BuilderX) Insert(f func(b *InsertBuilder)) *BuilderX {
 
 func (x *BuilderX) Build() *Built {
 	if x == nil {
-		panic("sqlxb.Builder is nil")
+		panic("xb.Builder is nil")
 	}
 
 	// ⭐ 执行 BeforeBuild 拦截器（只设置元数据）

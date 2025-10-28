@@ -57,7 +57,7 @@
 ### 1. 安装
 
 ```bash
-go get github.com/x-ream/xb@v0.9.2
+go get github.com/fndome/xb@v0.9.2
 ```
 
 ### 2. 数据模型
@@ -79,12 +79,12 @@ func (CodeVector) TableName() string {
 ### 3. 基础用法
 
 ```go
-import "github.com/x-ream/xb"
+import "github.com/fndome/xb"
 
 queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
 // 不带多样性（传统查询）
-builder := sqlxb.Of(&CodeVector{}).
+builder := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 20)
 ```
@@ -99,7 +99,7 @@ builder := sqlxb.Of(&CodeVector{}).
 
 ```go
 // API
-builder := sqlxb.Of(&CodeVector{}).
+builder := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 20).
     WithHashDiversity("semantic_hash")  // ⭐ 基于 semantic_hash 去重
@@ -154,7 +154,7 @@ func normalizeCode(code string) string {
 
 ```go
 // API
-builder := sqlxb.Of(&CodeVector{}).
+builder := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 20).
     WithMinDistance(0.3)  // ⭐ 结果之间最小距离 0.3
 
@@ -200,7 +200,7 @@ func applyMinDistance(results []Result, minDist float32) []Result {
 
 ```go
 // API
-builder := sqlxb.Of(&CodeVector{}).
+builder := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 20).
     WithMMR(0.5)  // ⭐ lambda=0.5 平衡
 
@@ -233,7 +233,7 @@ Score(Di) = λ × Similarity(Di, Query)
 ```go
 queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 10).
     Build()
 
@@ -258,7 +258,7 @@ json, err := built.ToQdrantJSON()
 ### 带过滤器
 
 ```go
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Gt("quality_score", 0.8).
     VectorSearch("embedding", queryVector, 20).
@@ -297,7 +297,7 @@ json, _ := built.ToQdrantJSON()
 ### 带多样性
 
 ```go
-built := sqlxb.Of(&CodeVector{}).
+built := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 20).
     WithHashDiversity("semantic_hash").  // ⭐ 多样性
@@ -340,7 +340,7 @@ json, _ := built.ToQdrantJSON()
 queryVector := embedding.Encode("用户登录相关代码")
 
 // 构建查询（一份代码）
-builder := sqlxb.Of(&CodeVector{}).
+builder := xb.Of(&CodeVector{}).
     Eq("language", "golang").
     Gt("quality_score", 0.7).
     VectorSearch("embedding", queryVector, 20).
@@ -376,7 +376,7 @@ type Document struct {
 // 查询
 queryVector := embedding.Encode("如何部署 Kubernetes")
 
-results := sqlxb.Of(&Document{}).
+results := xb.Of(&Document{}).
     Eq("category", "devops").
     VectorSearch("embedding", queryVector, 10).
     WithHashDiversity("content_hash").
@@ -396,7 +396,7 @@ results := sqlxb.Of(&Document{}).
 
 articleVector := article.Embedding
 
-recommendations := sqlxb.Of(&Article{}).
+recommendations := xb.Of(&Article{}).
     Ne("id", article.Id).  // 排除当前文章
     VectorSearch("embedding", articleVector, 10).
     WithMMR(0.6).  // 60% 相关性，40% 多样性
@@ -418,12 +418,12 @@ recommendations := sqlxb.Of(&Article{}).
 
 ```go
 // 默认 5 倍过度获取
-builder.WithDiversity(sqlxb.DiversityByHash, "semantic_hash")
+builder.WithDiversity(xb.DiversityByHash, "semantic_hash")
 // limit: 20 * 5 = 100
 
 // 自定义 10 倍
 builder.WithDiversity(
-    sqlxb.DiversityByHash, 
+    xb.DiversityByHash, 
     "semantic_hash", 
     10,  // ⭐ 过度获取因子
 )
@@ -517,13 +517,13 @@ import (
     "database/sql"
     "encoding/json"
     "fmt"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 type CodeVector struct {
     Id           int64  `db:"id"`
     Content      string `db:"content"`
-    Embedding    sqlxb.Vector `db:"embedding"`
+    Embedding    xb.Vector `db:"embedding"`
     Language     string `db:"language"`
     SemanticHash string `db:"semantic_hash"`
 }
@@ -534,10 +534,10 @@ func (CodeVector) TableName() string {
 
 func main() {
     // 查询向量
-    queryVector := sqlxb.Vector{0.1, 0.2, 0.3, 0.4}
+    queryVector := xb.Vector{0.1, 0.2, 0.3, 0.4}
     
     // 构建查询（一份代码）
-    builder := sqlxb.Of(&CodeVector{}).
+    builder := xb.Of(&CodeVector{}).
         Eq("language", "golang").
         VectorSearch("embedding", queryVector, 20).
         WithHashDiversity("semantic_hash")
@@ -635,7 +635,7 @@ ToQdrantRequest() (*QdrantSearchRequest, error)
 **开始使用**：
 
 ```bash
-go get github.com/x-ream/xb@v0.9.2
+go get github.com/fndome/xb@v0.9.2
 ```
 
 **文档**：
@@ -645,5 +645,5 @@ go get github.com/x-ream/xb@v0.9.2
 
 ---
 
-**问题反馈**：https://github.com/x-ream/xb/issues
+**问题反馈**：https://github.com/fndome/xb/issues
 

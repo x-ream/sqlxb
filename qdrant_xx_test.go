@@ -1,4 +1,4 @@
-// Copyright 2020 io.xream.sqlxb
+// Copyright 2025 me.fndo.xb
 //
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements.  See the NOTICE file distributed with
@@ -129,7 +129,7 @@ func TestQdrantX_RealWorldExample(t *testing.T) {
 				ScoreThreshold(0.8)
 
 			// ⭐ 使用 X() 设置 Qdrant 的量化重打分功能
-			// 这是 Qdrant 1.7+ 的新功能，sqlxb 可能还未封装
+			// 这是 Qdrant 1.7+ 的新功能，xb 可能还未封装
 			qx.X("quantization", map[string]interface{}{
 				"rescore":      true,
 				"oversampling": 2.0,

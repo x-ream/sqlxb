@@ -35,7 +35,7 @@ package main
 
 import (
     "fmt"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 // 1. 定义文档结构
@@ -58,9 +58,9 @@ func mockEmbed(text string) []float32 {
 func main() {
     // 3. 准备文档
     documents := []string{
-        "sqlxb 是一个 AI-First 的 Go ORM 库",
-        "sqlxb 支持 PostgreSQL 和 Qdrant",
-        "sqlxb 提供类型安全的查询构建器",
+        "xb 是一个 AI-First 的 Go ORM 库",
+        "xb 支持 PostgreSQL 和 Qdrant",
+        "xb 提供类型安全的查询构建器",
     }
 
     fmt.Println("=== 索引文档 ===")
@@ -69,7 +69,7 @@ func main() {
     for i, doc := range documents {
         embedding := mockEmbed(doc)
         
-        // 注意：sqlxb 主要用于查询，插入建议直接用 SQL 或 ORM
+        // 注意：xb 主要用于查询，插入建议直接用 SQL 或 ORM
         // 这里展示如何准备数据
         docData := Document{
             ID:        int64(i + 1),
@@ -85,16 +85,16 @@ func main() {
     }
 
     // 5. 查询示例
-    query := "sqlxb 支持什么数据库？"
+    query := "xb 支持什么数据库？"
     queryVector := mockEmbed(query)
 
     fmt.Println("=== 执行向量检索 ===")
     fmt.Printf("查询: %s\n\n", query)
 
     // 6. 构建向量检索查询
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", queryVector, 5).
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.7)
         }).
         Build()
@@ -109,7 +109,7 @@ func main() {
 运行：
 ```bash
 go mod init demo
-go get github.com/x-ream/xb
+go get github.com/fndome/xb
 go run main.go
 ```
 
@@ -126,7 +126,7 @@ import (
     "os"
     
     openai "github.com/sashabaranov/go-openai"
-    "github.com/x-ream/xb"
+    "github.com/fndome/xb"
 )
 
 func main() {
@@ -141,10 +141,10 @@ func main() {
     
     // 2. 文档列表
     documents := []string{
-        "sqlxb 是一个现代化的 Go ORM 库，专为 AI 应用设计",
-        "sqlxb 支持 PostgreSQL 和 Qdrant 两种数据库后端",
-        "sqlxb 提供类型安全的查询构建，避免 SQL 注入",
-        "sqlxb 的向量检索功能支持相似度搜索和混合查询",
+        "xb 是一个现代化的 Go ORM 库，专为 AI 应用设计",
+        "xb 支持 PostgreSQL 和 Qdrant 两种数据库后端",
+        "xb 提供类型安全的查询构建，避免 SQL 注入",
+        "xb 的向量检索功能支持相似度搜索和混合查询",
     }
 
     // 3. 生成 Embeddings
@@ -156,7 +156,7 @@ func main() {
     }
 
     // 4. 用户查询
-    query := "sqlxb 支持哪些数据库？"
+    query := "xb 支持哪些数据库？"
     fmt.Printf("\n用户查询: %s\n", query)
 
     // 5. 生成查询向量
@@ -167,9 +167,9 @@ func main() {
     }
 
     // 6. 构建向量检索查询
-    built := sqlxb.Of(&Document{}).
+    built := xb.Of(&Document{}).
         VectorSearch("embedding", queryEmbedding, 3).
-        QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+        QdrantX(func(qx *xb.QdrantBuilderX) {
             qx.ScoreThreshold(0.75)
         }).
         Build()
@@ -234,15 +234,15 @@ go run rag.go
 ```
 正在生成文档 Embeddings...
 
-用户查询: sqlxb 支持哪些数据库？
+用户查询: xb 支持哪些数据库？
 
 生成的 Qdrant 查询:
 map[collection_name:documents vector:[0.01 0.02 ...] limit:3 score_threshold:0.75]
 
 最相关的文档:
-1. sqlxb 支持 PostgreSQL 和 Qdrant 两种数据库后端
-2. sqlxb 是一个现代化的 Go ORM 库，专为 AI 应用设计
-3. sqlxb 的向量检索功能支持相似度搜索和混合查询
+1. xb 支持 PostgreSQL 和 Qdrant 两种数据库后端
+2. xb 是一个现代化的 Go ORM 库，专为 AI 应用设计
+3. xb 的向量检索功能支持相似度搜索和混合查询
 ```
 
 ## 🎓 下一步
@@ -250,7 +250,7 @@ map[collection_name:documents vector:[0.01 0.02 ...] limit:3 score_threshold:0.7
 现在您已经掌握了基础用法，可以继续学习：
 
 1. **[RAG_BEST_PRACTICES.md](./RAG_BEST_PRACTICES.md)** - 学习生产级 RAG 应用的最佳实践
-2. **[AGENT_TOOLKIT.md](./AGENT_TOOLKIT.md)** - 将 sqlxb 集成到 AI Agent 系统
+2. **[AGENT_TOOLKIT.md](./AGENT_TOOLKIT.md)** - 将 xb 集成到 AI Agent 系统
 3. **[LANGCHAIN_INTEGRATION.md](./LANGCHAIN_INTEGRATION.md)** - Python LangChain 集成
 4. **[HYBRID_SEARCH.md](./HYBRID_SEARCH.md)** - 混合检索策略
 5. **[PERFORMANCE.md](./PERFORMANCE.md)** - 性能优化指南
@@ -302,12 +302,12 @@ for i := 0; i < len(documents); i += batchSize {
 
 ## 🎉 完成！
 
-恭喜！您已经完成了 sqlxb AI 应用的快速入门。
+恭喜！您已经完成了 xb AI 应用的快速入门。
 
 如有问题，请查看：
 - [FAQ.md](./FAQ.md) - 常见问题
-- [GitHub Issues](https://github.com/x-ream/xb/issues)
-- [GitHub Discussions](https://github.com/x-ream/xb/discussions)
+- [GitHub Issues](https://github.com/fndome/xb/issues)
+- [GitHub Discussions](https://github.com/fndome/xb/discussions)
 
 ---
 
