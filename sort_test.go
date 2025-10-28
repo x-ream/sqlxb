@@ -16,7 +16,9 @@
 // limitations under the License.
 package xb
 
-import "testing"
+import (
+	"testing"
+)
 
 // 测试 ASC 函数
 func TestASC(t *testing.T) {
@@ -35,35 +37,45 @@ func TestDESC(t *testing.T) {
 }
 
 // 测试 Sort 结构
+type testStruct struct {
+	Id        int64  `db:"id"`
+	CreatedAt int64  `db:"created_at"`
+	Status    string `db:"status"`
+}
+
+func (*testStruct) TableName() string {
+	return "test_table"
+}
+
 func TestSort(t *testing.T) {
 	// 测试 ASC 排序
 	builder := Of(&testStruct{}).
-		Sort("id", ASC()).
+		Sort("id", ASC).
 		Build()
 
-	sql, _, _ := builder.SqlOfCond()
-	if sql != "ORDER BY id ASC" {
+	sql, _, _ := builder.SqlOfSelect()
+	if !containsString(sql, "ORDER BY id ASC") {
 		t.Errorf("Sort ASC failed, got: %s", sql)
 	}
 
 	// 测试 DESC 排序
 	builder = Of(&testStruct{}).
-		Sort("created_at", DESC()).
+		Sort("created_at", DESC).
 		Build()
 
-	sql, _, _ = builder.SqlOfCond()
-	if sql != "ORDER BY created_at DESC" {
+	sql, _, _ = builder.SqlOfSelect()
+	if !containsString(sql, "ORDER BY created_at DESC") {
 		t.Errorf("Sort DESC failed, got: %s", sql)
 	}
 
 	// 测试多个排序
 	builder = Of(&testStruct{}).
-		Sort("status", ASC()).
-		Sort("id", DESC()).
+		Sort("status", ASC).
+		Sort("id", DESC).
 		Build()
 
-	sql, _, _ = builder.SqlOfCond()
-	if sql != "ORDER BY status ASC, id DESC" {
+	sql, _, _ = builder.SqlOfSelect()
+	if !containsString(sql, "ORDER BY status ASC, id DESC") {
 		t.Errorf("Multiple Sort failed, got: %s", sql)
 	}
 }
