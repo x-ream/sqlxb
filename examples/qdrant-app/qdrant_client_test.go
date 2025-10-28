@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 // 注意：这些测试需要实际的 Qdrant 环境
@@ -17,11 +17,11 @@ func TestBuildQdrantSearchJSON(t *testing.T) {
 		queryVector[i] = 0.1
 	}
 
-	built := sqlxb.Of(&Document{}).
+	built := xb.Of(&Document{}).
 		VectorSearch("embedding", queryVector, 20).
 		Eq("doc_type", "article").
 		Eq("language", "zh").
-		QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+		QdrantX(func(qx *xb.QdrantBuilderX) {
 			qx.ScoreThreshold(0.8).
 				HnswEf(128).
 				WithVector(true)
@@ -51,9 +51,9 @@ func TestBuildQdrantSearchJSON(t *testing.T) {
 }
 
 func TestBuildRecommendJSON(t *testing.T) {
-	built := sqlxb.Of(&Document{}).
-		QdrantX(func(qx *sqlxb.QdrantBuilderX) {
-			qx.Recommend(func(rb *sqlxb.RecommendBuilder) {
+	built := xb.Of(&Document{}).
+		QdrantX(func(qx *xb.QdrantBuilderX) {
+			qx.Recommend(func(rb *xb.RecommendBuilder) {
 				rb.Positive(123, 456).
 					Negative(789).
 					Limit(20)
@@ -84,7 +84,7 @@ func TestAutoFiltering(t *testing.T) {
 	var emptyDocType string
 	var emptyLanguage string
 
-	built := sqlxb.Of(&Document{}).
+	built := xb.Of(&Document{}).
 		VectorSearch("embedding", make([]float32, 768), 10).
 		Eq("doc_type", emptyDocType).  // 应被自动过滤
 		Eq("language", emptyLanguage). // 应被自动过滤

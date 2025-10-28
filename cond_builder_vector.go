@@ -14,7 +14,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package sqlxb
+package xb
 
 // VectorSearch 向量相似度检索
 // field: 向量字段名

@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 func TestDocumentTableName(t *testing.T) {
@@ -57,13 +57,13 @@ func TestQdrantJSONGeneration(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		buildFunc   func() *sqlxb.Built
+		buildFunc   func() *xb.Built
 		checkFields []string
 	}{
 		{
 			name: "basic search",
-			buildFunc: func() *sqlxb.Built {
-				return sqlxb.Of(&Document{}).
+			buildFunc: func() *xb.Built {
+				return xb.Of(&Document{}).
 					VectorSearch("embedding", queryVector, 10).
 					Build()
 			},
@@ -71,8 +71,8 @@ func TestQdrantJSONGeneration(t *testing.T) {
 		},
 		{
 			name: "search with filter",
-			buildFunc: func() *sqlxb.Built {
-				return sqlxb.Of(&Document{}).
+			buildFunc: func() *xb.Built {
+				return xb.Of(&Document{}).
 					VectorSearch("embedding", queryVector, 10).
 					Eq("doc_type", "article").
 					Build()
@@ -81,10 +81,10 @@ func TestQdrantJSONGeneration(t *testing.T) {
 		},
 		{
 			name: "search with QdrantX",
-			buildFunc: func() *sqlxb.Built {
-				return sqlxb.Of(&Document{}).
+			buildFunc: func() *xb.Built {
+				return xb.Of(&Document{}).
 					VectorSearch("embedding", queryVector, 10).
-					QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+					QdrantX(func(qx *xb.QdrantBuilderX) {
 						qx.ScoreThreshold(0.8).HnswEf(128)
 					}).
 					Build()

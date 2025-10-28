@@ -1,4 +1,4 @@
-package sqlxb
+package xb
 
 import (
 	"encoding/json"

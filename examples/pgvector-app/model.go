@@ -3,17 +3,17 @@ package main
 import (
 	"time"
 
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 // CodeSnippet 代码片段模型
 type CodeSnippet struct {
-	ID        int64        `json:"id" db:"id"`
-	FilePath  string       `json:"file_path" db:"file_path"`
-	Language  string       `json:"language" db:"language"`
-	Content   string       `json:"content" db:"content"`
-	Embedding sqlxb.Vector `json:"embedding" db:"embedding"`
-	CreatedAt time.Time    `json:"created_at" db:"created_at"`
+	ID        int64     `json:"id" db:"id"`
+	FilePath  string    `json:"file_path" db:"file_path"`
+	Language  string    `json:"language" db:"language"`
+	Content   string    `json:"content" db:"content"`
+	Embedding xb.Vector `json:"embedding" db:"embedding"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
 func (*CodeSnippet) TableName() string {

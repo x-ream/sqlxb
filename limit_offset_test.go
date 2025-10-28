@@ -1,4 +1,4 @@
-package sqlxb
+package xb
 
 import (
 	"strings"
@@ -9,7 +9,7 @@ import (
 func TestLimit(t *testing.T) {
 	built := Of(&Product{}).
 		Eq("status", 1).
-		Sort("created_at", nil).  // DESC
+		Sort("created_at", nil). // DESC
 		Limit(10).
 		Build()
 
@@ -148,4 +148,3 @@ func TestOffsetZeroIgnored(t *testing.T) {
 		t.Errorf("Expected Offset(0) to be ignored, but SQL contains OFFSET: %s", sql)
 	}
 }
-

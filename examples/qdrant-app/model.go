@@ -3,18 +3,18 @@ package main
 import (
 	"time"
 
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 // Document 文档模型
 type Document struct {
-	ID        int64        `json:"id"`
-	Title     string       `json:"title"`
-	Content   string       `json:"content"`
-	DocType   string       `json:"doc_type"`
-	Language  string       `json:"language"`
-	Embedding sqlxb.Vector `json:"embedding"`
-	CreatedAt time.Time    `json:"created_at"`
+	ID        int64     `json:"id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	DocType   string    `json:"doc_type"`
+	Language  string    `json:"language"`
+	Embedding xb.Vector `json:"embedding"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (*Document) TableName() string {

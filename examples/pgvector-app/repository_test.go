@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 // 注意：这些测试需要实际的 PostgreSQL + pgvector 环境
@@ -49,7 +49,7 @@ func TestCreate(t *testing.T) {
 	repo := NewCodeRepository(db)
 
 	// 创建测试数据
-	embedding := make(sqlxb.Vector, 768)
+	embedding := make(xb.Vector, 768)
 	for i := range embedding {
 		embedding[i] = 0.1
 	}
@@ -83,7 +83,7 @@ func TestVectorSearch(t *testing.T) {
 	repo := NewCodeRepository(db)
 
 	// 插入测试数据
-	embedding := make(sqlxb.Vector, 768)
+	embedding := make(xb.Vector, 768)
 	for i := range embedding {
 		embedding[i] = float32(i) * 0.001
 	}
@@ -124,7 +124,7 @@ func TestHybridSearch(t *testing.T) {
 	repo := NewCodeRepository(db)
 
 	// 插入测试数据
-	embedding := make(sqlxb.Vector, 768)
+	embedding := make(xb.Vector, 768)
 	code := &CodeSnippet{
 		FilePath:  "service.go",
 		Language:  "golang",

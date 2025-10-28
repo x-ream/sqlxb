@@ -1,4 +1,4 @@
-package sqlxb
+package xb
 
 import (
 	"fmt"
@@ -64,7 +64,7 @@ func TestUpdate(t *testing.T) {
 				b.Set("one", Cat{
 					Id: 2,
 					M:  mm,
-					}).
+				}).
 					Set("body", []byte("yyyyyyyyyyyy"))
 			}).
 			Eq("id", 2).

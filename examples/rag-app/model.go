@@ -3,20 +3,20 @@ package main
 import (
 	"time"
 
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 // DocumentChunk 文档分块
 type DocumentChunk struct {
-	ID        int64        `json:"id" db:"id"`
-	DocID     *int64       `json:"doc_id" db:"doc_id"`
-	ChunkID   *int         `json:"chunk_id" db:"chunk_id"`
-	Content   string       `json:"content" db:"content"`
-	Embedding sqlxb.Vector `json:"embedding" db:"embedding"`
-	DocType   string       `json:"doc_type" db:"doc_type"`
-	Language  string       `json:"language" db:"language"`
-	Metadata  string       `json:"metadata" db:"metadata"` // JSONB
-	CreatedAt time.Time    `json:"created_at" db:"created_at"`
+	ID        int64     `json:"id" db:"id"`
+	DocID     *int64    `json:"doc_id" db:"doc_id"`
+	ChunkID   *int      `json:"chunk_id" db:"chunk_id"`
+	Content   string    `json:"content" db:"content"`
+	Embedding xb.Vector `json:"embedding" db:"embedding"`
+	DocType   string    `json:"doc_type" db:"doc_type"`
+	Language  string    `json:"language" db:"language"`
+	Metadata  string    `json:"metadata" db:"metadata"` // JSONB
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
 func (*DocumentChunk) TableName() string {

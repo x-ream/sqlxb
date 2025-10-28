@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 // QdrantClient Qdrant 客户端
@@ -28,12 +28,12 @@ func NewQdrantClient(baseURL, collection string) *QdrantClient {
 // Search 向量搜索
 func (c *QdrantClient) Search(queryVector []float32, docType, language string, minScore float64, limit int) ([]*Document, error) {
 	// 使用 sqlxb 构建查询
-	built := sqlxb.Of(&Document{}).
+	built := xb.Of(&Document{}).
 		VectorSearch("embedding", queryVector, limit).
 		Eq("doc_type", docType).
 		Eq("language", language).
 		Gt("score", minScore).
-		QdrantX(func(qx *sqlxb.QdrantBuilderX) {
+		QdrantX(func(qx *xb.QdrantBuilderX) {
 			qx.ScoreThreshold(float32(minScore)).
 				HnswEf(128)
 		}).
@@ -85,9 +85,9 @@ func (c *QdrantClient) Search(queryVector []float32, docType, language string, m
 
 // Recommend 推荐查询
 func (c *QdrantClient) Recommend(positive, negative []int64, limit int) ([]*Document, error) {
-	built := sqlxb.Of(&Document{}).
-		QdrantX(func(qx *sqlxb.QdrantBuilderX) {
-			qx.Recommend(func(rb *sqlxb.RecommendBuilder) {
+	built := xb.Of(&Document{}).
+		QdrantX(func(qx *xb.QdrantBuilderX) {
+			qx.Recommend(func(rb *xb.RecommendBuilder) {
 				rb.Positive(positive...).
 					Negative(negative...).
 					Limit(limit)

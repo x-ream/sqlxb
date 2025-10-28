@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/jmoiron/sqlx"
-	sqlxb "github.com/x-ream/xb"
+	"github.com/x-ream/xb"
 )
 
 // CodeRepository 代码仓库
@@ -16,8 +16,8 @@ func NewCodeRepository(db *sqlx.DB) *CodeRepository {
 
 // Create 创建代码片段
 func (r *CodeRepository) Create(code *CodeSnippet) error {
-	sql, args := sqlxb.Of(&CodeSnippet{}).
-		Insert(func(ib *sqlxb.InsertBuilder) {
+	sql, args := xb.Of(&CodeSnippet{}).
+		Insert(func(ib *xb.InsertBuilder) {
 			ib.Set("file_path", code.FilePath).
 				Set("language", code.Language).
 				Set("content", code.Content).
@@ -38,7 +38,7 @@ func (r *CodeRepository) Create(code *CodeSnippet) error {
 
 // GetByID 根据 ID 获取
 func (r *CodeRepository) GetByID(id int64) (*CodeSnippet, error) {
-	sql, args, _ := sqlxb.Of(&CodeSnippet{}).
+	sql, args, _ := xb.Of(&CodeSnippet{}).
 		Eq("id", id).
 		Build().
 		SqlOfSelect()
@@ -57,7 +57,7 @@ func (r *CodeRepository) VectorSearch(queryVector []float32, limit int) ([]*Code
 		limit = 10
 	}
 
-	sql, args := sqlxb.Of(&CodeSnippet{}).
+	sql, args := xb.Of(&CodeSnippet{}).
 		VectorSearch("embedding", queryVector, limit).
 		Build().
 		SqlOfVectorSearch()
@@ -76,7 +76,7 @@ func (r *CodeRepository) HybridSearch(queryVector []float32, language string, li
 		limit = 10
 	}
 
-	sql, args := sqlxb.Of(&CodeSnippet{}).
+	sql, args := xb.Of(&CodeSnippet{}).
 		VectorSearch("embedding", queryVector, limit).
 		Eq("language", language). // 自动过滤空字符串
 		Build().
@@ -92,10 +92,10 @@ func (r *CodeRepository) HybridSearch(queryVector []float32, language string, li
 
 // KeywordSearch 关键词搜索
 func (r *CodeRepository) KeywordSearch(keyword, language string, page, rows int) ([]*CodeSnippet, int64, error) {
-	builder := sqlxb.Of(&CodeSnippet{}).
+	builder := xb.Of(&CodeSnippet{}).
 		Like("content", keyword).
 		Eq("language", language).
-		Paged(func(pb *sqlxb.PageBuilder) {
+		Paged(func(pb *xb.PageBuilder) {
 			pb.Page(uint(page)).Rows(uint(rows))
 		})
 

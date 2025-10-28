@@ -14,7 +14,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package sqlxb
+package xb
 
 import (
 	"testing"
@@ -66,8 +66,8 @@ func TestSameQuery_TwoBackends(t *testing.T) {
 	builder := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
 		Gt("quality_score", 0.8).
-		VectorSearch("embedding", queryVector, 20).   // ⭐ 通用方法（外部）
-		WithHashDiversity("semantic_hash").           // ⭐ 通用方法（外部）
+		VectorSearch("embedding", queryVector, 20). // ⭐ 通用方法（外部）
+		WithHashDiversity("semantic_hash").         // ⭐ 通用方法（外部）
 		QdrantX(func(qx *QdrantBuilderX) {
 			// ⭐ 只配置 Qdrant 专属参数
 			qx.HnswEf(256).

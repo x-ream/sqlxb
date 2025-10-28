@@ -14,7 +14,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package sqlxb
+package xb
 
 import (
 	"testing"
@@ -36,18 +36,18 @@ func TestAllFiltering_Comprehensive(t *testing.T) {
 
 	built := Of(&CodeVectorForQdrant{}).
 		// 单个条件过滤
-		Eq("name", name).              // ⭐ 过滤：空字符串
-		Eq("category", category).      // ✅ 保留
-		Gt("min_score", minScore).     // ⭐ 过滤：0
-		Lt("max_score", maxScore).     // ✅ 保留
+		Eq("name", name).          // ⭐ 过滤：空字符串
+		Eq("category", category).  // ✅ 保留
+		Gt("min_score", minScore). // ⭐ 过滤：0
+		Lt("max_score", maxScore). // ✅ 保留
 		// IN 过滤
-		In("tags", tags...).           // ⭐ 过滤：空数组
+		In("tags", tags...). // ⭐ 过滤：空数组
 		// LIKE 过滤
 		Like("description", searchTerm). // ⭐ 过滤：空字符串
 		// 空 OR 过滤
 		Or(func(cb *CondBuilder) {
-			cb.Eq("role", role)         // ⭐ 过滤：空字符串
-			cb.Gt("level", 0)           // ⭐ 过滤：0
+			cb.Eq("role", role) // ⭐ 过滤：空字符串
+			cb.Gt("level", 0)   // ⭐ 过滤：0
 		}). // ⭐ 整个 OR 被过滤
 		// 部分有效的 AND
 		And(func(cb *CondBuilder) {
@@ -129,10 +129,10 @@ func TestRealWorldScenario_SearchForm(t *testing.T) {
 		MaxPrice:   1500.0,     // 已填
 		Tags:       []string{}, // 未填
 		Status:     "active",
-		StartDate:  "",         // 未填
-		EndDate:    "",         // 未填
+		StartDate:  "", // 未填
+		EndDate:    "", // 未填
 		Department: "sales",
-		Role:       "",         // 未填
+		Role:       "", // 未填
 	}
 
 	// 无需任何判断，直接构建查询
@@ -142,12 +142,12 @@ func TestRealWorldScenario_SearchForm(t *testing.T) {
 	}
 
 	builder := Of(&Product{}).
-		Like("name", form.Keyword).         // ✅ 保留
-		Eq("category", form.Category).      // ⭐ 过滤
-		Gte("price", form.MinPrice).        // ⭐ 过滤
-		Lte("price", form.MaxPrice).        // ✅ 保留
-		In("tag", tags...).                 // ⭐ 过滤
-		Eq("status", form.Status).          // ✅ 保留
+		Like("name", form.Keyword).    // ✅ 保留
+		Eq("category", form.Category). // ⭐ 过滤
+		Gte("price", form.MinPrice).   // ⭐ 过滤
+		Lte("price", form.MaxPrice).   // ✅ 保留
+		In("tag", tags...).            // ⭐ 过滤
+		Eq("status", form.Status).     // ✅ 保留
 		And(func(cb *CondBuilder) {
 			cb.Gte("created_at", form.StartDate) // ⭐ 过滤
 			cb.Lte("created_at", form.EndDate)   // ⭐ 过滤
@@ -280,10 +280,10 @@ func TestSelectGroupByFiltering(t *testing.T) {
 	built := X().
 		From("products").
 		Select("id", "", "name", "", "price"). // ⭐ 过滤空字符串
-		GroupBy("").                            // ⭐ 过滤空字符串
-		GroupBy("category").                    // ✅ 保留
-		Agg("", "count").                       // ⭐ 过滤空函数名
-		Agg("SUM", "price").                    // ✅ 保留
+		GroupBy("").                           // ⭐ 过滤空字符串
+		GroupBy("category").                   // ✅ 保留
+		Agg("", "count").                      // ⭐ 过滤空函数名
+		Agg("SUM", "price").                   // ✅ 保留
 		Build()
 
 	sql, _, _ := built.SqlOfSelect()
@@ -378,4 +378,3 @@ type User struct {
 func (User) TableName() string {
 	return "users"
 }
-
