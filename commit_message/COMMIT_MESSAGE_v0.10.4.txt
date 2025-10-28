@@ -1,0 +1,78 @@
+feat: 新增 PageIndex 集成 - 结构化文档检索 (v0.10.4)
+
+🚀 新增功能
+- ✨ PageIndex 集成支持（Vectify AI PageIndex + sqlxb）
+  - 层级结构存储（扁平化关系表）
+  - 使用 sqlxb 进行结构化查询
+  - 保留文档逻辑结构
+
+📚 新增文档（2个）
+- ✨ doc/PAGEINDEX_INTEGRATION.md - PageIndex 集成指南
+  - PageIndex 技术介绍
+  - 数据存储设计（JSONB vs 扁平化）
+  - sqlxb 查询示例（标题、页码、层级）
+  - 与 LLM 集成流程
+  - 完整应用场景（金融报告、技术文档）
+- ✨ doc/USE_CASE_GUIDE_ZH.md - 使用场景决策指南（中文版）
+  - 4 个核心场景（向量、PageIndex、混合、SQL）
+  - 快速决策树（无需学习和理解）
+  - 实战案例（电商、金融、技术文档）
+  - 对比表（响应时间、准确率）
+
+🔧 新增完整应用示例
+- ✨ examples/pageindex-app/ - PageIndex 文档结构化检索应用
+  - 完整项目结构（8 个文件）
+  - PageIndex JSON 导入器（递归导入）
+  - 数据访问层（7 个查询方法）
+  - HTTP API（5 个端点）
+  - 数据库架构（schema.sql）
+  - 集成测试（5 个测试）
+
+🎯 核心查询功能
+- ✅ 按标题搜索（Like + 自动过滤）
+  - Like("title", keyword)
+- ✅ 按页码定位（范围查询）
+  - Lte("start_page", page).Gte("end_page", page)
+- ✅ 按层级查询（精确匹配）
+  - Eq("level", level)
+- ✅ 子节点查询（父子关系）
+  - Eq("parent_id", parentNodeID)
+- ✅ 页码范围查询（区间过滤）
+  - Gte("start_page", min).Lte("end_page", max)
+
+📊 示例代码统计
+- pageindex-app: 8 个文件（~650 行代码，5 个测试）
+- 总示例应用: 4 个（28 个文件，~2400 行代码，20 个测试）
+
+✅ 测试
+- 5 个集成测试（需要 PostgreSQL）
+- 测试自动过滤、层级遍历、页码定位
+- 所有测试通过（集成测试 Skip 正常）
+
+📖 文档更新
+- 更新 README.md（新增使用场景决策指南，中英文）
+- 更新 examples/README.md（新增 PageIndex 示例）
+- 更新 doc/README.md（新增 PAGEINDEX_INTEGRATION + USE_CASE_GUIDE_ZH）
+- 文档总数: 39 → 41
+
+🎯 应用价值
+- ✅ 支持结构化文档检索（vs 传统分块）
+- ✅ 保留文档逻辑结构（章节、小节）
+- ✅ 更准确的上下文理解
+- ✅ 适用于金融报告、技术手册等长文档
+
+💡 设计亮点
+- ✅ 正确使用 sqlxb API（Lte/Gte 而非 X）
+- ✅ 充分利用自动过滤机制
+- ✅ 扁平化存储便于查询
+- ✅ 完整的导入和查询流程
+
+🚀 影响
+- ✅ 扩展 sqlxb 应用场景（结构化文档）
+- ✅ 展示 sqlxb 在非向量场景的强大能力
+- ✅ 提供 PageIndex + Golang 的集成方案
+- ✅ 为 v1.0.0 增加技术广度
+
+---
+Co-authored-by: Claude (Anthropic)
+

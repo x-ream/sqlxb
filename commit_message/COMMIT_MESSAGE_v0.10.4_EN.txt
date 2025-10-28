@@ -1,0 +1,78 @@
+feat: Add PageIndex integration - Structured document retrieval (v0.10.4)
+
+🚀 New Features
+- ✨ PageIndex integration support (Vectify AI PageIndex + sqlxb)
+  - Hierarchical structure storage (flattened relational tables)
+  - Structured queries using sqlxb
+  - Preserve document logical structure
+
+📚 New Documentation (2 docs)
+- ✨ doc/PAGEINDEX_INTEGRATION.md - PageIndex integration guide
+  - PageIndex technology introduction
+  - Data storage design (JSONB vs flattened)
+  - sqlxb query examples (title, page, level)
+  - LLM integration workflow
+  - Complete use cases (financial reports, technical docs)
+- ✨ doc/USE_CASE_GUIDE_ZH.md - Use case decision guide (Chinese)
+  - 4 core scenarios (Vector, PageIndex, Hybrid, SQL)
+  - Quick decision tree (no learning required)
+  - Real-world cases (e-commerce, finance, tech docs)
+  - Comparison table (response time, accuracy)
+
+🔧 New Complete Application Example
+- ✨ examples/pageindex-app/ - PageIndex structured document retrieval app
+  - Complete project structure (8 files)
+  - PageIndex JSON importer (recursive import)
+  - Data access layer (7 query methods)
+  - HTTP API (5 endpoints)
+  - Database schema (schema.sql)
+  - Integration tests (5 tests)
+
+🎯 Core Query Features
+- ✅ Title search (Like + auto-filtering)
+  - Like("title", keyword)
+- ✅ Page location (range query)
+  - Lte("start_page", page).Gte("end_page", page)
+- ✅ Level query (exact match)
+  - Eq("level", level)
+- ✅ Child nodes query (parent-child relationship)
+  - Eq("parent_id", parentNodeID)
+- ✅ Page range query (interval filtering)
+  - Gte("start_page", min).Lte("end_page", max)
+
+📊 Example Code Stats
+- pageindex-app: 8 files (~650 lines, 5 tests)
+- Total examples: 4 apps (28 files, ~2400 lines, 20 tests)
+
+✅ Testing
+- 5 integration tests (require PostgreSQL)
+- Test auto-filtering, hierarchy traversal, page location
+- All tests pass (integration tests skip normally)
+
+📖 Documentation Updates
+- Update README.md (add use case decision guide, bilingual)
+- Update examples/README.md (add PageIndex example)
+- Update doc/README.md (add PAGEINDEX_INTEGRATION + USE_CASE_GUIDE_ZH)
+- Total docs: 39 → 41
+
+🎯 Application Value
+- ✅ Support structured document retrieval (vs traditional chunking)
+- ✅ Preserve document logical structure (chapters, sections)
+- ✅ More accurate context understanding
+- ✅ Suitable for financial reports, technical manuals, etc.
+
+💡 Design Highlights
+- ✅ Correct use of sqlxb API (Lte/Gte instead of X)
+- ✅ Fully leverage auto-filtering mechanism
+- ✅ Flattened storage for efficient queries
+- ✅ Complete import and query workflow
+
+🚀 Impact
+- ✅ Extend sqlxb use cases (structured documents)
+- ✅ Demonstrate sqlxb's power in non-vector scenarios
+- ✅ Provide PageIndex + Golang integration solution
+- ✅ Add technical breadth for v1.0.0
+
+---
+Co-authored-by: Claude (Anthropic)
+

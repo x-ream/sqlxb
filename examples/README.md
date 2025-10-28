@@ -70,6 +70,34 @@
 
 ---
 
+### 4. [PageIndex 文档结构化检索](./pageindex-app/)
+
+**场景**: 结构化文档检索（结合 Vectify AI PageIndex）
+
+**技术栈**:
+- PostgreSQL
+- sqlx
+- Gin
+- PageIndex (Python)
+
+**功能**:
+- PageIndex JSON 导入
+- 层级结构存储（扁平化）
+- 标题搜索
+- 页码定位
+- 层级遍历
+
+**测试**:
+- repository_test.go (5个测试)
+- 包含集成测试
+
+**特点**:
+- 保留文档逻辑结构
+- 模拟人类专家查阅方式
+- 使用 sqlxb 进行结构化查询
+
+---
+
 ## 🚀 快速开始
 
 ### 运行示例
@@ -118,7 +146,8 @@ go test -v
 
 #### 架构师 🏗️
 1. 阅读 [rag-app](./rag-app/) - 完整 RAG 架构
-2. 理解生产级 RAG 应用设计
+2. 阅读 [pageindex-app](./pageindex-app/) - 结构化文档检索
+3. 理解生产级 RAG 应用设计
 
 ---
 

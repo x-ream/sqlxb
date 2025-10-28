@@ -19,6 +19,8 @@
 ### 🤖 AI 应用生态
 
 - **[AI 应用文档入口](./ai_application/README.md)** - AI/RAG/Agent 应用集成完整指南
+- **[PageIndex 集成指南](./PAGEINDEX_INTEGRATION.md)** - 结构化文档检索（Vectify AI PageIndex + sqlxb）
+- **[使用场景决策指南](./USE_CASE_GUIDE_ZH.md)** - 向量数据库 vs PageIndex vs 传统 SQL 选型指南
 
 **核心文档**:
 - **[AI Agent 工具链](./ai_application/AGENT_TOOLKIT.md)** - JSON Schema、OpenAPI 集成
@@ -46,6 +48,7 @@
   - [PostgreSQL + pgvector 应用](../examples/pgvector-app/)
   - [Qdrant 集成应用](../examples/qdrant-app/)
   - [RAG 检索应用](../examples/rag-app/)
+  - [PageIndex 文档结构化检索](../examples/pageindex-app/)
 
 #### API 设计
 
@@ -128,12 +131,12 @@
 
 ## 📊 文档统计
 
-- **总文档数**: 38
+- **总文档数**: 41
 - **项目规划**: 3 (ROADMAP, V1_CHECKLIST, TESTING_STRATEGY)
-- **用户指南**: 2 (VECTOR_QUICKSTART, VECTOR_DIVERSITY_QDRANT)
+- **用户指南**: 3 (VECTOR_QUICKSTART, VECTOR_DIVERSITY_QDRANT, USE_CASE_GUIDE_ZH) ← v0.10.4 新增
 - **最佳实践**: 2 (BUILDER_BEST_PRACTICES, COMMON_ERRORS) ← v0.10.3 新增
-- **完整示例**: 3 (pgvector-app, qdrant-app, rag-app) ← v0.10.3 新增
-- **AI 应用生态**: 12 (ai_application 目录)
+- **完整示例**: 4 (pgvector-app, qdrant-app, rag-app, pageindex-app) ← v0.10.4 新增
+- **AI 应用生态**: 13 (ai_application 目录 + PAGEINDEX_INTEGRATION) ← v0.10.4 新增
   - Agent 工具链、RAG 最佳实践、LangChain/LlamaIndex/SK 集成
   - 混合检索、NL2SQL、性能优化、FAQ 等
 - **API 设计**: 1 (QDRANT_NIL_FILTER_AND_JOIN)

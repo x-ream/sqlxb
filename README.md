@@ -130,6 +130,7 @@ Quick links:
 - [PostgreSQL + pgvector App](./examples/pgvector-app/) - Code search
 - [Qdrant Integration App](./examples/qdrant-app/) - Document retrieval
 - [RAG Application](./examples/rag-app/) - Full RAG system
+- [PageIndex App](./examples/pageindex-app/) - Structured document retrieval
 
 ## Contributing
 
@@ -280,3 +281,161 @@ func main() {
 
 
 ```
+
+---
+
+## 🎯 Use Case Decision Guide
+
+**Get direct answers without learning — Let AI decide for you**
+
+> 📖 **[中文版 (Chinese Version) →](./doc/USE_CASE_GUIDE_ZH.md)**
+
+### Scenario 1️⃣: Semantic Search & Personalization
+
+**Use Vector Database (pgvector / Qdrant)**
+
+```
+Applicable Use Cases:
+  ✅ Product recommendations ("Users who bought A also liked...")
+  ✅ Code search ("Find similar function implementations")
+  ✅ Customer service ("Find similar historical tickets")
+  ✅ Content recommendations ("Similar articles, videos")
+  ✅ Image search ("Find similar images")
+
+Characteristics:
+  - Fragmented data (each record independent)
+  - Requires similarity matching
+  - No clear structure
+
+Example:
+  sqlxb.Of(&Product{}).
+      VectorSearch("embedding", userVector, 20).
+      Eq("category", "electronics")
+```
+
+---
+
+### Scenario 2️⃣: Structured Long Document Analysis
+
+**Use PageIndex**
+
+```
+Applicable Use Cases:
+  ✅ Financial report analysis ("How is financial stability in 2024?")
+  ✅ Legal contract retrieval ("Chapter 3 breach of contract terms")
+  ✅ Technical manual queries ("Which page contains installation steps?")
+  ✅ Academic paper reading ("Methodology section content")
+  ✅ Policy document analysis ("Specific provisions in Section 2.3")
+
+Characteristics:
+  - Long documents (50+ pages)
+  - Clear chapter structure
+  - Context preservation required
+
+Example:
+  sqlxb.Of(&PageIndexNode{}).
+      Eq("doc_id", docID).
+      Like("title", "Financial Stability").
+      Eq("level", 1)
+```
+
+---
+
+### Scenario 3️⃣: Hybrid Retrieval (Structure + Semantics)
+
+**Use PageIndex + Vector Database**
+
+```
+Applicable Use Cases:
+  ✅ Research report Q&A ("Investment advice for tech sector")
+  ✅ Knowledge base retrieval (need both structure and semantics)
+  ✅ Medical literature analysis ("Treatment plan related chapters")
+  ✅ Patent search ("Patents with similar technical solutions")
+
+Characteristics:
+  - Both structured and semantic needs
+  - Long documents + precise matching requirements
+
+Example:
+  // Step 1: PageIndex locates chapter
+  sqlxb.Of(&PageIndexNode{}).
+      Like("title", "Investment Advice").
+      Eq("level", 2)
+  
+  // Step 2: Vector search within chapter
+  sqlxb.Of(&DocumentChunk{}).
+      VectorSearch("embedding", queryVector, 10).
+      Gte("page", chapterStartPage).
+      Lte("page", chapterEndPage)
+```
+
+---
+
+### Scenario 4️⃣: Traditional Business Data
+
+**Use Standard SQL (No Vector/PageIndex needed)**
+
+```
+Applicable Use Cases:
+  ✅ User management ("Find users over 18")
+  ✅ Order queries ("Orders in January 2024")
+  ✅ Inventory management ("Products with low stock")
+  ✅ Statistical reports ("Sales by region")
+
+Characteristics:
+  - Structured data
+  - Exact condition matching
+  - No semantic understanding needed
+
+Example:
+  sqlxb.Of(&User{}).
+      Gte("age", 18).
+      Eq("status", "active").
+      Paged(...)
+```
+
+---
+
+## 🤔 Quick Decision Tree
+
+```
+Your data is...
+
+├─ Fragmented (products, users, code snippets)
+│  └─ Need "similarity" matching?
+│     ├─ Yes → Vector Database ✅
+│     └─ No  → Standard SQL ✅
+│
+└─ Long documents (reports, manuals, contracts)
+   └─ Has clear chapter structure?
+      ├─ Yes → PageIndex ✅
+      │  └─ Also need semantic matching?
+      │     └─ Yes → PageIndex + Vector ✅
+      └─ No → Traditional RAG (chunking + vector) ✅
+```
+
+---
+
+## 💡 Core Principles
+
+```
+Don't debate technology choices — Look at data characteristics:
+
+1️⃣ Fragmented data + need similarity
+   → Vector Database
+
+2️⃣ Long documents + structured + need chapter location
+   → PageIndex
+
+3️⃣ Long documents + unstructured + need semantics
+   → Traditional RAG (chunking + vector)
+
+4️⃣ Structured data + exact matching
+   → Standard SQL
+
+5️⃣ Complex scenarios
+   → Hybrid approach
+```
+
+**sqlxb supports all scenarios — One API for everything!** ✅
+
