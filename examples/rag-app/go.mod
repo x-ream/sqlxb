@@ -9,7 +9,6 @@ require (
 	github.com/lib/pq v1.10.9
 )
 
-replace github.com/fndome/xb => ../..
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect

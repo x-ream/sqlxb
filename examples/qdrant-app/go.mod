@@ -7,7 +7,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 )
 
-replace github.com/fndome/xb => ../..
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect
