@@ -6,7 +6,7 @@
 
 
 
-**AI-First SQL Builder** for Relational and Vector Databases
+**AI-First SQL Or Json Builder** for Relational and Vector Databases
 
 A tool of sql or json query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx), [gorp](https://github.com/go-gorp/gorp),
 or build condition sql for some orm framework, like [xorm](https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
