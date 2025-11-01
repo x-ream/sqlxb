@@ -6,7 +6,7 @@
 
 ```go
 // ✅ 理想：统一接口，不需要指定数据库类型
-built := xb.C().
+built := xb.X().
     WithCustom(qdrantCustom).  // 设置 Custom
     VectorSearch(...).
     Build()
@@ -64,7 +64,7 @@ type Custom interface {
 
 ```go
 // Step 1: 选择 Qdrant Custom（预设配置）
-built := xb.C().
+built := xb.X().
     WithCustom(xb.QdrantHighPrecision()).  // 高精度模式
     VectorScoreThreshold(0.8).
     VectorSearch("code_vectors", "embedding", vec, 20, xb.CosineDistance).
@@ -83,7 +83,7 @@ json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
 
 ```go
 // Step 1: 选择 Milvus Custom
-built := xb.C().
+built := xb.X().
     WithCustom(xb.NewMilvusCustom()).  // Milvus 默认配置
     VectorScoreThreshold(0.8).
     MilvusNProbe(64).
@@ -111,7 +111,7 @@ func SearchCodeVectors(config Config, embedding []float32) ([]Result, error) {
     }
 
     // Step 2: 构建查询（完全相同的代码）
-    built := xb.C().
+    built := xb.X().
         WithCustom(custom).  // ⭐ 唯一的区别
         VectorScoreThreshold(0.8).
         VectorSearch("code_vectors", "embedding", embedding, 20, xb.CosineDistance).
@@ -149,7 +149,7 @@ weaviateJSON, _ := built.JsonOfWeaviateSelect()
 
 ```go
 // ✅ 优势：统一的方法名，通过 Custom 区分
-built := xb.C().
+built := xb.X().
     WithCustom(qdrantCustom).  // 或 milvusCustom
     Build()
 
@@ -250,7 +250,7 @@ func (c *WeaviateCustom) ToJSON(built *Built) (string, error) {
 #### Step 2: 用户使用
 
 ```go
-built := xb.C().
+built := xb.X().
     WithCustom(xb.NewWeaviateCustom()).
     VectorSearch(...).
     Build()
@@ -301,7 +301,7 @@ json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Weaviate
 json, _ := built.JsonOfQdrantSelect()
 
 // ✅ 新代码更简洁
-built := xb.C().
+built := xb.X().
     WithCustom(xb.QdrantBalanced()).
     Build()
 
@@ -317,7 +317,7 @@ json, _ := built.JsonOfQdrantSelect()
 // ↓ 迁移到 v0.11.0
 
 // v0.11.0（推荐）
-built := xb.C().
+built := xb.X().
     WithCustom(xb.QdrantBalanced()).
     Build()
 

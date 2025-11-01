@@ -1,174 +1,540 @@
-# 自定义向量数据库支持指南
+# 自定义向量数据库支持指南 (v1.1.0)
 
 ## 🎯 概述
 
 本指南演示如何为 `xb` 添加自定义向量数据库支持（如 Milvus, Weaviate, Pinecone 等）。
 
-**核心思路**：参照 `QdrantBuilderX` 的实现模式，创建自己的 `XxxxBuilderX`。
+**核心思路**：实现 `Custom` 接口，提供数据库专属的 JSON 生成逻辑。
 
 ---
 
-## 🏗️ 实现步骤
+## 🚀 快速开始
 
-### 步骤 1: 创建自定义 BuilderX
+### Custom 接口（极简设计）
 
 ```go
-// my_project/vectordb/milvus_x.go
-package vectordb
+// 定义在 xb/dialect.go
+type Custom interface {
+    // ToJSON 生成查询 JSON
+    // 参数: built - Built 对象（包含所有查询条件）
+    // 返回: JSON 字符串, error
+    ToJSON(built *Built) (string, error)
+}
+```
 
-import (
-    "github.com/fndome/xb"
-)
+**就这一个方法！** 简单、直接、实用。
 
-// MilvusBuilderX Milvus 专属构建器
-type MilvusBuilderX struct {
-    builder *xb.BuilderX
+---
+
+## 📋 实现步骤（以 Milvus 为例）
+
+### Step 1: 定义 Milvus Custom
+
+```go
+// milvus_custom.go
+package xb
+
+// MilvusCustom Milvus 专属配置
+type MilvusCustom struct {
+    // 默认参数
+    DefaultNProbe     int
+    DefaultRoundDec   int
+    DefaultMetricType string
 }
 
-// MilvusX 创建 Milvus 专属构建器
-// 用法:
-//   xb.Of(&CodeVector{}).
-//       Eq("language", "golang").
-//       VectorSearch("embedding", vec, 20).
-//       MilvusX(func(mx *MilvusBuilderX) {
-//           mx.Nprobe(10).
-//               RoundDecimal(2)
-//       })
-func (x *xb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *xb.BuilderX {
-    mx := &MilvusBuilderX{
-        builder: x,
+// NewMilvusCustom 创建 Milvus Custom（默认配置）
+func NewMilvusCustom() *MilvusCustom {
+    return &MilvusCustom{
+        DefaultNProbe:     64,
+        DefaultRoundDec:   4,
+        DefaultMetricType: "L2",
     }
-    
-    f(mx)
-    
-    return x
+}
+
+// ToJSON 实现 Custom 接口
+func (c *MilvusCustom) ToJSON(built *Built) (string, error) {
+    // 委托给内部实现
+    return built.toMilvusJSON()
 }
 ```
 
 ---
 
-### 步骤 2: 添加专属操作符
+### Step 2: 实现 JSON 生成逻辑
 
 ```go
-// my_project/vectordb/milvus_oper.go
-package vectordb
-
-const (
-    MILVUS_NPROBE        = "MILVUS_NPROBE"
-    MILVUS_ROUND_DECIMAL = "MILVUS_ROUND_DECIMAL"
-    MILVUS_METRIC_TYPE   = "MILVUS_METRIC_TYPE"
-    MILVUS_XX            = "MILVUS_XX"  // 自定义扩展点
-)
-```
-
----
-
-### 步骤 3: 实现专属方法
-
-```go
-// MilvusBuilderX 的方法实现
-package vectordb
-
-import "github.com/fndome/xb"
-
-// Nprobe 设置 Milvus 的 nprobe 参数
-// nprobe 越大，精度越高，但速度越慢
-func (mx *MilvusBuilderX) Nprobe(nprobe int) *MilvusBuilderX {
-    if nprobe > 0 {
-        bb := xb.Bb{
-            Op:    MILVUS_NPROBE,
-            Key:   "nprobe",
-            Value: nprobe,
-        }
-        mx.builder.Bbs = append(mx.builder.Bbs, bb)
-    }
-    return mx
-}
-
-// RoundDecimal 设置 Milvus 的距离小数位数
-func (mx *MilvusBuilderX) RoundDecimal(decimal int) *MilvusBuilderX {
-    bb := xb.Bb{
-        Op:    MILVUS_ROUND_DECIMAL,
-        Key:   "round_decimal",
-        Value: decimal,
-    }
-    mx.builder.Bbs = append(mx.builder.Bbs, bb)
-    return mx
-}
-
-// MetricType 设置 Milvus 的距离度量类型
-func (mx *MilvusBuilderX) MetricType(metricType string) *MilvusBuilderX {
-    bb := xb.Bb{
-        Op:    MILVUS_METRIC_TYPE,
-        Key:   "metric_type",
-        Value: metricType,
-    }
-    mx.builder.Bbs = append(mx.builder.Bbs, bb)
-    return mx
-}
-
-// X 自定义 Milvus 参数（扩展点）
-// 用于未封装的 Milvus 参数
-func (mx *MilvusBuilderX) X(k string, v interface{}) *MilvusBuilderX {
-    bb := xb.Bb{
-        Op:    MILVUS_XX,
-        Key:   k,
-        Value: v,
-    }
-    mx.builder.Bbs = append(mx.builder.Bbs, bb)
-    return mx
-}
-
-// 快捷方法
-func (mx *MilvusBuilderX) HighAccuracy() *MilvusBuilderX {
-    return mx.Nprobe(256)
-}
-
-func (mx *MilvusBuilderX) Balanced() *MilvusBuilderX {
-    return mx.Nprobe(64)
-}
-
-func (mx *MilvusBuilderX) HighSpeed() *MilvusBuilderX {
-    return mx.Nprobe(16)
-}
-```
-
----
-
-### 步骤 4: 实现 JSON 转换器
-
-```go
-// my_project/vectordb/to_milvus_json.go
-package vectordb
+// to_milvus_json.go（在 xb 包内或自己的项目中）
+package xb
 
 import (
     "encoding/json"
-    "github.com/fndome/xb"
+    "fmt"
 )
 
 // MilvusSearchRequest Milvus 搜索请求结构
 type MilvusSearchRequest struct {
-    CollectionName string                 `json:"collection_name"`
-    Data           [][]float32            `json:"data"`
-    Limit          int                    `json:"limit"`
-    OutputFields   []string               `json:"output_fields,omitempty"`
-    SearchParams   MilvusSearchParams     `json:"search_params"`
-    Expr           string                 `json:"expr,omitempty"`
+    CollectionName string          `json:"collection_name"`
+    Data           [][]float32     `json:"data"`
+    Limit          int             `json:"limit"`
+    SearchParams   MilvusSearchParams `json:"search_params"`
+    Expr           string          `json:"expr,omitempty"`
 }
 
 type MilvusSearchParams struct {
-    MetricType   string `json:"metric_type"`
+    MetricType   string                 `json:"metric_type"`
     Params       map[string]interface{} `json:"params"`
-    RoundDecimal int    `json:"round_decimal,omitempty"`
+    RoundDecimal int                    `json:"round_decimal,omitempty"`
 }
 
-// ToMilvusJSON 转换为 Milvus JSON
-func (built *xb.Built) ToMilvusJSON(collectionName string) (string, error) {
-    req, err := built.ToMilvusRequest(collectionName)
-    if err != nil {
-        return "", err
+// toMilvusJSON 内部实现（私有方法）
+func (built *Built) toMilvusJSON() (string, error) {
+    // 1. 从 Built.Conds 中提取 VectorSearch 参数
+    vectorBb := findVectorSearchBb(built.Conds)
+    if vectorBb == nil {
+        return "", fmt.Errorf("no VECTOR_SEARCH found")
     }
     
+    params := vectorBb.Value.(VectorSearchParams)
+    
+    // 2. 创建 Milvus 请求对象
+    req := &MilvusSearchRequest{
+        CollectionName: params.TableName,
+        Data:           [][]float32{params.Vector},
+        Limit:          params.Limit,
+        SearchParams: MilvusSearchParams{
+            MetricType: milvusDistanceMetric(params.Distance),
+            Params:     make(map[string]interface{}),
+        },
+    }
+    
+    // 3. 应用 Milvus 专属参数
+    applyMilvusParams(built.Conds, req)
+    
+    // 4. 序列化为 JSON
+    bytes, err := json.MarshalIndent(req, "", "  ")
+    if err != nil {
+        return "", fmt.Errorf("failed to marshal Milvus request: %w", err)
+    }
+    
+    return string(bytes), nil
+}
+
+// applyMilvusParams 应用 Milvus 专属参数
+func applyMilvusParams(bbs []Bb, req *MilvusSearchRequest) {
+    for _, bb := range bbs {
+        switch bb.Op {
+        case "MILVUS_NPROBE":
+            req.SearchParams.Params["nprobe"] = bb.Value
+        case "MILVUS_ROUND_DEC":
+            req.SearchParams.RoundDecimal = bb.Value.(int)
+        case "MILVUS_METRIC_TYPE":
+            req.SearchParams.MetricType = bb.Value.(string)
+        }
+    }
+}
+
+func milvusDistanceMetric(metric VectorDistance) string {
+    switch metric {
+    case CosineDistance:
+        return "IP"  // Inner Product
+    case L2Distance:
+        return "L2"
+    case InnerProduct:
+        return "IP"
+    default:
+        return "L2"
+    }
+}
+```
+
+---
+
+### Step 3: 添加 Builder 方法（可选）
+
+```go
+// cond_builder_milvus.go
+package xb
+
+// MilvusNProbe 设置 Milvus nprobe 参数
+func (b *CondBuilder) MilvusNProbe(nprobe int) *CondBuilder {
+    return b.append(Bb{Op: "MILVUS_NPROBE", Value: nprobe})
+}
+
+// MilvusRoundDec 设置小数位
+func (b *CondBuilder) MilvusRoundDec(dec int) *CondBuilder {
+    return b.append(Bb{Op: "MILVUS_ROUND_DEC", Value: dec})
+}
+
+// MilvusX 自定义参数
+func (b *CondBuilder) MilvusX(key string, value interface{}) *CondBuilder {
+    return b.append(Bb{Op: "MILVUS_XX", Key: key, Value: value})
+}
+```
+
+---
+
+## 💡 使用示例
+
+### 方式 1: 使用 Custom（推荐）
+
+```go
+// Milvus
+built := xb.Of("code_vectors").
+    WithCustom(xb.NewMilvusCustom()).  // ⭐ 设置 Milvus Custom
+    VectorSearch("embedding", vec, 20).
+    Eq("language", "golang").
+    Build()
+
+json, _ := built.JsonOfSelect()  // ⭐ 统一接口
+```
+
+### 方式 2: 便捷方法
+
+```go
+// Milvus（如果实现了 ToMilvusJSON 便捷方法）
+built := xb.Of("code_vectors").
+    MilvusNProbe(64).
+    VectorSearch("embedding", vec, 20).
+    Build()
+
+json, _ := built.ToMilvusJSON()  // 自动使用默认 Custom
+```
+
+### 方式 3: 运行时切换
+
+```go
+// 根据配置动态选择数据库
+var custom xb.Custom
+switch config.VectorDB {
+case "qdrant":
+    custom = xb.QdrantBalanced()
+case "milvus":
+    custom = xb.NewMilvusCustom()
+case "weaviate":
+    custom = xb.NewWeaviateCustom()
+}
+
+built := xb.Of("code_vectors").
+    WithCustom(custom).  // ⭐ 运行时切换
+    VectorSearch("embedding", vec, 20).
+    Build()
+
+json, _ := built.JsonOfSelect()  // ✅ 自动适配
+```
+
+---
+
+## 🎨 设计模式对比
+
+### v1.0.x（旧模式）：BuilderX 扩展
+
+```go
+// ❌ 复杂：需要定义专属 BuilderX
+type MilvusBuilderX struct {
+    builder *xb.BuilderX
+}
+
+func (x *xb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *xb.BuilderX {
+    mx := &MilvusBuilderX{builder: x}
+    f(mx)
+    return x
+}
+
+// 使用
+built := xb.Of("t").
+    MilvusX(func(mx *MilvusBuilderX) {
+        mx.Nprobe(64).RoundDec(4)
+    }).
+    Build()
+```
+
+### v1.1.0（新模式）：Custom 接口
+
+```go
+// ✅ 简单：只需实现一个接口
+type MilvusCustom struct {
+    DefaultNProbe int
+}
+
+func (c *MilvusCustom) ToJSON(built *Built) (string, error) {
+    return built.toMilvusJSON()
+}
+
+// 使用
+built := xb.Of("t").
+    WithCustom(xb.NewMilvusCustom()).
+    Build()
+
+json, _ := built.JsonOfSelect()  // 统一接口
+```
+
+---
+
+## 📊 完整示例：Weaviate 支持
+
+### 1. 定义 Weaviate Custom
+
+```go
+// weaviate_custom.go
+package xb
+
+type WeaviateCustom struct {
+    DefaultCertainty float32
+    DefaultAlpha     float32
+}
+
+func NewWeaviateCustom() *WeaviateCustom {
+    return &WeaviateCustom{
+        DefaultCertainty: 0.7,
+        DefaultAlpha:     0.5,
+    }
+}
+
+func (c *WeaviateCustom) ToJSON(built *Built) (string, error) {
+    return built.toWeaviateJSON()
+}
+
+// 预设模式
+func WeaviateSemanticMode() *WeaviateCustom {
+    return &WeaviateCustom{
+        DefaultCertainty: 0.8,
+        DefaultAlpha:     0.0,  // 纯向量搜索
+    }
+}
+
+func WeaviateHybridMode() *WeaviateCustom {
+    return &WeaviateCustom{
+        DefaultCertainty: 0.7,
+        DefaultAlpha:     0.5,  // 混合搜索
+    }
+}
+```
+
+### 2. 实现 JSON 生成
+
+```go
+// to_weaviate_json.go
+func (built *Built) toWeaviateJSON() (string, error) {
+    // 提取参数
+    vectorBb := findVectorSearchBb(built.Conds)
+    if vectorBb == nil {
+        return "", fmt.Errorf("no VECTOR_SEARCH found")
+    }
+    
+    params := vectorBb.Value.(VectorSearchParams)
+    
+    // 构建 Weaviate GraphQL 查询
+    query := fmt.Sprintf(`{
+  Get {
+    %s(
+      nearVector: {
+        vector: %v
+      }
+      limit: %d
+    ) {
+      _additional { certainty }
+      # 字段列表
+    }
+  }
+}`, params.TableName, params.Vector, params.Limit)
+    
+    return query, nil
+}
+```
+
+### 3. 使用
+
+```go
+built := xb.Of("CodeVector").
+    WithCustom(xb.WeaviateSemanticMode()).
+    VectorSearch("embedding", vec, 20).
+    Build()
+
+graphql, _ := built.JsonOfSelect()
+```
+
+---
+
+## 🔄 对比：Qdrant vs Milvus vs Weaviate
+
+### 统一的 API
+
+```go
+// ⭐ 完全相同的调用方式
+built := xb.Of("code_vectors").
+    VectorSearch("embedding", vec, 20).
+    Eq("language", "golang").
+    Build()
+
+// ⭐ 只需切换 Custom
+qdrantJSON, _ := built.WithCustom(xb.QdrantBalanced()).JsonOfSelect()
+milvusJSON, _ := built.WithCustom(xb.NewMilvusCustom()).JsonOfSelect()
+weaviateJSON, _ := built.WithCustom(xb.NewWeaviateCustom()).JsonOfSelect()
+```
+
+---
+
+## 📝 检查清单
+
+添加新的向量数据库支持时，请确保：
+
+- [ ] **定义 Custom 结构体**（如 `MilvusCustom`）
+- [ ] **实现 ToJSON 方法**（实现 Custom 接口）
+- [ ] **创建内部实现**（如 `toMilvusJSON()`）
+- [ ] **提供预设模式**（如 `NewMilvusCustom()`、`MilvusHighPrecision()`）
+- [ ] **添加便捷方法**（可选：`ToMilvusJSON()` 自动使用默认 Custom）
+- [ ] **编写测试用例**（验证 Custom 接口和 JSON 生成）
+- [ ] **文档注释完整**
+
+---
+
+## 🎯 最佳实践
+
+### 1. Custom 结构体设计
+
+```go
+// ✅ 好的设计：包含默认配置
+type MilvusCustom struct {
+    DefaultNProbe     int     // 用户可以自定义
+    DefaultRoundDec   int
+    DefaultMetricType string
+}
+
+// ❌ 不好的设计：空结构体
+type MilvusCustom struct {
+    // 什么都没有
+}
+```
+
+### 2. 提供预设模式
+
+```go
+// ✅ 必须提供
+func NewMilvusCustom() *MilvusCustom {
+    return &MilvusCustom{
+        DefaultNProbe:     64,
+        DefaultRoundDec:   4,
+        DefaultMetricType: "L2",
+    }
+}
+
+// ✅ 推荐提供多个预设
+func MilvusHighPrecision() *MilvusCustom {
+    return &MilvusCustom{
+        DefaultNProbe:     256,
+        DefaultRoundDec:   6,
+        DefaultMetricType: "IP",
+    }
+}
+
+func MilvusHighSpeed() *MilvusCustom {
+    return &MilvusCustom{
+        DefaultNProbe:     16,
+        DefaultRoundDec:   2,
+        DefaultMetricType: "L2",
+    }
+}
+```
+
+### 3. 内部实现分离
+
+```go
+// ✅ 公开 Custom
+type MilvusCustom struct { ... }
+
+func (c *MilvusCustom) ToJSON(built *Built) (string, error) {
+    return built.toMilvusJSON()  // ⭐ 委托给私有实现
+}
+
+// ✅ 私有实现（小写开头）
+func (built *Built) toMilvusJSON() (string, error) {
+    // 实际的 JSON 生成逻辑
+}
+
+// ✅ 便捷方法（可选）
+func (built *Built) ToMilvusJSON() (string, error) {
+    if built.Custom != nil {
+        return built.JsonOfSelect()
+    }
+    built.Custom = NewMilvusCustom()  // 自动设置默认 Custom
+    return built.JsonOfSelect()
+}
+```
+
+---
+
+## 🔧 实战：完整的 Milvus 实现
+
+### 完整代码（约 150 行）
+
+```go
+// ============================================================================
+// milvus_custom.go
+// ============================================================================
+package xb
+
+type MilvusCustom struct {
+    DefaultNProbe     int
+    DefaultRoundDec   int
+    DefaultMetricType string
+}
+
+func NewMilvusCustom() *MilvusCustom {
+    return &MilvusCustom{
+        DefaultNProbe:     64,
+        DefaultRoundDec:   4,
+        DefaultMetricType: "L2",
+    }
+}
+
+func (c *MilvusCustom) ToJSON(built *Built) (string, error) {
+    return built.toMilvusJSON()
+}
+
+func MilvusHighPrecision() *MilvusCustom {
+    return &MilvusCustom{DefaultNProbe: 256, DefaultRoundDec: 6}
+}
+
+func MilvusHighSpeed() *MilvusCustom {
+    return &MilvusCustom{DefaultNProbe: 16, DefaultRoundDec: 2}
+}
+
+// ============================================================================
+// to_milvus_json.go
+// ============================================================================
+
+// ToMilvusJSON 便捷方法
+func (built *Built) ToMilvusJSON() (string, error) {
+    if built.Custom != nil {
+        return built.JsonOfSelect()
+    }
+    built.Custom = NewMilvusCustom()
+    return built.JsonOfSelect()
+}
+
+// toMilvusJSON 内部实现
+func (built *Built) toMilvusJSON() (string, error) {
+    vectorBb := findVectorSearchBb(built.Conds)
+    if vectorBb == nil {
+        return "", fmt.Errorf("no VECTOR_SEARCH found")
+    }
+    
+    params := vectorBb.Value.(VectorSearchParams)
+    
+    req := &MilvusSearchRequest{
+        CollectionName: params.TableName,
+        Data:           [][]float32{params.Vector},
+        Limit:          params.Limit,
+        SearchParams: MilvusSearchParams{
+            MetricType: milvusDistanceMetric(params.Distance),
+            Params:     make(map[string]interface{}),
+        },
+    }
+    
+    // 应用专属参数
+    applyMilvusParams(built.Conds, req)
+    
+    // 序列化
     bytes, err := json.MarshalIndent(req, "", "  ")
     if err != nil {
         return "", err
@@ -176,590 +542,200 @@ func (built *xb.Built) ToMilvusJSON(collectionName string) (string, error) {
     
     return string(bytes), nil
 }
-
-// ToMilvusRequest 转换为 Milvus 请求结构
-func (built *xb.Built) ToMilvusRequest(collectionName string) (*MilvusSearchRequest, error) {
-    req := &MilvusSearchRequest{
-        CollectionName: collectionName,
-        SearchParams: MilvusSearchParams{
-            MetricType: "L2",  // 默认值
-            Params:     make(map[string]interface{}),
-        },
-    }
-    
-    // 1. 提取向量搜索参数
-    for _, bb := range built.Conds {
-        if bb.Op == xb.VECTOR_SEARCH {
-            params := bb.Value.(xb.VectorSearchParams)
-            req.Data = [][]float32{params.QueryVector}
-            req.Limit = params.TopK
-            
-            // 距离度量映射
-            switch params.DistanceMetric {
-            case xb.CosineDistance:
-                req.SearchParams.MetricType = "IP"  // Inner Product
-            case xb.L2Distance:
-                req.SearchParams.MetricType = "L2"
-            }
-            break
-        }
-    }
-    
-    // 2. 提取 Milvus 专属参数
-    for _, bb := range built.Conds {
-        switch bb.Op {
-        case MILVUS_NPROBE:
-            req.SearchParams.Params["nprobe"] = bb.Value
-        case MILVUS_ROUND_DECIMAL:
-            req.SearchParams.RoundDecimal = bb.Value.(int)
-        case MILVUS_METRIC_TYPE:
-            req.SearchParams.MetricType = bb.Value.(string)
-        case MILVUS_XX:
-            // 自定义参数
-            req.SearchParams.Params[bb.Key] = bb.Value
-        }
-    }
-    
-    // 3. 构建标量过滤表达式（Milvus 的 expr）
-    expr := buildMilvusExpr(built.Conds)
-    if expr != "" {
-        req.Expr = expr
-    }
-    
-    return req, nil
-}
-
-// buildMilvusExpr 构建 Milvus 的过滤表达式
-func buildMilvusExpr(bbs []xb.Bb) string {
-    var conditions []string
-    
-    for _, bb := range bbs {
-        switch bb.Op {
-        case xb.EQ:
-            conditions = append(conditions, fmt.Sprintf(`%s == "%v"`, bb.Key, bb.Value))
-        case xb.GT:
-            conditions = append(conditions, fmt.Sprintf(`%s > %v`, bb.Key, bb.Value))
-        case xb.LT:
-            conditions = append(conditions, fmt.Sprintf(`%s < %v`, bb.Key, bb.Value))
-        case xb.IN:
-            // 处理 IN 条件
-            values := []string{}
-            // ... 转换为 Milvus 的 IN 表达式
-        }
-    }
-    
-    if len(conditions) == 0 {
-        return ""
-    }
-    
-    return strings.Join(conditions, " and ")
-}
-```
-
----
-
-## 📚 完整示例
-
-### 示例 1: 代码搜索（Milvus）
-
-```go
-package main
-
-import (
-    "fmt"
-    "github.com/fndome/xb"
-    "your-project/vectordb"
-)
-
-func main() {
-    queryVector := xb.Vector{0.1, 0.2, 0.3, 0.4}
-    
-    // 构建查询
-    built := xb.Of(&CodeVector{}).
-        Eq("language", "golang").                      // 通用条件
-        Gt("quality_score", 0.7).                      // 通用条件
-        VectorSearch("embedding", queryVector, 20).    // ⭐ 通用向量检索
-        WithHashDiversity("semantic_hash").            // ⭐ 通用多样性
-        MilvusX(func(mx *vectordb.MilvusBuilderX) {
-            mx.HighAccuracy().                         // ⭐ Milvus 专属
-                RoundDecimal(4).                       // ⭐ Milvus 专属
-                MetricType("IP")                       // ⭐ Milvus 专属
-        }).
-        Build()
-    
-    // 生成 Milvus JSON
-    jsonStr, err := built.ToMilvusJSON("code_vectors")
-    if err != nil {
-        panic(err)
-    }
-    
-    fmt.Println(jsonStr)
-}
-```
-
-**输出**：
-
-```json
-{
-  "collection_name": "code_vectors",
-  "data": [[0.1, 0.2, 0.3, 0.4]],
-  "limit": 100,
-  "search_params": {
-    "metric_type": "IP",
-    "params": {
-      "nprobe": 256
-    },
-    "round_decimal": 4
-  },
-  "expr": "language == \"golang\" and quality_score > 0.7"
-}
-```
-
----
-
-## 🎯 设计原则
-
-### 1. 清晰分离：通用 vs 专属
-
-```go
-// ✅ 正确设计
-xb.Of(&Model{}).
-    VectorSearch("embedding", vec, 20).      // ⭐ 通用方法（外部）
-    WithHashDiversity("hash").                // ⭐ 通用方法（外部）
-    MilvusX(func(mx *MilvusBuilderX) {
-        mx.Nprobe(128).                       // ⭐ Milvus 专属（内部）
-            RoundDecimal(4)                   // ⭐ Milvus 专属（内部）
-    })
-
-// ❌ 错误设计：不要在 BuilderX 内实现 VectorSearch
-MilvusX(func(mx *MilvusBuilderX) {
-    mx.VectorSearch(...)  // ❌ 不要这样做！
-})
-```
-
----
-
-### 2. 保持向后兼容
-
-```go
-// ⭐ 通过扩展 BuilderX 而非修改
-func (x *xb.BuilderX) MilvusX(f func(mx *MilvusBuilderX)) *xb.BuilderX {
-    // 实现...
-    return x  // ⭐ 返回 BuilderX，保持链式调用
-}
-```
-
----
-
-### 3. 使用 Bb 存储参数
-
-```go
-// ✅ 正确：使用 Bb 存储 Milvus 参数
-bb := xb.Bb{
-    Op:    MILVUS_NPROBE,
-    Key:   "nprobe",
-    Value: nprobe,
-}
-mx.builder.Bbs = append(mx.builder.Bbs, bb)
-```
-
----
-
-### 4. 提供扩展点 X()
-
-```go
-// ⭐ 必须提供 X() 方法用于未封装的参数
-func (mx *MilvusBuilderX) X(k string, v interface{}) *MilvusBuilderX {
-    bb := xb.Bb{
-        Op:    MILVUS_XX,  // 专属的 XX 操作符
-        Key:   k,
-        Value: v,
-    }
-    mx.builder.Bbs = append(mx.builder.Bbs, bb)
-    return mx
-}
-
-// 使用示例
-MilvusX(func(mx *MilvusBuilderX) {
-    mx.X("search_k", 100).  // 未封装的参数
-        X("ef_construction", 200)
-})
-```
-
----
-
-## 💡 最佳实践
-
-### 1. 命名规范
-
-```go
-// ✅ 遵循 xb 的 X 后缀命名
-QdrantBuilderX   ✅
-MilvusBuilderX   ✅
-WeaviateBuilderX ✅
-
-// ❌ 不要使用其他命名
-MilvusBuilder    ❌
-MilvusConfig     ❌
-MilvusTemplate   ❌
-```
-
----
-
-### 2. 方法命名风格
-
-```go
-// ✅ 简洁命名（无 Set 前缀）
-mx.Nprobe(10)          ✅
-mx.RoundDecimal(4)     ✅
-mx.MetricType("L2")    ✅
-
-// ❌ Java 风格（啰嗦）
-mx.SetNprobe(10)       ❌
-mx.SetRoundDecimal(4)  ❌
-```
-
----
-
-### 3. 提供快捷方法
-
-```go
-// ⭐ 提供高层抽象（快捷方法）
-func (mx *MilvusBuilderX) HighAccuracy() *MilvusBuilderX {
-    return mx.Nprobe(256).RoundDecimal(6)
-}
-
-func (mx *MilvusBuilderX) Balanced() *MilvusBuilderX {
-    return mx.Nprobe(64).RoundDecimal(4)
-}
-
-func (mx *MilvusBuilderX) HighSpeed() *MilvusBuilderX {
-    return mx.Nprobe(16).RoundDecimal(2)
-}
-```
-
----
-
-## 🔧 实际案例：Weaviate 支持
-
-### 完整实现
-
-```go
-// your_project/vectordb/weaviate_x.go
-package vectordb
-
-import "github.com/fndome/xb"
-
-// Weaviate 专属操作符
-const (
-    WEAVIATE_CERTAINTY = "WEAVIATE_CERTAINTY"
-    WEAVIATE_ALPHA     = "WEAVIATE_ALPHA"
-    WEAVIATE_XX        = "WEAVIATE_XX"
-)
-
-// WeaviateBuilderX Weaviate 专属构建器
-type WeaviateBuilderX struct {
-    builder *xb.BuilderX
-}
-
-// WeaviateX 创建 Weaviate 专属构建器
-func (x *xb.BuilderX) WeaviateX(f func(wx *WeaviateBuilderX)) *xb.BuilderX {
-    wx := &WeaviateBuilderX{builder: x}
-    f(wx)
-    return x
-}
-
-// Certainty 设置 Weaviate 的确定性阈值（0-1）
-func (wx *WeaviateBuilderX) Certainty(certainty float32) *WeaviateBuilderX {
-    if certainty > 0 && certainty <= 1 {
-        bb := xb.Bb{
-            Op:    WEAVIATE_CERTAINTY,
-            Key:   "certainty",
-            Value: certainty,
-        }
-        wx.builder.Bbs = append(wx.builder.Bbs, bb)
-    }
-    return wx
-}
-
-// Alpha 设置混合搜索的权重（0=纯向量, 1=纯关键词）
-func (wx *WeaviateBuilderX) Alpha(alpha float32) *WeaviateBuilderX {
-    bb := xb.Bb{
-        Op:    WEAVIATE_ALPHA,
-        Key:   "alpha",
-        Value: alpha,
-    }
-    wx.builder.Bbs = append(wx.builder.Bbs, bb)
-    return wx
-}
-
-// X 自定义参数
-func (wx *WeaviateBuilderX) X(k string, v interface{}) *WeaviateBuilderX {
-    bb := xb.Bb{
-        Op:    WEAVIATE_XX,
-        Key:   k,
-        Value: v,
-    }
-    wx.builder.Bbs = append(wx.builder.Bbs, bb)
-    return wx
-}
-
-// ToWeaviateGraphQL 转换为 Weaviate GraphQL 查询
-func (built *xb.Built) ToWeaviateGraphQL(className string) (string, error) {
-    // 1. 提取向量搜索参数
-    var queryVector []float32
-    var limit int
-    
-    for _, bb := range built.Conds {
-        if bb.Op == xb.VECTOR_SEARCH {
-            params := bb.Value.(xb.VectorSearchParams)
-            queryVector = params.QueryVector
-            limit = params.TopK
-            break
-        }
-    }
-    
-    // 2. 提取 Weaviate 专属参数
-    var certainty float32
-    var alpha float32
-    
-    for _, bb := range built.Conds {
-        switch bb.Op {
-        case WEAVIATE_CERTAINTY:
-            certainty = bb.Value.(float32)
-        case WEAVIATE_ALPHA:
-            alpha = bb.Value.(float32)
-        }
-    }
-    
-    // 3. 构建 GraphQL 查询
-    graphql := fmt.Sprintf(`{
-  Get {
-    %s(
-      nearVector: {
-        vector: %v
-        certainty: %.2f
-      }
-      limit: %d
-    ) {
-      _additional {
-        certainty
-      }
-      ... 省略字段
-    }
-  }
-}`, className, queryVector, certainty, limit)
-    
-    return graphql, nil
-}
 ```
 
 ---
 
 ## 📖 使用示例
 
-### 示例 1: 同时支持 Qdrant 和 Milvus
+### 示例 1: 基础用法
 
 ```go
-package main
+// Milvus 搜索
+built := xb.Of("code_vectors").
+    WithCustom(xb.NewMilvusCustom()).
+    VectorSearch("embedding", queryVector, 20).
+    Eq("language", "golang").
+    Build()
 
-import (
-    "github.com/fndome/xb"
-    "your-project/vectordb"
-)
+json, _ := built.JsonOfSelect()
+```
 
-func search(query string, backend string) (interface{}, error) {
-    queryVector := embedQuery(query)
+### 示例 2: 预设模式
+
+```go
+// 高精度模式
+built := xb.Of("code_vectors").
+    WithCustom(xb.MilvusHighPrecision()).
+    VectorSearch("embedding", vec, 20).
+    Build()
+
+json, _ := built.JsonOfSelect()
+```
+
+### 示例 3: 便捷方法
+
+```go
+// 使用便捷方法（自动使用默认 Custom）
+built := xb.Of("code_vectors").
+    VectorSearch("embedding", vec, 20).
+    Build()
+
+json, _ := built.ToMilvusJSON()
+```
+
+### 示例 4: 跨数据库部署
+
+```go
+func SearchDocuments(config Config, query string) ([]Document, error) {
+    embedding := embed(query)
     
-    // 构建通用查询
-    builder := xb.Of(&CodeVector{}).
-        Eq("language", "golang").
-        VectorSearch("embedding", queryVector, 20).
-        WithHashDiversity("semantic_hash")
-    
-    // 根据后端选择不同的专属配置
-    switch backend {
+    // 根据配置选择 Custom
+    var custom xb.Custom
+    switch config.VectorDB {
     case "qdrant":
-        built := builder.
-            QdrantX(func(qx *xb.QdrantBuilderX) {
-                qx.HnswEf(256).ScoreThreshold(0.8)
-            }).
-            Build()
-        return built.ToQdrantJSON()
-        
+        custom = xb.QdrantBalanced()
     case "milvus":
-        built := builder.
-            MilvusX(func(mx *vectordb.MilvusBuilderX) {
-                mx.Nprobe(128).RoundDecimal(4)
-            }).
-            Build()
-        return built.ToMilvusJSON("code_vectors")
-        
+        custom = xb.NewMilvusCustom()
     case "weaviate":
-        built := builder.
-            WeaviateX(func(wx *vectordb.WeaviateBuilderX) {
-                wx.Certainty(0.8).Alpha(0.5)
-            }).
-            Build()
-        return built.ToWeaviateGraphQL("CodeVector")
+        custom = xb.NewWeaviateCustom()
     }
     
-    return nil, fmt.Errorf("unsupported backend: %s", backend)
+    // 统一的查询构建
+    built := xb.Of("documents").
+        WithCustom(custom).
+        VectorSearch("embedding", embedding, 10).
+        Eq("status", "published").
+        Build()
+    
+    // 统一的接口
+    json, _ := built.JsonOfSelect()
+    
+    // 调用对应的客户端
+    switch config.VectorDB {
+    case "qdrant":
+        return qdrantClient.Search(json)
+    case "milvus":
+        return milvusClient.Search(json)
+    case "weaviate":
+        return weaviateClient.Search(json)
+    }
 }
 ```
 
 ---
 
-### 示例 2: 嵌入式轻量向量数据库
+## 🎯 设计优势
+
+### v1.1.0 Custom 接口 vs v1.0.x BuilderX 扩展
+
+| 特性 | v1.0.x (BuilderX) | v1.1.0 (Custom) |
+|------|------------------|-----------------|
+| **接口方法数** | 需要多个方法 | 1个方法 ✅ |
+| **代码量** | ~300 行 | ~150 行 ✅ |
+| **预设模式** | 不支持 | 支持 ✅ |
+| **运行时切换** | 困难 | 简单 ✅ |
+| **统一 API** | `ToMilvusJSON()` | `JsonOfSelect()` ✅ |
+| **类型复杂度** | 高 | 低 ✅ |
+
+---
+
+## 📚 参考实现
+
+### Qdrant Custom（官方实现）
+
+查看 `xb/qdrant_custom.go`：
 
 ```go
-// 假设你自研了一个轻量级向量数据库
-package vectordb
-
-type LiteVectorBuilderX struct {
-    builder *xb.BuilderX
+type QdrantCustom struct {
+    DefaultHnswEf         int
+    DefaultScoreThreshold float32
+    DefaultWithVector     bool
 }
 
-func (x *xb.BuilderX) LiteVectorX(f func(lx *LiteVectorBuilderX)) *xb.BuilderX {
-    lx := &LiteVectorBuilderX{builder: x}
-    f(lx)
-    return x
+func (c *QdrantCustom) ToJSON(built *Built) (string, error) {
+    return built.toQdrantJSON()
 }
 
-// 专属方法
-func (lx *LiteVectorBuilderX) CacheSize(size int) *LiteVectorBuilderX {
-    // 设置向量缓存大小
-    // ...
-    return lx
-}
-
-func (lx *LiteVectorBuilderX) InMemory(inMemory bool) *LiteVectorBuilderX {
-    // 是否全内存运行
-    // ...
-    return lx
-}
-
-// 使用
-built := xb.Of(&CodeVector{}).
-    VectorSearch("embedding", vec, 20).
-    LiteVectorX(func(lx *LiteVectorBuilderX) {
-        lx.InMemory(true).CacheSize(10000)
-    }).
-    Build()
+// 预设模式
+func QdrantHighPrecision() *QdrantCustom { ... }
+func QdrantHighSpeed() *QdrantCustom { ... }
+func QdrantBalanced() *QdrantCustom { ... }
 ```
 
 ---
 
 ## ⚠️ 注意事项
 
-### 1. 不要修改 xb 核心代码
+### 1. 不要在 xb 核心添加所有数据库的支持
 
 ```go
-// ❌ 错误：修改 xb 核心
-// xb/builder_x.go
-func (x *BuilderX) MilvusX(...) {  // ❌ 不要在 xb 内添加
-}
+// ❌ 错误：在 xb 核心添加所有数据库
+// xb/milvus_custom.go ❌
+// xb/weaviate_custom.go ❌
+// xb/pinecone_custom.go ❌
 
-// ✅ 正确：在自己的包内扩展
-// your_project/vectordb/milvus_x.go
-func (x *xb.BuilderX) MilvusX(...) {  // ✅ 在自己包内添加
-}
+// ✅ 正确：只添加常用的（如 Qdrant）
+// xb/qdrant_custom.go ✅
+
+// ✅ 其他数据库在用户项目中实现
+// your-project/vectordb/milvus_custom.go ✅
 ```
 
----
-
-### 2. 操作符常量使用专属前缀
+### 2. Custom 接口只有一个方法
 
 ```go
-// ✅ 正确：使用专属前缀避免冲突
-const (
-    MILVUS_NPROBE = "MILVUS_NPROBE"  // ✅
-    WEAVIATE_CERTAINTY = "WEAVIATE_CERTAINTY"  // ✅
-)
+// ✅ 保持简单
+type Custom interface {
+    ToJSON(built *Built) (string, error)
+}
 
-// ❌ 错误：可能与 xb 冲突
-const (
-    NPROBE = "NPROBE"  // ❌ 太通用
-)
-```
-
----
-
-### 3. 优雅降级处理
-
-```go
-// ⭐ 如果在 PostgreSQL 环境，Milvus 参数应被忽略
-func (built *xb.Built) SqlOfVectorSearch() (string, []interface{}) {
-    // 自动忽略 MILVUS_* 操作符
-    for _, bb := range built.Conds {
-        if strings.HasPrefix(bb.Op, "MILVUS_") {
-            continue  // ⭐ 忽略
-        }
-        // ...
-    }
+// ❌ 不要过度设计
+type Custom interface {
+    GetDialect() Dialect          // ❌ 多余
+    ApplyParams(bbs, req) error   // ❌ 多余
+    ToJSON(built) (string, error) // ✅ 只需这个
 }
 ```
 
----
+### 3. 类型本身就是标识
 
-## 📊 支持的向量数据库对比
+```go
+// ✅ Go 的接口多态
+var custom xb.Custom
 
-| 数据库 | 官方支持 | 社区扩展 | 实现难度 | 推荐度 |
-|-------|---------|---------|---------|--------|
-| **Qdrant** | ✅ (v0.9.0+) | - | - | ⭐⭐⭐⭐⭐ |
-| **Milvus** | ❌ | 本文档 | 中等 | ⭐⭐⭐⭐ |
-| **Weaviate** | ❌ | 本文档 | 中等 | ⭐⭐⭐ |
-| **Pinecone** | ❌ | 可自行实现 | 简单 | ⭐⭐⭐ |
-| **pgvector** | ✅ (v0.8.1+) | - | - | ⭐⭐⭐⭐⭐ |
-| **自研** | ❌ | 本文档 | 高 | ⭐⭐⭐⭐⭐ |
+custom = &QdrantCustom{...}   // 类型本身说明是 Qdrant
+custom = &MilvusCustom{...}   // 类型本身说明是 Milvus
 
----
-
-## 🚀 项目结构建议
-
-```
-your-project/
-├── go.mod
-├── vectordb/
-│   ├── milvus_x.go              # Milvus 扩展
-│   ├── milvus_oper.go           # Milvus 操作符
-│   ├── to_milvus_json.go        # JSON 转换
-│   ├── milvus_test.go           # 测试
-│   │
-│   ├── weaviate_x.go            # Weaviate 扩展
-│   ├── to_weaviate_graphql.go   # GraphQL 转换
-│   │
-│   └── lite_vector_x.go         # 自研向量数据库
-│
-└── main.go
+// ❌ 不需要额外的枚举
+type Dialect string
+const Qdrant Dialect = "qdrant"  // ❌ 多余
 ```
 
 ---
 
-## 🎯 总结
+## 🎉 总结
 
-### 实现自定义向量数据库支持的 5 步
+### 添加自定义向量数据库支持的 3 步
 
-1. ✅ 创建 `XxxxBuilderX` 结构体
-2. ✅ 定义专属操作符常量（`XXXX_*`）
-3. ✅ 实现专属配置方法
-4. ✅ 实现 JSON/GraphQL 转换器
-5. ✅ 编写测试用例
+1. ✅ **定义 Custom**：实现 `ToJSON(built *Built) (string, error)`
+2. ✅ **创建预设**：提供 `NewXxxCustom()` 和预设模式
+3. ✅ **编写测试**：验证功能正常
 
-### 核心原则
+### 核心优势
 
-```
-1. 清晰分离：通用方法在外部，专属配置在内部
-2. 向后兼容：通过扩展而非修改
-3. 使用 Bb：所有参数存储为 Bb
-4. 提供 X()：支持未封装的参数
-5. 遵循风格：简洁命名，链式调用
-```
+- ✅ **极简接口**：只需一个方法
+- ✅ **类型安全**：编译时检查
+- ✅ **预设模式**：开箱即用
+- ✅ **运行时切换**：灵活部署
+- ✅ **统一 API**：`JsonOfSelect()` 适用于所有向量数据库
 
 ---
 
-**参考实现**: [qdrant_x.go](../qdrant_x.go) 和 [to_qdrant_json.go](../to_qdrant_json.go)
+**参考**：
+- `xb/dialect.go` - Custom 接口定义
+- `xb/qdrant_custom.go` - Qdrant 官方实现
+- `xb/doc/MILVUS_TEMPLATE.go` - Milvus 实现模板
+- `xb/doc/DIALECT_CUSTOM_DESIGN.md` - Custom 设计文档
 
-**开始构建你自己的向量数据库支持！** 🚀
-
-
+**开始实现你的向量数据库支持！** 🚀
