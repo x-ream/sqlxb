@@ -39,9 +39,9 @@ func (cb *CondBuilder) VectorSearch(field string, queryVector Vector, topK int) 
 
 	// 创建向量检索 Bb
 	bb := Bb{
-		op:  VECTOR_SEARCH,
-		key: field,
-		value: VectorSearchParams{
+		Op:  VECTOR_SEARCH,
+		Key: field,
+		Value: VectorSearchParams{
 			QueryVector:    queryVector,
 			TopK:           topK,
 			DistanceMetric: CosineDistance, // 默认余弦距离
@@ -66,11 +66,11 @@ func (cb *CondBuilder) VectorDistance(metric VectorDistance) *CondBuilder {
 	}
 
 	for i := length - 1; i >= 0; i-- {
-		if cb.bbs[i].op == VECTOR_SEARCH {
+		if cb.bbs[i].Op == VECTOR_SEARCH {
 			// 修改距离度量
-			if params, ok := cb.bbs[i].value.(VectorSearchParams); ok {
+			if params, ok := cb.bbs[i].Value.(VectorSearchParams); ok {
 				params.DistanceMetric = metric
-				cb.bbs[i].value = params
+				cb.bbs[i].Value = params
 			}
 			break
 		}
@@ -105,9 +105,9 @@ func (cb *CondBuilder) VectorDistanceFilter(
 
 	// 创建向量距离过滤 Bb
 	bb := Bb{
-		op:  VECTOR_DISTANCE_FILTER,
-		key: field,
-		value: VectorDistanceFilterParams{
+		Op:  VECTOR_DISTANCE_FILTER,
+		Key: field,
+		Value: VectorDistanceFilterParams{
 			QueryVector:    queryVector,
 			Operator:       op,
 			Threshold:      threshold,
@@ -149,8 +149,8 @@ func (cb *CondBuilder) WithDiversity(strategy DiversityStrategy, params ...inter
 	}
 
 	for i := length - 1; i >= 0; i-- {
-		if cb.bbs[i].op == VECTOR_SEARCH {
-			searchParams, ok := cb.bbs[i].value.(VectorSearchParams)
+		if cb.bbs[i].Op == VECTOR_SEARCH {
+			searchParams, ok := cb.bbs[i].Value.(VectorSearchParams)
 			if !ok {
 				return cb
 			}
@@ -203,7 +203,7 @@ func (cb *CondBuilder) WithDiversity(strategy DiversityStrategy, params ...inter
 				}
 			}
 
-			cb.bbs[i].value = searchParams
+			cb.bbs[i].Value = searchParams
 			break
 		}
 	}

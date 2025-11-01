@@ -17,8 +17,8 @@
 package xb
 
 type Bb struct {
-	op    string
-	key   string
-	value interface{}
-	subs  []Bb
+	Op    string
+	Key   string
+	Value interface{}
+	Subs  []Bb
 }

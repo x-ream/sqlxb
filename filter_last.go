@@ -36,9 +36,9 @@ func (built *Built) filterLast() *Bb {
 			gl = LT
 		}
 		return &Bb{
-			op:    gl,
-			key:   sort.orderBy,
-			value: built.PageCondition.last,
+			Op:    gl,
+			Key:   sort.orderBy,
+			Value: built.PageCondition.last,
 		}
 	}
 	return nil

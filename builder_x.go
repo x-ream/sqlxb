@@ -48,6 +48,7 @@ type BuilderX struct {
 	limitValue  int                   // ⭐ 新增：LIMIT 值（v0.10.1）
 	offsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
 	meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
+	custom      Custom                // ⭐ 新增：数据库专属配置（v0.11.0）
 }
 
 // Meta 获取元数据
@@ -56,6 +57,36 @@ func (x *BuilderX) Meta() *interceptor.Metadata {
 		x.meta = &interceptor.Metadata{}
 	}
 	return x.meta
+}
+
+// WithCustom 设置数据库专属配置（Dialect + Custom）
+//
+// 参数:
+//   - custom: 数据库专属配置（QdrantCustom/MilvusCustom/WeaviateCustom 等）
+//
+// 返回:
+//   - *BuilderX: 链式调用
+//
+// 示例:
+//
+//	// Qdrant 高精度模式
+//	built := xb.C().
+//	    WithCustom(xb.QdrantHighPrecision()).
+//	    VectorSearch(...).
+//	    Build()
+//
+//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
+//
+//	// Milvus 默认模式
+//	built := xb.C().
+//	    WithCustom(xb.NewMilvusCustom()).
+//	    VectorSearch(...).
+//	    Build()
+//
+//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
+func (x *BuilderX) WithCustom(custom Custom) *BuilderX {
+	x.custom = custom
+	return x
 }
 
 func Of(tableNameOrPo interface{}) *BuilderX {
@@ -141,9 +172,9 @@ func (x *BuilderX) Agg(fn string, vs ...interface{}) *BuilderX {
 		return x
 	}
 	bb := Bb{
-		op:    AGG,
-		key:   fn,
-		value: vs,
+		Op:    AGG,
+		Key:   fn,
+		Value: vs,
 	}
 	x.aggs = append(x.aggs, bb)
 	return x
@@ -321,7 +352,8 @@ func (x *BuilderX) Build() *Built {
 		built := Built{
 			OrFromSql: x.orFromSql,
 			Inserts:   x.inserts,
-			Meta:      x.meta, // ⭐ 传递元数据
+			Meta:      x.meta,   // ⭐ 传递元数据
+			Custom:    x.custom, // ⭐ 传递 Custom
 		}
 
 		// ⭐ 执行 AfterBuild 拦截器
@@ -351,6 +383,7 @@ func (x *BuilderX) Build() *Built {
 		LimitValue:  x.limitValue,  // ⭐ 传递 Limit
 		OffsetValue: x.offsetValue, // ⭐ 传递 Offset
 		Meta:        x.meta,        // ⭐ 传递元数据
+		Custom:      x.custom,      // ⭐ 传递 Custom
 	}
 
 	if x.pageBuilder != nil {

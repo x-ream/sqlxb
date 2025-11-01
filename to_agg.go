@@ -30,9 +30,9 @@ func (built *Built) toAggSql(vs *[]interface{}, bp *strings.Builder) {
 
 	for _, bb := range built.Aggs {
 		bp.WriteString(internal.SPACE)
-		bp.WriteString(bb.key)
-		if bb.value != nil && vs != nil {
-			for _, v := range bb.value.([]interface{}) {
+		bp.WriteString(bb.Key)
+		if bb.Value != nil && vs != nil {
+			for _, v := range bb.Value.([]interface{}) {
 				*vs = append(*vs, v)
 			}
 		}

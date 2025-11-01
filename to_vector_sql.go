@@ -49,12 +49,12 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 	// 查找向量检索参数
 	vectorBb := findVectorSearchBb(built.Conds)
 	if vectorBb != nil {
-		params := vectorBb.value.(VectorSearchParams)
+		params := vectorBb.Value.(VectorSearchParams)
 
 		// 添加距离字段
 		sb.WriteString(fmt.Sprintf(
 			", %s %s ? AS distance",
-			vectorBb.key,
+			vectorBb.Key,
 			params.DistanceMetric,
 		))
 		args = append(args, params.QueryVector)
@@ -92,7 +92,7 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 	// 4. ORDER BY 距离
 	if vectorBb != nil {
 		sb.WriteString(" ORDER BY distance")
-		params := vectorBb.value.(VectorSearchParams)
+		params := vectorBb.Value.(VectorSearchParams)
 
 		// 5. LIMIT Top-K
 		sb.WriteString(fmt.Sprintf(" LIMIT %d", params.TopK))
@@ -104,7 +104,7 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 // 辅助函数：查找向量检索 Bb
 func findVectorSearchBb(bbs []Bb) *Bb {
 	for i := range bbs {
-		if bbs[i].op == VECTOR_SEARCH {
+		if bbs[i].Op == VECTOR_SEARCH {
 			return &bbs[i]
 		}
 	}
@@ -116,11 +116,11 @@ func filterScalarConds(bbs []Bb) []Bb {
 	result := []Bb{}
 	for _, bb := range bbs {
 		// 跳过向量操作符
-		if bb.op == VECTOR_SEARCH || bb.op == VECTOR_DISTANCE_FILTER {
+		if bb.Op == VECTOR_SEARCH || bb.Op == VECTOR_DISTANCE_FILTER {
 			continue
 		}
 		// ⭐ 跳过 Qdrant 专属操作符（PostgreSQL 不支持）
-		if isQdrantSpecificOp(bb.op) {
+		if isQdrantSpecificOp(bb.Op) {
 			continue
 		}
 		result = append(result, bb)
@@ -141,7 +141,7 @@ func isQdrantSpecificOp(op string) bool {
 func filterVectorDistanceConds(bbs []Bb) []Bb {
 	result := []Bb{}
 	for _, bb := range bbs {
-		if bb.op == VECTOR_DISTANCE_FILTER {
+		if bb.Op == VECTOR_DISTANCE_FILTER {
 			result = append(result, bb)
 		}
 	}
@@ -165,12 +165,12 @@ func buildConditionSql(bbs []Bb) (string, []interface{}) {
 		}
 
 		// 简化处理：只处理基本运算符
-		sb.WriteString(bb.key)
+		sb.WriteString(bb.Key)
 		sb.WriteString(" ")
-		sb.WriteString(bb.op)
+		sb.WriteString(bb.Op)
 		sb.WriteString(" ?")
 
-		args = append(args, bb.value)
+		args = append(args, bb.Value)
 	}
 
 	return sb.String(), args
@@ -190,11 +190,11 @@ func buildVectorDistanceCondSql(bbs []Bb) (string, []interface{}) {
 			sb.WriteString(" AND ")
 		}
 
-		params := bb.value.(VectorDistanceFilterParams)
+		params := bb.Value.(VectorDistanceFilterParams)
 
 		// (field <-> ?) op threshold
 		sb.WriteString("(")
-		sb.WriteString(bb.key)
+		sb.WriteString(bb.Key)
 		sb.WriteString(" ")
 		sb.WriteString(string(params.DistanceMetric))
 		sb.WriteString(" ?)")

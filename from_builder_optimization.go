@@ -61,7 +61,7 @@ func (x *BuilderX) optimizeFromBuilder() {
 
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for _, bb := range sb.join.on.bbs {
-					v := bb.key
+					v := bb.Key
 					if ele.tableName != "" && strings.Contains(v, ele.tableName+".") { //has return or condition
 						return false
 					}
@@ -86,7 +86,7 @@ func (x *BuilderX) conds() *[]string {
 
 	if bbps != nil {
 		for _, v := range bbps {
-			condArr = append(condArr, v.key)
+			condArr = append(condArr, v.Key)
 		}
 	}
 
@@ -95,7 +95,7 @@ func (x *BuilderX) conds() *[]string {
 			if sb.join != nil && sb.join.on != nil && sb.join.on.bbs != nil {
 				for i, bb := range sb.join.on.bbs {
 					if i > 0 {
-						condArr = append(condArr, bb.key)
+						condArr = append(condArr, bb.Key)
 					}
 				}
 			}

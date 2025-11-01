@@ -54,9 +54,9 @@ func (x *BuilderX) QdrantX(f func(qx *QdrantBuilderX)) *BuilderX {
 func (qx *QdrantBuilderX) HnswEf(ef int) *QdrantBuilderX {
 	if ef > 0 {
 		bb := Bb{
-			op:    QDRANT_HNSW_EF,
-			key:   "hnsw_ef",
-			value: ef,
+			Op:    QDRANT_HNSW_EF,
+			Key:   "hnsw_ef",
+			Value: ef,
 		}
 		qx.builder.bbs = append(qx.builder.bbs, bb)
 	}
@@ -68,9 +68,9 @@ func (qx *QdrantBuilderX) HnswEf(ef int) *QdrantBuilderX {
 // false: 近似搜索（快但可能略不准）
 func (qx *QdrantBuilderX) Exact(exact bool) *QdrantBuilderX {
 	bb := Bb{
-		op:    QDRANT_EXACT,
-		key:   "exact",
-		value: exact,
+		Op:    QDRANT_EXACT,
+		Key:   "exact",
+		Value: exact,
 	}
 	qx.builder.bbs = append(qx.builder.bbs, bb)
 	return qx
@@ -80,9 +80,9 @@ func (qx *QdrantBuilderX) Exact(exact bool) *QdrantBuilderX {
 // 只返回相似度 >= threshold 的结果
 func (qx *QdrantBuilderX) ScoreThreshold(threshold float32) *QdrantBuilderX {
 	bb := Bb{
-		op:    QDRANT_SCORE_THRESHOLD,
-		key:   "score_threshold",
-		value: threshold,
+		Op:    QDRANT_SCORE_THRESHOLD,
+		Key:   "score_threshold",
+		Value: threshold,
 	}
 	qx.builder.bbs = append(qx.builder.bbs, bb)
 	return qx
@@ -93,9 +93,9 @@ func (qx *QdrantBuilderX) ScoreThreshold(threshold float32) *QdrantBuilderX {
 // false: 不返回向量（节省带宽）
 func (qx *QdrantBuilderX) WithVector(withVector bool) *QdrantBuilderX {
 	bb := Bb{
-		op:    QDRANT_WITH_VECTOR,
-		key:   "with_vector",
-		value: withVector,
+		Op:    QDRANT_WITH_VECTOR,
+		Key:   "with_vector",
+		Value: withVector,
 	}
 	qx.builder.bbs = append(qx.builder.bbs, bb)
 	return qx
@@ -130,9 +130,9 @@ func (qx *QdrantBuilderX) Recommend(fn func(rb *RecommendBuilder)) *QdrantBuilde
 
 	if len(rb.positive) > 0 && rb.limit > 0 {
 		bb := Bb{
-			op:  QDRANT_RECOMMEND,
-			key: "recommend",
-			value: map[string]interface{}{
+			Op:  QDRANT_RECOMMEND,
+			Key: "recommend",
+			Value: map[string]interface{}{
 				"positive": rb.positive,
 				"negative": rb.negative,
 				"limit":    rb.limit,
@@ -182,9 +182,9 @@ func (qx *QdrantBuilderX) Discover(fn func(db *DiscoverBuilder)) *QdrantBuilderX
 
 	if len(db.context) > 0 && db.limit > 0 {
 		bb := Bb{
-			op:  QDRANT_DISCOVER,
-			key: "discover",
-			value: map[string]interface{}{
+			Op:  QDRANT_DISCOVER,
+			Key: "discover",
+			Value: map[string]interface{}{
 				"context": db.context,
 				"limit":   db.limit,
 			},
@@ -216,9 +216,9 @@ func (db *DiscoverBuilder) Limit(limit int) *DiscoverBuilder {
 func (qx *QdrantBuilderX) ScrollID(scrollID string) *QdrantBuilderX {
 	if scrollID != "" {
 		bb := Bb{
-			op:    QDRANT_SCROLL,
-			key:   "scroll_id",
-			value: scrollID,
+			Op:    QDRANT_SCROLL,
+			Key:   "scroll_id",
+			Value: scrollID,
 		}
 		qx.builder.bbs = append(qx.builder.bbs, bb)
 	}
@@ -234,9 +234,9 @@ func (qx *QdrantBuilderX) ScrollID(scrollID string) *QdrantBuilderX {
 //   })
 func (qx *QdrantBuilderX) X(k string, v interface{}) *QdrantBuilderX {
 	bb := Bb{
-		op:    QDRANT_XX, // ⭐ Qdrant 专属的 X
-		key:   k,
-		value: v,
+		Op:    QDRANT_XX, // ⭐ Qdrant 专属的 X
+		Key:   k,
+		Value: v,
 	}
 	qx.builder.bbs = append(qx.builder.bbs, bb)
 	return qx

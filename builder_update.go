@@ -30,8 +30,8 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 	buffer, ok := v.([]byte)
 	if ok {
 		ub.bbs = append(ub.bbs, Bb{
-			key:   k,
-			value: buffer,
+			Key:   k,
+			Value: buffer,
 		})
 		return ub
 	}
@@ -40,8 +40,8 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 		if s := recover(); s != nil {
 			bytes, _ := json.Marshal(v)
 			ub.bbs = append(ub.bbs, Bb{
-				key:   k,
-				value: string(bytes),
+				Key:   k,
+				Value: string(bytes),
 			})
 		}
 		return ub
@@ -79,17 +79,17 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 	}
 
 	ub.bbs = append(ub.bbs, Bb{
-		key:   k,
-		value: v,
+		Key:   k,
+		Value: v,
 	})
 	return ub
 }
 
 func (ub *UpdateBuilder) X(s string, vs ...interface{}) *UpdateBuilder {
 	ub.bbs = append(ub.bbs, Bb{
-		op:    "SET",
-		key:   s,
-		value: vs,
+		Op:    "SET",
+		Key:   s,
+		Value: vs,
 	})
 	return ub
 }

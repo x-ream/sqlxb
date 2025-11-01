@@ -191,9 +191,9 @@ func TestRegression_SqlOfSelect_vs_SqlOfVectorSearch(t *testing.T) {
 	vec := Vector{0.1, 0.2, 0.3}
 	built2 := buildQuery()
 	built2.Conds = append(built2.Conds, Bb{
-		op:    VECTOR_SEARCH,
-		key:   "embedding",
-		value: VectorSearchParams{QueryVector: vec, TopK: 10, DistanceMetric: CosineDistance},
+		Op:    VECTOR_SEARCH,
+		Key:   "embedding",
+		Value: VectorSearchParams{QueryVector: vec, TopK: 10, DistanceMetric: CosineDistance},
 	})
 	sql2, args2 := built2.SqlOfVectorSearch()
 

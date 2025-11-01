@@ -25,9 +25,9 @@ func (x *CondBuilderX) Sub(s string, f func(sb *BuilderX)) *CondBuilderX {
 	b := new(BuilderX)
 	f(b)
 	bb := Bb{
-		op:    SUB,
-		key:   s,
-		value: b,
+		Op:    SUB,
+		Key:   s,
+		Value: b,
 	}
 	x.bbs = append(x.bbs, bb)
 	return x

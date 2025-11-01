@@ -71,9 +71,9 @@ func (cb *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBuilder 
 	}
 
 	bb := Bb{
-		op:    p,
-		key:   k,
-		value: &ss,
+		Op:    p,
+		Key:   k,
+		Value: &ss,
 	}
 	cb.bbs = append(cb.bbs, bb)
 
@@ -83,9 +83,9 @@ func (cb *CondBuilder) doIn(p string, k string, vs ...interface{}) *CondBuilder 
 func (cb *CondBuilder) doLike(p string, k string, v string) *CondBuilder {
 
 	bb := Bb{
-		op:    p,
-		key:   k,
-		value: v,
+		Op:    p,
+		Key:   k,
+		Value: v,
 	}
 	cb.bbs = append(cb.bbs, bb)
 
@@ -164,9 +164,9 @@ func (cb *CondBuilder) doGLE(p string, k string, v interface{}) *CondBuilder {
 
 func (cb *CondBuilder) addBb(op string, key string, v interface{}) *CondBuilder {
 	bb := Bb{
-		op:    op,
-		key:   key,
-		value: v,
+		Op:    op,
+		Key:   key,
+		Value: v,
 	}
 	cb.bbs = append(cb.bbs, bb)
 
@@ -175,8 +175,8 @@ func (cb *CondBuilder) addBb(op string, key string, v interface{}) *CondBuilder 
 
 func (cb *CondBuilder) null(op string, k string) *CondBuilder {
 	bb := Bb{
-		op:  op,
-		key: k,
+		Op:  op,
+		Key: k,
 	}
 	cb.bbs = append(cb.bbs, bb)
 	return cb
@@ -193,7 +193,7 @@ func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuil
 	hasRealCondition := false
 	for _, b := range c.bbs {
 		// 纯操作符 Bb：op=OR/AND, key="", value=nil, subs=nil/empty
-		isPureOperator := (b.op == OR || b.op == AND) && b.key == "" && b.value == nil && (b.subs == nil || len(b.subs) == 0)
+		isPureOperator := (b.Op == OR || b.Op == AND) && b.Key == "" && b.Value == nil && (b.Subs == nil || len(b.Subs) == 0)
 		if !isPureOperator {
 			hasRealCondition = true
 			break
@@ -206,9 +206,9 @@ func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuil
 	}
 
 	bb := Bb{
-		op:   orAnd,
-		key:  orAnd,
-		subs: c.bbs, // ⭐ 保留所有 bbs（包括纯操作符，它们用于连接条件）
+		Op:   orAnd,
+		Key:  orAnd,
+		Subs: c.bbs, // ⭐ 保留所有 bbs（包括纯操作符，它们用于连接条件）
 	}
 	cb.bbs = append(cb.bbs, bb)
 	return cb
@@ -220,11 +220,11 @@ func (cb *CondBuilder) orAnd(orAnd string) *CondBuilder {
 		return cb
 	}
 	pre := cb.bbs[length-1]
-	if pre.op == OR {
+	if pre.Op == OR {
 		return cb
 	}
 	bb := Bb{
-		op: orAnd,
+		Op: orAnd,
 	}
 	cb.bbs = append(cb.bbs, bb)
 	return cb
@@ -311,9 +311,9 @@ func (cb *CondBuilder) NonNull(key string) *CondBuilder {
 
 func (cb *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
 	bb := Bb{
-		op:    XX,
-		key:   k,
-		value: vs,
+		Op:    XX,
+		Key:   k,
+		Value: vs,
 	}
 	cb.bbs = append(cb.bbs, bb)
 	return cb

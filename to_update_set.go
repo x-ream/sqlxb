@@ -32,14 +32,14 @@ func (built *Built) toUpdateSql(bp *strings.Builder, vs *[]interface{}) {
 
 	for i := 0; i < length; i++ {
 		u := (*built.Updates)[i]
-		bp.WriteString(u.key)
-		if !strings.Contains(u.key, EQ) {
+		bp.WriteString(u.Key)
+		if !strings.Contains(u.Key, EQ) {
 			bp.WriteString(SPACE)
 			bp.WriteString(EQ)
 		}
-		if u.value != nil {
+		if u.Value != nil {
 			bp.WriteString(PLACE_HOLDER)
-			*vs = append(*vs, u.value)
+			*vs = append(*vs, u.Value)
 		}
 		if i < length-1 {
 			bp.WriteString(COMMA)

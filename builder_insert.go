@@ -30,8 +30,8 @@ func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 	buffer, ok := v.([]byte)
 	if ok {
 		b.bbs = append(b.bbs, Bb{
-			key:   k,
-			value: buffer,
+			Key:   k,
+			Value: buffer,
 		})
 		return b
 	}
@@ -40,8 +40,8 @@ func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 		if s := recover(); s != nil {
 			bytes, _ := json.Marshal(v)
 			b.bbs = append(b.bbs, Bb{
-				key:   k,
-				value: string(bytes),
+				Key:   k,
+				Value: string(bytes),
 			})
 		}
 		return b
@@ -76,8 +76,8 @@ func (b *InsertBuilder) Set(k string, v interface{}) *InsertBuilder {
 	}
 
 	b.bbs = append(b.bbs, Bb{
-		key:   k,
-		value: v,
+		Key:   k,
+		Value: v,
 	})
 	return b
 }

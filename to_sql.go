@@ -17,6 +17,7 @@
 package xb
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -40,9 +41,58 @@ type Built struct {
 	Svs        []interface{}
 
 	PageCondition *PageCondition
+
+	// ⭐ 数据库专属配置（Dialect + Custom）
+	// 如果为 nil，默认为 SQL 方言
+	Custom Custom
 	LimitValue    int                   // ⭐ 新增：LIMIT 值（v0.10.1）
 	OffsetValue   int                   // ⭐ 新增：OFFSET 值（v0.10.1）
 	Meta          *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
+}
+
+// ============================================================================
+// 统一的查询生成接口（v0.11.0）
+// ============================================================================
+
+// JsonOfSelect 生成查询 JSON（统一接口）
+// ⭐ 根据 Built.Custom 自动选择数据库方言（Qdrant/Milvus/Weaviate 等）
+//
+// 返回:
+//   - JSON 字符串
+//   - error
+//
+// 示例:
+//
+//	// Qdrant
+//	built := xb.C().
+//	    WithCustom(xb.QdrantHighPrecision()).
+//	    VectorSearch(...).
+//	    Build()
+//
+//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
+//
+//	// Milvus
+//	built := xb.C().
+//	    WithCustom(xb.NewMilvusCustom()).
+//	    VectorSearch(...).
+//	    Build()
+//
+//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
+//
+//	// SQL（默认）
+//	built := xb.C().
+//	    Eq("language", "golang").
+//	    Build()
+//
+//	sql, args, _ := built.SqlOfSelect()  // ⭐ 使用 SQL
+func (built *Built) JsonOfSelect() (string, error) {
+	if built.Custom == nil {
+		// 默认为 SQL，不生成 JSON
+		return "", fmt.Errorf("Custom is nil, use SqlOfSelect() for SQL databases")
+	}
+
+	// 委托给 Custom.ToJSON()
+	return built.Custom.ToJSON(built)
 }
 
 func (built *Built) toFromSqlOfCount(bpCount *strings.Builder) {
@@ -73,23 +123,23 @@ func (built *Built) toFromSql(vs *[]interface{}, bp *strings.Builder) {
 }
 
 func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
-	op := bb.op
+	op := bb.Op
 	switch op {
 	case XX:
-		bp.WriteString(bb.key)
-		if vs != nil && bb.value != nil {
-			arr := bb.value.([]interface{})
+		bp.WriteString(bb.Key)
+		if vs != nil && bb.Value != nil {
+			arr := bb.Value.([]interface{})
 			for _, v := range arr {
 				*vs = append(*vs, v)
 			}
 		}
 	case IN, NIN:
-		bp.WriteString(bb.key)
+		bp.WriteString(bb.Key)
 		bp.WriteString(SPACE)
-		bp.WriteString(bb.op)
+		bp.WriteString(bb.Op)
 		bp.WriteString(SPACE)
 		bp.WriteString(BEGIN_SUB)
-		arr := *(bb.value.(*[]string))
+		arr := *(bb.Value.(*[]string))
 		inl := len(arr)
 		for i := 0; i < inl; i++ {
 			bp.WriteString(arr[i])
@@ -99,26 +149,26 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 		}
 		bp.WriteString(END_SUB)
 	case IS_NULL, NON_NULL:
-		bp.WriteString(bb.key)
+		bp.WriteString(bb.Key)
 		bp.WriteString(SPACE)
-		bp.WriteString(bb.op)
+		bp.WriteString(bb.Op)
 	case AND, OR:
-		if bb.subs == nil || len(bb.subs) == 0 {
+		if bb.Subs == nil || len(bb.Subs) == 0 {
 			return
 		}
 		bp.WriteString(BEGIN_SUB)
-		built.toCondSql(bb.subs, bp, vs, nil)
+		built.toCondSql(bb.Subs, bp, vs, nil)
 		bp.WriteString(END_SUB)
 	case SUB:
-		var bx = *bb.value.(*BuilderX)
+		var bx = *bb.Value.(*BuilderX)
 		ss, _ := bx.Build().sqlData(vs, nil)
 		ss = BEGIN_SUB + ss + END_SUB
 		ss = SPACE + ss
-		if bb.key != "" {
-			if strings.Contains(bb.key, PLACE_HOLDER) {
-				bp.WriteString(strings.ReplaceAll(bb.key, PLACE_HOLDER, ss))
+		if bb.Key != "" {
+			if strings.Contains(bb.Key, PLACE_HOLDER) {
+				bp.WriteString(strings.ReplaceAll(bb.Key, PLACE_HOLDER, ss))
 			} else {
-				bp.WriteString(bb.key)
+				bp.WriteString(bb.Key)
 				bp.WriteString(SPACE)
 				bp.WriteString(ss)
 			}
@@ -126,12 +176,12 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 			bp.WriteString(ss)
 		}
 	default:
-		bp.WriteString(bb.key)
+		bp.WriteString(bb.Key)
 		bp.WriteString(SPACE)
-		bp.WriteString(bb.op)
+		bp.WriteString(bb.Op)
 		bp.WriteString(PLACE_HOLDER)
 		if vs != nil {
-			*vs = append(*vs, bb.value)
+			*vs = append(*vs, bb.Value)
 		}
 	}
 }
@@ -169,7 +219,7 @@ func (built *Built) toCondSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, 
 						}
 						i++
 					}
-				} else if len(next.subs) > 0 {
+				} else if len(next.Subs) > 0 {
 					// next 是 OR_SUB（有 subs），使用 AND 连接
 					bp.WriteString(AND_SCRIPT)
 				} else {
@@ -273,11 +323,11 @@ func (built *Built) toLastSql(bp *strings.Builder) {
 }
 
 func (built *Built) isOr(bb Bb) bool {
-	return bb.op == OR
+	return bb.Op == OR
 }
 
 func (built *Built) isOR(bb Bb) bool {
-	return bb.op == OR && bb.key == ""
+	return bb.Op == OR && bb.Key == ""
 }
 
 func (built *Built) countBuilder() *strings.Builder {

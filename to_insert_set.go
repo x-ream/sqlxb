@@ -33,11 +33,11 @@ func (built *Built) sqlInsert(vs *[]interface{}) string {
 	length := len(*built.Inserts)
 	for i := 0; i < length; i++ {
 		v := (*built.Inserts)[i]
-		bp.WriteString(v.key)
+		bp.WriteString(v.Key)
 		if i < length-1 {
 			bp.WriteString(COMMA)
 		}
-		*vs = append(*vs, v.value)
+		*vs = append(*vs, v.Value)
 	}
 
 	bp.WriteString(END_SUB)
