@@ -21,6 +21,22 @@ import (
 	"fmt"
 )
 
+// QdrantRequest Qdrant 请求统一接口
+// 用于消除重复的参数应用逻辑
+type QdrantRequest interface {
+	// GetParams 获取搜索参数指针的指针（支持 nil 初始化）
+	GetParams() **QdrantSearchParams
+
+	// GetScoreThreshold 获取阈值字段的指针的指针
+	GetScoreThreshold() **float32
+
+	// GetWithVector 获取 WithVector 字段指针
+	GetWithVector() *bool
+
+	// GetFilter 获取过滤器字段的指针的指针
+	GetFilter() **QdrantFilter
+}
+
 // QdrantSearchRequest Qdrant 搜索请求结构
 // 文档: https://qdrant.tech/documentation/concepts/search/
 type QdrantSearchRequest struct {
@@ -32,6 +48,23 @@ type QdrantSearchRequest struct {
 	ScoreThreshold *float32            `json:"score_threshold,omitempty"`
 	Offset         int                 `json:"offset,omitempty"`
 	Params         *QdrantSearchParams `json:"params,omitempty"`
+}
+
+// 实现 QdrantRequest 接口
+func (r *QdrantSearchRequest) GetParams() **QdrantSearchParams {
+	return &r.Params
+}
+
+func (r *QdrantSearchRequest) GetScoreThreshold() **float32 {
+	return &r.ScoreThreshold
+}
+
+func (r *QdrantSearchRequest) GetWithVector() *bool {
+	return &r.WithVector
+}
+
+func (r *QdrantSearchRequest) GetFilter() **QdrantFilter {
+	return &r.Filter
 }
 
 // QdrantFilter Qdrant 过滤器
@@ -84,6 +117,23 @@ type QdrantRecommendRequest struct {
 	Strategy       string              `json:"strategy,omitempty"` // "average_vector" or "best_score"
 }
 
+// 实现 QdrantRequest 接口
+func (r *QdrantRecommendRequest) GetParams() **QdrantSearchParams {
+	return &r.Params
+}
+
+func (r *QdrantRecommendRequest) GetScoreThreshold() **float32 {
+	return &r.ScoreThreshold
+}
+
+func (r *QdrantRecommendRequest) GetWithVector() *bool {
+	return &r.WithVector
+}
+
+func (r *QdrantRecommendRequest) GetFilter() **QdrantFilter {
+	return &r.Filter
+}
+
 // QdrantScrollRequest Qdrant Scroll 请求结构 (v0.10.0)
 // 文档: https://qdrant.tech/documentation/concepts/points/#scroll-points
 type QdrantScrollRequest struct {
@@ -92,6 +142,23 @@ type QdrantScrollRequest struct {
 	Filter      *QdrantFilter `json:"filter,omitempty"`
 	WithPayload interface{}   `json:"with_payload,omitempty"`
 	WithVector  bool          `json:"with_vector,omitempty"`
+}
+
+// 实现 QdrantRequest 接口（Scroll 不支持 Params 和 ScoreThreshold）
+func (r *QdrantScrollRequest) GetParams() **QdrantSearchParams {
+	return nil // Scroll 不支持搜索参数
+}
+
+func (r *QdrantScrollRequest) GetScoreThreshold() **float32 {
+	return nil // Scroll 不支持分数阈值
+}
+
+func (r *QdrantScrollRequest) GetWithVector() *bool {
+	return &r.WithVector
+}
+
+func (r *QdrantScrollRequest) GetFilter() **QdrantFilter {
+	return &r.Filter
 }
 
 // QdrantDiscoverRequest Qdrant Discover 请求结构 (v0.10.0)
@@ -105,6 +172,23 @@ type QdrantDiscoverRequest struct {
 	ScoreThreshold *float32            `json:"score_threshold,omitempty"`
 	Offset         int                 `json:"offset,omitempty"`
 	Params         *QdrantSearchParams `json:"params,omitempty"`
+}
+
+// 实现 QdrantRequest 接口
+func (r *QdrantDiscoverRequest) GetParams() **QdrantSearchParams {
+	return &r.Params
+}
+
+func (r *QdrantDiscoverRequest) GetScoreThreshold() **float32 {
+	return &r.ScoreThreshold
+}
+
+func (r *QdrantDiscoverRequest) GetWithVector() *bool {
+	return &r.WithVector
+}
+
+func (r *QdrantDiscoverRequest) GetFilter() **QdrantFilter {
+	return &r.Filter
 }
 
 // ToQdrantJSON 转换为 Qdrant 搜索 JSON
@@ -212,8 +296,8 @@ func (built *Built) ToQdrantRecommendJSON() (string, error) {
 		req.Negative = negative
 	}
 
-	// 应用 Qdrant 专属参数
-	applyQdrantParamsToRecommend(built.Conds, req)
+	// ⭐ 使用统一的参数应用函数
+	applyQdrantParams(built.Conds, req)
 
 	// 应用过滤器
 	filter, err := buildQdrantFilter(built.Conds)
@@ -221,12 +305,8 @@ func (built *Built) ToQdrantRecommendJSON() (string, error) {
 		req.Filter = filter
 	}
 
-	// 序列化
-	bytes, err := json.MarshalIndent(req, "", "  ")
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal Qdrant recommend request: %w", err)
-	}
-	return string(bytes), nil
+	// ⭐ 使用统一的序列化函数
+	return mergeAndSerialize(req, built.Conds)
 }
 
 // ToQdrantScrollJSON 转换为 Qdrant Scroll JSON (v0.10.0)
@@ -254,26 +334,17 @@ func (built *Built) ToQdrantScrollJSON() (string, error) {
 		WithVector:  false,
 	}
 
+	// ⭐ 使用统一的参数应用函数（Scroll 支持 WithVector）
+	applyQdrantParams(built.Conds, req)
+
 	// 应用过滤器
 	filter, err := buildQdrantFilter(built.Conds)
 	if err == nil && (len(filter.Must) > 0 || len(filter.Should) > 0 || len(filter.MustNot) > 0) {
 		req.Filter = filter
 	}
 
-	// 应用 WithVector 参数
-	for _, bb := range built.Conds {
-		if bb.op == QDRANT_WITH_VECTOR {
-			req.WithVector = bb.value.(bool)
-			break
-		}
-	}
-
-	// 序列化
-	bytes, err := json.MarshalIndent(req, "", "  ")
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal Qdrant scroll request: %w", err)
-	}
-	return string(bytes), nil
+	// ⭐ 使用统一的序列化函数
+	return mergeAndSerialize(req, built.Conds)
 }
 
 // findRecommendBb 查找推荐配置
@@ -306,52 +377,6 @@ func findDiscoverBb(bbs []Bb) *Bb {
 	return nil
 }
 
-// applyQdrantParamsToRecommend 应用 Qdrant 专属参数到推荐请求
-func applyQdrantParamsToRecommend(bbs []Bb, req *QdrantRecommendRequest) {
-	for _, bb := range bbs {
-		switch bb.op {
-		case QDRANT_HNSW_EF:
-			if req.Params == nil {
-				req.Params = &QdrantSearchParams{}
-			}
-			req.Params.HnswEf = bb.value.(int)
-		case QDRANT_EXACT:
-			if req.Params == nil {
-				req.Params = &QdrantSearchParams{}
-			}
-			req.Params.Exact = bb.value.(bool)
-		case QDRANT_SCORE_THRESHOLD:
-			threshold := bb.value.(float32)
-			req.ScoreThreshold = &threshold
-		case QDRANT_WITH_VECTOR:
-			req.WithVector = bb.value.(bool)
-		}
-	}
-}
-
-// applyQdrantParamsToDiscover 应用 Qdrant 专属参数到探索请求
-func applyQdrantParamsToDiscover(bbs []Bb, req *QdrantDiscoverRequest) {
-	for _, bb := range bbs {
-		switch bb.op {
-		case QDRANT_HNSW_EF:
-			if req.Params == nil {
-				req.Params = &QdrantSearchParams{}
-			}
-			req.Params.HnswEf = bb.value.(int)
-		case QDRANT_EXACT:
-			if req.Params == nil {
-				req.Params = &QdrantSearchParams{}
-			}
-			req.Params.Exact = bb.value.(bool)
-		case QDRANT_SCORE_THRESHOLD:
-			threshold := bb.value.(float32)
-			req.ScoreThreshold = &threshold
-		case QDRANT_WITH_VECTOR:
-			req.WithVector = bb.value.(bool)
-		}
-	}
-}
-
 // ToQdrantDiscoverJSON 转换为 Qdrant Discover JSON (v0.10.0)
 // 返回: JSON 字符串, error
 //
@@ -379,8 +404,8 @@ func (built *Built) ToQdrantDiscoverJSON() (string, error) {
 		WithVector:  false,
 	}
 
-	// 应用 Qdrant 专属参数
-	applyQdrantParamsToDiscover(built.Conds, req)
+	// ⭐ 使用统一的参数应用函数
+	applyQdrantParams(built.Conds, req)
 
 	// 应用过滤器
 	filter, err := buildQdrantFilter(built.Conds)
@@ -388,12 +413,8 @@ func (built *Built) ToQdrantDiscoverJSON() (string, error) {
 		req.Filter = filter
 	}
 
-	// 序列化
-	bytes, err := json.MarshalIndent(req, "", "  ")
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal Qdrant discover request: %w", err)
-	}
-	return string(bytes), nil
+	// ⭐ 使用统一的序列化函数
+	return mergeAndSerialize(req, built.Conds)
 }
 
 // ToQdrantRequest 转换为 Qdrant 请求结构
@@ -678,4 +699,86 @@ func QdrantDistanceMetric(metric VectorDistance) string {
 	default:
 		return "Cosine"
 	}
+}
+
+// ============================================================================
+// 统一的参数应用和序列化函数（消除重复代码）
+// ============================================================================
+
+// applyQdrantParams 统一应用 Qdrant 专属参数
+// 用于替代 applyQdrantParamsToRecommend 和 applyQdrantParamsToDiscover
+func applyQdrantParams(bbs []Bb, req QdrantRequest) {
+	for _, bb := range bbs {
+		switch bb.op {
+		case QDRANT_HNSW_EF:
+			if req.GetParams() != nil {
+				ensureParams(req)
+				(*req.GetParams()).HnswEf = bb.value.(int)
+			}
+
+		case QDRANT_EXACT:
+			if req.GetParams() != nil {
+				ensureParams(req)
+				(*req.GetParams()).Exact = bb.value.(bool)
+			}
+
+		case QDRANT_SCORE_THRESHOLD:
+			if req.GetScoreThreshold() != nil {
+				threshold := bb.value.(float32)
+				*req.GetScoreThreshold() = &threshold
+			}
+
+		case QDRANT_WITH_VECTOR:
+			if req.GetWithVector() != nil {
+				*req.GetWithVector() = bb.value.(bool)
+			}
+		}
+	}
+}
+
+// ensureParams 确保 Params 字段已初始化
+func ensureParams(req QdrantRequest) {
+	params := req.GetParams()
+	if params != nil && *params == nil {
+		*params = &QdrantSearchParams{}
+	}
+}
+
+// mergeAndSerialize 合并自定义参数并序列化为 JSON
+func mergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
+	// 提取自定义参数
+	customParams := extractQdrantCustomParams(bbs)
+
+	if len(customParams) == 0 {
+		// 无自定义参数，直接序列化
+		bytes, err := json.MarshalIndent(req, "", "  ")
+		if err != nil {
+			return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
+		}
+		return string(bytes), nil
+	}
+
+	// 有自定义参数，先序列化为 map，再添加自定义字段
+	bytes, err := json.Marshal(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
+	}
+
+	var reqMap map[string]interface{}
+	if err := json.Unmarshal(bytes, &reqMap); err != nil {
+		return "", fmt.Errorf("failed to unmarshal to map: %w", err)
+	}
+
+	// 添加用户自定义参数
+	for k, v := range customParams {
+		reqMap[k] = v
+	}
+
+	// 重新序列化
+	finalBytes, err := json.MarshalIndent(reqMap, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal final JSON: %w", err)
+	}
+
+	return string(finalBytes), nil
 }
