@@ -40,11 +40,11 @@ func NewQdrantCustom() *QdrantCustom {
 	}
 }
 
-// ToJSON 实现 Custom 接口
-// ⭐ 这是唯一需要实现的方法
-func (c *QdrantCustom) ToJSON(built *Built) (string, error) {
-	// ⭐ 委托给内部实现
-	return built.toQdrantJSON()
+// Generate 实现 Custom 接口
+// ⭐ 返回 string（JSON）
+func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
+	json, err := built.toQdrantJSON()
+	return json, err  // ⭐ 返回 string 类型
 }
 
 // ============================================================================

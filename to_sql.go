@@ -44,10 +44,10 @@ type Built struct {
 
 	// ⭐ 数据库专属配置（Dialect + Custom）
 	// 如果为 nil，默认为 SQL 方言
-	Custom Custom
-	LimitValue    int                   // ⭐ 新增：LIMIT 值（v0.10.1）
-	OffsetValue   int                   // ⭐ 新增：OFFSET 值（v0.10.1）
-	Meta          *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
+	Custom      Custom
+	LimitValue  int                   // ⭐ 新增：LIMIT 值（v0.10.1）
+	OffsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
+	Meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
 }
 
 // ============================================================================
@@ -78,21 +78,28 @@ type Built struct {
 //	    Build()
 //
 //	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
-//
-//	// SQL（默认）
-//	built := xb.C().
-//	    Eq("language", "golang").
-//	    Build()
-//
-//	sql, args, _ := built.SqlOfSelect()  // ⭐ 使用 SQL
 func (built *Built) JsonOfSelect() (string, error) {
 	if built.Custom == nil {
-		// 默认为 SQL，不生成 JSON
 		return "", fmt.Errorf("Custom is nil, use SqlOfSelect() for SQL databases")
 	}
 
-	// 委托给 Custom.ToJSON()
-	return built.Custom.ToJSON(built)
+	// ⭐ 调用 Custom.Generate()
+	result, err := built.Custom.Generate(built)
+	if err != nil {
+		return "", err
+	}
+
+	// ⭐ 类型断言：期望是 string（JSON）
+	if jsonStr, ok := result.(string); ok {
+		return jsonStr, nil
+	}
+
+	// 如果是 SQLResult，转换为 JSON（可选）
+	if sqlResult, ok := result.(*SQLResult); ok {
+		return "", fmt.Errorf("got SQL result, use SqlOfSelect() instead. SQL: %s", sqlResult.SQL)
+	}
+
+	return "", fmt.Errorf("unexpected result type: %T", result)
 }
 
 func (built *Built) toFromSqlOfCount(bpCount *strings.Builder) {
@@ -342,15 +349,55 @@ func (built *Built) countBuilder() *strings.Builder {
 }
 
 func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]string) {
+	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	if built.Custom != nil {
+		result, err := built.Custom.Generate(built)
+		if err == nil {
+			if sqlResult, ok := result.(*SQLResult); ok {
+				// ⭐ 优先使用 Custom 提供的 CountSQL
+				countSQL := sqlResult.CountSQL
+				if countSQL == "" {
+					// ⭐ 如果 Custom 没提供，使用默认生成
+					countSQL = built.sqlCount()
+				}
+
+				meta := sqlResult.Meta
+				if meta == nil {
+					meta = make(map[string]string)
+				}
+				return countSQL, sqlResult.SQL, sqlResult.Args, meta
+			}
+		}
+	}
+
+	// ⭐ 默认实现
 	vs := []interface{}{}
 	km := make(map[string]string) //nil for sub FromId builder,
 	dataSql, kmp := built.sqlData(&vs, km)
-	countSql := built.sqlCount()
+	countSQL := built.sqlCount()
 
-	return countSql, dataSql, vs, kmp
+	return countSQL, dataSql, vs, kmp
 }
 
 func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
+	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	if built.Custom != nil {
+		result, err := built.Custom.Generate(built)
+		if err == nil {
+			// ⭐ 类型断言：期望是 *SQLResult
+			if sqlResult, ok := result.(*SQLResult); ok {
+				// 将 Meta 转换为 map[string]string
+				meta := sqlResult.Meta
+				if meta == nil {
+					meta = make(map[string]string)
+				}
+				return sqlResult.SQL, sqlResult.Args, meta
+			}
+		}
+		// 如果 Custom 返回的不是 SQLResult，继续使用默认实现
+	}
+
+	// ⭐ 默认实现（原有逻辑）
 	vs := []interface{}{}
 	km := make(map[string]string) //nil for sub FromId builder,
 	dataSql, kmp := built.sqlData(&vs, km)
@@ -358,12 +405,34 @@ func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 }
 
 func (built *Built) SqlOfInsert() (string, []interface{}) {
+	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	if built.Custom != nil {
+		result, err := built.Custom.Generate(built)
+		if err == nil {
+			if sqlResult, ok := result.(*SQLResult); ok {
+				return sqlResult.SQL, sqlResult.Args
+			}
+		}
+	}
+
+	// ⭐ 默认实现
 	vs := []interface{}{}
 	sql := built.sqlInsert(&vs)
 	return sql, vs
 }
 
 func (built *Built) SqlOfUpdate() (string, []interface{}) {
+	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	if built.Custom != nil {
+		result, err := built.Custom.Generate(built)
+		if err == nil {
+			if sqlResult, ok := result.(*SQLResult); ok {
+				return sqlResult.SQL, sqlResult.Args
+			}
+		}
+	}
+
+	// ⭐ 默认实现
 	vs := []interface{}{}
 	km := make(map[string]string) //nil for builder,
 	dataSql, _ := built.sqlData(&vs, km)
@@ -371,6 +440,17 @@ func (built *Built) SqlOfUpdate() (string, []interface{}) {
 }
 
 func (built *Built) SqlOfDelete() (string, []interface{}) {
+	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	if built.Custom != nil {
+		result, err := built.Custom.Generate(built)
+		if err == nil {
+			if sqlResult, ok := result.(*SQLResult); ok {
+				return sqlResult.SQL, sqlResult.Args
+			}
+		}
+	}
+
+	// ⭐ 默认实现
 	vs := []interface{}{}
 	sql := built.sqlDelete(&vs)
 	return sql, vs

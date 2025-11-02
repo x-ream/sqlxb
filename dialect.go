@@ -18,94 +18,152 @@
 package xb
 
 // ============================================================================
+// 结果类型定义
+// ============================================================================
+
+// SQLResult SQL 查询结果（SQL + 参数）
+// 用于 SQL 数据库（PostgreSQL, MySQL, Oracle 等）
+type SQLResult struct {
+	SQL      string            // Data SQL（带占位符）
+	CountSQL string            // Count SQL（可选，用于分页，Oracle/ClickHouse 等需要）
+	Args     []interface{}     // 参数值
+	Meta     map[string]string // 元数据（可选）
+}
+
+// ============================================================================
 // Custom 接口：数据库专属配置（核心抽象）
 // ============================================================================
 
 // Custom 数据库专属配置接口
-// 每个向量数据库实现自己的 Custom，通过接口多态实现不同的行为
+// 每个数据库实现自己的 Custom，通过接口多态实现不同的行为
 //
-// 设计原则：
-//  - ✅ 接口即标识：QdrantCustom 实现了 Custom，本身就说明是 Qdrant
-//  - ✅ 多态调用：built.JsonOfSelect() 自动调用对应实现的 ToJSON()
-//  - ✅ 无需枚举：不需要 Dialect 枚举，Go 的接口自动处理
-//  - ✅ 简单直接：一个方法搞定，草根到底
+// 设计原则（v1.1.0）：
+//  - ✅ 统一返回类型：Generate() 返回 interface{}
+//  - ✅ 类型灵活：可以是 string（JSON）或 *SQLResult（SQL）
+//  - ✅ 性能无损：SQL 不需要包装成 JSON
+//  - ✅ 接口极简：一个方法搞定所有数据库
+//
+// 返回值类型：
+//  - string：      向量数据库 JSON（Qdrant/Milvus/Weaviate）
+//  - *SQLResult：  SQL 数据库结果（PostgreSQL/Oracle/MySQL）
 //
 // 实现示例：
 //
-//	// Qdrant 实现
+//	// Qdrant（返回 JSON string）
 //	type QdrantCustom struct {
 //	    DefaultHnswEf int
 //	}
 //
-//	func (c *QdrantCustom) ToJSON(built *Built) (string, error) {
-//	    // Qdrant 的 JSON 生成逻辑
+//	func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
+//	    json, err := built.toQdrantJSON()
+//	    return json, err  // ← 返回 string
 //	}
 //
-//	// Milvus 实现
-//	type MilvusCustom struct {
-//	    DefaultNProbe int
+//	// Oracle（返回 SQLResult）
+//	type OracleCustom struct {
+//	    UseRowNum bool
 //	}
 //
-//	func (c *MilvusCustom) ToJSON(built *Built) (string, error) {
-//	    // Milvus 的 JSON 生成逻辑
+//	func (c *OracleCustom) Generate(built *Built) (interface{}, error) {
+//	    sql, args, _ := built.toOracleSQL()
+//	    return &SQLResult{SQL: sql, Args: args}, nil  // ← 返回 *SQLResult
 //	}
 //
 // 使用示例：
 //
 //	// Qdrant
 //	built := xb.Of("code_vectors").
-//	    Custom(&xb.QdrantCustom{DefaultHnswEf: 256}).
+//	    Custom(xb.QdrantBalanced()).
 //	    Build()
 //
-//	json, _ := built.JsonOfSelect()  // ← 自动调用 QdrantCustom.ToJSON()
+//	json, _ := built.JsonOfSelect()  // ← 自动处理类型转换
 //
-//	// Milvus
+//	// Oracle
 //	built := xb.Of("users").
-//	    Custom(&xb.MilvusCustom{DefaultNProbe: 64}).
+//	    Custom(xb.NewOracleCustom()).
 //	    Build()
 //
-//	json, _ := built.JsonOfSelect()  // ← 自动调用 MilvusCustom.ToJSON()
+//	sql, args, _ := built.SqlOfSelect()  // ← 自动处理类型转换
 type Custom interface {
-	// ToJSON 生成查询 JSON
+	// Generate 生成查询（统一接口）
 	// 参数:
 	//   - built: Built 对象（包含所有查询条件）
 	// 返回:
-	//   - JSON 字符串
+	//   - interface{}: string（JSON）或 *SQLResult（SQL + Args）
 	//   - error
 	//
 	// 说明:
-	//   - 每个数据库的实现不同（QdrantCustom vs MilvusCustom）
-	//   - Go 的接口多态自动调用对应的实现
-	//   - 不需要额外的类型判断或枚举
-	ToJSON(built *Built) (string, error)
+	//   - 向量数据库：返回 string（JSON）
+	//   - SQL 数据库：返回 *SQLResult（SQL + Args）
+	//   - 调用者使用 JsonOfSelect() 或 SqlOfSelect() 自动处理类型转换
+	Generate(built *Built) (interface{}, error)
 }
 
 // ============================================================================
-// 说明
+// 说明和使用场景
 // ============================================================================
 
-// Custom 接口非常简单，只有一个方法：ToJSON()
+// Custom 接口极简设计，只需一个 Generate() 方法
 //
-// 为什么不需要更多方法？
-//  - GetDialect()？不需要，类型本身就是标识（QdrantCustom vs MilvusCustom）
-//  - ApplyParams()？不需要，在 ToJSON() 内部处理
-//  - Insert/Update/Delete？如果需要，可以添加新接口继承 Custom
+// 为什么 Generate() 返回 interface{}？
+//  - 向量数据库：返回 string（JSON）
+//  - SQL 数据库：返回 *SQLResult（SQL + Args）
+//  - 未来：可以返回 GraphQL、Protobuf 等任意格式
 //
-// 这就是 Go 的哲学：简单、直接、实用
+// 为什么所有操作都用同一个方法？
+//  - ClickHouse Insert：批量插入，FORMAT JSONEachRow
+//  - ClickHouse Update：ALTER TABLE UPDATE（不是标准 UPDATE）
+//  - ClickHouse Delete：ALTER TABLE DELETE（不是标准 DELETE）
+//  - Oracle 分页：ROWNUM 或 FETCH FIRST（不是 LIMIT/OFFSET）
+//  - TimescaleDB：超表特殊语法
 //
-// 示例：添加 Insert 支持
+// 示例：ClickHouse Insert
 //
-//	type CustomWithInsert interface {
-//	    Custom
-//	    ToInsertJSON(built *Built) (string, error)
+//	type ClickHouseCustom struct {
+//	    UseJSONFormat bool
 //	}
 //
-//	// Milvus 支持 Insert
-//	func (c *MilvusCustom) ToInsertJSON(built *Built) (string, error) {
-//	    // Milvus 插入逻辑
+//	func (c *ClickHouseCustom) Generate(built *Built) (interface{}, error) {
+//	    // 检查是 Insert 还是 Select
+//	    if built.Inserts != nil {
+//	        // ClickHouse 批量插入
+//	        sql := "INSERT INTO t FORMAT JSONEachRow\n"
+//	        return &SQLResult{SQL: sql, Args: nil}, nil
+//	    }
+//
+//	    // ClickHouse 查询
+//	    sql, args, _ := built.toSqlOfSelect()
+//	    return &SQLResult{SQL: sql, Args: args}, nil
 //	}
 //
-//	// 使用时类型断言
-//	if ci, ok := built.Custom.(CustomWithInsert); ok {
-//	    json, _ := ci.ToInsertJSON(built)
+// 示例：Oracle 分页（需要提供 CountSQL）
+//
+//	type OracleCustom struct {
+//	    UseRowNum bool
 //	}
+//
+//	func (c *OracleCustom) Generate(built *Built) (interface{}, error) {
+//	    if built.PageCondition != nil {
+//	        // Oracle 分页（嵌套查询）
+//	        dataSQL := `SELECT * FROM (
+//	            SELECT a.*, ROWNUM rn FROM (
+//	                SELECT * FROM users WHERE age > ?
+//	            ) a WHERE ROWNUM <= 30
+//	        ) WHERE rn > 20`
+//
+//	        // ⭐ 提供独立的 Count SQL
+//	        countSQL := "SELECT COUNT(*) FROM users WHERE age > ?"
+//
+//	        return &SQLResult{
+//	            SQL:      dataSQL,
+//	            CountSQL: countSQL,  // ⭐ Oracle Custom 负责生成
+//	            Args:     []interface{}{18},
+//	        }, nil
+//	    }
+//
+//	    // 普通查询
+//	    sql, args, _ := built.toSqlOfSelect()
+//	    return &SQLResult{SQL: sql, Args: args}, nil
+//	}
+//
+// 这就是 Go 的哲学：简单、直接、实用、灵活
