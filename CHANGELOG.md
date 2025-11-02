@@ -5,7 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2025-01-XX
+## [1.2.0] - 2025-01-XX
+
+### 🎨 Complete API Unification (Major Improvement over v1.1.0)
+
+**Design Philosophy**: Don't add concepts to solve problems. Less is more.
+
+### Added
+- **Unified Insert API**: `Insert(func(ib *InsertBuilder))` works for both SQL and vector databases
+- **Smart Format Detection**: QdrantCustom automatically handles Insert(func) format
+- **Vector Array Support**: `[]float32` and `[]float64` preserved in InsertBuilder/UpdateBuilder
+- **Convenience Methods**:
+  - `Built.SqlOfUpsert()` - MySQL UPSERT without Custom
+  - `Built.SqlOfInsertIgnore()` - MySQL INSERT IGNORE without Custom
+
+### Removed (Simplification)
+- **Preset Constructors** (complexity removed):
+  - ❌ `QdrantHighPrecision()`, `QdrantHighSpeed()`, `QdrantBalanced()`
+  - ❌ `MySQLWithUpsert()`, `MySQLWithIgnore()`
+  - ❌ `InsertPoint()`, `InsertPoints()` methods
+  - ❌ `Delete()` method (not needed)
+
+### Changed
+- `JsonOfDelete()` now auto-sets `built.Delete = true` internally
+- Only basic constructors remain: `NewQdrantCustom()`, `NewMySQLCustom()`
+- Users configure via fields or existing closures (`QdrantX()`)
+
+### Why v1.2.0 (Not v1.1.1)?
+
+v1.1.0 had design issues:
+- Too many preset functions (5 removed)
+- Inconsistent API (InsertPoint vs Insert)
+- Over-engineered solutions
+
+v1.2.0 achieves true simplicity:
+- ✅ One `Insert(func)` API for all databases
+- ✅ One `Update(func)` API for all databases
+- ✅ No extra methods needed
+- ✅ Complete unification
+
+### Tests
+- 140+ tests, all passing
+- New tests for unified Insert/Update/Delete API
+- Comprehensive Qdrant CRUD validation
+
+### Documentation
+- All docs updated to reflect simplified design
+- Removed references to preset constructors
+- Added unified API examples
+
+---
+
+## [1.1.0] - 2025-01-XX (Deprecated - Use v1.2.0)
 
 ### Added
 - **Custom Interface**: Unified abstraction for database-specific features

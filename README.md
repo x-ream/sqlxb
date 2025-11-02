@@ -13,23 +13,23 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
 
-> 🎉 **v1.1.0 Released**: Custom Interface for Database-Specific Features! Full CRUD support for vector databases.
+> 🎉 **v1.2.0 Released**: Complete API Unification! One Insert/Update/Delete API for SQL and vector databases.
 
 ---
 
-## 🚀 NEW: Custom Interface (v1.1.0)
+## 🚀 NEW: Unified CRUD API (v1.2.0)
 
 **Unified abstraction for SQL and Vector Databases with database-specific features!**
 
-**✨ New in v1.1.0**:
-- 🎯 **Custom Interface** - Unified abstraction for all database types
-- 📝 **Full CRUD** - Insert/Update/Delete support for vector databases
-- 🔧 **Official Implementations** - QdrantCustom (full CRUD), MySQLCustom (UPSERT)
-- 🏗️ **Extensible Architecture** - One `Generate()` method handles all operations
-- 📚 **Complete Documentation** - Templates and guides for custom implementations
+**✨ New in v1.2.0**:
+- 🎯 **Complete API Unification** - One `Insert(func)` for SQL and vector databases
+- 📝 **No Extra Methods** - No InsertPoint, no Delete(), just the essentials
+- 🔧 **Smart Detection** - Custom automatically handles different data formats
+- 🏗️ **Extreme Simplicity** - Removed 5 preset functions, kept only basics
+- 📚 **Convenience Methods** - SqlOfUpsert(), SqlOfInsertIgnore() for common cases
 
 ```go
-// MySQL UPSERT (v1.1.0) - 无需 Custom
+// MySQL UPSERT (v1.2.0) - 无需 Custom
 built := xb.Of(user).
     Insert(func(ib *xb.InsertBuilder) {
         ib.Set("id", user.ID).
@@ -40,7 +40,7 @@ built := xb.Of(user).
 sql, args := built.SqlOfUpsert()
 // INSERT INTO users ... ON DUPLICATE KEY UPDATE ...
 
-// Qdrant Vector Search (v1.1.0)
+// Qdrant Vector Search (v1.2.0)
 built := xb.Of(&CodeVector{}).
     Custom(xb.NewQdrantCustom()).
     Eq("language", "golang").
