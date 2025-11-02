@@ -102,6 +102,63 @@ func (built *Built) JsonOfSelect() (string, error) {
 	return "", fmt.Errorf("unexpected result type: %T", result)
 }
 
+// JsonOfInsert 生成插入 JSON（向量数据库）
+// ⭐ 用于 Qdrant/Milvus 等向量数据库的插入操作
+func (built *Built) JsonOfInsert() (string, error) {
+	if built.Custom == nil {
+		return "", fmt.Errorf("Custom is nil, use SqlOfInsert() for SQL databases")
+	}
+
+	result, err := built.Custom.Generate(built)
+	if err != nil {
+		return "", err
+	}
+
+	if jsonStr, ok := result.(string); ok {
+		return jsonStr, nil
+	}
+
+	return "", fmt.Errorf("unexpected result type: %T", result)
+}
+
+// JsonOfUpdate 生成更新 JSON（向量数据库）
+// ⭐ 用于 Qdrant/Milvus 等向量数据库的更新操作
+func (built *Built) JsonOfUpdate() (string, error) {
+	if built.Custom == nil {
+		return "", fmt.Errorf("Custom is nil, use SqlOfUpdate() for SQL databases")
+	}
+
+	result, err := built.Custom.Generate(built)
+	if err != nil {
+		return "", err
+	}
+
+	if jsonStr, ok := result.(string); ok {
+		return jsonStr, nil
+	}
+
+	return "", fmt.Errorf("unexpected result type: %T", result)
+}
+
+// JsonOfDelete 生成删除 JSON（向量数据库）
+// ⭐ 用于 Qdrant/Milvus 等向量数据库的删除操作
+func (built *Built) JsonOfDelete() (string, error) {
+	if built.Custom == nil {
+		return "", fmt.Errorf("Custom is nil, use SqlOfDelete() for SQL databases")
+	}
+
+	result, err := built.Custom.Generate(built)
+	if err != nil {
+		return "", err
+	}
+
+	if jsonStr, ok := result.(string); ok {
+		return jsonStr, nil
+	}
+
+	return "", fmt.Errorf("unexpected result type: %T", result)
+}
+
 func (built *Built) toFromSqlOfCount(bpCount *strings.Builder) {
 	built.toFromSql(nil, bpCount)
 }
@@ -372,7 +429,7 @@ func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]strin
 
 	// ⭐ 默认实现
 	vs := []interface{}{}
-	km := make(map[string]string) //nil for sub FromId builder,
+	km := make(map[string]string)
 	dataSql, kmp := built.SqlData(&vs, km)
 	countSQL := built.SqlCount()
 
@@ -386,7 +443,6 @@ func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 		if err == nil {
 			// ⭐ 类型断言：期望是 *SQLResult
 			if sqlResult, ok := result.(*SQLResult); ok {
-				// 将 Meta 转换为 map[string]string
 				meta := sqlResult.Meta
 				if meta == nil {
 					meta = make(map[string]string)
@@ -399,7 +455,7 @@ func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 
 	// ⭐ 默认实现（原有逻辑）
 	vs := []interface{}{}
-	km := make(map[string]string) //nil for sub FromId builder,
+	km := make(map[string]string)
 	dataSql, kmp := built.SqlData(&vs, km)
 	return dataSql, vs, kmp
 }
@@ -434,7 +490,7 @@ func (built *Built) SqlOfUpdate() (string, []interface{}) {
 
 	// ⭐ 默认实现
 	vs := []interface{}{}
-	km := make(map[string]string) //nil for builder,
+	km := make(map[string]string)
 	dataSql, _ := built.SqlData(&vs, km)
 	return dataSql, vs
 }
