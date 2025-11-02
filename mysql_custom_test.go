@@ -313,3 +313,143 @@ func TestMySQLCustom_PresetModes(t *testing.T) {
 	t.Log("✅ All preset modes work")
 }
 
+// ============================================================================
+// Meta Map 测试（字段别名映射）- 业务场景
+// ============================================================================
+
+func TestMySQLCustom_MetaMap_WithTablePrefix(t *testing.T) {
+	custom := NewMySQLCustom()
+
+	// ⭐ 业务场景：带表前缀的字段查询
+	// Meta map 是 ORM 扫描结果时的字段映射依据
+	built := Of("users").
+		As("u").
+		Custom(custom).
+		Select("u.id", "u.name", "u.age", "COUNT(*) AS total").
+		Eq("u.status", "active").
+		Paged(func(pb *PageBuilder) {
+			pb.Page(2).Rows(10)
+		}).
+		Build()
+
+	countSQL, dataSQL, args, meta := built.SqlOfPage()
+
+	t.Logf("Count SQL: %s", countSQL)
+	t.Logf("Data SQL: %s", dataSQL)
+	t.Logf("Args: %v", args)
+	t.Logf("Meta: %v (len=%d)", meta, len(meta))
+
+	// ⭐ 验证 Meta 包含字段映射
+	// u.id → 自动生成别名 c0
+	// u.name → 自动生成别名 c1
+	// u.age → 自动生成别名 c2
+	// COUNT(*) AS total → total
+	if len(meta) == 0 {
+		t.Error("❌ Meta should not be empty for table.field queries")
+	} else {
+		t.Logf("✅ Meta contains %d mappings", len(meta))
+		for k, v := range meta {
+			t.Logf("  Meta[%s] = %s", k, v)
+		}
+	}
+
+	// 验证自动生成的别名
+	if _, ok := meta["c0"]; !ok {
+		t.Error("Expected auto-generated alias 'c0' for u.id")
+	}
+
+	if _, ok := meta["total"]; !ok {
+		t.Error("Expected alias 'total' for COUNT(*)")
+	}
+
+	t.Log("✅ MySQL Custom with Meta map (table prefixes) works")
+}
+
+func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
+	custom := NewMySQLCustom()
+
+	// ⭐ 业务场景：多表 JOIN 查询
+	// Meta map 记录字段到表的映射，用于 ORM 扫描
+	built := Of("users").
+		As("u").
+		Custom(custom).
+		Select("u.id", "u.name", "o.order_id", "o.amount AS order_amount").
+		FromX(func(fb *FromBuilder) {
+			fb.JOIN(INNER).Of("orders").As("o").
+				On("o.user_id = u.id")
+		}).
+		Eq("u.status", "active").
+		Paged(func(pb *PageBuilder) {
+			pb.Page(1).Rows(20)
+		}).
+		Build()
+
+	countSQL, dataSQL, args, meta := built.SqlOfPage()
+
+	t.Logf("=== JOIN 查询 Meta Map 测试 ===")
+	t.Logf("Count SQL: %s", countSQL)
+	t.Logf("Data SQL: %s", dataSQL)
+	t.Logf("Args: %v", args)
+	t.Logf("Meta: %v (len=%d)", meta, len(meta))
+
+	// ⭐ 验证 Meta 映射
+	// u.id → c0
+	// u.name → c1
+	// o.order_id → c2
+	// o.amount AS order_amount → order_amount
+	if len(meta) < 3 {
+		t.Errorf("Expected at least 3 meta mappings, got %d", len(meta))
+	}
+
+	t.Log("✅ Meta mappings:")
+	for k, v := range meta {
+		t.Logf("  Meta[%s] = %s", k, v)
+	}
+
+	// 验证自动生成的别名
+	if meta["c0"] != "u.id" {
+		t.Errorf("Expected meta[c0] = u.id, got %s", meta["c0"])
+	}
+
+	// 验证显式别名
+	if meta["order_amount"] != "order_amount" {
+		t.Errorf("Expected meta[order_amount] = order_amount, got %s", meta["order_amount"])
+	}
+
+	// 验证 MySQL 分页语法（LIMIT/OFFSET）
+	if !strings.Contains(dataSQL, "LIMIT 20") {
+		t.Errorf("Expected LIMIT in MySQL query, got: %s", dataSQL)
+	}
+
+	t.Log("✅ MySQL Custom with JOIN and Meta map works perfectly")
+}
+
+func TestMySQLCustom_MetaMap_WithSelect(t *testing.T) {
+	custom := NewMySQLCustom()
+
+	// ⭐ 非分页查询的 Meta map
+	built := Of("users").
+		Custom(custom).
+		Select("id", "name", "email AS user_email").
+		Eq("status", "active").
+		Build()
+
+	sql, args, meta := built.SqlOfSelect()
+
+	t.Logf("SQL: %s", sql)
+	t.Logf("Args: %v", args)
+	t.Logf("Meta: %v (len=%d)", meta, len(meta))
+
+	// 验证 Meta
+	if meta["user_email"] != "user_email" {
+		t.Errorf("Expected meta[user_email] = user_email, got %s", meta["user_email"])
+	}
+
+	t.Log("✅ Meta mappings:")
+	for k, v := range meta {
+		t.Logf("  Meta[%s] = %s", k, v)
+	}
+
+	t.Log("✅ MySQL Custom with Meta map (SELECT) works")
+}
+

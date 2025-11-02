@@ -168,7 +168,7 @@ func (built *Built) toBb(bb Bb, bp *strings.Builder, vs *[]interface{}) {
 		bp.WriteString(END_SUB)
 	case SUB:
 		var bx = *bb.Value.(*BuilderX)
-		ss, _ := bx.Build().sqlData(vs, nil)
+		ss, _ := bx.Build().SqlData(vs, nil)
 		ss = BEGIN_SUB + ss + END_SUB
 		ss = SPACE + ss
 		if bb.Key != "" {
@@ -296,15 +296,15 @@ func (built *Built) toPageSql(bp *strings.Builder) {
 	// ⭐ 优先使用 Paged()（Web 分页，支持 COUNT + Last 优化）
 	// 如果 PageCondition 存在，忽略 Limit/Offset
 	if built.PageCondition != nil {
-		if built.PageCondition.rows >= 1 {
+		if built.PageCondition.Rows >= 1 {
 			bp.WriteString(LIMIT)
-			bp.WriteString(strconv.Itoa(int(built.PageCondition.rows)))
-			if built.PageCondition.last < 1 {
-				if built.PageCondition.page < 1 {
-					built.PageCondition.page = 1
+			bp.WriteString(strconv.Itoa(int(built.PageCondition.Rows)))
+			if built.PageCondition.Last < 1 {
+				if built.PageCondition.Page < 1 {
+					built.PageCondition.Page = 1
 				}
 				bp.WriteString(OFFSET)
-				bp.WriteString(strconv.Itoa(int((built.PageCondition.page - 1) * built.PageCondition.rows)))
+				bp.WriteString(strconv.Itoa(int((built.PageCondition.Page - 1) * built.PageCondition.Rows)))
 			}
 		}
 		return // ⭐ 直接返回，忽略 Limit/Offset
@@ -340,7 +340,7 @@ func (built *Built) isOR(bb Bb) bool {
 func (built *Built) countBuilder() *strings.Builder {
 	var sbCount *strings.Builder
 	pageCondition := built.PageCondition
-	if pageCondition != nil && pageCondition.rows > 1 && !pageCondition.isTotalRowsIgnored {
+	if pageCondition != nil && pageCondition.Rows > 1 && !pageCondition.IsTotalRowsIgnored {
 		sb := strings.Builder{}
 		sb.Grow(128) // 预分配 128 字节
 		sbCount = &sb
@@ -358,7 +358,7 @@ func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]strin
 				countSQL := sqlResult.CountSQL
 				if countSQL == "" {
 					// ⭐ 如果 Custom 没提供，使用默认生成
-					countSQL = built.sqlCount()
+					countSQL = built.SqlCount()
 				}
 
 				meta := sqlResult.Meta
@@ -373,8 +373,8 @@ func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]strin
 	// ⭐ 默认实现
 	vs := []interface{}{}
 	km := make(map[string]string) //nil for sub FromId builder,
-	dataSql, kmp := built.sqlData(&vs, km)
-	countSQL := built.sqlCount()
+	dataSql, kmp := built.SqlData(&vs, km)
+	countSQL := built.SqlCount()
 
 	return countSQL, dataSql, vs, kmp
 }
@@ -400,7 +400,7 @@ func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 	// ⭐ 默认实现（原有逻辑）
 	vs := []interface{}{}
 	km := make(map[string]string) //nil for sub FromId builder,
-	dataSql, kmp := built.sqlData(&vs, km)
+	dataSql, kmp := built.SqlData(&vs, km)
 	return dataSql, vs, kmp
 }
 
@@ -417,7 +417,7 @@ func (built *Built) SqlOfInsert() (string, []interface{}) {
 
 	// ⭐ 默认实现
 	vs := []interface{}{}
-	sql := built.sqlInsert(&vs)
+	sql := built.SqlInsert(&vs)
 	return sql, vs
 }
 
@@ -435,7 +435,7 @@ func (built *Built) SqlOfUpdate() (string, []interface{}) {
 	// ⭐ 默认实现
 	vs := []interface{}{}
 	km := make(map[string]string) //nil for builder,
-	dataSql, _ := built.sqlData(&vs, km)
+	dataSql, _ := built.SqlData(&vs, km)
 	return dataSql, vs
 }
 
@@ -528,7 +528,27 @@ func (built *Built) sqlDelete(vs *[]interface{}) string {
 	return deleteSql
 }
 
-func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
+// SqlData 生成数据查询 SQL（SELECT 或 UPDATE）
+//
+// 说明：
+//   - 生成完整的 SELECT 或 UPDATE SQL（不含分页的 COUNT SQL）
+//   - Custom 实现可以调用此方法生成基础 SQL
+//
+// 参数：
+//   - vs: 参数列表（指针）
+//   - km: 元数据 map
+//
+// 返回：
+//   - string: SQL 语句
+//   - map[string]string: 元数据
+//
+// 示例：
+//
+//	vs := []interface{}{}
+//	km := make(map[string]string)
+//	sql, meta := built.SqlData(&vs, km)
+//	// SELECT * FROM users WHERE age > ?
+func (built *Built) SqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
 	sb := strings.Builder{}
 	sb.Grow(256) // 预分配 256 字节，SELECT 语句通常较长
 	built.toResultKeySql(&sb, km)
@@ -547,7 +567,20 @@ func (built *Built) sqlData(vs *[]interface{}, km map[string]string) (string, ma
 	return dataSql, km
 }
 
-func (built *Built) sqlCount() string {
+// SqlCount 生成 COUNT SQL（用于分页）
+//
+// 说明：
+//   - 用于生成 COUNT(*) SQL，通常与 SqlData 配合用于分页
+//   - Custom 实现可以调用此方法生成 count SQL
+//
+// 返回：
+//   - string: COUNT SQL
+//
+// 示例：
+//
+//	countSQL := built.SqlCount()
+//	// SELECT COUNT(*) FROM users WHERE age > ?
+func (built *Built) SqlCount() string {
 	sbCount := built.countBuilder()
 	if sbCount == nil {
 		return ""

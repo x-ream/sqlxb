@@ -43,7 +43,7 @@ func (built *Built) toFromSqlByBuilder(vs *[]interface{}, sx *FromX, bp *strings
 	if sx.tableName != "" {
 		bp.WriteString(sx.tableName)
 	} else if sx.sub != nil {
-		dataSql, _ := sx.sub.Build().sqlData(vs, nil)
+		dataSql, _ := sx.sub.Build().SqlData(vs, nil)
 		bp.WriteString(BEGIN_SUB)
 		bp.WriteString(dataSql)
 		bp.WriteString(END_SUB)

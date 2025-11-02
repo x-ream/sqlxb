@@ -17,10 +17,10 @@
 package xb
 
 type PageCondition struct {
-	page               uint
-	rows               uint
-	last               uint64
-	isTotalRowsIgnored bool
+	Page               uint
+	Rows               uint
+	Last               uint64
+	IsTotalRowsIgnored bool
 }
 
 type PageBuilder struct {
@@ -32,12 +32,12 @@ type TotalRows struct {
 }
 
 func (pb *PageBuilder) Page(page uint) *PageBuilder {
-	pb.condition.page = page
+	pb.condition.Page = page
 	return pb
 }
 
 func (pb *PageBuilder) Rows(rows uint) *PageBuilder {
-	pb.condition.rows = rows
+	pb.condition.Rows = rows
 	return pb
 }
 
@@ -45,16 +45,16 @@ func (pb *PageBuilder) Rows(rows uint) *PageBuilder {
 // if ASC: orderBy > last else DESC: orderBy < last
 // LIMIT rows
 func (pb *PageBuilder) Last(last uint64) *PageBuilder {
-	pb.condition.last = last
+	pb.condition.Last = last
 	return pb
 }
 
 func (pb *PageBuilder) IgnoreTotalRows() *PageBuilder {
-	pb.condition.isTotalRowsIgnored = true
+	pb.condition.IsTotalRowsIgnored = true
 	return pb
 }
 
 func (pb *PageBuilder) SetTotalRowsIgnored(ignored bool) *PageBuilder {
-	pb.condition.isTotalRowsIgnored = ignored
+	pb.condition.IsTotalRowsIgnored = ignored
 	return pb
 }

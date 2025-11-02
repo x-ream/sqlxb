@@ -20,10 +20,10 @@ func (built *Built) filterLast() *Bb {
 	if built.PageCondition == nil {
 		return nil
 	}
-	if built.PageCondition.rows == 0 {
+	if built.PageCondition.Rows == 0 {
 		panic("page.rows must be greater than 0")
 	}
-	if built.PageCondition.last > 0 {
+	if built.PageCondition.Last > 0 {
 
 		if built.Sorts == nil || len(built.Sorts) == 0 {
 			panic("last > 0, Numeric sorts[0] required")
@@ -38,7 +38,7 @@ func (built *Built) filterLast() *Bb {
 		return &Bb{
 			Op:    gl,
 			Key:   sort.orderBy,
-			Value: built.PageCondition.last,
+			Value: built.PageCondition.Last,
 		}
 	}
 	return nil

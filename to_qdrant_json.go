@@ -512,9 +512,9 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 
 	// 应用分页配置（如果有）
 	if built.PageCondition != nil {
-		req.Limit = int(built.PageCondition.rows)
-		if built.PageCondition.page > 1 {
-			req.Offset = int((built.PageCondition.page - 1) * built.PageCondition.rows)
+		req.Limit = int(built.PageCondition.Rows)
+		if built.PageCondition.Page > 1 {
+			req.Offset = int((built.PageCondition.Page - 1) * built.PageCondition.Rows)
 		}
 
 		// 如果启用了多样性，需要覆盖 limit
@@ -523,7 +523,7 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 			if factor <= 0 {
 				factor = 5
 			}
-			req.Limit = int(built.PageCondition.rows) * factor
+			req.Limit = int(built.PageCondition.Rows) * factor
 		}
 	}
 

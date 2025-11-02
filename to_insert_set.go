@@ -22,7 +22,24 @@ import (
 	. "github.com/fndome/xb/internal"
 )
 
-func (built *Built) sqlInsert(vs *[]interface{}) string {
+// SqlInsert 生成 INSERT SQL
+//
+// 说明：
+//   - 生成标准的 INSERT SQL 语句
+//   - Custom 实现可以调用此方法生成基础 INSERT SQL
+//
+// 参数：
+//   - vs: 参数列表（指针）
+//
+// 返回：
+//   - string: INSERT SQL
+//
+// 示例：
+//
+//	vs := []interface{}{}
+//	sql := built.SqlInsert(&vs)
+//	// INSERT INTO users (name, age) VALUES (?, ?)
+func (built *Built) SqlInsert(vs *[]interface{}) string {
 
 	bp := strings.Builder{}
 	bp.Grow(128) // 预分配 128 字节，INSERT 语句通常不太长

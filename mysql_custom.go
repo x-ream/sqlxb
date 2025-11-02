@@ -162,7 +162,7 @@ func (c *MySQLCustom) Generate(built *Built) (interface{}, error) {
 	if built.Updates != nil {
 		vs := []interface{}{}
 		km := make(map[string]string)
-		sql, _ := built.sqlData(&vs, km)
+		sql, _ := built.SqlData(&vs, km)
 		return &SQLResult{SQL: sql, Args: vs, Meta: km}, nil
 	}
 
@@ -170,7 +170,7 @@ func (c *MySQLCustom) Generate(built *Built) (interface{}, error) {
 	// 注意：MySQL DELETE 语法与标准 SQL 一致，无需特殊处理
 	vs := []interface{}{}
 	km := make(map[string]string)
-	sql, kmp := built.sqlData(&vs, km)
+	sql, kmp := built.SqlData(&vs, km)
 	return &SQLResult{
 		SQL:  sql,
 		Args: vs,
@@ -186,7 +186,7 @@ func (c *MySQLCustom) Generate(built *Built) (interface{}, error) {
 func (c *MySQLCustom) generateInsert(built *Built) (*SQLResult, error) {
 	// 使用默认 SQL 生成逻辑
 	vs := []interface{}{}
-	sql := built.sqlInsert(&vs)
+	sql := built.SqlInsert(&vs)
 
 	// ⭐ MySQL 特殊语法：ON DUPLICATE KEY UPDATE
 	if c.UseUpsert {
