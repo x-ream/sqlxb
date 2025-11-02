@@ -62,18 +62,31 @@ type MySQLCustom struct {
 
 // NewMySQLCustom 创建默认 MySQL Custom
 //
+// ⚠️ 设计原则：只提供这一个构造函数！
+//
+// 不要添加预设函数（如 MySQLWithUpsert/WithIgnore）：
+//   - 原因：增加概念，违背"Don't add concepts to solve problems"原则
+//   - 替代：用户设置字段，或使用 Built.SqlOfUpsert() 便捷方法
+//
+// 如果你想添加预设函数，请先问：
+//   1. 用户不用这个函数能实现吗？（答案：能）
+//   2. 这会增加概念数量吗？（答案：会）
+//   3. 那为什么要加？（答案：...不应该加）
+//
+// 参考：xb v1.1.0 的教训（预设函数 → v1.2.0 全部删除）
+//
+// 正确的使用方式：
+//   方式1：直接调用便捷方法（推荐）
+//     built.SqlOfUpsert()  // ✅ 无需 Custom
+//
+//   方式2：手动配置 Custom
+//     custom := NewMySQLCustom()
+//     custom.UseUpsert = true  // ✅ 显式
+//
 // 默认配置：
 //   - Placeholder: "?"（MySQL 兼容，PostgreSQL 驱动自动转换）
 //   - UseUpsert: false
 //   - UseIgnore: false
-//
-// 返回：
-//   - *MySQLCustom
-//
-// 示例：
-//
-//	custom := xb.NewMySQLCustom()
-//	built := xb.Of("users").Custom(custom).Build()
 func NewMySQLCustom() *MySQLCustom {
 	return &MySQLCustom{
 		Placeholder: "?", // MySQL 占位符

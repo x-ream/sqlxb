@@ -37,6 +37,28 @@ type QdrantCustom struct {
 }
 
 // NewQdrantCustom 创建 Qdrant Custom（默认配置）
+//
+// ⚠️ 设计原则：只提供这一个构造函数！
+//
+// 不要添加预设函数（如 QdrantHighPrecision/HighSpeed/Balanced）：
+//   - 原因：增加概念负担，影响 Go 生态简洁性
+//   - 替代：用户通过字段配置或 QdrantX() 闭包
+//
+// 如果你想添加预设函数，请先问：
+//   1. 用户不用这个函数能实现吗？（答案：能，设置字段即可）
+//   2. 这会增加概念数量吗？（答案：会）
+//   3. 那为什么要加？（答案：...不应该加）
+//
+// 参考：xb v1.1.0 的教训（5 个预设函数 → v1.2.0 全部删除）
+//
+// 正确的用户配置方式：
+//   custom := NewQdrantCustom()
+//   custom.DefaultHnswEf = 512  // ✅ 显式、清晰
+//
+// 或使用闭包（已存在）：
+//   xb.Of(...).QdrantX(func(qx *QdrantBuilderX) {
+//       qx.HnswEf(512)  // ✅ 流式、优雅
+//   })
 func NewQdrantCustom() *QdrantCustom {
 	return &QdrantCustom{
 		DefaultHnswEf:         128,
