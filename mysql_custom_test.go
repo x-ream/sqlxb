@@ -75,7 +75,8 @@ func TestMySQLCustom_DefaultBehavior(t *testing.T) {
 // ============================================================================
 
 func TestMySQLCustom_Upsert(t *testing.T) {
-	custom := MySQLWithUpsert()
+	custom := NewMySQLCustom()
+	custom.UseUpsert = true
 
 	user := &MySQLUser{Name: "张三", Age: 18}
 	built := Of(user).
@@ -107,12 +108,50 @@ func TestMySQLCustom_Upsert(t *testing.T) {
 	t.Log("✅ MySQL UPSERT works")
 }
 
+// TestBuilt_SqlOfUpsert 测试 SqlOfUpsert() 便捷方法（无需 Custom）
+func TestBuilt_SqlOfUpsert(t *testing.T) {
+	user := &MySQLUser{Name: "李四", Age: 25}
+	built := Of(user).
+		Insert(func(ib *InsertBuilder) {
+			ib.Set("id", 100).
+				Set("name", user.Name).
+				Set("age", user.Age)
+		}).
+		Build()
+
+	sql, args := built.SqlOfUpsert()
+
+	t.Logf("SQL: %s", sql)
+	t.Logf("Args: %v", args)
+
+	// 验证 UPSERT 语法
+	if !strings.Contains(sql, "ON DUPLICATE KEY UPDATE") {
+		t.Errorf("Expected ON DUPLICATE KEY UPDATE in SQL")
+	}
+
+	if !strings.Contains(sql, "name = VALUES(name)") {
+		t.Errorf("Expected name = VALUES(name) in SQL")
+	}
+
+	// id 应该被跳过（不在 UPDATE 子句中）
+	if strings.Contains(sql, "id = VALUES(id)") {
+		t.Errorf("Should not update id field in UPSERT")
+	}
+
+	if len(args) != 3 { // id, name, age
+		t.Errorf("Expected 3 args, got %d", len(args))
+	}
+
+	t.Log("✅ SqlOfUpsert() 便捷方法 works")
+}
+
 // ============================================================================
 // INSERT IGNORE 测试
 // ============================================================================
 
 func TestMySQLCustom_InsertIgnore(t *testing.T) {
-	custom := MySQLWithIgnore()
+	custom := NewMySQLCustom()
+	custom.UseIgnore = true
 
 	user := &MySQLUser{Name: "张三", Age: 18}
 	built := Of(user).
@@ -286,8 +325,16 @@ func TestMySQLCustom_PresetModes(t *testing.T) {
 		custom *MySQLCustom
 	}{
 		{"Default", NewMySQLCustom()},
-		{"WithUpsert", MySQLWithUpsert()},
-		{"WithIgnore", MySQLWithIgnore()},
+		{"WithUpsert", func() *MySQLCustom {
+			c := NewMySQLCustom()
+			c.UseUpsert = true
+			return c
+		}()},
+		{"WithIgnore", func() *MySQLCustom {
+			c := NewMySQLCustom()
+			c.UseIgnore = true
+			return c
+		}()},
 	}
 
 	for _, tt := range tests {
@@ -452,4 +499,3 @@ func TestMySQLCustom_MetaMap_WithSelect(t *testing.T) {
 
 	t.Log("✅ MySQL Custom with Meta map (SELECT) works")
 }
-

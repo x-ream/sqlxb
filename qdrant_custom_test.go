@@ -83,9 +83,19 @@ func TestQdrantCustom_PresetModes(t *testing.T) {
 		expectVector bool
 	}{
 		{"Default", NewQdrantCustom(), 128, 0.0, true},
-		{"HighPrecision", QdrantHighPrecision(), 512, 0.85, true},
-		{"HighSpeed", QdrantHighSpeed(), 32, 0.5, false},
-		{"Balanced", QdrantBalanced(), 128, 0.0, true},
+		{"CustomHnswEf", func() *QdrantCustom {
+			c := NewQdrantCustom()
+			c.DefaultHnswEf = 512
+			c.DefaultScoreThreshold = 0.85
+			return c
+		}(), 512, 0.85, true},
+		{"CustomHighSpeed", func() *QdrantCustom {
+			c := NewQdrantCustom()
+			c.DefaultHnswEf = 32
+			c.DefaultScoreThreshold = 0.5
+			c.DefaultWithVector = false
+			return c
+		}(), 32, 0.5, false},
 	}
 
 	for _, tt := range tests {
@@ -167,11 +177,22 @@ func TestCustomSwitch_RuntimeSelection(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	// 模拟根据配置选择不同的 Custom
+	// ⭐ 用户可以根据需要手动配置
 	customs := map[string]*QdrantCustom{
-		"default":        NewQdrantCustom(),
-		"high_precision": QdrantHighPrecision(),
-		"high_speed":     QdrantHighSpeed(),
-		"balanced":       QdrantBalanced(),
+		"default": NewQdrantCustom(),
+		"high_precision": func() *QdrantCustom {
+			c := NewQdrantCustom()
+			c.DefaultHnswEf = 512
+			c.DefaultScoreThreshold = 0.85
+			return c
+		}(),
+		"high_speed": func() *QdrantCustom {
+			c := NewQdrantCustom()
+			c.DefaultHnswEf = 32
+			c.DefaultScoreThreshold = 0.5
+			c.DefaultWithVector = false
+			return c
+		}(),
 	}
 
 	for name, custom := range customs {

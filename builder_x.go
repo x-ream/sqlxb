@@ -71,7 +71,7 @@ func (x *BuilderX) Meta() *interceptor.Metadata {
 //
 //	// Qdrant 高精度模式
 //	built := xb.Of("code_vectors").
-//	    Custom(xb.QdrantHighPrecision()).
+//	    Custom(xb.NewQdrantCustom()).
 //	    VectorSearch(...).
 //	    Build()
 //

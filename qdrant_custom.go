@@ -69,31 +69,20 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 }
 
 // ============================================================================
-// 便捷构造函数
+// 使用说明
 // ============================================================================
-
-// QdrantHighPrecision 高精度模式（慢，但准确）
-func QdrantHighPrecision() *QdrantCustom {
-	return &QdrantCustom{
-		DefaultHnswEf:         512,
-		DefaultScoreThreshold: 0.85,
-		DefaultWithVector:     true,
-	}
-}
-
-// QdrantHighSpeed 高速模式（快，但可能不太准）
-func QdrantHighSpeed() *QdrantCustom {
-	return &QdrantCustom{
-		DefaultHnswEf:         32,
-		DefaultScoreThreshold: 0.5,
-		DefaultWithVector:     false,
-	}
-}
-
-// QdrantBalanced 平衡模式（默认）
-func QdrantBalanced() *QdrantCustom {
-	return NewQdrantCustom()
-}
+//
+// 配置方式：
+//   1. 直接创建并使用默认值：NewQdrantCustom()
+//   2. 手动设置字段：
+//      custom := NewQdrantCustom()
+//      custom.DefaultHnswEf = 512
+//      custom.DefaultScoreThreshold = 0.85
+//   3. 使用 QdrantX() 闭包（推荐）：
+//      xb.Of(...).QdrantX(func(qx *QdrantBuilderX) {
+//          qx.HnswEf(512).ScoreThreshold(0.85)
+//      })
+//
 
 // ============================================================================
 // Insert/Update/Delete JSON 生成

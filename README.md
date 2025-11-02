@@ -29,37 +29,44 @@ also can build json for some json parameter db, like [Qdrant](https://github.com
 - 📚 **Complete Documentation** - Templates and guides for custom implementations
 
 ```go
-// MySQL with UPSERT (v1.1.0)
+// MySQL UPSERT (v1.1.0) - 无需 Custom
 built := xb.Of(user).
-    Custom(xb.MySQLWithUpsert()).
-    Insert(user)
-sql, args := built.SqlOfInsert()
-// INSERT ... ON DUPLICATE KEY UPDATE ...
+    Insert(func(ib *xb.InsertBuilder) {
+        ib.Set("id", user.ID).
+           Set("name", user.Name).
+           Set("email", user.Email)
+    }).
+    Build()
+sql, args := built.SqlOfUpsert()
+// INSERT INTO users ... ON DUPLICATE KEY UPDATE ...
 
-// Qdrant Full CRUD (v1.1.0)
-qdrant := xb.NewQdrantCustom()
-
-// Insert
-built := xb.X().Custom(qdrant)
-built.inserts = &[]xb.Bb{{Value: point}}
-json, _ := built.Build().JsonOfInsert()
-
-// Update
-built := xb.X().Custom(qdrant).Eq("id", 123)
-built.updates = &[]xb.Bb{{Key: "status", Value: "active"}}
-json, _ := built.Build().JsonOfUpdate()
-
-// Delete
-built := xb.X().Custom(qdrant).Eq("id", 123)
-built.Build().Delete = true
-json, _ := built.JsonOfDelete()
-
-// Search (existing)
+// Qdrant Vector Search (v1.1.0)
+// 方式1: 使用默认 Custom
 built := xb.Of(&CodeVector{}).
-    Custom(qdrant).
+    Custom(xb.NewQdrantCustom()).
+    Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).
     Build()
 json, _ := built.JsonOfSelect()
+
+// 方式2: 使用 QdrantX 闭包配置（推荐）
+built := xb.Of(&CodeVector{}).
+    Custom(xb.NewQdrantCustom()).
+    Eq("language", "golang").
+    VectorSearch("embedding", queryVector, 10).
+    QdrantX(func(qx *xb.QdrantBuilderX) {
+        qx.HnswEf(512).ScoreThreshold(0.85)
+    }).
+    Build()
+json, _ := built.JsonOfSelect()
+
+// Standard SQL (no Custom needed)
+built := xb.Of(&User{}).
+    Eq("status", 1).
+    Gt("age", 18).
+    Build()
+sql, args, _ := built.SqlOfSelect()
+// SELECT * FROM users WHERE status = ? AND age > ?
 ```
 
 📖 **[Read the Custom Interface Guide →](./doc/CUSTOM_INTERFACE_README.md)**
@@ -501,4 +508,5 @@ Don't debate technology choices — Look at data characteristics:
 ```
 
 **xb supports all scenarios — One API for everything!** ✅
+
 

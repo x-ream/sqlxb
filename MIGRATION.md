@@ -48,11 +48,13 @@ last := condition.Last
 
 **MySQL UPSERT**:
 ```go
-// v1.1.0 新功能
+// v1.1.0 新功能 - 无需 Custom
 built := xb.Of(user).
-    Custom(xb.MySQLWithUpsert()).
-    Insert(user)
-sql, args := built.SqlOfInsert()
+    Insert(func(ib *xb.InsertBuilder) {
+        ib.Set("id", user.ID).Set("name", user.Name)
+    }).
+    Build()
+sql, args := built.SqlOfUpsert()
 // INSERT ... ON DUPLICATE KEY UPDATE ...
 ```
 

@@ -65,7 +65,7 @@ type Built struct {
 //
 //	// Qdrant
 //	built := xb.Of("code_vectors").
-//	    Custom(xb.QdrantHighPrecision()).
+//	    Custom(xb.NewQdrantCustom()).
 //	    VectorSearch(...).
 //	    Build()
 //

@@ -17,6 +17,8 @@
 
 package xb
 
+import "strings"
+
 // ============================================================================
 // MySQLCustom：MySQL/MariaDB 专属配置（v1.1.0）
 // ============================================================================
@@ -80,61 +82,21 @@ func NewMySQLCustom() *MySQLCustom {
 	}
 }
 
-// MySQLWithUpsert 创建启用 UPSERT 的 MySQL Custom
+// ============================================================================
+// 使用说明
+// ============================================================================
 //
-// 说明：
-//   - 使用 ON DUPLICATE KEY UPDATE 语法
-//   - 适合需要"插入或更新"的场景
+// 配置方式：
+//   1. 直接创建并使用默认值：NewMySQLCustom()
+//   2. 手动设置字段启用功能：
+//      custom := NewMySQLCustom()
+//      custom.UseUpsert = true  // 启用 UPSERT
+//   3. 或者使用 Built.SqlOfUpsert() 方法（推荐）：
+//      built := xb.Of(user).Insert(func(ib *InsertBuilder) {
+//          ib.Set("name", "张三")
+//      }).Build()
+//      sql, args := built.SqlOfUpsert()  // 直接生成 UPSERT SQL
 //
-// 返回：
-//   - *MySQLCustom
-//
-// 示例：
-//
-//	custom := xb.MySQLWithUpsert()
-//	built := xb.Of("users").
-//	    Custom(custom).
-//	    Set("name", "张三").
-//	    Set("age", 18).
-//	    Build()
-//
-//	sql, _ := built.SqlOfInsert()
-//	// INSERT INTO users (name, age) VALUES (?, ?)
-//	// ON DUPLICATE KEY UPDATE name = VALUES(name), age = VALUES(age)
-func MySQLWithUpsert() *MySQLCustom {
-	return &MySQLCustom{
-		Placeholder: "?",
-		UseUpsert:   true,
-		UseIgnore:   false,
-	}
-}
-
-// MySQLWithIgnore 创建启用 INSERT IGNORE 的 MySQL Custom
-//
-// 说明：
-//   - 使用 INSERT IGNORE 语法
-//   - 忽略重复键错误，适合批量插入
-//
-// 返回：
-//   - *MySQLCustom
-//
-// 示例：
-//
-//	custom := xb.MySQLWithIgnore()
-//	built := xb.Of("users").
-//	    Custom(custom).
-//	    Set("name", "张三").
-//	    Build()
-//
-//	sql, _ := built.SqlOfInsert()
-//	// INSERT IGNORE INTO users (name) VALUES (?)
-func MySQLWithIgnore() *MySQLCustom {
-	return &MySQLCustom{
-		Placeholder: "?",
-		UseUpsert:   false,
-		UseIgnore:   true,
-	}
-}
 
 // ============================================================================
 // 实现 Custom 接口
@@ -267,4 +229,85 @@ var defaultMySQLCustom = NewMySQLCustom()
 //	// ON DUPLICATE KEY UPDATE name = VALUES(name), age = VALUES(age)
 func DefaultMySQLCustom() *MySQLCustom {
 	return defaultMySQLCustom
+}
+
+// ============================================================================
+// Built 便捷方法（无需 Custom）
+// ============================================================================
+
+// SqlOfUpsert 生成 MySQL UPSERT SQL（INSERT ... ON DUPLICATE KEY UPDATE）
+//
+// 说明：
+//   - 无需设置 Custom，直接调用即可
+//   - 自动生成 ON DUPLICATE KEY UPDATE 子句
+//
+// 返回：
+//   - string: SQL 语句
+//   - []interface{}: 参数列表
+//
+// 示例：
+//
+//	built := xb.Of(user).Insert(func(ib *InsertBuilder) {
+//	    ib.Set("id", 1).Set("name", "张三").Set("age", 18)
+//	}).Build()
+//
+//	sql, args := built.SqlOfUpsert()
+//	// INSERT INTO users (id, name, age) VALUES (?, ?, ?)
+//	// ON DUPLICATE KEY UPDATE name = VALUES(name), age = VALUES(age)
+func (built *Built) SqlOfUpsert() (string, []interface{}) {
+	if built.Inserts == nil || len(*built.Inserts) == 0 {
+		return "", nil
+	}
+
+	vs := []interface{}{}
+	sql := built.SqlInsert(&vs)
+
+	// 添加 ON DUPLICATE KEY UPDATE
+	sql += " ON DUPLICATE KEY UPDATE "
+
+	inserts := *built.Inserts
+	updateParts := []string{}
+	for _, bb := range inserts {
+		// 跳过主键（通常是 id）
+		if bb.Key == "id" {
+			continue
+		}
+		updateParts = append(updateParts, bb.Key+" = VALUES("+bb.Key+")")
+	}
+
+	sql += strings.Join(updateParts, ", ")
+
+	return sql, vs
+}
+
+// SqlOfInsertIgnore 生成 MySQL INSERT IGNORE SQL
+//
+// 说明：
+//   - 无需设置 Custom，直接调用即可
+//   - 忽略重复键错误，不抛异常
+//
+// 返回：
+//   - string: SQL 语句
+//   - []interface{}: 参数列表
+//
+// 示例：
+//
+//	built := xb.Of(user).Insert(func(ib *InsertBuilder) {
+//	    ib.Set("id", 1).Set("name", "张三")
+//	}).Build()
+//
+//	sql, args := built.SqlOfInsertIgnore()
+//	// INSERT IGNORE INTO users (id, name) VALUES (?, ?)
+func (built *Built) SqlOfInsertIgnore() (string, []interface{}) {
+	if built.Inserts == nil || len(*built.Inserts) == 0 {
+		return "", nil
+	}
+
+	vs := []interface{}{}
+	sql := built.SqlInsert(&vs)
+
+	// 将 INSERT 替换为 INSERT IGNORE
+	sql = strings.Replace(sql, "INSERT INTO", "INSERT IGNORE INTO", 1)
+
+	return sql, vs
 }
