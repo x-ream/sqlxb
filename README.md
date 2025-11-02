@@ -41,24 +41,44 @@ sql, args := built.SqlOfUpsert()
 // INSERT INTO users ... ON DUPLICATE KEY UPDATE ...
 
 // Qdrant Vector Search (v1.1.0)
-// 方式1: 使用默认 Custom
-built := xb.Of(&CodeVector{}).
-    Custom(xb.NewQdrantCustom()).
-    Eq("language", "golang").
-    VectorSearch("embedding", queryVector, 10).
-    Build()
-json, _ := built.JsonOfSelect()
-
-// 方式2: 使用 QdrantX 闭包配置（推荐）
 built := xb.Of(&CodeVector{}).
     Custom(xb.NewQdrantCustom()).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).
     QdrantX(func(qx *xb.QdrantBuilderX) {
-        qx.HnswEf(512).ScoreThreshold(0.85)
+        qx.HnswEf(512).ScoreThreshold(0.85)  // 配置参数
     }).
     Build()
 json, _ := built.JsonOfSelect()
+
+// Qdrant CRUD (v1.1.0) - 与 SQL 完全一致的 API
+// Insert
+built := xb.Of(&CodeVector{}).
+    Custom(xb.NewQdrantCustom()).
+    Insert(func(ib *xb.InsertBuilder) {
+        ib.Set("id", 123).
+           Set("vector", []float32{0.1, 0.2, 0.3}).
+           Set("language", "golang")
+    }).
+    Build()
+json, _ := built.JsonOfInsert()
+
+// Update
+built := xb.Of(&CodeVector{}).
+    Custom(xb.NewQdrantCustom()).
+    Eq("id", 123).
+    Update(func(ub *xb.UpdateBuilder) {
+        ub.Set("language", "rust")
+    }).
+    Build()
+json, _ := built.JsonOfUpdate()
+
+// Delete
+built := xb.Of(&CodeVector{}).
+    Custom(xb.NewQdrantCustom()).
+    Eq("id", 123).
+    Build()
+json, _ := built.JsonOfDelete()
 
 // Standard SQL (no Custom needed)
 built := xb.Of(&User{}).

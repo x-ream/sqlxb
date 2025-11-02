@@ -482,13 +482,13 @@ func main() {
     
     switch os.Getenv("VECTOR_DB") {
     case "qdrant":
-        custom = xb.QdrantBalanced()
+        custom = xb.NewQdrantCustom()
     case "milvus":
         custom = NewMilvusCustom()
     case "weaviate":
         custom = NewWeaviateCustom()
     default:
-        custom = xb.QdrantBalanced()
+        custom = xb.NewQdrantCustom()
     }
     
     // ⭐ 统一的查询构建

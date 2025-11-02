@@ -110,14 +110,13 @@ func (c *QdrantCustom) generateInsertJSON(built *Built) (string, error) {
 
 	points := []QdrantPoint{}
 
-	for _, bb := range inserts {
-		// bb.Value 应该是一个包含 id, vector, payload 的 map 或 struct
-		point, err := c.extractPoint(bb.Value)
-		if err != nil {
-			return "", err
-		}
-		points = append(points, point)
+	// ⭐ 使用 Insert(func(ib)) 格式
+	// 多个 bb（字段-值对）组成一个 point
+	point, err := c.extractPointFromBbs(inserts)
+	if err != nil {
+		return "", err
 	}
+	points = append(points, point)
 
 	req := QdrantUpsertRequest{Points: points}
 	bytes, err := json.MarshalIndent(req, "", "  ")
@@ -202,37 +201,34 @@ func (c *QdrantCustom) generateDeleteJSON(built *Built) (string, error) {
 // 辅助方法
 // ============================================================================
 
-// extractPoint 从 insert 数据中提取 Qdrant Point
-func (c *QdrantCustom) extractPoint(value interface{}) (QdrantPoint, error) {
-	// 尝试类型断言为 map
-	if m, ok := value.(map[string]interface{}); ok {
-		point := QdrantPoint{}
-
-		if id, exists := m["id"]; exists {
-			point.ID = id
-		} else {
-			return QdrantPoint{}, fmt.Errorf("point must have 'id' field")
-		}
-
-		if vector, exists := m["vector"]; exists {
-			point.Vector = vector
-		} else {
-			return QdrantPoint{}, fmt.Errorf("point must have 'vector' field")
-		}
-
-		// payload 是可选的
-		if payload, exists := m["payload"]; exists {
-			if p, ok := payload.(map[string]interface{}); ok {
-				point.Payload = p
-			}
-		}
-
-		return point, nil
+// extractPointFromBbs 从 InsertBuilder 的 bbs 中提取 Qdrant Point
+// 用于 Insert(func(ib *InsertBuilder)) 格式
+func (c *QdrantCustom) extractPointFromBbs(bbs []Bb) (QdrantPoint, error) {
+	point := QdrantPoint{
+		Payload: make(map[string]interface{}),
 	}
 
-	// 如果是 struct，尝试通过反射提取
-	// （简化实现：直接返回错误，要求使用 map）
-	return QdrantPoint{}, fmt.Errorf("insert value must be map[string]interface{} with 'id', 'vector', and optional 'payload' fields")
+	for _, bb := range bbs {
+		switch bb.Key {
+		case "id":
+			point.ID = bb.Value
+		case "vector":
+			point.Vector = bb.Value
+		default:
+			// 其他字段放入 payload
+			point.Payload[bb.Key] = bb.Value
+		}
+	}
+
+	// 验证必需字段
+	if point.ID == nil {
+		return QdrantPoint{}, fmt.Errorf("point must have 'id' field")
+	}
+	if point.Vector == nil {
+		return QdrantPoint{}, fmt.Errorf("point must have 'vector' field")
+	}
+
+	return point, nil
 }
 
 // extractIdsOrFilter 从条件中提取 point IDs 或构建 filter

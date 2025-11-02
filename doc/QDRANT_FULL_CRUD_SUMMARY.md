@@ -135,13 +135,12 @@ json, _ := built.JsonOfUpdate()
 ### 3. **DELETE - 删除向量**
 
 ```go
-built := xb.X().
+built := xb.Of(&CodeVector{}).
     Custom(xb.NewQdrantCustom()).
     Eq("id", 456).
     Build()
 
-built.Delete = true
-
+// ⭐ JsonOfDelete() 自动设置 Delete = true
 json, _ := built.JsonOfDelete()
 ```
 
@@ -158,7 +157,7 @@ json, _ := built.JsonOfDelete()
 
 ```go
 built := xb.Of(&CodeVector{}).
-    Custom(xb.QdrantHighPrecision()).
+    Custom(xb.NewQdrantCustom()).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).
     Build()

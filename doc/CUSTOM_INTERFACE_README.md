@@ -206,7 +206,7 @@ var custom xb.Custom
 
 switch config.VectorDB {
 case "qdrant":
-    custom = xb.QdrantBalanced()
+    custom = xb.NewQdrantCustom()
 case "milvus":
     custom = NewMilvusCustom()
 case "weaviate":
@@ -256,10 +256,18 @@ built := xb.Of("t").
 ### Qdrant（官方支持）
 
 ```go
-xb.QdrantDefault()       // 默认配置
-xb.QdrantHighPrecision() // 高精度
-xb.QdrantHighSpeed()     // 高速
-xb.QdrantBalanced()      // 平衡
+// 基础构造函数
+xb.NewQdrantCustom()  // 默认配置
+xb.NewMySQLCustom()   // 默认配置
+
+// 手动配置
+custom := xb.NewQdrantCustom()
+custom.DefaultHnswEf = 512
+
+// 或使用闭包
+xb.Of(...).QdrantX(func(qx *QdrantBuilderX) {
+    qx.HnswEf(512)
+})
 ```
 
 ### 用户自定义

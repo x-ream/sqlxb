@@ -147,6 +147,9 @@ func (built *Built) JsonOfDelete() (string, error) {
 		return "", fmt.Errorf("Custom is nil, use SqlOfDelete() for SQL databases")
 	}
 
+	// ⭐ 自动设置 Delete 标记
+	built.Delete = true
+
 	result, err := built.Custom.Generate(built)
 	if err != nil {
 		return "", err

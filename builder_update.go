@@ -69,6 +69,9 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 		// Vector 类型：不做处理，保持原样
 		// 让 database/sql 调用 driver.Valuer 接口
 		// Vector.Value() 会返回正确的数据库格式
+	case []float32, []float64:
+		// ⭐ 向量数组：保持原样（用于 Qdrant/Milvus）
+		// 不做 JSON 序列化
 	case interface{}:
 		bytes, _ := json.Marshal(v)
 		v = string(bytes)

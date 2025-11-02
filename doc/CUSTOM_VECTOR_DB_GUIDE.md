@@ -207,7 +207,7 @@ json, _ := built.ToMilvusJSON()  // 自动使用默认 Custom
 var custom xb.Custom
 switch config.VectorDB {
 case "qdrant":
-    custom = xb.QdrantBalanced()
+    custom = xb.NewQdrantCustom()
 case "milvus":
     custom = xb.NewMilvusCustom()
 case "weaviate":
@@ -367,7 +367,7 @@ built := xb.Of("code_vectors").
     Build()
 
 // ⭐ 只需切换 Custom
-qdrantJSON, _ := built.Custom(xb.QdrantBalanced()).JsonOfSelect()
+qdrantJSON, _ := built.Custom(xb.NewQdrantCustom()).JsonOfSelect()
 milvusJSON, _ := built.Custom(xb.NewMilvusCustom()).JsonOfSelect()
 weaviateJSON, _ := built.Custom(xb.NewWeaviateCustom()).JsonOfSelect()
 ```
@@ -594,7 +594,7 @@ func SearchDocuments(config Config, query string) ([]Document, error) {
     var custom xb.Custom
     switch config.VectorDB {
     case "qdrant":
-        custom = xb.QdrantBalanced()
+        custom = xb.NewQdrantCustom()
     case "milvus":
         custom = xb.NewMilvusCustom()
     case "weaviate":
@@ -657,10 +657,9 @@ func (c *QdrantCustom) ToJSON(built *Built) (string, error) {
     return built.toQdrantJSON()
 }
 
-// 预设模式
-func QdrantHighPrecision() *QdrantCustom { ... }
-func QdrantHighSpeed() *QdrantCustom { ... }
-func QdrantBalanced() *QdrantCustom { ... }
+// 使用说明：
+// 1. 基础构造函数：NewQdrantCustom()
+// 2. 手动配置字段或使用 QdrantX() 闭包
 ```
 
 ---

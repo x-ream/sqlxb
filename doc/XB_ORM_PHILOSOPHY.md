@@ -164,7 +164,7 @@ switch config.Database {
 case "oracle":
     custom = oracle_custom.New()
 case "mysql":
-    custom = xb.MySQLWithUpsert()
+    custom = xb.NewMySQLCustom()
 case "postgresql":
     custom = nil  // 默认即可
 }
