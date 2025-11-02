@@ -64,16 +64,16 @@ type Built struct {
 // 示例:
 //
 //	// Qdrant
-//	built := xb.C().
-//	    WithCustom(xb.QdrantHighPrecision()).
+//	built := xb.Of("code_vectors").
+//	    Custom(xb.QdrantHighPrecision()).
 //	    VectorSearch(...).
 //	    Build()
 //
 //	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
 //
 //	// Milvus
-//	built := xb.C().
-//	    WithCustom(xb.NewMilvusCustom()).
+//	built := xb.Of("users").
+//	    Custom(xb.NewMilvusCustom()).
 //	    VectorSearch(...).
 //	    Build()
 //

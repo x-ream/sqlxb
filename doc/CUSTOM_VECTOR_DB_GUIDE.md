@@ -180,7 +180,7 @@ func (b *CondBuilder) MilvusX(key string, value interface{}) *CondBuilder {
 ```go
 // Milvus
 built := xb.Of("code_vectors").
-    WithCustom(xb.NewMilvusCustom()).  // ⭐ 设置 Milvus Custom
+    Custom(xb.NewMilvusCustom()).  // ⭐ 设置 Milvus Custom
     VectorSearch("embedding", vec, 20).
     Eq("language", "golang").
     Build()
@@ -215,7 +215,7 @@ case "weaviate":
 }
 
 built := xb.Of("code_vectors").
-    WithCustom(custom).  // ⭐ 运行时切换
+    Custom(custom).  // ⭐ 运行时切换
     VectorSearch("embedding", vec, 20).
     Build()
 
@@ -262,7 +262,7 @@ func (c *MilvusCustom) ToJSON(built *Built) (string, error) {
 
 // 使用
 built := xb.Of("t").
-    WithCustom(xb.NewMilvusCustom()).
+    Custom(xb.NewMilvusCustom()).
     Build()
 
 json, _ := built.JsonOfSelect()  // 统一接口
@@ -346,7 +346,7 @@ func (built *Built) toWeaviateJSON() (string, error) {
 
 ```go
 built := xb.Of("CodeVector").
-    WithCustom(xb.WeaviateSemanticMode()).
+    Custom(xb.WeaviateSemanticMode()).
     VectorSearch("embedding", vec, 20).
     Build()
 
@@ -367,9 +367,9 @@ built := xb.Of("code_vectors").
     Build()
 
 // ⭐ 只需切换 Custom
-qdrantJSON, _ := built.WithCustom(xb.QdrantBalanced()).JsonOfSelect()
-milvusJSON, _ := built.WithCustom(xb.NewMilvusCustom()).JsonOfSelect()
-weaviateJSON, _ := built.WithCustom(xb.NewWeaviateCustom()).JsonOfSelect()
+qdrantJSON, _ := built.Custom(xb.QdrantBalanced()).JsonOfSelect()
+milvusJSON, _ := built.Custom(xb.NewMilvusCustom()).JsonOfSelect()
+weaviateJSON, _ := built.Custom(xb.NewWeaviateCustom()).JsonOfSelect()
 ```
 
 ---
@@ -553,7 +553,7 @@ func (built *Built) toMilvusJSON() (string, error) {
 ```go
 // Milvus 搜索
 built := xb.Of("code_vectors").
-    WithCustom(xb.NewMilvusCustom()).
+    Custom(xb.NewMilvusCustom()).
     VectorSearch("embedding", queryVector, 20).
     Eq("language", "golang").
     Build()
@@ -566,7 +566,7 @@ json, _ := built.JsonOfSelect()
 ```go
 // 高精度模式
 built := xb.Of("code_vectors").
-    WithCustom(xb.MilvusHighPrecision()).
+    Custom(xb.MilvusHighPrecision()).
     VectorSearch("embedding", vec, 20).
     Build()
 
@@ -603,7 +603,7 @@ func SearchDocuments(config Config, query string) ([]Document, error) {
     
     // 统一的查询构建
     built := xb.Of("documents").
-        WithCustom(custom).
+        Custom(custom).
         VectorSearch("embedding", embedding, 10).
         Eq("status", "published").
         Build()

@@ -7,7 +7,7 @@
 ```go
 // ✅ 理想：统一接口，不需要指定数据库类型
 built := xb.X().
-    WithCustom(qdrantCustom).  // 设置 Custom
+    Custom(qdrantCustom).  // 设置 Custom
     VectorSearch(...).
     Build()
 
@@ -65,7 +65,7 @@ type Custom interface {
 ```go
 // Step 1: 选择 Qdrant Custom（预设配置）
 built := xb.X().
-    WithCustom(xb.QdrantHighPrecision()).  // 高精度模式
+    Custom(xb.QdrantHighPrecision()).  // 高精度模式
     VectorScoreThreshold(0.8).
     VectorSearch("code_vectors", "embedding", vec, 20, xb.CosineDistance).
     Build()
@@ -84,7 +84,7 @@ json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
 ```go
 // Step 1: 选择 Milvus Custom
 built := xb.X().
-    WithCustom(xb.NewMilvusCustom()).  // Milvus 默认配置
+    Custom(xb.NewMilvusCustom()).  // Milvus 默认配置
     VectorScoreThreshold(0.8).
     MilvusNProbe(64).
     VectorSearch("code_vectors", "embedding", vec, 20, xb.L2Distance).
@@ -112,7 +112,7 @@ func SearchCodeVectors(config Config, embedding []float32) ([]Result, error) {
 
     // Step 2: 构建查询（完全相同的代码）
     built := xb.X().
-        WithCustom(custom).  // ⭐ 唯一的区别
+        Custom(custom).  // ⭐ 唯一的区别
         VectorScoreThreshold(0.8).
         VectorSearch("code_vectors", "embedding", embedding, 20, xb.CosineDistance).
         Build()
@@ -150,7 +150,7 @@ weaviateJSON, _ := built.JsonOfWeaviateSelect()
 ```go
 // ✅ 优势：统一的方法名，通过 Custom 区分
 built := xb.X().
-    WithCustom(qdrantCustom).  // 或 milvusCustom
+    Custom(qdrantCustom).  // 或 milvusCustom
     Build()
 
 json, _ := built.JsonOfSelect()  // ⭐ 自动适配
@@ -165,7 +165,7 @@ json, _ := built.JsonOfSelect()  // ⭐ 自动适配
 ```
 用户代码
    ↓
-WithCustom(custom)  ← 设置 Custom
+Custom(custom)  ← 设置 Custom
    ↓
 Build()            ← 传递 Custom 到 Built
    ↓
@@ -251,7 +251,7 @@ func (c *WeaviateCustom) ToJSON(built *Built) (string, error) {
 
 ```go
 built := xb.X().
-    WithCustom(xb.NewWeaviateCustom()).
+    Custom(xb.NewWeaviateCustom()).
     VectorSearch(...).
     Build()
 
@@ -302,7 +302,7 @@ json, _ := built.JsonOfQdrantSelect()
 
 // ✅ 新代码更简洁
 built := xb.X().
-    WithCustom(xb.QdrantBalanced()).
+    Custom(xb.QdrantBalanced()).
     Build()
 
 json, _ := built.JsonOfSelect()
@@ -318,7 +318,7 @@ json, _ := built.JsonOfQdrantSelect()
 
 // v0.11.0（推荐）
 built := xb.X().
-    WithCustom(xb.QdrantBalanced()).
+    Custom(xb.QdrantBalanced()).
     Build()
 
 json, _ := built.JsonOfSelect()

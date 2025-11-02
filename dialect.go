@@ -53,15 +53,15 @@ package xb
 // 使用示例：
 //
 //	// Qdrant
-//	built := xb.C().
-//	    WithCustom(&xb.QdrantCustom{DefaultHnswEf: 256}).
+//	built := xb.Of("code_vectors").
+//	    Custom(&xb.QdrantCustom{DefaultHnswEf: 256}).
 //	    Build()
 //
 //	json, _ := built.JsonOfSelect()  // ← 自动调用 QdrantCustom.ToJSON()
 //
 //	// Milvus
-//	built := xb.C().
-//	    WithCustom(&xb.MilvusCustom{DefaultNProbe: 64}).
+//	built := xb.Of("users").
+//	    Custom(&xb.MilvusCustom{DefaultNProbe: 64}).
 //	    Build()
 //
 //	json, _ := built.JsonOfSelect()  // ← 自动调用 MilvusCustom.ToJSON()

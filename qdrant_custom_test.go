@@ -41,7 +41,7 @@ func TestJsonOfSelect_WithQdrantCustom(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of("code_vectors").
-		WithCustom(NewQdrantCustom()).
+		Custom(NewQdrantCustom()).
 		VectorSearch("embedding", queryVector, 20).
 		Eq("language", "golang").
 		Build()
@@ -177,7 +177,7 @@ func TestCustomSwitch_RuntimeSelection(t *testing.T) {
 	for name, custom := range customs {
 		t.Run(name, func(t *testing.T) {
 			built := Of("code_vectors").
-				WithCustom(custom).
+				Custom(custom).
 				VectorSearch("embedding", queryVector, 10).
 				Build()
 
@@ -211,7 +211,7 @@ func TestQdrantCustom_CustomConfiguration(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of("code_vectors").
-		WithCustom(customConfig).
+		Custom(customConfig).
 		VectorSearch("embedding", queryVector, 10).
 		Build()
 

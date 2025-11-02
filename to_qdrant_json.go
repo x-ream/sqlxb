@@ -230,7 +230,7 @@ func (r *QdrantDiscoverRequest) GetQdrantFilter() **QdrantFilter {
 //
 // ToQdrantJSON 生成 Qdrant 搜索 JSON
 // ⭐ 便捷方法：自动使用默认 Qdrant Custom
-// ⭐ 推荐使用：built.JsonOfSelect() + WithCustom() 以支持预设模式
+// ⭐ 推荐使用：built.JsonOfSelect() + Custom() 以支持预设模式
 func (built *Built) ToQdrantJSON() (string, error) {
 	// ⭐ 委托给 JsonOfSelect（如果已设置 Custom）
 	if built.Custom != nil {

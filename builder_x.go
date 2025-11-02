@@ -59,7 +59,7 @@ func (x *BuilderX) Meta() *interceptor.Metadata {
 	return x.meta
 }
 
-// WithCustom 设置数据库专属配置（Dialect + Custom）
+// Custom 设置数据库专属配置
 //
 // 参数:
 //   - custom: 数据库专属配置（QdrantCustom/MilvusCustom/WeaviateCustom 等）
@@ -70,21 +70,21 @@ func (x *BuilderX) Meta() *interceptor.Metadata {
 // 示例:
 //
 //	// Qdrant 高精度模式
-//	built := xb.C().
-//	    WithCustom(xb.QdrantHighPrecision()).
+//	built := xb.Of("code_vectors").
+//	    Custom(xb.QdrantHighPrecision()).
 //	    VectorSearch(...).
 //	    Build()
 //
 //	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
 //
 //	// Milvus 默认模式
-//	built := xb.C().
-//	    WithCustom(xb.NewMilvusCustom()).
+//	built := xb.Of("users").
+//	    Custom(xb.NewMilvusCustom()).
 //	    VectorSearch(...).
 //	    Build()
 //
 //	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
-func (x *BuilderX) WithCustom(custom Custom) *BuilderX {
+func (x *BuilderX) Custom(custom Custom) *BuilderX {
 	x.custom = custom
 	return x
 }
