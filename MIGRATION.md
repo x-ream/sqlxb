@@ -1,8 +1,114 @@
-# 从 sqlxb 迁移到 xb
+# xb 迁移指南
 
-## 🔄 项目重命名通知
+## 🔄 版本迁移
 
-**最新版本**: v0.11.0  
+### v1.0.0 → v1.1.0 (Custom Interface)
+
+**最新版本**: v1.1.0  
+**发布日期**: 2025-01-XX
+
+#### 重要变更
+
+**✅ 新功能**:
+- Custom 接口：统一的数据库专属功能抽象
+- 完整 CRUD：向量数据库的 Insert/Update/Delete 支持
+- 官方实现：QdrantCustom（完整 CRUD）, MySQLCustom（UPSERT）
+
+**⚠️ 破坏性变更**:
+- `PageCondition` 字段改为 public（`page` → `Page`, `rows` → `Rows`, `last` → `Last`, `isTotalRowsIgnored` → `IsTotalRowsIgnored`）
+
+#### 迁移步骤
+
+##### 1. 更新依赖
+
+```bash
+go get github.com/fndome/xb@v1.1.0
+go mod tidy
+```
+
+##### 2. 修改 PageCondition 访问（如果使用了）
+
+**修改前（v1.0.0）**:
+```go
+// ❌ 这些 getter 方法已移除
+page := condition.Page()
+rows := condition.Rows()
+last := condition.Last()
+```
+
+**修改后（v1.1.0）**:
+```go
+// ✅ 直接访问公共字段
+page := condition.Page
+rows := condition.Rows
+last := condition.Last
+```
+
+##### 3. 使用新的 Custom 功能（可选）
+
+**MySQL UPSERT**:
+```go
+// v1.1.0 新功能
+built := xb.Of(user).
+    Custom(xb.MySQLWithUpsert()).
+    Insert(user)
+sql, args := built.SqlOfInsert()
+// INSERT ... ON DUPLICATE KEY UPDATE ...
+```
+
+**Qdrant Full CRUD**:
+```go
+// v1.1.0 新功能
+qdrant := xb.NewQdrantCustom()
+
+// Insert
+built := xb.X().Custom(qdrant)
+built.inserts = &[]xb.Bb{{Value: point}}
+json, _ := built.Build().JsonOfInsert()
+
+// Update
+built := xb.X().Custom(qdrant).Eq("id", 123)
+built.updates = &[]xb.Bb{{Key: "status", Value: "active"}}
+json, _ := built.Build().JsonOfUpdate()
+
+// Delete
+built := xb.X().Custom(qdrant).Eq("id", 123)
+built.Build().Delete = true
+json, _ := built.JsonOfDelete()
+```
+
+##### 4. 验证迁移
+
+```bash
+# 运行测试
+go test ./...
+
+# 构建项目
+go build ./...
+```
+
+#### 常见问题
+
+**Q: v1.0.0 的代码还能用吗？**
+
+A: 可以！除了 `PageCondition` 字段访问方式改变外，所有 v1.0.0 的 API 都完全兼容。
+
+**Q: 我需要立即使用 Custom 接口吗？**
+
+A: 不需要。Custom 接口是可选的。如果你不使用数据库专属功能（如 MySQL UPSERT、Qdrant CRUD），现有代码无需修改。
+
+**Q: 如何实现我自己的数据库 Custom？**
+
+A: 参考文档：
+- [CUSTOM_INTERFACE_README.md](./doc/CUSTOM_INTERFACE_README.md)
+- [CUSTOM_QUICKSTART.md](./doc/CUSTOM_QUICKSTART.md)
+- [MILVUS_TEMPLATE.go](./doc/MILVUS_TEMPLATE.go)
+
+---
+
+### 项目重命名历史（sqlxb → xb）
+
+**版本**: v0.11.0  
 **日期**: 2025-10-28
 
 ### 变更历史

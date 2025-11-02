@@ -13,11 +13,66 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
 
-> 🎉 **v1.0.0 Released**: Production-ready! See [VISION.md](./VISION.md) for our approach to rapid tech iteration.
+> 🎉 **v1.1.0 Released**: Custom Interface for Database-Specific Features! Full CRUD support for vector databases.
 
 ---
 
-## 🚀 NEW: Qdrant Advanced API (since v0.10.0)
+## 🚀 NEW: Custom Interface (v1.1.0)
+
+**Unified abstraction for SQL and Vector Databases with database-specific features!**
+
+**✨ New in v1.1.0**:
+- 🎯 **Custom Interface** - Unified abstraction for all database types
+- 📝 **Full CRUD** - Insert/Update/Delete support for vector databases
+- 🔧 **Official Implementations** - QdrantCustom (full CRUD), MySQLCustom (UPSERT)
+- 🏗️ **Extensible Architecture** - One `Generate()` method handles all operations
+- 📚 **Complete Documentation** - Templates and guides for custom implementations
+
+```go
+// MySQL with UPSERT (v1.1.0)
+built := xb.Of(user).
+    Custom(xb.MySQLWithUpsert()).
+    Insert(user)
+sql, args := built.SqlOfInsert()
+// INSERT ... ON DUPLICATE KEY UPDATE ...
+
+// Qdrant Full CRUD (v1.1.0)
+qdrant := xb.NewQdrantCustom()
+
+// Insert
+built := xb.X().Custom(qdrant)
+built.inserts = &[]xb.Bb{{Value: point}}
+json, _ := built.Build().JsonOfInsert()
+
+// Update
+built := xb.X().Custom(qdrant).Eq("id", 123)
+built.updates = &[]xb.Bb{{Key: "status", Value: "active"}}
+json, _ := built.Build().JsonOfUpdate()
+
+// Delete
+built := xb.X().Custom(qdrant).Eq("id", 123)
+built.Build().Delete = true
+json, _ := built.JsonOfDelete()
+
+// Search (existing)
+built := xb.Of(&CodeVector{}).
+    Custom(qdrant).
+    VectorSearch("embedding", queryVector, 10).
+    Build()
+json, _ := built.JsonOfSelect()
+```
+
+📖 **[Read the Custom Interface Guide →](./doc/CUSTOM_INTERFACE_README.md)**
+
+**Architecture Highlights**:
+- ✅ One interface method for all operations (Select/Insert/Update/Delete)
+- ✅ Supports both SQL databases (MySQL, Oracle) and vector databases (Qdrant, Milvus)
+- ✅ Type-safe: `SQLResult` for SQL, `string` for JSON
+- ✅ Easy to extend: Implement your own database in minutes
+
+---
+
+## 🔍 Qdrant Advanced API (since v0.10.0)
 
 **The first unified ORM for both Relational and Vector Databases!**
 
