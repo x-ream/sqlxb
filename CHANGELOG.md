@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-01-XX
+
+### 🎯 Ultimate API Simplification (Cognitive Load Minimization)
+
+**Core Achievement**: One unified entry point for all database configurations.
+
+### Added
+- **Builder Pattern**:
+  - `NewQdrantBuilder()` - Fluent API for Qdrant configuration
+  - `NewMySQLBuilder()` - Fluent API for MySQL configuration
+  - Chain methods: `.HnswEf()`, `.ScoreThreshold()`, `.WithVector()`, `.UseUpsert()`, etc.
+  - Explicit `.Build()` for type conversion
+
+- **Custom Default Values in SELECT**:
+  - `QdrantCustom.DefaultHnswEf` now affects SELECT queries
+  - `QdrantCustom.DefaultScoreThreshold` now affects SELECT queries
+  - `QdrantCustom.DefaultWithVector` now affects SELECT queries
+  - Priority: Runtime params > Custom defaults > Hardcoded defaults
+
+### Removed
+- **QdrantX() Method**: Eliminated to reduce API surface
+  - `qdrant_x.go` - Entire file removed
+  - `QdrantBuilderX` - No longer needed
+  - All related tests removed (6 test files)
+- **Unused Generic Interface**: `CustomBuilder[T any]` removed (over-engineering)
+
+### Changed
+- **Unified Configuration Entry**: All databases now use only `Custom()`
+  ```go
+  // ✅ Before: Two entry points (confusing)
+  .Custom(...)  // for INSERT/UPDATE/DELETE
+  .QdrantX(...) // for SELECT ???
+  
+  // ✅ After: One entry point (clear)
+  .Custom(NewQdrantBuilder()...Build())  // for ALL operations
+  ```
+
+### Why This Matters
+
+**Human Memory Cost Minimization**:
+- **Before**: Remember when to use `Custom()` vs `QdrantX()`
+- **After**: Always use `Custom()` - one rule, zero confusion
+
+**Design Philosophy**:
+> "Don't add concepts to solve problems"  
+> "Minimize human cognitive load - AI can remember complexity, humans cannot"
+
+### Migration from v1.2.0
+
+```go
+// ❌ Old way (v1.2.0)
+xb.Of(...).
+    QdrantX(func(qx *QdrantBuilderX) {
+        qx.HnswEf(512).ScoreThreshold(0.8)
+    })
+
+// ✅ New way (v1.2.1)
+xb.Of(...).
+    Custom(
+        xb.NewQdrantBuilder().
+            HnswEf(512).
+            ScoreThreshold(0.8).
+            Build(),
+    )
+```
+
+### Tests
+- All existing tests pass
+- New tests for QdrantBuilder and MySQLBuilder
+- Comprehensive coverage maintained
+
+---
+
 ## [1.2.0] - 2025-01-XX
 
 ### 🎨 Complete API Unification (Major Improvement over v1.1.0)

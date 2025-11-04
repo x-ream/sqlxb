@@ -500,14 +500,33 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 		req.Filter = filter
 	}
 
-	// 设置搜索参数
+	// 设置搜索参数（使用 Custom 的默认值，如果有）
+	defaultHnswEf := 128
+	defaultScoreThreshold := float32(0.0)
+	defaultWithVector := false
+
+	// ⭐ 从 Custom 中读取默认值（方案 1 实现）
+	if built.Custom != nil {
+		if qdrantCustom, ok := built.Custom.(*QdrantCustom); ok {
+			defaultHnswEf = qdrantCustom.DefaultHnswEf
+			defaultScoreThreshold = qdrantCustom.DefaultScoreThreshold
+			defaultWithVector = qdrantCustom.DefaultWithVector
+		}
+	}
+
 	req.Params = &QdrantSearchParams{
-		HnswEf:      128,
+		HnswEf:      defaultHnswEf,
 		Exact:       false,
 		IndexedOnly: false,
 	}
 
-	// ⭐ 应用 Qdrant 专属配置（从 Conds 中提取）
+	// 应用 Custom 的默认值
+	if defaultScoreThreshold > 0 {
+		req.ScoreThreshold = &defaultScoreThreshold
+	}
+	req.WithVector = defaultWithVector
+
+	// ⭐ 应用 Qdrant 专属配置（从 Conds 中提取，会覆盖默认值）
 	applyQdrantSpecificConfig(built.Conds, req)
 
 	// 应用分页配置（如果有）

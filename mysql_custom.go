@@ -20,6 +20,55 @@ package xb
 import "strings"
 
 // ============================================================================
+// MySQLBuilder: Builder 模式配置构建器
+// ============================================================================
+
+// MySQLBuilder MySQL 配置构建器
+// 使用 Builder 模式构建 MySQLCustom 配置
+type MySQLBuilder struct {
+	custom *MySQLCustom
+}
+
+// NewMySQLBuilder 创建 MySQL 配置构建器
+//
+// 示例:
+//
+//	xb.Of(...).Custom(
+//	    xb.NewMySQLBuilder().
+//	        UseUpsert(true).
+//	        UseIgnore(false).
+//	        Build(),
+//	).Build()
+func NewMySQLBuilder() *MySQLBuilder {
+	return &MySQLBuilder{
+		custom: NewMySQLCustom(),
+	}
+}
+
+// UseUpsert 设置是否使用 ON DUPLICATE KEY UPDATE
+func (mb *MySQLBuilder) UseUpsert(use bool) *MySQLBuilder {
+	mb.custom.UseUpsert = use
+	return mb
+}
+
+// UseIgnore 设置是否使用 INSERT IGNORE
+func (mb *MySQLBuilder) UseIgnore(use bool) *MySQLBuilder {
+	mb.custom.UseIgnore = use
+	return mb
+}
+
+// Placeholder 设置占位符
+func (mb *MySQLBuilder) Placeholder(placeholder string) *MySQLBuilder {
+	mb.custom.Placeholder = placeholder
+	return mb
+}
+
+// Build 构建并返回 MySQLCustom 配置
+func (mb *MySQLBuilder) Build() *MySQLCustom {
+	return mb.custom
+}
+
+// ============================================================================
 // MySQLCustom：MySQL/MariaDB 专属配置（v1.1.0）
 // ============================================================================
 

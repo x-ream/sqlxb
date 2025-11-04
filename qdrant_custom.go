@@ -23,6 +23,60 @@ import (
 )
 
 // ============================================================================
+// QdrantBuilder: Builder 模式配置构建器
+// ============================================================================
+
+// QdrantBuilder Qdrant 配置构建器
+// 使用 Builder 模式构建 QdrantCustom 配置
+type QdrantBuilder struct {
+	custom *QdrantCustom
+}
+
+// NewQdrantBuilder 创建 Qdrant 配置构建器
+//
+// 示例:
+//
+//	xb.Of(...).Custom(
+//	    xb.NewQdrantBuilder().
+//	        HnswEf(512).
+//	        ScoreThreshold(0.8).
+//	        Build(),
+//	).Build()
+func NewQdrantBuilder() *QdrantBuilder {
+	return &QdrantBuilder{
+		custom: NewQdrantCustom(),
+	}
+}
+
+// HnswEf 设置 HNSW 算法的 ef 参数
+// ef 越大，查询精度越高，但速度越慢
+// 推荐值: 64-256
+func (qb *QdrantBuilder) HnswEf(ef int) *QdrantBuilder {
+	qb.custom.DefaultHnswEf = ef
+	return qb
+}
+
+// ScoreThreshold 设置最小相似度阈值
+// 只返回相似度 >= threshold 的结果
+func (qb *QdrantBuilder) ScoreThreshold(threshold float32) *QdrantBuilder {
+	qb.custom.DefaultScoreThreshold = threshold
+	return qb
+}
+
+// WithVector 设置是否返回向量数据
+// true: 返回向量（占用带宽）
+// false: 不返回向量（节省带宽）
+func (qb *QdrantBuilder) WithVector(withVector bool) *QdrantBuilder {
+	qb.custom.DefaultWithVector = withVector
+	return qb
+}
+
+// Build 构建并返回 QdrantCustom 配置
+func (qb *QdrantBuilder) Build() *QdrantCustom {
+	return qb.custom
+}
+
+// ============================================================================
 // QdrantCustom: Qdrant 数据库专属配置
 // ============================================================================
 
@@ -42,28 +96,36 @@ type QdrantCustom struct {
 //
 // 不要添加预设函数（如 QdrantHighPrecision/HighSpeed/Balanced）：
 //   - 原因：增加概念负担，影响 Go 生态简洁性
-//   - 替代：用户通过字段配置或 QdrantX() 闭包
+//   - 替代：使用 NewQdrantBuilder() 链式构建
 //
 // 如果你想添加预设函数，请先问：
-//   1. 用户不用这个函数能实现吗？（答案：能，设置字段即可）
+//   1. 用户不用这个函数能实现吗？（答案：能，使用 Builder 即可）
 //   2. 这会增加概念数量吗？（答案：会）
 //   3. 那为什么要加？（答案：...不应该加）
 //
 // 参考：xb v1.1.0 的教训（5 个预设函数 → v1.2.0 全部删除）
 //
 // 正确的用户配置方式：
-//   custom := NewQdrantCustom()
-//   custom.DefaultHnswEf = 512  // ✅ 显式、清晰
 //
-// 或使用闭包（已存在）：
-//   xb.Of(...).QdrantX(func(qx *QdrantBuilderX) {
-//       qx.HnswEf(512)  // ✅ 流式、优雅
-//   })
+// 方式 1: 使用 QdrantBuilder（推荐）
+//
+//	xb.Of(...).Custom(
+//	    xb.NewQdrantBuilder().
+//	        HnswEf(512).
+//	        ScoreThreshold(0.8).
+//	        Build(),
+//	).Build()
+//
+// 方式 2: 直接设置字段
+//
+//	custom := NewQdrantCustom()
+//	custom.DefaultHnswEf = 512
+//	xb.Of(...).Custom(custom).Build()
 func NewQdrantCustom() *QdrantCustom {
 	return &QdrantCustom{
 		DefaultHnswEf:         128,
 		DefaultScoreThreshold: 0.0,
-		DefaultWithVector:     true,
+		DefaultWithVector:     false, // 向后兼容：默认不返回向量
 	}
 }
 
@@ -95,15 +157,28 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 // ============================================================================
 //
 // 配置方式：
-//   1. 直接创建并使用默认值：NewQdrantCustom()
-//   2. 手动设置字段：
-//      custom := NewQdrantCustom()
-//      custom.DefaultHnswEf = 512
-//      custom.DefaultScoreThreshold = 0.85
-//   3. 使用 QdrantX() 闭包（推荐）：
-//      xb.Of(...).QdrantX(func(qx *QdrantBuilderX) {
-//          qx.HnswEf(512).ScoreThreshold(0.85)
-//      })
+//
+// 方式 1: 使用 QdrantBuilder（推荐）
+//
+//	xb.Of(...).Custom(
+//	    xb.NewQdrantBuilder().
+//	        HnswEf(512).
+//	        ScoreThreshold(0.85).
+//	        Build(),
+//	).Build()
+//
+// 方式 2: 手动设置字段
+//
+//	custom := NewQdrantCustom()
+//	custom.DefaultHnswEf = 512
+//	custom.DefaultScoreThreshold = 0.85
+//	xb.Of(...).Custom(custom).Build()
+//
+// 方式 3: 配置复用
+//
+//	highPrecision := xb.NewQdrantBuilder().HnswEf(512).Build()
+//	xb.Of(...).Custom(highPrecision).Build()
+//	xb.Of(...).Custom(highPrecision).Build()  // 复用配置
 //
 
 // ============================================================================

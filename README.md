@@ -13,43 +13,50 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
 
-> 🎉 **v1.2.0 Released**: Complete API Unification! One Insert/Update/Delete API for SQL and vector databases.
+> 🎉 **v1.2.1 Released**: Ultimate API Simplification! One `Custom()` entry point for all database configurations.
 
 ---
 
-## 🚀 NEW: Unified CRUD API (v1.2.0)
+## 🚀 NEW: Builder Pattern + Unified Entry (v1.2.1)
 
-**Unified abstraction for SQL and Vector Databases with database-specific features!**
+**One configuration entry for all databases - minimum cognitive load!**
 
-**✨ New in v1.2.0**:
-- 🎯 **Complete API Unification** - One `Insert(func)` for SQL and vector databases
-- 📝 **No Extra Methods** - No InsertPoint, no Delete(), just the essentials
-- 🔧 **Smart Detection** - Custom automatically handles different data formats
-- 🏗️ **Extreme Simplicity** - Removed 5 preset functions, kept only basics
-- 📚 **Convenience Methods** - SqlOfUpsert(), SqlOfInsertIgnore() for common cases
+**✨ New in v1.2.1**:
+- 🎯 **Builder Pattern** - `NewQdrantBuilder()`, `NewMySQLBuilder()` for fluent configuration
+- 🔧 **Unified Entry** - Only `Custom()` for all operations (INSERT/UPDATE/DELETE/SELECT)
+- 📉 **Lower Cognitive Load** - Humans only remember ONE rule, not two
+- 🔗 **Chain Style** - `.HnswEf().ScoreThreshold().Build()` - fluent and readable
+- ♻️ **Config Reuse** - Builder pattern naturally supports reusing configurations
 
 ```go
-// MySQL UPSERT (v1.2.0) - 无需 Custom
+// Qdrant Vector Search (v1.2.1) - 统一的 Custom() 入口
+built := xb.Of(&CodeVector{}).
+    Custom(
+        xb.NewQdrantBuilder().
+            HnswEf(512).
+            ScoreThreshold(0.85).
+            WithVector(false).
+            Build(),
+    ).
+    VectorSearch("embedding", queryVector, 10).
+    Eq("language", "golang").
+    Build()
+json, _ := built.JsonOfSelect()
+
+// MySQL UPSERT (v1.2.1) - 统一的 Custom() 入口
 built := xb.Of(user).
+    Custom(
+        xb.NewMySQLBuilder().
+            UseUpsert(true).
+            Build(),
+    ).
     Insert(func(ib *xb.InsertBuilder) {
-        ib.Set("id", user.ID).
-           Set("name", user.Name).
+        ib.Set("name", user.Name).
            Set("email", user.Email)
     }).
     Build()
-sql, args := built.SqlOfUpsert()
+sql, args := built.SqlOfInsert()
 // INSERT INTO users ... ON DUPLICATE KEY UPDATE ...
-
-// Qdrant Vector Search (v1.2.0)
-built := xb.Of(&CodeVector{}).
-    Custom(xb.NewQdrantCustom()).
-    Eq("language", "golang").
-    VectorSearch("embedding", queryVector, 10).
-    QdrantX(func(qx *xb.QdrantBuilderX) {
-        qx.HnswEf(512).ScoreThreshold(0.85)  // 配置参数
-    }).
-    Build()
-json, _ := built.JsonOfSelect()
 
 // Qdrant CRUD (v1.1.0) - 与 SQL 完全一致的 API
 // Insert

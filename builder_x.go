@@ -69,21 +69,26 @@ func (x *BuilderX) Meta() *interceptor.Metadata {
 //
 // 示例:
 //
-//	// Qdrant 高精度模式
+//	// 使用 QdrantBuilder（推荐）
 //	built := xb.Of("code_vectors").
-//	    Custom(xb.NewQdrantCustom()).
-//	    VectorSearch(...).
+//	    Custom(
+//	        xb.NewQdrantBuilder().
+//	            HnswEf(512).
+//	            ScoreThreshold(0.8).
+//	            Build(),
+//	    ).
+//	    Insert(...).
 //	    Build()
 //
-//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
+//	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Qdrant
 //
-//	// Milvus 默认模式
+//	// 直接使用 Custom
 //	built := xb.Of("users").
 //	    Custom(xb.NewMilvusCustom()).
-//	    VectorSearch(...).
+//	    Insert(...).
 //	    Build()
 //
-//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
+//	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Milvus
 func (x *BuilderX) Custom(custom Custom) *BuilderX {
 	x.custom = custom
 	return x

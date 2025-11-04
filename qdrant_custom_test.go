@@ -82,13 +82,13 @@ func TestQdrantCustom_PresetModes(t *testing.T) {
 		expectScore  float32
 		expectVector bool
 	}{
-		{"Default", NewQdrantCustom(), 128, 0.0, true},
+		{"Default", NewQdrantCustom(), 128, 0.0, false}, // 默认不返回向量（节省带宽）
 		{"CustomHnswEf", func() *QdrantCustom {
 			c := NewQdrantCustom()
 			c.DefaultHnswEf = 512
 			c.DefaultScoreThreshold = 0.85
 			return c
-		}(), 512, 0.85, true},
+		}(), 512, 0.85, false}, // 继承默认值 false
 		{"CustomHighSpeed", func() *QdrantCustom {
 			c := NewQdrantCustom()
 			c.DefaultHnswEf = 32
