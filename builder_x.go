@@ -48,7 +48,7 @@ type BuilderX struct {
 	limitValue  int                   // ⭐ 新增：LIMIT 值（v0.10.1）
 	offsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
 	meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
-	custom      Custom                // ⭐ 新增：数据库专属配置（v0.11.0）
+	customImpl  Custom                // ⭐ 新增：数据库专属配置（v0.11.0）（私有字段）
 }
 
 // Meta 获取元数据
@@ -90,7 +90,7 @@ func (x *BuilderX) Meta() *interceptor.Metadata {
 //
 //	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Milvus
 func (x *BuilderX) Custom(custom Custom) *BuilderX {
-	x.custom = custom
+	x.customImpl = custom
 	return x
 }
 
@@ -357,8 +357,8 @@ func (x *BuilderX) Build() *Built {
 		built := Built{
 			OrFromSql: x.orFromSql,
 			Inserts:   x.inserts,
-			Meta:      x.meta,   // ⭐ 传递元数据
-			Custom:    x.custom, // ⭐ 传递 Custom
+			Meta:      x.meta,       // ⭐ 传递元数据
+			Custom:    x.customImpl, // ⭐ 传递 Custom
 		}
 
 		// ⭐ 执行 AfterBuild 拦截器
@@ -388,7 +388,7 @@ func (x *BuilderX) Build() *Built {
 		LimitValue:  x.limitValue,  // ⭐ 传递 Limit
 		OffsetValue: x.offsetValue, // ⭐ 传递 Offset
 		Meta:        x.meta,        // ⭐ 传递元数据
-		Custom:      x.custom,      // ⭐ 传递 Custom
+		Custom:      x.customImpl,  // ⭐ 传递 Custom
 	}
 
 	if x.pageBuilder != nil {

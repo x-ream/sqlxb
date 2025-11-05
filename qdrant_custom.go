@@ -52,6 +52,9 @@ func NewQdrantBuilder() *QdrantBuilder {
 // ef 越大，查询精度越高，但速度越慢
 // 推荐值: 64-256
 func (qb *QdrantBuilder) HnswEf(ef int) *QdrantBuilder {
+	if ef < 1 {
+		panic(fmt.Sprintf("HnswEf must be >= 1, got: %d", ef))
+	}
 	qb.custom.DefaultHnswEf = ef
 	return qb
 }
@@ -59,6 +62,9 @@ func (qb *QdrantBuilder) HnswEf(ef int) *QdrantBuilder {
 // ScoreThreshold 设置最小相似度阈值
 // 只返回相似度 >= threshold 的结果
 func (qb *QdrantBuilder) ScoreThreshold(threshold float32) *QdrantBuilder {
+	if threshold < 0 || threshold > 1 {
+		panic(fmt.Sprintf("ScoreThreshold must be in [0, 1], got: %f", threshold))
+	}
 	qb.custom.DefaultScoreThreshold = threshold
 	return qb
 }

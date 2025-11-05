@@ -1,0 +1,27 @@
+refactor: add Builder validation and improve encapsulation
+
+✨ Added Features:
+- Builder parameter validation for QdrantBuilder
+  * HnswEf() validates ef >= 1
+  * ScoreThreshold() validates threshold in [0, 1]
+  * Clear panic messages on invalid input
+- Comprehensive test coverage for validation logic
+
+🔒 Improved Encapsulation:
+- Renamed BuilderX.custom to BuilderX.customImpl (private)
+- Enforces use of Custom() method
+- Prevents accidental direct field assignment
+- No breaking changes (public API unchanged)
+
+📊 Test Results:
+- Added qdrant_builder_validation_test.go
+- 18 test cases covering valid/invalid inputs
+- All existing tests pass (196+ tests)
+
+🎯 Design Philosophy:
+- Fail fast with clear error messages
+- Guide users to correct usage
+- Minimize cognitive load
+
+Breaking Changes: None
+

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Builder Parameter Validation**:
+  - `QdrantBuilder.HnswEf()` now validates ef >= 1
+  - `QdrantBuilder.ScoreThreshold()` now validates threshold in [0, 1]
+  - Immediate panic with clear error messages on invalid input
+
+### Changed
+- **Internal Field Encapsulation**:
+  - `BuilderX.custom` renamed to `BuilderX.customImpl` (private field)
+  - Prevents direct field assignment, enforces use of `Custom()` method
+  - No breaking changes for users (public API unchanged)
+
+---
+
 ## [1.2.1] - 2025-01-XX
 
 ### 🎯 Ultimate API Simplification (Cognitive Load Minimization)
