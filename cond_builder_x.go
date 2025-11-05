@@ -33,15 +33,15 @@ type CondBuilderX struct {
 //	// ✅ IN 子查询
 //	xb.Of("orders").
 //	    Sub("user_id IN ?", func(sb *BuilderX) {
-//	        sb.From("vip_users").Select("id")
+//	        sb.Of(&VipUser{}).Select("id")
 //	    }).
 //	    Build()
 //	// 生成: SELECT * FROM orders WHERE user_id IN (SELECT id FROM vip_users)
 //
 //	// ✅ EXISTS 子查询
-//	xb.Of("users").
+//	xb.Of(&User{}).
 //	    Sub("EXISTS ?", func(sb *BuilderX) {
-//	        sb.From("orders").
+//	        sb.Of(&Order{}).
 //	           Select("1").
 //	           X("orders.user_id = users.id")
 //	    }).
@@ -49,9 +49,9 @@ type CondBuilderX struct {
 //	// 生成: SELECT * FROM users WHERE EXISTS (SELECT 1 FROM orders WHERE orders.user_id = users.id)
 //
 //	// ✅ 复杂子查询
-//	xb.Of("products").
+//	xb.Of(&Product{}).
 //	    Sub("price > ?", func(sb *BuilderX) {
-//	        sb.From("products").
+//	        sb.Of(&Product{}).
 //	           Select("AVG(price)").
 //	           Eq("category", "electronics")
 //	    }).

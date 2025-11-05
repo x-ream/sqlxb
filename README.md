@@ -13,15 +13,27 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
 
-> 🎉 **v1.2.1 Released**: Ultimate API Simplification! One `Custom()` entry point for all database configurations.
+> 🎉 **Latest**: v1.2.1 released with unified API + Smart condition building enhancements!
 
 ---
 
-## 🚀 NEW: Builder Pattern + Unified Entry (v1.2.1)
+## 🚀 NEW: Smart Condition Building (Latest)
+
+**Three-Layer Design for 99% of Real-World Scenarios**
+
+**✨ Recent Updates**:
+- 🛡️ **InRequired()** - Prevent accidental mass operations (batch delete/update)
+- 🔧 **Builder Validation** - QdrantBuilder parameter validation with clear error messages
+- 📖 **Enhanced Docs** - Comprehensive examples for X() and Sub() methods
+- 🎯 **Production Ready** - Zero-constraint design with maximum flexibility
+
+---
+
+## 🚀 Builder Pattern + Unified Entry (v1.2.1)
 
 **One configuration entry for all databases - minimum cognitive load!**
 
-**✨ New in v1.2.1**:
+**✨ Core Features**:
 - 🎯 **Builder Pattern** - `NewQdrantBuilder()`, `NewMySQLBuilder()` for fluent configuration
 - 🔧 **Unified Entry** - Only `Custom()` for all operations (INSERT/UPDATE/DELETE/SELECT)
 - 📉 **Lower Cognitive Load** - Humans only remember ONE rule, not two
@@ -171,8 +183,80 @@ This makes xb **one of the first major Go ORM projects successfully maintained b
 
 ---
 
+## 🎯 Smart Condition Building (NEW)
+
+**Three-Layer Design for 99% of Real-World Scenarios**
+
+### **Layer 1: Auto-Filtering (90% cases)**
+
+```go
+// ✅ Automatically filters nil, 0, "", []
+// User doesn't select filters → query returns more results
+xb.Of("users").
+    Eq("age", age).              // age=0 → ignored
+    In("status", statuses...).   // []    → ignored
+    Like("name", keyword).       // ""    → ignored
+    Build()
+```
+
+**Perfect for**: User search forms, optional filters
+
+### **Layer 2: Required Validation (5% cases)**
+
+```go
+// ✅ InRequired: Prevents accidental mass operations
+selectedIDs := getUserSelectedIDs() // might be empty!
+xb.Of("orders").
+    InRequired("id", selectedIDs...). // [] → panic with clear message
+    Build()
+
+// Prevents: DELETE FROM orders (deleting ALL orders!)
+```
+
+**Perfect for**: Admin batch operations, critical updates
+
+### **Layer 3: Ultimate Flexibility (5% cases)**
+
+```go
+// ✅ X(): Zero constraints for special values
+xb.Of("users").
+    X("age = 0").              // Query age = 0
+    X("is_active = false").    // Query false values
+    Build()
+
+// ✅ Sub(): Type-safe subqueries
+xb.Of("orders").
+    Sub("user_id IN ?", func(sb *xb.BuilderX) {
+        sb.Of(&VipUser{}).Select("id")
+    }).
+    Build()
+// SQL: SELECT * FROM orders WHERE user_id IN (SELECT id FROM vip_users)
+
+// ✅ Bool(): Conditional logic
+xb.Of("orders").
+    Bool(func() bool { return isAdmin }, func(cb *xb.CondBuilder) {
+        cb.Eq("status", "deleted") // Only admins can see deleted
+    }).
+    Build()
+```
+
+**Perfect for**: Edge cases, complex queries, dynamic permissions
+
+### **API Comparison**
+
+| Method | Auto-Filter | Use Case | Example |
+|--------|-------------|----------|---------|
+| `Eq/In/Like` | ✅ Yes | Optional filters | `Eq("age", age)` |
+| `InRequired` | ❌ Panic | Required selection | `InRequired("id", ids...)` |
+| `X` | ❌ No | Special values | `X("age = 0")` |
+| `Sub` | N/A | Subqueries | `Sub("id IN ?", func...)` |
+
+---
+
 ## Program feature:
 * ignore building nil or empty string
+* Smart validation for critical operations
+* Type-safe subquery building
 
 ## Available field of struct:
     

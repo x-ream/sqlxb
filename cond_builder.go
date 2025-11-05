@@ -414,7 +414,7 @@ func (cb *CondBuilder) NonNull(key string) *CondBuilder {
 //
 //	// ✅ 推荐：使用 Sub()
 //	.Sub("user_id IN ?", func(sb *BuilderX) {
-//	    sb.From("vip_users").Select("id")
+//	    sb.Of(&VipUser{}).Select("id")
 //	})
 func (cb *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
 	bb := Bb{
