@@ -75,18 +75,18 @@ xb.NewQdrantBuilder().
 
 ```go
 // Layer 1: Auto-Filtering (90% cases)
-xb.Of("users").
+xb.Of(&User{}).
     Eq("age", age).              // age=0 → ignored
     In("status", statuses...).   // []    → ignored
     Build()
 
 // Layer 2: Required (5% cases)
-xb.Of("orders").
+xb.Of(&Order{}).
     InRequired("id", selectedIDs...). // [] → panic
     Build()
 
 // Layer 3: Flexible (5% cases)
-xb.Of("users").
+xb.Of(&User{}).
     X("age = 0").              // Query age=0
     Sub("id IN ?", func(sb) {  // Type-safe subquery
         sb.Of(&VipUser{}).Select("id")
@@ -240,12 +240,12 @@ users := xb.Of(&User{}).
     Build()
 
 // Safe batch operation
-xb.Of("orders").
+xb.Of(&Order{}).
     InRequired("id", selectedIDs...).  // Panic if []
     Build()
 
 // Special values
-xb.Of("users").
+xb.Of(&User{}).
     X("age = 0").          // Query age=0
     Build()
 ```

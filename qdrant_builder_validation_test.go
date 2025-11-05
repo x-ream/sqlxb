@@ -166,4 +166,3 @@ func TestQdrantBuilder_ChainedValidation(t *testing.T) {
 			Build()
 	})
 }
-

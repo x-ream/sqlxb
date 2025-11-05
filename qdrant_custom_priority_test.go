@@ -63,5 +63,3 @@ func TestQdrantCustom_OnlyCustomNoQdrantX(t *testing.T) {
 
 	t.Logf("✅ Custom 默认值正确应用：HnswEf=512, ScoreThreshold=0.75, WithVector=true")
 }
-
-

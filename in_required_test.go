@@ -256,4 +256,3 @@ func TestInRequired_RealWorldScenario(t *testing.T) {
 		t.Logf("✅ Optional filter with In(): %s", sql)
 	})
 }
-

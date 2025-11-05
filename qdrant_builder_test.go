@@ -152,4 +152,3 @@ func TestQdrantBuilder_ChainStyle(t *testing.T) {
 
 	t.Logf("✅ Chain style works perfectly")
 }
-
