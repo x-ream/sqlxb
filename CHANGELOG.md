@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `QdrantBuilder.ScoreThreshold()` now validates threshold in [0, 1]
   - Immediate panic with clear error messages on invalid input
 
+- **InRequired() Method** - Prevent accidental mass operations:
+  - `InRequired(field, ...values)` - panic on empty/nil/zero values
+  - Use case: Admin operations (delete/update selected records)
+  - Clear error messages suggest using `In()` for optional filtering
+  - Comprehensive test coverage with real-world scenarios
+
 ### Changed
 - **Internal Field Encapsulation**:
   - `BuilderX.custom` renamed to `BuilderX.customImpl` (private field)

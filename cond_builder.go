@@ -299,6 +299,70 @@ func (cb *CondBuilder) LikeLeft(k string, v string) *CondBuilder {
 func (cb *CondBuilder) In(k string, vs ...interface{}) *CondBuilder {
 	return cb.doIn(IN, k, vs...)
 }
+
+// InRequired 必需的 IN 条件（空值时报错）
+// 用于必须提供筛选条件的场景，防止意外查询所有数据
+//
+// 报错场景:
+//   - 空切片: InRequired("id") 或 InRequired("id", []int{}...)
+//   - nil 值: InRequired("id", nil)
+//   - 零值: InRequired("id", 0)
+//
+// 示例:
+//
+//	// ✅ 正常使用
+//	ids := []int{1, 2, 3}
+//	xb.Of(&User{}).InRequired("id", toInterfaces(ids)...).Build()
+//
+//	// ❌ 报错：空切片
+//	ids := []int{}
+//	xb.Of(&User{}).InRequired("id", toInterfaces(ids)...).Build()
+//	// panic: InRequired("id") received empty values, this would match all records
+func (cb *CondBuilder) InRequired(k string, vs ...interface{}) *CondBuilder {
+	// 检查是否为空
+	if vs == nil || len(vs) == 0 {
+		panic("InRequired(\"" + k + "\") received empty values, this would match all records. Use In() if optional filtering is intended.")
+	}
+
+	// 检查是否只有一个 nil 或 0
+	if len(vs) == 1 {
+		v := vs[0]
+		if v == nil {
+			panic("InRequired(\"" + k + "\") received [nil], this would match all records. Use In() if optional filtering is intended.")
+		}
+		// 检查各种 0 值
+		switch v.(type) {
+		case int:
+			if v.(int) == 0 {
+				panic("InRequired(\"" + k + "\") received [0], this would match all records. Use In() if optional filtering is intended.")
+			}
+		case int64:
+			if v.(int64) == 0 {
+				panic("InRequired(\"" + k + "\") received [0], this would match all records. Use In() if optional filtering is intended.")
+			}
+		case int32:
+			if v.(int32) == 0 {
+				panic("InRequired(\"" + k + "\") received [0], this would match all records. Use In() if optional filtering is intended.")
+			}
+		case uint:
+			if v.(uint) == 0 {
+				panic("InRequired(\"" + k + "\") received [0], this would match all records. Use In() if optional filtering is intended.")
+			}
+		case uint64:
+			if v.(uint64) == 0 {
+				panic("InRequired(\"" + k + "\") received [0], this would match all records. Use In() if optional filtering is intended.")
+			}
+		case string:
+			if v.(string) == "" {
+				panic("InRequired(\"" + k + "\") received [\"\"], this would match all records. Use In() if optional filtering is intended.")
+			}
+		}
+	}
+
+	// 调用普通的 doIn（会过滤掉 nil 和 0 值）
+	return cb.doIn(IN, k, vs...)
+}
+
 func (cb *CondBuilder) Nin(k string, vs ...interface{}) *CondBuilder {
 	return cb.doIn(NIN, k, vs...)
 }

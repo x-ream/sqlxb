@@ -264,6 +264,14 @@ func (x *BuilderX) In(k string, vs ...interface{}) *BuilderX {
 	x.doIn(IN, k, vs...)
 	return x
 }
+
+// InRequired 必需的 IN 条件（空值时报错）
+// 详见 CondBuilder.InRequired() 文档
+func (x *BuilderX) InRequired(k string, vs ...interface{}) *BuilderX {
+	x.CondBuilder.InRequired(k, vs...)
+	return x
+}
+
 func (x *BuilderX) Nin(k string, vs ...interface{}) *BuilderX {
 	x.doIn(NIN, k, vs...)
 	return x

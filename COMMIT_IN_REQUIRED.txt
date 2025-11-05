@@ -1,0 +1,28 @@
+feat: add InRequired() method to prevent accidental mass operations
+
+✨ New Feature:
+- InRequired(field, ...values) - panic on empty/nil/zero values
+- Prevents accidental DELETE/UPDATE of all records
+- Clear error messages suggest using In() for optional filtering
+
+🎯 Use Cases:
+- Admin deletes selected orders (must select at least one)
+- Batch operations requiring explicit selection
+- Safety guard against frontend bugs or user mistakes
+
+📊 Validation:
+- Empty slice: []
+- Nil value: [nil]
+- Zero values: [0], [""]
+- Suggests In() for optional filtering
+
+✅ Tests:
+- 18 test cases covering all scenarios
+- Real-world use case examples
+- Behavior comparison with In()
+
+Design Philosophy:
+- Fail fast with clear guidance
+- Minimize production incidents
+- Zero breaking changes
+
