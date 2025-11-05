@@ -1,6 +1,6 @@
 # xb v1.2.2 Release Notes
 
-**Release Date**: 2025-01-XX
+**Release Date**: 2025-11-5
 
 ---
 
@@ -25,7 +25,7 @@ xb.Of("orders").InRequired("id", toInterfaces(selectedIDs)...).Build()
 
 // ❌ Prevented: Empty selection
 selectedIDs := []int64{}
-xb.Of("orders").InRequired("id", toInterfaces(selectedIDs)...).Build()
+xb.Of(&Order{}).InRequired("id", toInterfaces(selectedIDs)...).Build()
 // panic: InRequired("id") received empty values, this would match all records.
 //        Use In() if optional filtering is intended.
 ```
