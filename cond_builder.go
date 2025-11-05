@@ -373,6 +373,49 @@ func (cb *CondBuilder) NonNull(key string) *CondBuilder {
 	return cb.null(NON_NULL, key)
 }
 
+// X 自定义 SQL 片段（万能补充）
+//
+// 用于特殊场景：查询 0 值、false、或复杂 SQL 表达式
+//
+// 两种用法：
+//
+//  1. 无参数（推荐）：直接写 SQL 片段
+//     .X("age = 0")
+//     .X("is_active = false")
+//     .X("YEAR(created_at) = 2024")
+//
+//  2. 有参数：使用占位符（仍然会过滤 0 值）
+//     .X("name = ?", name)  // name="" 时会被过滤
+//     .X("age > ?", age)    // age=0 时会被过滤 ⚠️
+//
+// ⚠️ 重要：如果要查询 0 值或 false，请使用无参数方式！
+//
+// 示例：
+//
+//	// ✅ 查询 age = 0
+//	xb.Of("users").X("age = 0").Build()
+//
+//	// ✅ 查询 is_active = false
+//	xb.Of("users").X("is_active = false").Build()
+//
+//	// ✅ 复杂表达式
+//	xb.Of("orders").X("total_amt > discount_amt").Build()
+//
+//	// ❌ 错误：age=0 会被过滤
+//	xb.Of("users").X("age = ?", 0).Build()
+//
+//	// ✅ 正确：直接写 SQL
+//	xb.Of("users").X("age = 0").Build()
+//
+// ⚠️ 子查询请使用 Sub() 方法（更安全、更灵活）：
+//
+//	// ❌ 不推荐：手写子查询
+//	.X("user_id IN (SELECT id FROM vip_users)")
+//
+//	// ✅ 推荐：使用 Sub()
+//	.Sub("user_id IN ?", func(sb *BuilderX) {
+//	    sb.From("vip_users").Select("id")
+//	})
 func (cb *CondBuilder) X(k string, vs ...interface{}) *CondBuilder {
 	bb := Bb{
 		Op:    XX,
