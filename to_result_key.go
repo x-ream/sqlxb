@@ -43,7 +43,7 @@ func buildResultKey(key string, km map[string]string) string {
 	} else if strings.HasSuffix(k, END_SUB) {
 		panic(k + ", AS $alia required, multiFrom, suggested fmt: AS `t0.c0`")
 	} else if strings.Contains(k, SPACE) {
-		if strings.HasPrefix(k, DISTINCT) || strings.HasPrefix(k, Distinct) {
+		if strings.HasPrefix(k, DISTINCT_SCRIPT) || strings.HasPrefix(k, Distinct) {
 			var alia = "c" + strconv.Itoa(len(km))
 			km[alia] = strings.Split(k, SPACE)[1]
 			key = key + AS + alia

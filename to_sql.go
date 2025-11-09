@@ -50,6 +50,7 @@ type Built struct {
 	Meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
 	Alia        string
 	Withs       []WithClause
+	Unions      []UnionClause
 }
 
 // WithClause 公共表达式（CTE）定义
@@ -58,6 +59,13 @@ type WithClause struct {
 	SQL       string
 	Args      []interface{}
 	Recursive bool
+}
+
+// UnionClause UNION 定义
+type UnionClause struct {
+	Operator string
+	SQL      string
+	Args     []interface{}
 }
 
 // ============================================================================
@@ -621,15 +629,8 @@ func (built *Built) SqlData(vs *[]interface{}, km map[string]string) (string, ma
 	sb := strings.Builder{}
 	sb.Grow(256) // 预分配 256 字节，SELECT 语句通常较长
 	built.appendWithClauses(&sb, vs)
-	built.toResultKeySql(&sb, km)
-	built.sqlFrom(&sb)
-	built.toFromSql(vs, &sb)
-	built.toUpdateSql(&sb, vs)
-	built.sqlWhere(&sb)
-	built.toCondSql(built.Conds, &sb, vs, built.filterLast)
-	built.toAggSql(vs, &sb)
-	built.toGroupBySql(&sb)
-	built.toHavingSql(vs, &sb)
+	built.writeSelectCore(&sb, vs, km)
+	built.appendUnionClauses(&sb, vs)
 	built.toSortSql(&sb)
 	built.toPageSql(&sb)
 	built.toLastSql(&sb)
@@ -700,4 +701,35 @@ func (built *Built) appendWithClauses(sb *strings.Builder, vs *[]interface{}) {
 		}
 	}
 	sb.WriteString(" ")
+}
+
+func (built *Built) appendUnionClauses(sb *strings.Builder, vs *[]interface{}) {
+	if len(built.Unions) == 0 {
+		return
+	}
+	for _, clause := range built.Unions {
+		if clause.Operator == "" || clause.SQL == "" {
+			continue
+		}
+		sb.WriteString(" ")
+		sb.WriteString(clause.Operator)
+		sb.WriteString(" (")
+		sb.WriteString(clause.SQL)
+		sb.WriteString(")")
+		if vs != nil && len(clause.Args) > 0 {
+			*vs = append(*vs, clause.Args...)
+		}
+	}
+}
+
+func (built *Built) writeSelectCore(sb *strings.Builder, vs *[]interface{}, km map[string]string) {
+	built.toResultKeySql(sb, km)
+	built.sqlFrom(sb)
+	built.toFromSql(vs, sb)
+	built.toUpdateSql(sb, vs)
+	built.sqlWhere(sb)
+	built.toCondSql(built.Conds, sb, vs, built.filterLast)
+	built.toAggSql(vs, sb)
+	built.toGroupBySql(sb)
+	built.toHavingSql(vs, sb)
 }

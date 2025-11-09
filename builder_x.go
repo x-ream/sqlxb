@@ -51,12 +51,18 @@ type BuilderX struct {
 	meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
 	customImpl  Custom                // ⭐ 新增：数据库专属配置（v0.11.0）（私有字段）
 	withs       []withClause
+	unions      []unionClause
 }
 
 type withClause struct {
 	name      string
 	recursive bool
 	builder   *BuilderX
+}
+
+type unionClause struct {
+	operator string
+	builder  *BuilderX
 }
 
 // Meta 配置元数据（链式调用）
@@ -131,6 +137,28 @@ func (x *BuilderX) addWith(name string, recursive bool, fn func(sb *BuilderX)) *
 		name:      name,
 		recursive: recursive,
 		builder:   sb,
+	})
+	return x
+}
+
+// UNION 组合查询
+func (x *BuilderX) UNION(kind UNION, fn func(sb *BuilderX)) *BuilderX {
+	if fn == nil {
+		return x
+	}
+	sb := X()
+	sb.customImpl = x.customImpl
+	fn(sb)
+	operator := unionDistinct
+	if kind != nil {
+		operator = kind()
+		if operator == "" {
+			operator = unionDistinct
+		}
+	}
+	x.unions = append(x.unions, unionClause{
+		operator: operator,
+		builder:  sb,
 	})
 	return x
 }
@@ -404,6 +432,7 @@ func (x *BuilderX) Build() *Built {
 
 	baseFrom := x.normalizeFrom()
 	withs := x.buildWithClauses()
+	unions := x.buildUnionClauses()
 
 	if x.inserts != nil && len(*(x.inserts)) > 0 {
 		built := Built{
@@ -413,6 +442,7 @@ func (x *BuilderX) Build() *Built {
 			Custom:    x.customImpl, // ⭐ 传递 Custom
 			Alia:      x.alia,
 			Withs:     withs,
+			Unions:    unions,
 		}
 
 		// ⭐ 执行 AfterBuild 拦截器
@@ -445,6 +475,7 @@ func (x *BuilderX) Build() *Built {
 		Custom:      x.customImpl,  // ⭐ 传递 Custom
 		Alia:        x.alia,
 		Withs:       withs,
+		Unions:      unions,
 	}
 
 	if x.pageBuilder != nil {
@@ -491,6 +522,26 @@ func (x *BuilderX) buildWithClauses() []WithClause {
 			SQL:       sql,
 			Args:      append([]interface{}(nil), args...),
 			Recursive: clause.recursive,
+		})
+	}
+	return result
+}
+
+func (x *BuilderX) buildUnionClauses() []UnionClause {
+	if len(x.unions) == 0 {
+		return nil
+	}
+	result := make([]UnionClause, 0, len(x.unions))
+	for _, clause := range x.unions {
+		if clause.builder == nil {
+			continue
+		}
+		subBuilt := clause.builder.Build()
+		sql, args, _ := subBuilt.SqlOfSelect()
+		result = append(result, UnionClause{
+			Operator: clause.operator,
+			SQL:      sql,
+			Args:     append([]interface{}(nil), args...),
 		})
 	}
 	return result

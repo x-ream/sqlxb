@@ -45,6 +45,6 @@ const (
 	EQ_SCRIPT             = " = "
 	COUNT_BASE_SCRIPT     = "SELECT COUNT(*) "
 	COUNT_KEY_SCRIPT_LEFT = "SELECT COUNT("
-	DISTINCT              = "DISTINCT"
+	DISTINCT_SCRIPT       = "DISTINCT"
 	Distinct              = "distinct"
 )
