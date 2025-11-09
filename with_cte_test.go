@@ -17,6 +17,9 @@ func TestBuilderX_WithClauseBasic(t *testing.T) {
 
 	sql, args, _ := built.SqlOfSelect()
 
+	t.Logf("sql: %s", sql)
+	t.Logf("args: %v", args)
+
 	if !strings.HasPrefix(sql, "WITH ") {
 		t.Fatalf("expected SQL to start with WITH, got: %s", sql)
 	}
