@@ -125,6 +125,7 @@ func TestQdrant_EmptyOr_Filtered(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		Eq("language", "golang").
 		Or(func(cb *CondBuilder) {
 			// 空 OR
@@ -134,7 +135,7 @@ func TestQdrant_EmptyOr_Filtered(t *testing.T) {
 		VectorSearch("embedding", queryVector, 20).
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}
@@ -220,6 +221,7 @@ func TestComplexFiltering(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		Eq("language", "golang"). // ✅ 有效
 		Eq("category", "").       // ⭐ 空字符串，单个条件过滤
 		Or(func(cb *CondBuilder) {
@@ -265,7 +267,10 @@ func TestComplexFiltering(t *testing.T) {
 	}
 
 	// Qdrant
-	jsonStr, _ := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
+	if err != nil {
+		t.Fatalf("JsonOfSelect failed: %v", err)
+	}
 	t.Logf("\n=== 复杂过滤测试 - Qdrant ===\n%s", jsonStr)
 
 	t.Logf("✅ 多层过滤正确工作")

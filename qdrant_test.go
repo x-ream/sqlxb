@@ -40,12 +40,13 @@ func TestToQdrantJSON_Basic(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		VectorSearch("embedding", queryVector, 10).
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== 基础 Qdrant JSON ===\n%s", jsonStr)
@@ -70,12 +71,13 @@ func TestToQdrantJSON_WithFilter(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		Eq("language", "golang").
 		Eq("layer", "repository").
 		VectorSearch("embedding", queryVector, 20).
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}
@@ -101,12 +103,13 @@ func TestToQdrantJSON_WithHashDiversity(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		Eq("language", "golang").
 		VectorSearch("embedding", queryVector, 20).
 		WithHashDiversity("semantic_hash"). // ⭐ 多样性：哈希去重
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}
@@ -133,11 +136,12 @@ func TestToQdrantJSON_WithMinDistance(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		VectorSearch("embedding", queryVector, 20).
 		WithMinDistance(0.3). // ⭐ 多样性：最小距离 0.3
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}
@@ -164,12 +168,13 @@ func TestToQdrantJSON_WithMMR(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		Eq("language", "golang").
 		VectorSearch("embedding", queryVector, 20).
 		WithMMR(0.5). // ⭐ 多样性：MMR lambda=0.5
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}
@@ -196,12 +201,13 @@ func TestToQdrantJSON_WithRange(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		Gt("score", 0.8).
 		Lt("complexity", 100).
 		VectorSearch("embedding", queryVector, 10).
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}
@@ -225,11 +231,12 @@ func TestToQdrantJSON_WithIn(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		In("language", "golang", "python", "rust"). // ⭐ 修正：直接传值，不是 slice
 		VectorSearch("embedding", queryVector, 10).
 		Build()
 
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}
@@ -290,6 +297,7 @@ func TestQdrant_FullWorkflow(t *testing.T) {
 
 	// 构建查询
 	builder := Of(&CodeVectorForQdrant{}).
+		Custom(NewQdrantCustom()).
 		Eq("language", "golang").
 		Gt("quality_score", 0.8).
 		VectorSearch("embedding", queryVector, 20).
@@ -306,7 +314,7 @@ func TestQdrant_FullWorkflow(t *testing.T) {
 
 	// 2. Qdrant 使用
 	t.Log("\n=== 2. Qdrant 后端 ===")
-	jsonStr, err := built.ToQdrantJSON()
+	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("ToQdrantJSON failed: %v", err)
 	}

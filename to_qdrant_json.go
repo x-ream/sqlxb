@@ -211,40 +211,19 @@ func (r *QdrantDiscoverRequest) GetQdrantFilter() **QdrantFilter {
 	return &r.Filter
 }
 
-// ToQdrantJSON 转换为 Qdrant 搜索 JSON
-// 返回: JSON 字符串, error
-//
-// 示例输出:
-//
-//	{
-//	  "vector": [0.1, 0.2, 0.3],
-//	  "limit": 20,
-//	  "filter": {
-//	    "must": [
-//	      {"key": "language", "match": {"value": "golang"}}
-//	    ]
-//	  },
-//	  "with_payload": true,
-//	  "params": {"hnsw_ef": 128}
-//	}
-//
-// ToQdrantJSON 生成 Qdrant 搜索 JSON
-// ⭐ 便捷方法：自动使用默认 Qdrant Custom
-// ⭐ 推荐使用：built.JsonOfSelect() + Custom() 以支持预设模式
-func (built *Built) ToQdrantJSON() (string, error) {
-	// ⭐ 委托给 JsonOfSelect（如果已设置 Custom）
-	if built.Custom != nil {
-		return built.JsonOfSelect()
+func ensureQdrantAdvanced(built *Built) *Built {
+	if built == nil {
+		return nil
 	}
-
-	// ⭐ 兼容模式：使用默认 Qdrant Custom
-	defaultCustom := NewQdrantCustom()
-	built.Custom = defaultCustom
-	return built.JsonOfSelect()
+	if qdrantCustom, ok := built.Custom.(*QdrantCustom); ok {
+		return qdrantCustom.applyAdvancedConfig(built)
+	}
+	return built
 }
 
 // toQdrantJSON 内部实现
 func (built *Built) toQdrantJSON() (string, error) {
+	built = ensureQdrantAdvanced(built)
 	req, err := built.ToQdrantRequest()
 	if err != nil {
 		return "", err
@@ -293,14 +272,9 @@ func extractQdrantCustomParams(bbs []Bb) map[string]interface{} {
 	return ExtractCustomParams(bbs, QDRANT_XX)
 }
 
-// ToQdrantRecommendJSON 生成 Qdrant 推荐 JSON
-// ⭐ 便捷方法：自动使用默认 Qdrant Custom
-func (built *Built) ToQdrantRecommendJSON() (string, error) {
-	return built.toQdrantRecommendJSON()
-}
-
 // toQdrantRecommendJSON 内部实现
 func (built *Built) toQdrantRecommendJSON() (string, error) {
+	built = ensureQdrantAdvanced(built)
 	// 查找推荐参数
 	recommendBb := findRecommendBb(built.Conds)
 	if recommendBb == nil {
@@ -347,14 +321,9 @@ func (built *Built) toQdrantRecommendJSON() (string, error) {
 //	  "filter": {...}
 //	}
 //
-// ToQdrantScrollJSON 生成 Qdrant 游标遍历 JSON
-// ⭐ 便捷方法：自动使用默认 Qdrant Custom
-func (built *Built) ToQdrantScrollJSON() (string, error) {
-	return built.toQdrantScrollJSON()
-}
-
 // toQdrantScrollJSON 内部实现
 func (built *Built) toQdrantScrollJSON() (string, error) {
+	built = ensureQdrantAdvanced(built)
 	// 查找 Scroll ID
 	scrollBb := findScrollBb(built.Conds)
 	if scrollBb == nil {
@@ -423,14 +392,9 @@ func findDiscoverBb(bbs []Bb) *Bb {
 //	  "filter": {...}
 //	}
 //
-// ToQdrantDiscoverJSON 生成 Qdrant 探索 JSON
-// ⭐ 便捷方法：自动使用默认 Qdrant Custom
-func (built *Built) ToQdrantDiscoverJSON() (string, error) {
-	return built.toQdrantDiscoverJSON()
-}
-
 // toQdrantDiscoverJSON 内部实现
 func (built *Built) toQdrantDiscoverJSON() (string, error) {
+	built = ensureQdrantAdvanced(built)
 	// 查找探索配置
 	discoverBb := findDiscoverBb(built.Conds)
 	if discoverBb == nil {
@@ -463,6 +427,7 @@ func (built *Built) toQdrantDiscoverJSON() (string, error) {
 // ToQdrantRequest 构建 Qdrant 请求对象
 // ⭐ 公开方法：供测试和高级用法使用
 func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
+	built = ensureQdrantAdvanced(built)
 	// 查找向量检索参数
 	vectorBb := findVectorSearchBb(built.Conds)
 	if vectorBb == nil {

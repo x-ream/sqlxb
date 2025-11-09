@@ -94,6 +94,11 @@ type QdrantCustom struct {
 	DefaultHnswEf         int     // 默认 HNSW EF 参数
 	DefaultScoreThreshold float32 // 默认相似度阈值
 	DefaultWithVector     bool    // 默认是否返回向量
+
+	// 高级 API 配置（Recommend / Discover / Scroll）
+	recommendConfig *qdrantRecommendConfig
+	discoverConfig  *qdrantDiscoverConfig
+	scrollID        string
 }
 
 // NewQdrantCustom 创建 Qdrant Custom（默认配置）
@@ -105,9 +110,9 @@ type QdrantCustom struct {
 //   - 替代：使用 NewQdrantBuilder() 链式构建
 //
 // 如果你想添加预设函数，请先问：
-//   1. 用户不用这个函数能实现吗？（答案：能，使用 Builder 即可）
-//   2. 这会增加概念数量吗？（答案：会）
-//   3. 那为什么要加？（答案：...不应该加）
+//  1. 用户不用这个函数能实现吗？（答案：能，使用 Builder 即可）
+//  2. 这会增加概念数量吗？（答案：会）
+//  3. 那为什么要加？（答案：...不应该加）
 //
 // 参考：xb v1.1.0 的教训（5 个预设函数 → v1.2.0 全部删除）
 //
@@ -135,9 +140,85 @@ func NewQdrantCustom() *QdrantCustom {
 	}
 }
 
+// Recommend 启用 Qdrant Recommend API
+//
+// 示例:
+//
+//	custom := xb.NewQdrantCustom().Recommend(func(rb *xb.RecommendBuilder) {
+//		rb.Positive(123, 456).Negative(789).Limit(20)
+//	})
+func (c *QdrantCustom) Recommend(fn func(rb *RecommendBuilder)) *QdrantCustom {
+	if fn == nil {
+		c.recommendConfig = nil
+		return c
+	}
+
+	builder := &RecommendBuilder{}
+	fn(builder)
+
+	if len(builder.positive) == 0 {
+		panic("Recommend() requires at least one Positive() id")
+	}
+	if builder.limit <= 0 {
+		panic("Recommend() requires Limit() > 0")
+	}
+
+	c.recommendConfig = &qdrantRecommendConfig{
+		positive: append([]int64(nil), builder.positive...),
+		negative: append([]int64(nil), builder.negative...),
+		limit:    builder.limit,
+	}
+	return c
+}
+
+// Discover 启用 Qdrant Discover API
+//
+// 示例:
+//
+//	custom := xb.NewQdrantCustom().Discover(func(db *xb.DiscoverBuilder) {
+//		db.Context(101, 102, 103).Limit(20)
+//	})
+func (c *QdrantCustom) Discover(fn func(db *DiscoverBuilder)) *QdrantCustom {
+	if fn == nil {
+		c.discoverConfig = nil
+		return c
+	}
+
+	builder := &DiscoverBuilder{}
+	fn(builder)
+
+	if len(builder.context) == 0 {
+		panic("Discover() requires Context() with at least one id")
+	}
+	if builder.limit <= 0 {
+		panic("Discover() requires Limit() > 0")
+	}
+
+	c.discoverConfig = &qdrantDiscoverConfig{
+		context: append([]int64(nil), builder.context...),
+		limit:   builder.limit,
+	}
+	return c
+}
+
+// ScrollID 启用 Qdrant Scroll API
+//
+// 示例:
+//
+//	custom := xb.NewQdrantCustom().ScrollID("scroll-abc123")
+func (c *QdrantCustom) ScrollID(scrollID string) *QdrantCustom {
+	if scrollID == "" {
+		panic("ScrollID() requires a non-empty id")
+	}
+	c.scrollID = scrollID
+	return c
+}
+
 // Generate 实现 Custom 接口
 // ⭐ 根据操作类型返回不同的 JSON
 func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
+	built = c.applyAdvancedConfig(built)
+
 	// ⭐ INSERT: 生成 Qdrant upsert JSON
 	if built.Inserts != nil && len(*built.Inserts) > 0 {
 		return c.generateInsertJSON(built)
@@ -408,4 +489,145 @@ func toFloat64Ptr(v interface{}) *float64 {
 		return &f
 	}
 	return nil
+}
+
+// qdrantRecommendConfig Recommend API 配置
+type qdrantRecommendConfig struct {
+	positive []int64
+	negative []int64
+	limit    int
+}
+
+// qdrantDiscoverConfig Discover API 配置
+type qdrantDiscoverConfig struct {
+	context []int64
+	limit   int
+}
+
+// RecommendBuilder Recommend API 构建器
+type RecommendBuilder struct {
+	positive []int64
+	negative []int64
+	limit    int
+}
+
+// Positive 设置正样本 ID
+func (rb *RecommendBuilder) Positive(ids ...int64) *RecommendBuilder {
+	if len(ids) == 0 {
+		return rb
+	}
+	rb.positive = append(rb.positive, ids...)
+	return rb
+}
+
+// Negative 设置负样本 ID
+func (rb *RecommendBuilder) Negative(ids ...int64) *RecommendBuilder {
+	if len(ids) == 0 {
+		return rb
+	}
+	rb.negative = append(rb.negative, ids...)
+	return rb
+}
+
+// Limit 设置返回条数
+func (rb *RecommendBuilder) Limit(limit int) *RecommendBuilder {
+	rb.limit = limit
+	return rb
+}
+
+// DiscoverBuilder Discover API 构建器
+type DiscoverBuilder struct {
+	context []int64
+	limit   int
+}
+
+// Context 设置上下文 ID
+func (db *DiscoverBuilder) Context(ids ...int64) *DiscoverBuilder {
+	if len(ids) == 0 {
+		return db
+	}
+	db.context = append(db.context, ids...)
+	return db
+}
+
+// Limit 设置返回条数
+func (db *DiscoverBuilder) Limit(limit int) *DiscoverBuilder {
+	db.limit = limit
+	return db
+}
+
+// ensureAdvancedConds 将高级配置注入到条件列表
+func (c *QdrantCustom) ensureAdvancedConds(conds []Bb) []Bb {
+	if c == nil {
+		return conds
+	}
+
+	if c.recommendConfig != nil && !hasBbWithOp(conds, QDRANT_RECOMMEND) {
+		value := map[string]interface{}{
+			"positive": append([]int64(nil), c.recommendConfig.positive...),
+			"limit":    c.recommendConfig.limit,
+		}
+		if len(c.recommendConfig.negative) > 0 {
+			value["negative"] = append([]int64(nil), c.recommendConfig.negative...)
+		}
+		conds = append(conds, Bb{
+			Op:    QDRANT_RECOMMEND,
+			Value: value,
+		})
+	}
+
+	if c.discoverConfig != nil && !hasBbWithOp(conds, QDRANT_DISCOVER) {
+		value := map[string]interface{}{
+			"context": append([]int64(nil), c.discoverConfig.context...),
+			"limit":   c.discoverConfig.limit,
+		}
+		conds = append(conds, Bb{
+			Op:    QDRANT_DISCOVER,
+			Value: value,
+		})
+	}
+
+	if c.scrollID != "" && !hasBbWithOp(conds, QDRANT_SCROLL) {
+		conds = append(conds, Bb{
+			Op:    QDRANT_SCROLL,
+			Value: c.scrollID,
+		})
+	}
+
+	return conds
+}
+
+func hasBbWithOp(bbs []Bb, op string) bool {
+	for _, bb := range bbs {
+		if bb.Op == op {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *QdrantCustom) applyAdvancedConfig(built *Built) *Built {
+	if c == nil || built == nil {
+		return built
+	}
+
+	origLen := len(built.Conds)
+	condsCopy := cloneBbs(built.Conds)
+	newConds := c.ensureAdvancedConds(condsCopy)
+	if len(newConds) == origLen {
+		return built
+	}
+
+	cloned := *built
+	cloned.Conds = newConds
+	return &cloned
+}
+
+func cloneBbs(bbs []Bb) []Bb {
+	if len(bbs) == 0 {
+		return nil
+	}
+	cloned := make([]Bb, len(bbs))
+	copy(cloned, bbs)
+	return cloned
 }

@@ -92,7 +92,7 @@ func (x *BuilderX) ensureMeta() *interceptor.Metadata {
 // 示例:
 //
 //	// 使用 QdrantBuilder（推荐）
-//	built := xb.Of("code_vectors").
+//	built := xb.Of(&CodeVector{}).
 //	    Custom(
 //	        xb.NewQdrantBuilder().
 //	            HnswEf(512).
@@ -105,7 +105,7 @@ func (x *BuilderX) ensureMeta() *interceptor.Metadata {
 //	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Qdrant
 //
 //	// 直接使用 Custom
-//	built := xb.Of("users").
+//	built := xb.Of(&User{}).
 //	    Custom(xb.NewMilvusCustom()).
 //	    Insert(...).
 //	    Build()

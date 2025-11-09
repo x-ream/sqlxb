@@ -40,8 +40,10 @@ func TestJsonOfSelect_WithQdrantCustom(t *testing.T) {
 	// 测试通过 Custom 自动调用 Qdrant 逻辑
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	built := Of("code_vectors").
-		Custom(NewQdrantCustom()).
+	built := Of(&CodeVector{}).
+		Custom(NewQdrantCustom().Recommend(func(rb *RecommendBuilder) {
+			rb.Positive(123, 456).Limit(20)
+		})).
 		VectorSearch("embedding", queryVector, 20).
 		Eq("language", "golang").
 		Build()
@@ -116,31 +118,6 @@ func TestQdrantCustom_PresetModes(t *testing.T) {
 				tt.name, tt.custom.DefaultHnswEf, tt.custom.DefaultScoreThreshold, tt.custom.DefaultWithVector)
 		})
 	}
-}
-
-// ============================================================================
-// 向后兼容性测试
-// ============================================================================
-
-func TestBackwardCompatibility_ToQdrantJSON(t *testing.T) {
-	// ✅ 旧 API 仍然可用
-	queryVector := Vector{0.1, 0.2, 0.3}
-
-	built := Of("code_vectors").
-		VectorSearch("embedding", queryVector, 10).
-		Build()
-
-	jsonStr, err := built.ToQdrantJSON()
-	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
-	}
-
-	var result map[string]interface{}
-	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
-		t.Fatalf("JSON unmarshal failed: %v", err)
-	}
-
-	t.Logf("✅ Old API (ToQdrantJSON) still works")
 }
 
 // ============================================================================

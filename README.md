@@ -33,17 +33,17 @@ traceID := request.TraceID()
 
 result := xb.Of("recent_orders").As("ro").
     With("recent_orders", func(sb *xb.BuilderX) {
-        sb.From("orders o").
+        sb.From("orderso").As("o").
             Select("o.id", "o.user_id").
             Gt("o.created_at", time.Now().AddDate(0, 0, -30))
     }).
     WithRecursive("team_hierarchy", func(sb *xb.BuilderX) {
-        sb.From("users u").
+        sb.From("users").As("u").
             Select("u.id", "u.manager_id").
             Eq("u.active", true)
     }).
     UNION(xb.ALL, func(sb *xb.BuilderX) {
-        sb.From("archived_orders ao").
+        sb.From("archived_orders").As("ao").
             Select("ao.id", "ao.user_id")
     }).
     Meta(func(m *interceptor.Metadata) {
@@ -181,13 +181,11 @@ xb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
 
 // VectorDB (v0.10.0) - Same API!
 xb.Of(&CodeVector{}).
+    Custom(xb.NewQdrantCustom().Recommend(func(rb *RecommendBuilder) {
+            rb.Positive(123, 456).Limit(20)
+        }))
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).
-    QdrantX(func(qx *QdrantBuilderX) {
-        qx.Recommend(func(rb *RecommendBuilder) {
-            rb.Positive(123, 456).Limit(20)
-        })
-    }).
     Build()
 ```
 
