@@ -18,6 +18,7 @@ package xb
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fndome/xb/interceptor"
 )
@@ -49,10 +50,25 @@ type BuilderX struct {
 	offsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
 	meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
 	customImpl  Custom                // ⭐ 新增：数据库专属配置（v0.11.0）（私有字段）
+	withs       []withClause
 }
 
-// Meta 获取元数据
-func (x *BuilderX) Meta() *interceptor.Metadata {
+type withClause struct {
+	name      string
+	recursive bool
+	builder   *BuilderX
+}
+
+// Meta 配置元数据（链式调用）
+// 主要用于透传 TraceID、TenantID 等上下文信息
+func (x *BuilderX) Meta(fn func(meta *interceptor.Metadata)) *BuilderX {
+	if fn != nil {
+		fn(x.ensureMeta())
+	}
+	return x
+}
+
+func (x *BuilderX) ensureMeta() *interceptor.Metadata {
 	if x.meta == nil {
 		x.meta = &interceptor.Metadata{}
 	}
@@ -91,6 +107,31 @@ func (x *BuilderX) Meta() *interceptor.Metadata {
 //	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Milvus
 func (x *BuilderX) Custom(custom Custom) *BuilderX {
 	x.customImpl = custom
+	return x
+}
+
+// With 定义公共表达式（CTE）
+func (x *BuilderX) With(name string, fn func(sb *BuilderX)) *BuilderX {
+	return x.addWith(name, false, fn)
+}
+
+// WithRecursive 定义递归公共表达式（CTE）
+func (x *BuilderX) WithRecursive(name string, fn func(sb *BuilderX)) *BuilderX {
+	return x.addWith(name, true, fn)
+}
+
+func (x *BuilderX) addWith(name string, recursive bool, fn func(sb *BuilderX)) *BuilderX {
+	if name == "" || fn == nil {
+		return x
+	}
+	sb := X()
+	sb.customImpl = x.customImpl
+	fn(sb)
+	x.withs = append(x.withs, withClause{
+		name:      name,
+		recursive: recursive,
+		builder:   sb,
+	})
 	return x
 }
 
@@ -356,17 +397,22 @@ func (x *BuilderX) Build() *Built {
 
 	// ⭐ 执行 BeforeBuild 拦截器（只设置元数据）
 	for _, ic := range interceptor.GetAll() {
-		if err := ic.BeforeBuild(x.Meta()); err != nil {
+		if err := ic.BeforeBuild(x.ensureMeta()); err != nil {
 			panic(fmt.Sprintf("Interceptor %s BeforeBuild failed: %v", ic.Name(), err))
 		}
 	}
 
+	baseFrom := x.normalizeFrom()
+	withs := x.buildWithClauses()
+
 	if x.inserts != nil && len(*(x.inserts)) > 0 {
 		built := Built{
-			OrFromSql: x.orFromSql,
+			OrFromSql: baseFrom,
 			Inserts:   x.inserts,
 			Meta:      x.meta,       // ⭐ 传递元数据
 			Custom:    x.customImpl, // ⭐ 传递 Custom
+			Alia:      x.alia,
+			Withs:     withs,
 		}
 
 		// ⭐ 执行 AfterBuild 拦截器
@@ -390,13 +436,15 @@ func (x *BuilderX) Build() *Built {
 		Havings:     x.havings,
 		GroupBys:    x.groupBys,
 		Last:        x.last,
-		OrFromSql:   x.orFromSql,
+		OrFromSql:   baseFrom,
 		Fxs:         x.sxs,
 		Svs:         x.svs,
 		LimitValue:  x.limitValue,  // ⭐ 传递 Limit
 		OffsetValue: x.offsetValue, // ⭐ 传递 Offset
 		Meta:        x.meta,        // ⭐ 传递元数据
 		Custom:      x.customImpl,  // ⭐ 传递 Custom
+		Alia:        x.alia,
+		Withs:       withs,
 	}
 
 	if x.pageBuilder != nil {
@@ -411,4 +459,39 @@ func (x *BuilderX) Build() *Built {
 	}
 
 	return &built
+}
+
+func (x *BuilderX) normalizeFrom() string {
+	if x.orFromSql == "" {
+		return ""
+	}
+	if x.alia == "" {
+		return x.orFromSql
+	}
+	if len(strings.Fields(x.orFromSql)) == 1 {
+		return x.orFromSql + " " + x.alia
+	}
+	return x.orFromSql
+}
+
+func (x *BuilderX) buildWithClauses() []WithClause {
+	if len(x.withs) == 0 {
+		return nil
+	}
+
+	result := make([]WithClause, 0, len(x.withs))
+	for _, clause := range x.withs {
+		if clause.builder == nil {
+			continue
+		}
+		subBuilt := clause.builder.Build()
+		sql, args, _ := subBuilt.SqlOfSelect()
+		result = append(result, WithClause{
+			Name:      clause.name,
+			SQL:       sql,
+			Args:      append([]interface{}(nil), args...),
+			Recursive: clause.recursive,
+		})
+	}
+	return result
 }

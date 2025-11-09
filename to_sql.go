@@ -48,6 +48,16 @@ type Built struct {
 	LimitValue  int                   // ⭐ 新增：LIMIT 值（v0.10.1）
 	OffsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
 	Meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
+	Alia        string
+	Withs       []WithClause
+}
+
+// WithClause 公共表达式（CTE）定义
+type WithClause struct {
+	Name      string
+	SQL       string
+	Args      []interface{}
+	Recursive bool
 }
 
 // ============================================================================
@@ -610,6 +620,7 @@ func (built *Built) sqlDelete(vs *[]interface{}) string {
 func (built *Built) SqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
 	sb := strings.Builder{}
 	sb.Grow(256) // 预分配 256 字节，SELECT 语句通常较长
+	built.appendWithClauses(&sb, vs)
 	built.toResultKeySql(&sb, km)
 	built.sqlFrom(&sb)
 	built.toFromSql(vs, &sb)
@@ -645,6 +656,7 @@ func (built *Built) SqlCount() string {
 		return ""
 	}
 	sbCount.Grow(128) // 预分配 128 字节，COUNT 语句相对较短
+	built.appendWithClauses(sbCount, nil)
 	built.toResultKeySqlOfCount(sbCount)
 	built.countSqlFrom(sbCount)
 	built.toFromSqlOfCount(sbCount)
@@ -655,4 +667,37 @@ func (built *Built) SqlCount() string {
 	built.toHavingSqlOfCount(sbCount)
 	countSql := built.toSqlCount(sbCount)
 	return countSql
+}
+
+func (built *Built) appendWithClauses(sb *strings.Builder, vs *[]interface{}) {
+	if len(built.Withs) == 0 {
+		return
+	}
+
+	hasRecursive := false
+	for _, clause := range built.Withs {
+		if clause.Recursive {
+			hasRecursive = true
+			break
+		}
+	}
+
+	sb.WriteString("WITH ")
+	if hasRecursive {
+		sb.WriteString("RECURSIVE ")
+	}
+
+	for i, clause := range built.Withs {
+		if i > 0 {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(clause.Name)
+		sb.WriteString(" AS (")
+		sb.WriteString(clause.SQL)
+		sb.WriteString(")")
+		if vs != nil && len(clause.Args) > 0 {
+			*vs = append(*vs, clause.Args...)
+		}
+	}
+	sb.WriteString(" ")
 }

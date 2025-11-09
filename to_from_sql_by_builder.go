@@ -29,6 +29,10 @@ func (built *Built) toFromSqlBySql(bp *strings.Builder) bool {
 			sql = strings.Replace(sql, "FROM ", "", 1)
 		}
 		bp.WriteString(sql)
+		if built.Alia != "" && len(strings.Fields(sql)) == 1 {
+			bp.WriteString(SPACE)
+			bp.WriteString(built.Alia)
+		}
 		return true
 	}
 	return false
