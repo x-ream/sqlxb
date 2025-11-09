@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2025-11-09
+
+### Added
+- **CTE Builder APIs**: `With()` and `WithRecursive()` bring fluent Common Table Expressions to `BuilderX`.
+- **UNION Chaining**: `UNION(kind, fn)` with helpers like `ALL()` enables multi-result composition without leaving the builder.
+- **Metadata Hook**: `Meta(func)` provides inline instrumentation setup before interceptors execute.
+- **Coverage**: New `with_cte_test.go` and `union_test.go` showcase combined usage and regression protection.
+
+### Changed
+- **SQL Generation**:
+  - SELECT pipeline now emits CTE blocks and UNION segments in the correct order.
+  - Alias normalization ensures `From("cte").As("alias")` renders valid SQL.
+- **Constant Naming**: `DISTINCT` constant renamed to `DISTINCT_SCRIPT` to avoid conflicts with new UNION helpers.
+
+### Documentation
+- README updated with v1.2.3 highlight section, CTE/UNION examples, and observability guidance.
+- Release assets refreshed (release notes, commands, test report).
+
+---
+
 ## [1.2.2] - 2025-01-XX
 
 ### Added

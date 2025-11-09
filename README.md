@@ -13,11 +13,57 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
 
-> 🎉 **Latest**: v1.2.1 released with unified API + Smart condition building enhancements!
+> 🎉 **Latest**: v1.2.3 released with CTE builders + UNION chaining for complex SQL!
 
 ---
 
-## 🚀 NEW: Smart Condition Building (Latest)
+## 🚀 NEW: CTE + UNION Builders (v1.2.3)
+
+**Common Table Expressions & Result Merging — now first-class citizens.**
+
+**✨ Highlights**
+- 🧱 **With()/WithRecursive()** — define reusable CTE blocks while keeping chain-style ergonomics.
+- 🔁 **UNION(kind, fn)** — combine query results with `UNION` (default DISTINCT) or `UNION ALL`.
+- 🏷️ **Alias Safety** — automatic alias normalization keeps generated SQL valid even with chained CTEs.
+- 🧩 **Metadata Builder** — `Meta(func)` lets you inject tracing/user context inline before interceptors run.
+
+```go
+since30Days := time.Now().AddDate(0, 0, -30)
+traceID := request.TraceID()
+
+result := xb.Of("recent_orders").As("ro").
+    With("recent_orders", func(sb *xb.BuilderX) {
+        sb.From("orders o").
+            Select("o.id", "o.user_id").
+            Gt("o.created_at", time.Now().AddDate(0, 0, -30))
+    }).
+    WithRecursive("team_hierarchy", func(sb *xb.BuilderX) {
+        sb.From("users u").
+            Select("u.id", "u.manager_id").
+            Eq("u.active", true)
+    }).
+    UNION(xb.ALL, func(sb *xb.BuilderX) {
+        sb.From("archived_orders ao").
+            Select("ao.id", "ao.user_id")
+    }).
+    Meta(func(m *interceptor.Metadata) {
+        m.TraceID = traceID
+        m.Set("source", "dashboard")
+    }).
+    Build()
+
+sql, args, _ := result.SqlOfSelect()
+// WITH ... UNION ALL ... ORDER BY ...
+```
+
+**Best For**
+- Analytical queries requiring layered CTE pipelines.
+- Reporting endpoints that merge live + archived datasets.
+- Observability scenarios needing per-query metadata.
+
+---
+
+## 🚀 NEW: Smart Condition Building (v1.2.2)
 
 **Three-Layer Design for 99% of Real-World Scenarios**
 
