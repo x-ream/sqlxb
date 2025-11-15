@@ -115,6 +115,24 @@ report := xb.Of("recent_orders").
 sql, args, _ := report.SqlOfSelect()
 ```
 
+### JOIN builder with subqueries
+```go
+builder := xb.X().
+    Select("p.id", "p.weight").
+    FromX(func(fb *xb.FromBuilder) {
+        fb.Sub(func(sb *xb.BuilderX) {
+            sb.Select("id", "type").
+                From("t_pet").
+                Gt("id", 10000)
+        }).As("p").
+            JOIN(xb.INNER).Of("t_dog").As("d").On("d.pet_id = p.id").
+            JOIN(xb.LEFT).Of("t_cat").As("c").On("c.pet_id = p.id")
+    }).
+    Ne("p.type", "PIG")
+
+sql, args, _ := builder.Build().SqlOfSelect()
+```
+
 ### Qdrant Recommend / Discover / Scroll
 - Configure via `QdrantCustom.Recommend/Discover/ScrollID`.
 - `JsonOfSelect()` inspects builder state and emits the correct JSON schema.
