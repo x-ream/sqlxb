@@ -1,698 +1,169 @@
-# xb  (Extensible Builder)
+# xb (Extensible Builder)
 [![OSCS Status](https://www.oscs1024.com/platform/badge/fndome/xb.svg?size=small)](https://www.oscs1024.com/project/fndome/xb?ref=badge_small)
 ![workflow build](https://github.com/fndome/xb/actions/workflows/go.yml/badge.svg)
 [![GitHub tag](https://img.shields.io/github/tag/fndome/xb.svg?style=flat)](https://github.com/fndome/xb/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fndome/xb)](https://goreportcard.com/report/github.com/fndome/xb)
 
+> Languages: **English** | [中文](./doc/cn/README.md)
 
+`xb` is an AI-first SQL/JSON builder for relational + vector databases. One fluent API builds:
 
-**AI-First SQL Or JSON Builder** for Relational and Vector Databases
+- SQL for `database/sql`, `sqlx`, `gorm`, any raw driver
+- JSON for Qdrant (Recommend / Discover / Scroll) and other vector stores
+- Hybrid pipelines that mix SQL tables with vector similarity
 
-A tool of sql or json query builder, build sql for sql.DB, [sqlx](https://github.com/jmoiron/sqlx), [gorp](https://github.com/go-gorp/gorp),
-or build condition sql for some orm framework, like [xorm](https://github.com/go-xorm/xorm), [gorm](https://github.com/go-gorm/gorm)....
-also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
-
-
-> 🎉 **Latest**: v1.3.0 unified `JsonOfSelect()` for所有向量方言，并整合 Qdrant 高级 API。
+Everything flows through `Custom()` + `Build()` so the surface stays tiny even as capabilities grow.
 
 ---
 
-## 🚀 NEW: Unified JsonOfSelect + Qdrant Advanced APIs (v1.3.0)
+## Highlights
 
-**单一入口即可覆盖 Recommend / Discover / Scroll。**
+- **Unified vector entry** — `JsonOfSelect()` now covers all Qdrant search/recommend/discover/scroll flows. Legacy `ToQdrant*JSON()` methods were retired.
+- **Composable SQL** — `With/WithRecursive` and `UNION(kind, fn)` let you express ClickHouse-style analytics directly in Go.
+- **Smart condition DSL** — auto-filter nil/zero, guard rails via `InRequired`, raw expressions via `X()`, and inline conditional blocks.
+- **Adaptive JOIN planner** — `FromX` + `JOIN(kind)` skip meaningless joins automatically (e.g., empty ON blocks), keeping SQL lean.
+- **Observability-first** — `Meta(func)` plus interceptors carry TraceID/UserID across builder stages.
+- **AI-assisted maintenance** — code, tests, docs co-authored by AI and reviewed by humans every release.
 
-**✨ Highlights**
-- 🧠 **JsonOfSelect()** — 所有 Qdrant JSON 生成统一到一个方法，彻底移除 `ToQdrant*JSON()` API 记忆负担。
-- 🛰️ **Advanced Builder Hooks** — `QdrantCustom.Recommend/Discover/ScrollID` 自动注入条件，不再需要额外方法。
-- 🧾 **文档/示例全面同步** — README、MIGRATION、Release Notes 统一说明升级步骤。
-- 🧪 **回归测试** — `JsonOfSelect()` + Recommend/Discover/Scroll 全覆盖，确保 v1.3.0 行为可预期。
+📦 **Latest**: [v1.3.0](./RELEASE_v1.3.0.md) — JsonOfSelect unification + Qdrant advanced API consolidation.
 
+---
+
+## Quickstart
+
+### Build SQL
 ```go
+package main
+
+import "github.com/fndome/xb"
+
+type Cat struct {
+    ID    uint64   `db:"id"`
+    Name  string   `db:"name"`
+    Age   uint     `db:"age"`
+    Price *float64 `db:"price"`
+}
+
+func main() {
+    built := xb.Of(&Cat{}).
+        Eq("status", 1).
+        Gte("age", 3).
+        Build()
+
+    sql, args, _ := built.SqlOfSelect()
+    // SELECT * FROM t_cat WHERE status = ? AND age >= ?
+    _ = sql
+    _ = args
+}
+```
+
+### Qdrant vector search
+```go
+queryVector := xb.Vector{0.1, 0.2, 0.3}
+
 json, err := xb.Of(&CodeVector{}).
     Custom(
         xb.NewQdrantCustom().
             Recommend(func(rb *xb.RecommendBuilder) {
-                rb.Positive(101, 102).Negative(203).Limit(20)
+                rb.Positive(123, 456).Negative(789).Limit(20)
             }),
     ).
-    VectorSearch("embedding", queryVector, 10).
     Eq("language", "golang").
+    VectorSearch("embedding", queryVector, 10).
     Build().
     JsonOfSelect()
-```
 
-**Best For**
-- 想要使用 Recommend/Discover/Scroll 但不希望额外学习不同方法的团队
-- 希望 `Custom.Generate()` 自动产出 JSON 的 AI / RAG 项目
-- 减少 API 表面积、降低文档维护成本
+if err != nil {
+    panic(err)
+}
+// POST json to /collections/{name}/points/recommend
+```
 
 ---
 
-## 🚀 NEW: CTE + UNION Builders (v1.2.3)
+## Advanced Capabilities
 
-**Common Table Expressions & Result Merging — now first-class citizens.**
-
-**✨ Highlights**
-- 🧱 **With()/WithRecursive()** — define reusable CTE blocks while keeping chain-style ergonomics.
-- 🔁 **UNION(kind, fn)** — combine query results with `UNION` (default DISTINCT) or `UNION ALL`.
-- 🏷️ **Alias Safety** — automatic alias normalization keeps generated SQL valid even with chained CTEs.
-- 🧩 **Metadata Builder** — `Meta(func)` lets you inject tracing/user context inline before interceptors run.
-
+### CTE + UNION pipelines
 ```go
-since30Days := time.Now().AddDate(0, 0, -30)
-traceID := request.TraceID()
-
-result := xb.Of("recent_orders").As("ro").
+report := xb.Of("recent_orders").
     With("recent_orders", func(sb *xb.BuilderX) {
-        sb.From("orderso").As("o").
+        sb.From("orders o").
             Select("o.id", "o.user_id").
-            Gt("o.created_at", time.Now().AddDate(0, 0, -30))
+            Gt("o.created_at", since30Days)
     }).
     WithRecursive("team_hierarchy", func(sb *xb.BuilderX) {
-        sb.From("users").As("u").
+        sb.From("users u").
             Select("u.id", "u.manager_id").
             Eq("u.active", true)
     }).
     UNION(xb.ALL, func(sb *xb.BuilderX) {
-        sb.From("archived_orders").As("ao").
+        sb.From("archived_orders ao").
             Select("ao.id", "ao.user_id")
     }).
-    Meta(func(m *interceptor.Metadata) {
-        m.TraceID = traceID
-        m.Set("source", "dashboard")
+    Meta(func(meta *interceptor.Metadata) {
+        meta.TraceID = traceID
+        meta.Set("source", "dashboard")
     }).
     Build()
 
-sql, args, _ := result.SqlOfSelect()
-// WITH ... UNION ALL ... ORDER BY ...
+sql, args, _ := report.SqlOfSelect()
 ```
 
-**Best For**
-- Analytical queries requiring layered CTE pipelines.
-- Reporting endpoints that merge live + archived datasets.
-- Observability scenarios needing per-query metadata.
+### Qdrant Recommend / Discover / Scroll
+- Configure via `QdrantCustom.Recommend/Discover/ScrollID`.
+- `JsonOfSelect()` inspects builder state and emits the correct JSON schema.
+- Compatible with diversity helpers (`WithHashDiversity`, `WithMinDistance`) and standard filters.
+
+### Interceptors & Metadata
+- Register global `BeforeBuild` / `AfterBuild` hooks (see `xb/interceptor`).
+- `Meta(func)` injects metadata before hooks run — perfect for tracing, tenancy, or experiments.
 
 ---
 
-## 🚀 NEW: Smart Condition Building (v1.2.2)
+## Documentation
 
-**Three-Layer Design for 99% of Real-World Scenarios**
+| Topic | English | Chinese |
+|-------|---------|---------|
+| Overview & Index | [doc/en/README.md](./doc/en/README.md) | [doc/cn/README.md](./doc/cn/README.md) |
+| Quickstart | [doc/en/QUICKSTART.md](./doc/en/QUICKSTART.md) | [doc/cn/QUICKSTART.md](./doc/cn/QUICKSTART.md) |
+| Qdrant Guide | [doc/en/QDRANT_GUIDE.md](./doc/en/QDRANT_GUIDE.md) | [doc/cn/QDRANT_GUIDE.md](./doc/cn/QDRANT_GUIDE.md) |
+| Vector Guide | [doc/en/VECTOR_GUIDE.md](./doc/en/VECTOR_GUIDE.md) | [doc/cn/VECTOR_GUIDE.md](./doc/cn/VECTOR_GUIDE.md) |
+| Custom Interface | [doc/en/CUSTOM_INTERFACE.md](./doc/en/CUSTOM_INTERFACE.md) | [doc/cn/CUSTOM_INTERFACE.md](./doc/cn/CUSTOM_INTERFACE.md) |
+| Auto-filter (nil/0 skip) | [doc/en/ALL_FILTERING_MECHANISMS.md](./doc/en/ALL_FILTERING_MECHANISMS.md) | [doc/cn/FILTERING.md](./doc/cn/FILTERING.md) |
+| Join optimization | [doc/en/CUSTOM_JOINS_GUIDE.md](./doc/en/CUSTOM_JOINS_GUIDE.md) | _(coming soon)_ |
+| AI Application Starter | [doc/en/AI_APPLICATION.md](./doc/en/AI_APPLICATION.md) | [doc/cn/AI_APPLICATION.md](./doc/cn/AI_APPLICATION.md) |
 
-**✨ Recent Updates**:
-- 🛡️ **InRequired()** - Prevent accidental mass operations (batch delete/update)
-- 🔧 **Builder Validation** - QdrantBuilder parameter validation with clear error messages
-- 📖 **Enhanced Docs** - Comprehensive examples for X() and Sub() methods
-- 🎯 **Production Ready** - Zero-constraint design with maximum flexibility
-
----
-
-## 🚀 Builder Pattern + Unified Entry (v1.2.1)
-
-**One configuration entry for all databases - minimum cognitive load!**
-
-**✨ Core Features**:
-- 🎯 **Builder Pattern** - `NewQdrantBuilder()`, `NewMySQLBuilder()` for fluent configuration
-- 🔧 **Unified Entry** - Only `Custom()` for all operations (INSERT/UPDATE/DELETE/SELECT)
-- 📉 **Lower Cognitive Load** - Humans only remember ONE rule, not two
-- 🔗 **Chain Style** - `.HnswEf().ScoreThreshold().Build()` - fluent and readable
-- ♻️ **Config Reuse** - Builder pattern naturally supports reusing configurations
-
-```go
-// Qdrant Vector Search (v1.2.1) - 统一的 Custom() 入口
-built := xb.Of(&CodeVector{}).
-    Custom(
-        xb.NewQdrantBuilder().
-            HnswEf(512).
-            ScoreThreshold(0.85).
-            WithVector(false).
-            Build(),
-    ).
-    VectorSearch("embedding", queryVector, 10).
-    Eq("language", "golang").
-    Build()
-json, _ := built.JsonOfSelect()
-
-// MySQL UPSERT (v1.2.1) - 统一的 Custom() 入口
-built := xb.Of(user).
-    Custom(
-        xb.NewMySQLBuilder().
-            UseUpsert(true).
-            Build(),
-    ).
-    Insert(func(ib *xb.InsertBuilder) {
-        ib.Set("name", user.Name).
-           Set("email", user.Email)
-    }).
-    Build()
-sql, args := built.SqlOfInsert()
-// INSERT INTO users ... ON DUPLICATE KEY UPDATE ...
-
-// Qdrant CRUD (v1.1.0) - 与 SQL 完全一致的 API
-// Insert
-built := xb.Of(&CodeVector{}).
-    Custom(xb.NewQdrantCustom()).
-    Insert(func(ib *xb.InsertBuilder) {
-        ib.Set("id", 123).
-           Set("vector", []float32{0.1, 0.2, 0.3}).
-           Set("language", "golang")
-    }).
-    Build()
-json, _ := built.JsonOfInsert()
-
-// Update
-built := xb.Of(&CodeVector{}).
-    Custom(xb.NewQdrantCustom()).
-    Eq("id", 123).
-    Update(func(ub *xb.UpdateBuilder) {
-        ub.Set("language", "rust")
-    }).
-    Build()
-json, _ := built.JsonOfUpdate()
-
-// Delete
-built := xb.Of(&CodeVector{}).
-    Custom(xb.NewQdrantCustom()).
-    Eq("id", 123).
-    Build()
-json, _ := built.JsonOfDelete()
-
-// Standard SQL (no Custom needed)
-built := xb.Of(&User{}).
-    Eq("status", 1).
-    Gt("age", 18).
-    Build()
-sql, args, _ := built.SqlOfSelect()
-// SELECT * FROM users WHERE status = ? AND age > ?
-```
-
-📖 **[Read the Custom Interface Guide →](./doc/CUSTOM_INTERFACE_README.md)**
-
-**Architecture Highlights**:
-- ✅ One interface method for all operations (Select/Insert/Update/Delete)
-- ✅ Supports both SQL databases (MySQL, Oracle) and vector databases (Qdrant, Milvus)
-- ✅ Type-safe: `SQLResult` for SQL, `string` for JSON
-- ✅ Easy to extend: Implement your own database in minutes
+> We are migrating docs into `doc/en/` + `doc/cn/`. Legacy files remain under `doc/` until the move completes.
 
 ---
 
-## 🔍 Qdrant Advanced API (since v0.10.0)
+## Releases & Migration
 
-**The first unified ORM for both Relational and Vector Databases!**
+- [Release Notes v1.3.0](./RELEASE_v1.3.0.md)
+- [Release Commands v1.3.0](./RELEASE_COMMANDS_v1.3.0.md)
+- [Test Report v1.3.0](./TEST_REPORT_v1.3.0.md)
+- [Migration Guide](./MIGRATION.md)
 
-**✨ New in v0.10.0**:
-- 🎯 **Recommend API** - Personalized recommendations with positive/negative samples
-- 🔍 **Discover API** - Explore common themes from user context
-- 🔄 **Scroll API** - Efficient traversal for large datasets
-- 🎨 **Functional Parameters** - Unified builder style
-- 🔧 **100% Backward Compatible** - All existing features preserved
-
-```go
-// MySQL (existing)
-xb.Of(&Order{}).Eq("status", 1).Build().SqlOfSelect()
-
-// VectorDB (v0.10.0) - Same API!
-xb.Of(&CodeVector{}).
-    Custom(xb.NewQdrantCustom().Recommend(func(rb *RecommendBuilder) {
-            rb.Positive(123, 456).Limit(20)
-        }))
-    Eq("language", "golang").
-    VectorSearch("embedding", queryVector, 10).
-    Build()
-```
-
-📖 **[Read the Vector Database Design Docs →](./doc/VECTOR_README.md)**
-
-**Features**:
-- ✅ Unified API for MySQL + VectorDB
-- ✅ Type-safe ORM for vectors
-- ✅ Auto-optimized hybrid queries
-- ✅ 100% backward compatible
-
-**Development**: AI-First approach (Claude AI + Human review)
+Older release artifacts stay in the repo for reference.
 
 ---
-
-## 🤖 AI-First Development
-
-xb v0.8.0+ is developed using an innovative **AI-First** approach:
-
-- 🤖 **AI Assistant (Claude via Cursor)**: Architecture design, code implementation, testing, documentation
-- 👨‍💻 **Human Maintainer**: Code review, strategic decisions, critical algorithm oversight
-
-### Maintenance Model (80/15/5)
-
-- **80%** of code: AI independently maintains (simple, clear patterns)
-- **15%** of code: AI assists, human reviews (medium complexity)
-- **5%** of code: Human leads, AI assists (critical algorithms like `from_builder_optimization.go`)
-
-### v0.8.1 Vector Database Support
-
-**Achieved entirely through AI-First development**:
-- Architecture & Design: AI Assistant (Claude)
-- Code Implementation: AI Assistant (763 lines)
-- Testing: AI Assistant (13 test cases, 100% passing)
-- Documentation: AI Assistant (120+ pages)
-- Review & Approval: Human Maintainer
-
-This makes xb **one of the first major Go ORM projects successfully maintained by AI**.
-
----
-
-## 🎯 Smart Condition Building (NEW)
-
-**Three-Layer Design for 99% of Real-World Scenarios**
-
-### **Layer 1: Auto-Filtering (90% cases)**
-
-```go
-// ✅ Automatically filters nil, 0, "", []
-// User doesn't select filters → query returns more results
-xb.Of("users").
-    Eq("age", age).              // age=0 → ignored
-    In("status", statuses...).   // []    → ignored
-    Like("name", keyword).       // ""    → ignored
-    Build()
-```
-
-**Perfect for**: User search forms, optional filters
-
-### **Layer 2: Required Validation (5% cases)**
-
-```go
-// ✅ InRequired: Prevents accidental mass operations
-selectedIDs := getUserSelectedIDs() // might be empty!
-xb.Of("orders").
-    InRequired("id", selectedIDs...). // [] → panic with clear message
-    Build()
-
-// Prevents: DELETE FROM orders (deleting ALL orders!)
-```
-
-**Perfect for**: Admin batch operations, critical updates
-
-### **Layer 3: Ultimate Flexibility (5% cases)**
-
-```go
-// ✅ X(): Zero constraints for special values
-xb.Of("users").
-    X("age = 0").              // Query age = 0
-    X("is_active = false").    // Query false values
-    Build()
-
-// ✅ Sub(): Type-safe subqueries
-xb.Of("orders").
-    Sub("user_id IN ?", func(sb *xb.BuilderX) {
-        sb.Of(&VipUser{}).Select("id")
-    }).
-    Build()
-// SQL: SELECT * FROM orders WHERE user_id IN (SELECT id FROM vip_users)
-
-// ✅ Bool(): Conditional logic
-xb.Of("orders").
-    Bool(func() bool { return isAdmin }, func(cb *xb.CondBuilder) {
-        cb.Eq("status", "deleted") // Only admins can see deleted
-    }).
-    Build()
-```
-
-**Perfect for**: Edge cases, complex queries, dynamic permissions
-
-### **API Comparison**
-
-| Method | Auto-Filter | Use Case | Example |
-|--------|-------------|----------|---------|
-| `Eq/In/Like` | ✅ Yes | Optional filters | `Eq("age", age)` |
-| `InRequired` | ❌ Panic | Required selection | `InRequired("id", ids...)` |
-| `X` | ❌ No | Special values | `X("age = 0")` |
-| `Sub` | N/A | Subqueries | `Sub("id IN ?", func...)` |
-
----
-
-## Program feature:
-* ignore building nil or empty string
-* Smart validation for critical operations
-* Type-safe subquery building
-
-## Available field of struct:
-    
-* base: string, *bool, *int64, *float64, time.Time....
-* json: struct, map, array, slice
-* bytes: []byte
-
-## Example
-
-    SELECT * FROM t_cat WHERE id > ? AND (price >= ? OR is_sold = ?)
-
-    var Db *sqlx.DB
-    ....
-
-	var c Cat
-	builder := xb.Of(&c).Gt("id", 10000).And(func(cb *CondBuilder) {
-		cb.Gte("price", catRo.Price).OR().Eq("is_sold", catRo.IsSold)
-    })
-
-    countSql, dataSql, vs, _ := builder.Build().SqlOfPage()
-    var catList []Cat
-	err = Db.Select(&catList, dataSql, vs...)
-
-
-## 📚 Documentation
-
-**[Complete Documentation Index →](./doc/README.md)**
-
-Quick links:
-- [Vector Database Quick Start](./doc/VECTOR_QUICKSTART.md)
-- [Vector Diversity + Qdrant Guide](./doc/VECTOR_DIVERSITY_QDRANT.md)
-- [All Filtering Mechanisms](./doc/ALL_FILTERING_MECHANISMS.md)
-- [Custom Vector DB Guide](./doc/CUSTOM_VECTOR_DB_GUIDE.md)
-- [Custom JOINs Guide](./doc/CUSTOM_JOINS_GUIDE.md)
-- [Contributors](./doc/CONTRIBUTORS.md)
-
-**AI Application Ecosystem**:
-- **[AI Application Docs →](./doc/ai_application/README.md)** - Complete AI/RAG/Agent integration guide
-- [AI Agent Toolkit](./doc/ai_application/AGENT_TOOLKIT.md) - JSON Schema, OpenAPI
-- [RAG Best Practices](./doc/ai_application/RAG_BEST_PRACTICES.md) - Document retrieval guide
-- [LangChain Integration](./doc/ai_application/LANGCHAIN_INTEGRATION.md) - Python LangChain
-- [Performance Optimization](./doc/ai_application/PERFORMANCE.md) - AI app tuning
-
-**Complete Application Examples**:
-- **[Examples →](./examples/README.md)** - Full working applications
-- [PostgreSQL + pgvector App](./examples/pgvector-app/) - Code search
-- [Qdrant Integration App](./examples/qdrant-app/) - Document retrieval
-- [RAG Application](./examples/rag-app/) - Full RAG system
-- [PageIndex App](./examples/pageindex-app/) - Structured document retrieval
 
 ## Contributing
 
-We warmly welcome all forms of contributions! 🎉
+We welcome issues, discussions, PRs!
 
-- 🐛 **Report bugs**: [GitHub Issues](https://github.com/fndome/xb/issues)
-- 💡 **Request features**: [GitHub Issues](https://github.com/fndome/xb/issues)
-- 💬 **Discuss ideas**: [GitHub Discussions](https://github.com/fndome/xb/discussions)
-- 💻 **Submit code**: See [CONTRIBUTING](./doc/CONTRIBUTING.md)
+- Issues & features: [GitHub Issues](https://github.com/fndome/xb/issues)
+- Roadmap & ideas: [GitHub Discussions](https://github.com/fndome/xb/discussions)
+- Contribution steps: [CONTRIBUTING](./doc/CONTRIBUTING.md)
+- Vision & philosophy: [VISION.md](./VISION.md)
 
-> In the era of rapid tech iteration, we embrace change and listen to the community. See [VISION.md](./VISION.md) for our development philosophy.
-
-## Quickstart
-
-* [Single Example](#single-example)
-* [Join Example](#join-example)
-
-
-### Single Example
-
-```Go
-
-import (
-    . "github.com/fndome/xb"
-)
-
-type Cat struct {
-	Id       uint64    `db:"id"`
-	Name     string    `db:"name"`
-	Age      uint      `db:"age"`
-	Color    string    `db:"color"`
-	Weight   float64   `db:"weight"`
-	IsSold   *bool     `db:"is_sold"`
-	Price    *float64  `db:"price"`
-	CreateAt time.Time `db:"create_at"`
-}
-
-func (*Cat) TableName() string {
-	return "t_cat"
-}
-
-// IsSold, Price, fields can be zero, must be pointer, like Java Boolean....
-// xb has func: Bool(true), Int(v) ....
-// xb no relect, not support omitempty, should rewrite ro, dto
-type CatRo struct {
-	Name   string   `json:"name, string"`
-	IsSold *bool    `json:"isSold, *bool"`
-	Price  *float64 `json:"price, *float64"`
-	Age    uint     `json:"age", unit`
-}
-
-func main() {
-	cat := Cat{
-		Id:       100002,
-		Name:     "Tuanzi",
-		Age:      1,
-		Color:    "B",
-		Weight:   8.5,
-		IsSold:   Bool(true),
-		Price:    Float64(10000.00),
-		CreateAt: time.Now(),
-	}
-    // INSERT .....
-
-    // PREPARE TO QUERY
-	catRo := CatRo{
-		Name:	"Tu",
-		IsSold: nil,
-		Price:  Float64(5000.00),
-		Age:    1,
-	}
-
-	preCondition := func() bool {
-		if cat.Color == "W" {
-			return true
-		} else if cat.Weight <= 3 {
-			return false
-		} else {
-			return true
-		}
-	}
-
-	var c Cat
-	var builder = Of(&c)
-	builder.LikeLeft("name",catRo.Name)
-	builder.X("weight <> ?", 0) //X(k, v...), hardcode func, value 0 and nil will NOT ignore
-    //Eq,Ne,Gt.... value 0 and nil will ignore, like as follow: OR().Eq("is_sold", catRo.IsSold)
-	builder.And(func(cb *CondBuilder) {
-            cb.Gte("price", catRo.Price).OR().Gte("age", catRo.Age).OR().Eq("is_sold", catRo.IsSold))
-	    })
-    //func Bool NOT designed for value nil or 0; designed to convert complex logic to bool
-    //Decorator pattern suggest to use func Bool preCondition, like:
-    //myBoolDecorator := NewMyBoolDecorator(para)
-    //builder.Bool(myBoolDecorator.fooCondition, func(cb *CondBuilder) {
-	builder.Bool(preCondition, func(cb *CondBuilder) {
-            cb.Or(func(cb *CondBuilder) {
-                cb.Lt("price", 5000)
-            })
-	})
-	builder.Sort("id", ASC)
-        builder.Paged(func(pb *PageBuilder) {
-                pb.Page(1).Rows(10).IgnoreTotalRows()
-            })
-    countSql, dataSql, vs, _ := builder.Build().SqlOfPage()
-    // ....
-
-    //dataSql: SELECT * FROM t_cat WHERE id > ? AND name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
-    //ORDER BY id ASC LIMIT 10
-
-	//.IgnoreTotalRows(), will not output countSql
-    //countSql: SELECT COUNT(*) FROM t_cat WHERE name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
-    
-    //sqlx: 	err = Db.Select(&catList, dataSql,vs...)
-	joinSql, condSql, cvs := builder.Build().SqlOfCond()
-    
-    //conditionSql: id > ? AND name LIKE ? AND weight <> 0 AND (price >= ? OR age >= ?) OR (price < ?)
-
-}
-```
-
-
-### Join Example
-
-```Go
-import (
-        . "github.com/fndome/xb"
-    )
-    
-func main() {
-	
-	sub := func(sb *BuilderX) {
-                sb.Select("id","type").From("t_pet").Gt("id", 10000) //....
-            }
-	
-        builder := X().
-		Select("p.id","p.weight").
-		FromX(func(fb *FromBuilder) {
-                    fb.
-                        Sub(sub).As("p").
-                        JOIN(INNER).Of("t_dog").As("d").On("d.pet_id = p.id").
-                        JOIN(LEFT).Of("t_cat").As("c").On("c.pet_id = p.id").
-                            Cond(func(on *ON) {
-                                on.Gt("c.id", ro.MinCatId)
-                            })
-		    }).
-	        Ne("p.type","PIG").
-                Having(func(cb *CondBuilderX) {
-                    cb.Sub("p.weight > ?", func(sb *BuilderX) {
-                        sb.Select("AVG(weight)").From("t_dog")
-                    })
-                })
-    
-}
-
-
-```
+Before opening a PR:
+1. Run `go test ./...`
+2. Update docs/tests related to your change
+3. Describe behavior changes clearly in the PR template
 
 ---
 
-## 🎯 Use Case Decision Guide
+## License
 
-**Get direct answers without learning — Let AI decide for you**
-
-> 📖 **[中文版 (Chinese Version) →](./doc/USE_CASE_GUIDE_ZH.md)**
-
-### Scenario 1️⃣: Semantic Search & Personalization
-
-**Use Vector Database (pgvector / Qdrant)**
-
-```
-Applicable Use Cases:
-  ✅ Product recommendations ("Users who bought A also liked...")
-  ✅ Code search ("Find similar function implementations")
-  ✅ Customer service ("Find similar historical tickets")
-  ✅ Content recommendations ("Similar articles, videos")
-  ✅ Image search ("Find similar images")
-
-Characteristics:
-  - Fragmented data (each record independent)
-  - Requires similarity matching
-  - No clear structure
-
-Example:
-  xb.Of(&Product{}).
-      VectorSearch("embedding", userVector, 20).
-      Eq("category", "electronics")
-```
-
----
-
-### Scenario 2️⃣: Structured Long Document Analysis
-
-**Use PageIndex**
-
-```
-Applicable Use Cases:
-  ✅ Financial report analysis ("How is financial stability in 2024?")
-  ✅ Legal contract retrieval ("Chapter 3 breach of contract terms")
-  ✅ Technical manual queries ("Which page contains installation steps?")
-  ✅ Academic paper reading ("Methodology section content")
-  ✅ Policy document analysis ("Specific provisions in Section 2.3")
-
-Characteristics:
-  - Long documents (50+ pages)
-  - Clear chapter structure
-  - Context preservation required
-
-Example:
-  xb.Of(&PageIndexNode{}).
-      Eq("doc_id", docID).
-      Like("title", "Financial Stability").
-      Eq("level", 1)
-```
-
----
-
-### Scenario 3️⃣: Hybrid Retrieval (Structure + Semantics)
-
-**Use PageIndex + Vector Database**
-
-```
-Applicable Use Cases:
-  ✅ Research report Q&A ("Investment advice for tech sector")
-  ✅ Knowledge base retrieval (need both structure and semantics)
-  ✅ Medical literature analysis ("Treatment plan related chapters")
-  ✅ Patent search ("Patents with similar technical solutions")
-
-Characteristics:
-  - Both structured and semantic needs
-  - Long documents + precise matching requirements
-
-Example:
-  // Step 1: PageIndex locates chapter
-  xb.Of(&PageIndexNode{}).
-      Like("title", "Investment Advice").
-      Eq("level", 2)
-  
-  // Step 2: Vector search within chapter
-  xb.Of(&DocumentChunk{}).
-      VectorSearch("embedding", queryVector, 10).
-      Gte("page", chapterStartPage).
-      Lte("page", chapterEndPage)
-```
-
----
-
-### Scenario 4️⃣: Traditional Business Data
-
-**Use Standard SQL (No Vector/PageIndex needed)**
-
-```
-Applicable Use Cases:
-  ✅ User management ("Find users over 18")
-  ✅ Order queries ("Orders in January 2024")
-  ✅ Inventory management ("Products with low stock")
-  ✅ Statistical reports ("Sales by region")
-
-Characteristics:
-  - Structured data
-  - Exact condition matching
-  - No semantic understanding needed
-
-Example:
-  xb.Of(&User{}).
-      Gte("age", 18).
-      Eq("status", "active").
-      Paged(...)
-```
-
----
-
-## 🤔 Quick Decision Tree
-
-```
-Your data is...
-
-├─ Fragmented (products, users, code snippets)
-│  └─ Need "similarity" matching?
-│     ├─ Yes → Vector Database ✅
-│     └─ No  → Standard SQL ✅
-│
-└─ Long documents (reports, manuals, contracts)
-   └─ Has clear chapter structure?
-      ├─ Yes → PageIndex ✅
-      │  └─ Also need semantic matching?
-      │     └─ Yes → PageIndex + Vector ✅
-      └─ No → Traditional RAG (chunking + vector) ✅
-```
-
----
-
-## 💡 Core Principles
-
-```
-Don't debate technology choices — Look at data characteristics:
-
-1️⃣ Fragmented data + need similarity
-   → Vector Database
-
-2️⃣ Long documents + structured + need chapter location
-   → PageIndex
-
-3️⃣ Long documents + unstructured + need semantics
-   → Traditional RAG (chunking + vector)
-
-4️⃣ Structured data + exact matching
-   → Standard SQL
-
-5️⃣ Complex scenarios
-   → Hybrid approach
-```
-
-**xb supports all scenarios — One API for everything!** ✅
-
-
+Apache License 2.0 — see [LICENSE](./LICENSE).
