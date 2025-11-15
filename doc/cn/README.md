@@ -18,7 +18,7 @@
 > - 持久化 Struct 可直接镜像数据库字段（如自增主键），不必全部设置为指针。
 > - 请求 / 过滤 DTO 建议将非主键的数值、布尔字段声明为指针，以区分“未填写”与“填写 0/false”，也便于 xb 自动跳过无效条件。
 > - 若需要手动控制，可使用 `X("...")` 注入原始 SQL（不会被自动过滤），或在 JOIN 场景中选择特定的 JOIN helper（例如 `JOIN(NON_JOIN)` / 自定义 JOIN）来关闭自动裁剪；对 `BuilderX` 可调用 `WithoutOptimization()` 完全关闭 JOIN/CTE 优化。
-> - 链式调用里需要临时控制流时，可使用 `Any(func(*BuilderX))` 包裹循环或辅助函数；布尔条件需要复用时，可使用 `Bool(func() bool, func(*CondBuilder))`；写子查询 `Sub(sql, func(*BuilderX))` 时同样能保持链式接口与自动过滤。
+> - 链式调用里需要临时控制流时，可使用 `Any(func(*BuilderX))` 包裹循环或辅助函数；布尔条件需要复用时，可使用 `Bool(func() bool, func(*CondBuilder))`。
 
 ---
 
@@ -26,7 +26,7 @@
 
 - **统一向量入口**：`JsonOfSelect()` 覆盖 Qdrant 的搜索 / 推荐 / 发现 / Scroll，彻底移除 `ToQdrant*JSON()`。
 - **组合式 SQL**：`With/WithRecursive`、`UNION(kind, fn)` 用 Go 代码描述复杂 CTE 与报表。
-- **智能条件 DSL**：自动过滤 `nil/0/""`，提供 `InRequired` / `X()` / `Sub()` 等守卫与逃生舱。
+- **智能条件 DSL**：自动过滤 `nil/0/""`，提供 `InRequired` / `X()` / `CondBuilderX.Sub()` 等守卫与逃生舱。
 - **自适应 JOIN 规划**：`FromX` + `JOIN(kind)` 可自动跳过空 ON 条件或无意义的联表，让 SQL 更精简。
 - **可观测设计**：`Meta(func)` 搭配全局拦截器，TraceID 与用户上下文贯穿各阶段。
 - **AI 辅助维护**：每次发版都由 AI + 人类共同编写代码、测试与文档。

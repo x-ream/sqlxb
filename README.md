@@ -18,7 +18,7 @@ Everything flows through `Custom()` + `Build()` so the surface stays tiny even a
 > - Persistence structs mirror the database schema, so numeric primary keys can stay as plain values.
 > - Request/filter DTOs should declare non-primary numeric and boolean fields as pointers to distinguish “unset” from “0/false” and to leverage autobypass logic.
 > - Need to bypass optimizations? Use `X("...")` to inject raw SQL (the clause will never be auto-skipped), and pick explicit JOIN helpers (e.g., `JOIN(NON_JOIN)` or custom builders) when you want to keep every JOIN even if it looks redundant. For `BuilderX`, call `WithoutOptimization()` to disable the JOIN/CTE optimizer entirely.
-> - For non-functional control flow inside fluent chains, use `Any(func(*BuilderX))` to run loops or helper functions without breaking chaining, `Bool(func() bool, func(*CondBuilder))` to conditionally add blocks, and `CondBuilderX.Sub(sql, func(*BuilderX))` to wrap subqueries safely while keeping everything chainable.
+> - For non-functional control flow inside fluent chains, use `Any(func(*BuilderX))` to run loops or helper functions without breaking chaining, and `Bool(func() bool, func(*CondBuilder))` to conditionally add blocks while reusing the auto-filtered DSL.
 
 ---
 
@@ -26,7 +26,7 @@ Everything flows through `Custom()` + `Build()` so the surface stays tiny even a
 
 - **Unified vector entry** — `JsonOfSelect()` now covers all Qdrant search/recommend/discover/scroll flows. Legacy `ToQdrant*JSON()` methods were retired.
 - **Composable SQL** — `With/WithRecursive` and `UNION(kind, fn)` let you express ClickHouse-style analytics directly in Go.
-- **Smart condition DSL** — auto-filter nil/zero, guard rails via `InRequired`, raw expressions via `X()`, and inline conditional blocks.
+- **Smart condition DSL** — auto-filter nil/zero, guard rails via `InRequired`, raw expressions via `X()`, reusable subqueries via `CondBuilderX.Sub()`, and inline conditional blocks.
 - **Adaptive JOIN planner** — `FromX` + `JOIN(kind)` skip meaningless joins automatically (e.g., empty ON blocks), keeping SQL lean.
 - **Observability-first** — `Meta(func)` plus interceptors carry TraceID/UserID across builder stages.
 - **AI-assisted maintenance** — code, tests, docs co-authored by AI and reviewed by humans every release.
