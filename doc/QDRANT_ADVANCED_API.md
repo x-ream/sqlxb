@@ -36,7 +36,7 @@ built := xb.Of(&Article{}).
     }).
     Build()
 
-json, err := built.ToQdrantRecommendJSON()
+json, err := built.JsonOfSelect()
 ```
 
 **生成的 JSON**:
@@ -115,7 +115,7 @@ built := xb.Of(&Article{}).
     }).
     Build()
 
-json, err := built.ToQdrantDiscoverJSON()
+json, err := built.JsonOfSelect()
 ```
 
 **生成的 JSON**:
@@ -166,7 +166,7 @@ built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVec, 100).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 
 // 发送到 Qdrant
 response := qdrantClient.Search(collectionName, json)
@@ -190,7 +190,7 @@ built := xb.Of(&CodeVector{}).
     }).
     Build()
 
-json, _ := built.ToQdrantScrollJSON()
+json, _ := built.JsonOfSelect()
 
 // 发送到 Qdrant 获取下一批
 response := qdrantClient.Scroll(collectionName, json)
@@ -215,7 +215,7 @@ for {
             Eq("language", "golang").
             VectorSearch("embedding", queryVec, 100).
             Build()
-        json, err = built.ToQdrantJSON()
+        json, err = built.JsonOfSelect()
     } else {
         // 继续滚动
         built := xb.Of(&CodeVector{}).
@@ -224,7 +224,7 @@ for {
                 qx.ScrollID(scrollID)
             }).
             Build()
-        json, err = built.ToQdrantScrollJSON()
+        json, err = built.JsonOfSelect()
     }
     
     // 调用 Qdrant
@@ -338,7 +338,7 @@ func ExportAllCodeVectors(qdrantClient *QdrantClient) error {
                 Eq("language", "golang").
                 VectorSearch("embedding", queryVec, batchSize).
                 Build()
-            json, err = built.ToQdrantJSON()
+            json, err = built.JsonOfSelect()
         } else {
             // ⭐ 继续滚动（使用 scroll_id）
             built := xb.Of(&CodeVector{}).
@@ -347,7 +347,7 @@ func ExportAllCodeVectors(qdrantClient *QdrantClient) error {
                     qx.ScrollID(scrollID)
                 }).
                 Build()
-            json, err = built.ToQdrantScrollJSON()
+            json, err = built.JsonOfSelect()
         }
         
         if err != nil {

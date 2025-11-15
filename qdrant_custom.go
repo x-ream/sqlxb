@@ -235,8 +235,17 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 	}
 
 	// ⭐ SELECT: 生成 Qdrant search JSON
-	json, err := built.toQdrantJSON()
-	return json, err
+	switch {
+	case hasBbWithOp(built.Conds, QDRANT_RECOMMEND):
+		return built.toQdrantRecommendJSON()
+	case hasBbWithOp(built.Conds, QDRANT_DISCOVER):
+		return built.toQdrantDiscoverJSON()
+	case hasBbWithOp(built.Conds, QDRANT_SCROLL):
+		return built.toQdrantScrollJSON()
+	default:
+		json, err := built.toQdrantJSON()
+		return json, err
+	}
 }
 
 // ============================================================================

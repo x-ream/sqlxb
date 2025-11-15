@@ -7,7 +7,7 @@ feat: 新增 Limit/Offset API + 全面修复 ai_application 文档 (v0.10.1)
 
 📚 文档全面修复（ai_application/ 目录，70+ 处）
 - 🔧 API 用法修正（50+ 处）
-  - ToQdrantSearch() → Build().ToQdrantJSON()
+  - ToQdrantSearch() → Build().JsonOfSelect()
   - WithLimit()/WithScoreThreshold() → 函数式参数
   - VectorSearch() 参数顺序修正
   - BuildInsert() 调用修正

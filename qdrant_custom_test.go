@@ -225,3 +225,86 @@ func TestQdrantCustom_CustomConfiguration(t *testing.T) {
 
 	t.Logf("✅ Custom configuration applied")
 }
+
+// ============================================================================
+// JsonOfSelect 高级 API 回归测试
+// ============================================================================
+
+func TestJsonOfSelect_WithRecommendConfig(t *testing.T) {
+	queryVector := Vector{0.01, 0.02, 0.03}
+
+	jsonStr, err := Of(&CodeVector{}).
+		Custom(NewQdrantCustom().Recommend(func(rb *RecommendBuilder) {
+			rb.Positive(11, 22).Negative(33).Limit(5)
+		})).
+		VectorSearch("embedding", queryVector, 5).
+		Build().
+		JsonOfSelect()
+	if err != nil {
+		t.Fatalf("JsonOfSelect failed: %v", err)
+	}
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &payload); err != nil {
+		t.Fatalf("failed to parse recommend JSON: %v", err)
+	}
+
+	if limit := payload["limit"]; limit != float64(5) {
+		t.Fatalf("recommend limit want 5, got %v", limit)
+	}
+	if _, ok := payload["positive"]; !ok {
+		t.Fatalf("recommend payload missing positive ids")
+	}
+	if _, ok := payload["negative"]; !ok {
+		t.Fatalf("recommend payload missing negative ids")
+	}
+}
+
+func TestJsonOfSelect_WithDiscoverConfig(t *testing.T) {
+	queryVector := Vector{0.1, 0.2, 0.3}
+
+	jsonStr, err := Of(&CodeVector{}).
+		Custom(NewQdrantCustom().Discover(func(db *DiscoverBuilder) {
+			db.Context(101, 102, 103).Limit(8)
+		})).
+		VectorSearch("embedding", queryVector, 8).
+		Build().
+		JsonOfSelect()
+	if err != nil {
+		t.Fatalf("JsonOfSelect failed: %v", err)
+	}
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &payload); err != nil {
+		t.Fatalf("failed to parse discover JSON: %v", err)
+	}
+
+	if limit := payload["limit"]; limit != float64(8) {
+		t.Fatalf("discover limit want 8, got %v", limit)
+	}
+	if _, ok := payload["context"]; !ok {
+		t.Fatalf("discover payload missing context ids")
+	}
+}
+
+func TestJsonOfSelect_WithScrollConfig(t *testing.T) {
+	scrollID := "scroll-xyz"
+
+	jsonStr, err := Of(&CodeVector{}).
+		Custom(NewQdrantCustom().ScrollID(scrollID)).
+		Eq("language", "golang").
+		Build().
+		JsonOfSelect()
+	if err != nil {
+		t.Fatalf("JsonOfSelect failed: %v", err)
+	}
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &payload); err != nil {
+		t.Fatalf("failed to parse scroll JSON: %v", err)
+	}
+
+	if got := payload["scroll_id"]; got != scrollID {
+		t.Fatalf("scroll_id want %s, got %v", scrollID, got)
+	}
+}

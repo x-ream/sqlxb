@@ -65,9 +65,9 @@ func mergeAndSerialize(req interface{}, bbs []Bb) (string, error)
 
 | 函数 | 优化前（行） | 优化后（行） | 减少 |
 |------|-------------|-------------|------|
-| `ToQdrantRecommendJSON` | 45 | 35 | -10 行 |
-| `ToQdrantScrollJSON` | 45 | 35 | -10 行 |
-| `ToQdrantDiscoverJSON` | 40 | 30 | -10 行 |
+| `JsonOfSelect` | 45 | 35 | -10 行 |
+| `JsonOfSelect` | 45 | 35 | -10 行 |
+| `JsonOfSelect` | 40 | 30 | -10 行 |
 
 **关键改进**：
 - 使用 `applyQdrantParams(built.Conds, req)` 替代专属函数
@@ -145,12 +145,12 @@ go test ./...
 ### 5.1 优化前（重复代码）
 
 ```go
-// ToQdrantRecommendJSON
+// JsonOfSelect
 applyQdrantParamsToRecommend(built.Conds, req)  // 44 行重复代码
 bytes, _ := json.MarshalIndent(req, "", "  ")
 return string(bytes), nil
 
-// ToQdrantDiscoverJSON  
+// JsonOfSelect  
 applyQdrantParamsToDiscover(built.Conds, req)   // 44 行重复代码
 bytes, _ := json.MarshalIndent(req, "", "  ")
 return string(bytes), nil
@@ -159,11 +159,11 @@ return string(bytes), nil
 ### 5.2 优化后（统一接口）
 
 ```go
-// ToQdrantRecommendJSON
+// JsonOfSelect
 applyQdrantParams(built.Conds, req)   // ⭐ 统一函数
 return mergeAndSerialize(req, built.Conds)
 
-// ToQdrantDiscoverJSON
+// JsonOfSelect
 applyQdrantParams(built.Conds, req)   // ⭐ 统一函数
 return mergeAndSerialize(req, built.Conds)
 ```
@@ -181,7 +181,7 @@ return mergeAndSerialize(req, built.Conds)
 
 ```go
 // 实现新的 BatchSearch API
-func (built *Built) ToQdrantBatchSearchJSON() (string, error) {
+func (built *Built) JsonOfSelect() (string, error) {
     req := &QdrantBatchSearchRequest{ /* ... */ }
     
     // ❌ 需要复制粘贴 44 行参数应用代码
@@ -207,7 +207,7 @@ func (built *Built) ToQdrantBatchSearchJSON() (string, error) {
 
 ```go
 // 实现新的 BatchSearch API
-func (built *Built) ToQdrantBatchSearchJSON() (string, error) {
+func (built *Built) JsonOfSelect() (string, error) {
     req := &QdrantBatchSearchRequest{ /* ... */ }
     
     // ⭐ 只需实现接口，然后一行搞定

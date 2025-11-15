@@ -28,7 +28,7 @@ func HybridSearch(queryVector []float32, status string, category string) (string
         }).
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -56,7 +56,7 @@ func AdvancedHybridSearch(params SearchParams) (map[string]interface{}, error) {
         }).
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -73,7 +73,7 @@ func FilterThenSearch(vector []float32, mustFilters map[string]interface{}) (str
         VectorSearch("embedding", vector, 10).      // 再向量检索，返回 10 条
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -90,7 +90,7 @@ func SearchThenFilter(vector []float32, optionalFilters map[string]interface{}) 
         Build()
 
     // 注意：后置过滤需要在应用层处理，取前 10 条
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -107,7 +107,7 @@ func MultiStageHybridSearch(params SearchParams) ([]Document, error) {
         }).
         Build()
 
-    stage1JSON, err := built1.ToQdrantJSON()
+    stage1JSON, err := built1.JsonOfSelect()
     if err != nil {
         return nil, err
     }
@@ -146,7 +146,7 @@ func TimeAwareSearch(query string, vector []float32) (string, error) {
         }).
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -163,7 +163,7 @@ func MultilingualSearch(vector []float32, preferredLang string) (string, error) 
         }).
         Build()
     
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -186,7 +186,7 @@ func PermissionAwareSearch(vector []float32, userID int64, userRoles []string) (
         Ne("status", "deleted").
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -209,7 +209,7 @@ func HierarchicalSearch(vector []float32, category string) (map[string]interface
         }).
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -224,7 +224,7 @@ func FreshnessWeightedSearch(vector []float32) ([]Document, error) {
         VectorSearch("embedding", vector, 50).
         Build()
     
-    qdrantJSON, _ := built.ToQdrantJSON()
+    qdrantJSON, _ := built.JsonOfSelect()
     
     now := time.Now()
     for i := range results {
@@ -265,7 +265,7 @@ func PersonalizedSearch(vector []float32, userID int64) (map[string]interface{},
     }
     
     built := builder.Build()
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -284,7 +284,7 @@ func SearchWithNegativeFeedback(vector []float32, userID int64) (map[string]inte
         NotIn("id", excludeIDs).  // 排除已看过的
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 

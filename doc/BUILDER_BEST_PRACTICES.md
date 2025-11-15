@@ -280,7 +280,7 @@ func QdrantSearch(queryVector []float32) (string, error) {
         Eq("doc_type", "article").
         Build()
     
-    jsonBytes, err := built.ToQdrantJSON()
+    jsonBytes, err := built.JsonOfSelect()
     if err != nil {
         return "", err
     }
@@ -300,7 +300,7 @@ func QdrantAdvancedSearch(queryVector []float32) (string, error) {
         }).
         Build()
     
-    jsonBytes, err := built.ToQdrantJSON()
+    jsonBytes, err := built.JsonOfSelect()
     if err != nil {
         return "", err
     }

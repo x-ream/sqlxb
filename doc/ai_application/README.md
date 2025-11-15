@@ -79,7 +79,7 @@ func HybridSearch(queryVector []float32, docType string, minScore float64) (stri
         }).
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 

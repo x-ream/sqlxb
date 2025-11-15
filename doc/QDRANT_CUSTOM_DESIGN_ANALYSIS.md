@@ -56,7 +56,7 @@ builder.Eq("language", "golang").
 
 **现状**：
 ```go
-// ToQdrantJSON 中的处理
+// JsonOfSelect 中的处理
 customParams := extractQdrantCustomParams(built.Conds)
 if len(customParams) > 0 {
     // 手动序列化、反序列化、合并
@@ -165,8 +165,8 @@ func (qrb *QdrantRequestBuilder) setFieldByPath(v reflect.Value, path string, va
 #### 使用方式
 
 ```go
-// ToQdrantJSON 简化为
-func (built *Built) ToQdrantJSON() (string, error) {
+// JsonOfSelect 简化为
+func (built *Built) JsonOfSelect() (string, error) {
     req, err := built.ToQdrantRequest()
     if err != nil {
         return "", err
@@ -181,8 +181,8 @@ func (built *Built) ToQdrantJSON() (string, error) {
     return builder.Build()
 }
 
-// ToQdrantRecommendJSON 简化为
-func (built *Built) ToQdrantRecommendJSON() (string, error) {
+// JsonOfSelect 简化为
+func (built *Built) JsonOfSelect() (string, error) {
     req, err := built.toQdrantRecommendRequest()
     if err != nil {
         return "", err
@@ -284,8 +284,8 @@ func applyQdrantParams(bbs []Bb, req QdrantRequest) {
 #### 使用方式
 
 ```go
-// ToQdrantRecommendJSON 简化为
-func (built *Built) ToQdrantRecommendJSON() (string, error) {
+// JsonOfSelect 简化为
+func (built *Built) JsonOfSelect() (string, error) {
     req, err := built.toQdrantRecommendRequest()
     if err != nil {
         return "", err
@@ -377,7 +377,7 @@ type QdrantBatchSearchRequest struct {
 }
 
 // 2. 实现转换（从 30 行 → 5 行）⭐
-func (built *Built) ToQdrantBatchSearchJSON() (string, error) {
+func (built *Built) JsonOfSelect() (string, error) {
     // 构建基础请求
     req := &QdrantBatchSearchRequest{
         Searches: extractSearches(built.Conds),
@@ -435,7 +435,7 @@ func applyQdrantParams(bbs []Bb, req QdrantRequest) {
 }
 
 // 4. 重构现有函数
-func (built *Built) ToQdrantRecommendJSON() (string, error) {
+func (built *Built) JsonOfSelect() (string, error) {
     req := /* ... */
     applyQdrantParams(built.Conds, req)
     return mergeAndSerialize(req, built.Conds)
@@ -618,7 +618,7 @@ func ensureParams(req QdrantRequest) {
 
 ```go
 // to_qdrant_json.go（简化版）
-func (built *Built) ToQdrantRecommendJSON() (string, error) {
+func (built *Built) JsonOfSelect() (string, error) {
     req, err := built.toQdrantRecommendRequest()
     if err != nil {
         return "", err

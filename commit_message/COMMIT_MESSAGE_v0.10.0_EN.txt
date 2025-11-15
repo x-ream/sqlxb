@@ -22,7 +22,7 @@ qx.Recommend(func(rb *RecommendBuilder) {
 
 **Files**:
 - `qdrant_x.go` - Recommend API implementation
-- `to_qdrant_json.go` - ToQdrantRecommendJSON()
+- `to_qdrant_json.go` - JsonOfSelect()
 - `qdrant_recommend_test.go` - 4 tests
 
 ---
@@ -46,7 +46,7 @@ qx.Discover(func(db *DiscoverBuilder) {
 
 **Files**:
 - `qdrant_x.go` - Discover API implementation
-- `to_qdrant_json.go` - ToQdrantDiscoverJSON()
+- `to_qdrant_json.go` - JsonOfSelect()
 - `qdrant_discover_test.go` - 3 tests
 
 ---
@@ -67,7 +67,7 @@ qx.ScrollID("scroll-12345-xyz")
 
 **Files**:
 - `qdrant_x.go` - ScrollID() implementation
-- `to_qdrant_json.go` - ToQdrantScrollJSON()
+- `to_qdrant_json.go` - JsonOfSelect()
 - Tests included in recommend_test.go
 
 ---
@@ -112,10 +112,10 @@ Covers 99% of vector database use cases!
 
 ```go
 // Unified JSON generation interface
-built.ToQdrantJSON()           // Vector search
-built.ToQdrantRecommendJSON()  // Recommendation
-built.ToQdrantDiscoverJSON()   // Discovery
-built.ToQdrantScrollJSON()     // Scroll
+built.JsonOfSelect()           // Vector search
+built.JsonOfSelect()  // Recommendation
+built.JsonOfSelect()   // Discovery
+built.JsonOfSelect()     // Scroll
 ```
 
 ---
@@ -218,7 +218,7 @@ built := sqlxb.Of(&Article{}).
     }).
     Build()
 
-json, _ := built.ToQdrantRecommendJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 ---

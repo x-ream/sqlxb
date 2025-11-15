@@ -2,6 +2,68 @@
 
 ## 🔄 版本迁移
 
+### v1.2.x → v1.3.0（统一 JsonOfSelect）
+
+**最新版本**: v1.3.0  
+**发布日期**: 2025-XX-XX
+
+#### 重要变更
+
+- ✅ **单一 JSON 入口**：所有 Qdrant 查询 JSON 统一为 `JsonOfSelect()`，`ToQdrant*JSON()` 函数下线为内部实现。
+- ✅ **高级 API 合并**：`Recommend/Discover/Scroll` 通过 `QdrantCustom` 配置即可生效，不再需要单独方法。
+- 📚 **文档同步**：README / Doc / Release 全部切换为 `JsonOfSelect()` 示例。
+
+#### 迁移步骤
+
+1. **升级依赖**
+
+```bash
+go get github.com/fndome/xb@v1.3.0
+go mod tidy
+```
+
+2. **替换 JSON 生成方法**
+
+| 旧方法 | 新方法 |
+|--------|--------|
+| `built.ToQdrantJSON()` | `built.JsonOfSelect()` |
+| `built.ToQdrantRecommendJSON()` | `built.JsonOfSelect()` |
+| `built.ToQdrantDiscoverJSON()` | `built.JsonOfSelect()` |
+| `built.ToQdrantScrollJSON()` | `built.JsonOfSelect()` |
+
+**示例**
+
+```go
+// v1.2.x
+json, _ := built.ToQdrantJSON()
+
+// v1.3.0
+json, _ := built.JsonOfSelect()
+```
+
+3. **高级 API 配置**
+
+```go
+custom := xb.NewQdrantCustom().
+    Recommend(func(rb *xb.RecommendBuilder) {
+        rb.Positive(101, 102).Negative(203).Limit(20)
+    }).
+    Discover(func(db *xb.DiscoverBuilder) {
+        db.Context(901, 902).Limit(15)
+    }).
+    ScrollID("scroll-abc")
+
+json, _ := xb.Of(&CodeVector{}).
+    Custom(custom).
+    VectorSearch("embedding", queryVector, 10).
+    Build().
+    JsonOfSelect()
+```
+
+> ⚠️ 如果升级后仍调用 `ToQdrant*JSON()`，编译将失败。请务必替换。
+
+---
+
 ### v1.0.0 → v1.1.0 (Custom Interface)
 
 **最新版本**: v1.1.0  

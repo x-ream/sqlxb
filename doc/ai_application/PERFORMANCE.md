@@ -121,14 +121,14 @@ embedding, _ := cache.GetOrCompute(query, embeddingFunc)
 built1 := xb.Of(&Doc{}).
     VectorSearch("embedding", vector, 100).
     Build()
-json1, _ := built1.ToQdrantJSON()  // 返回太多
+json1, _ := built1.JsonOfSelect()  // 返回太多
 
 // ✅ 推荐：分阶段获取
 // 阶段1: 粗召回
 built2 := xb.Of(&Doc{}).
     VectorSearch("embedding", vector, 50).
     Build()
-json2, _ := built2.ToQdrantJSON()
+json2, _ := built2.JsonOfSelect()
 
 // 执行查询，然后阶段2: 精排序 + MMR
 stage1Results := executeQdrantQuery(json2)
@@ -147,7 +147,7 @@ built := xb.Of(&Doc{}).
     VectorSearch("embedding", vector, 20).
     Gte("created_at", last7Days).  // 减少候选集
     Build()
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 ### 3. 并行查询

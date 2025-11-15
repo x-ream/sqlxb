@@ -449,7 +449,7 @@ xb.RegisterInterceptor(func(sql string, args []interface{}) {
 **方法 3: Qdrant 查询日志**
 ```go
 built := builder.Build()
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 fmt.Printf("Qdrant Query: %s\n", json)
 ```
 

@@ -13,7 +13,38 @@ or build condition sql for some orm framework, like [xorm](https://github.com/go
 also can build json for some json parameter db, like [Qdrant](https://github.com/qdrant/qdrant) ....
 
 
-> 🎉 **Latest**: v1.2.3 released with CTE builders + UNION chaining for complex SQL!
+> 🎉 **Latest**: v1.3.0 unified `JsonOfSelect()` for所有向量方言，并整合 Qdrant 高级 API。
+
+---
+
+## 🚀 NEW: Unified JsonOfSelect + Qdrant Advanced APIs (v1.3.0)
+
+**单一入口即可覆盖 Recommend / Discover / Scroll。**
+
+**✨ Highlights**
+- 🧠 **JsonOfSelect()** — 所有 Qdrant JSON 生成统一到一个方法，彻底移除 `ToQdrant*JSON()` API 记忆负担。
+- 🛰️ **Advanced Builder Hooks** — `QdrantCustom.Recommend/Discover/ScrollID` 自动注入条件，不再需要额外方法。
+- 🧾 **文档/示例全面同步** — README、MIGRATION、Release Notes 统一说明升级步骤。
+- 🧪 **回归测试** — `JsonOfSelect()` + Recommend/Discover/Scroll 全覆盖，确保 v1.3.0 行为可预期。
+
+```go
+json, err := xb.Of(&CodeVector{}).
+    Custom(
+        xb.NewQdrantCustom().
+            Recommend(func(rb *xb.RecommendBuilder) {
+                rb.Positive(101, 102).Negative(203).Limit(20)
+            }),
+    ).
+    VectorSearch("embedding", queryVector, 10).
+    Eq("language", "golang").
+    Build().
+    JsonOfSelect()
+```
+
+**Best For**
+- 想要使用 Recommend/Discover/Scroll 但不希望额外学习不同方法的团队
+- 希望 `Custom.Generate()` 自动产出 JSON 的 AI / RAG 项目
+- 减少 API 表面积、降低文档维护成本
 
 ---
 

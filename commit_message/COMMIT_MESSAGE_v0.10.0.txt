@@ -22,7 +22,7 @@ qx.Recommend(func(rb *RecommendBuilder) {
 
 **文件**：
 - `qdrant_x.go` - Recommend API 实现
-- `to_qdrant_json.go` - ToQdrantRecommendJSON()
+- `to_qdrant_json.go` - JsonOfSelect()
 - `qdrant_recommend_test.go` - 4 个测试
 
 ---
@@ -46,7 +46,7 @@ qx.Discover(func(db *DiscoverBuilder) {
 
 **文件**：
 - `qdrant_x.go` - Discover API 实现
-- `to_qdrant_json.go` - ToQdrantDiscoverJSON()
+- `to_qdrant_json.go` - JsonOfSelect()
 - `qdrant_discover_test.go` - 3 个测试
 
 ---
@@ -67,7 +67,7 @@ qx.ScrollID("scroll-12345-xyz")
 
 **文件**：
 - `qdrant_x.go` - ScrollID() 实现
-- `to_qdrant_json.go` - ToQdrantScrollJSON()
+- `to_qdrant_json.go` - JsonOfSelect()
 - 测试已包含在 recommend_test.go 中
 
 ---
@@ -112,10 +112,10 @@ Scroll：大数据遍历（批处理）
 
 ```go
 // 统一的 JSON 生成接口
-built.ToQdrantJSON()           // 向量搜索
-built.ToQdrantRecommendJSON()  // 推荐查询
-built.ToQdrantDiscoverJSON()   // 探索查询
-built.ToQdrantScrollJSON()     // 游标遍历
+built.JsonOfSelect()           // 向量搜索
+built.JsonOfSelect()  // 推荐查询
+built.JsonOfSelect()   // 探索查询
+built.JsonOfSelect()     // 游标遍历
 ```
 
 ---
@@ -218,7 +218,7 @@ built := sqlxb.Of(&Article{}).
     }).
     Build()
 
-json, _ := built.ToQdrantRecommendJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 ---

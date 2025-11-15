@@ -37,7 +37,7 @@ built := xb.Of(&CodeVector{}).
     Build()
 
 // 生成 Qdrant JSON
-json, err := built.ToQdrantJSON()
+json, err := built.JsonOfSelect()
 ```
 
 ---
@@ -136,7 +136,7 @@ built := xb.Of(&CodeVector{}).
     }).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **生成的 JSON**：
@@ -174,7 +174,7 @@ built := xb.Of(&Article{}).
     }).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **生成的 JSON**：
@@ -207,7 +207,7 @@ built := xb.Of(&Document{}).
     }).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **生成的 JSON**：
@@ -243,7 +243,7 @@ built := xb.Of(&CodeVector{}).
     }).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 ---
@@ -395,7 +395,7 @@ func searchCode(query string, language string) ([]CodeVector, error) {
         Build()
     
     // 3. 执行查询
-    jsonStr, _ := built.ToQdrantJSON()
+    jsonStr, _ := built.JsonOfSelect()
     results := qdrantClient.Search("code_vectors", jsonStr)
     
     // 4. 应用层多样性过滤（基于 semantic_hash）
@@ -421,7 +421,7 @@ func searchCodesPaged(query string, page, pageSize int) ([]CodeVector, error) {
         }).
         Build()
     
-    jsonStr, _ := built.ToQdrantJSON()
+    jsonStr, _ := built.JsonOfSelect()
     results := qdrantClient.Search("code_vectors", jsonStr)
     
     return results, nil
@@ -451,7 +451,7 @@ func searchLegalCases(query string) ([]LegalCase, error) {
         }).
         Build()
     
-    jsonStr, _ := built.ToQdrantJSON()
+    jsonStr, _ := built.JsonOfSelect()
     results := qdrantClient.Search("legal_cases", jsonStr)
     
     return results, nil
@@ -476,7 +476,7 @@ func recommendArticles(userVector xb.Vector) ([]Article, error) {
         }).
         Build()
     
-    jsonStr, _ := built.ToQdrantJSON()
+    jsonStr, _ := built.JsonOfSelect()
     results := qdrantClient.Search("articles", jsonStr)
     
     // 应用层 MMR 过滤

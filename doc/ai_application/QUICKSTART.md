@@ -99,7 +99,7 @@ func main() {
         }).
         Build()
 
-    qdrantJSON, _ := built.ToQdrantJSON()
+    qdrantJSON, _ := built.JsonOfSelect()
 
     fmt.Println("Qdrant 查询:")
     fmt.Printf("%s\n", qdrantJSON)
@@ -174,7 +174,7 @@ func main() {
         }).
         Build()
 
-    qdrantJSON, _ := built.ToQdrantJSON()
+    qdrantJSON, _ := built.JsonOfSelect()
 
     fmt.Println("\n生成的 Qdrant 查询:")
     fmt.Printf("%s\n", qdrantJSON)

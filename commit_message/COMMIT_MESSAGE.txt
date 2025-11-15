@@ -7,7 +7,7 @@ Major features:
   - WithMMR() - MMR algorithm balancing relevance & diversity
 
 ✨ Qdrant JSON generation - Native Qdrant vector database support
-  - ToQdrantJSON() - Auto-generate Qdrant search JSON
+  - JsonOfSelect() - Auto-generate Qdrant search JSON
   - Full hybrid query support (vector + scalar filters)
   - Auto-mapping: Eq→match, Gt/Lt→range, In→match.any
 
@@ -39,7 +39,7 @@ New APIs:
 - WithHashDiversity(field) - Hash deduplication shortcut
 - WithMinDistance(dist) - Minimum distance shortcut
 - WithMMR(lambda) - MMR algorithm shortcut
-- ToQdrantJSON() - Generate Qdrant JSON string
+- JsonOfSelect() - Generate Qdrant JSON string
 - ToQdrantRequest() - Generate Qdrant request struct
 
 New types:

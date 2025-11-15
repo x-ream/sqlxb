@@ -137,7 +137,7 @@ func TestQdrant_EmptyOr_Filtered(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== Qdrant 空 OR 测试 ===\n%s", jsonStr)

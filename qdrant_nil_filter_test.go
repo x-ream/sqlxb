@@ -38,7 +38,7 @@ func TestQdrant_NilZeroFilter(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== nil/0 过滤测试 ===\n%s", jsonStr)
@@ -95,7 +95,7 @@ func TestQdrant_AllNilZero(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== 全部 nil/0 测试 ===\n%s", jsonStr)

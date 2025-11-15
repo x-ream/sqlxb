@@ -109,7 +109,7 @@ sql, args := builder.Build().SqlOfVectorSearch()
 // SQL: SELECT ... LIMIT 20
 
 // Qdrant: 应用多样性
-json, _ := builder.Build().ToQdrantJSON()
+json, _ := builder.Build().JsonOfSelect()
 // limit: 100 (20 * 5 倍过度获取)
 // 应用层基于 semantic_hash 去重到 20 个
 ```
@@ -237,7 +237,7 @@ built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 10).
     Build()
 
-json, err := built.ToQdrantJSON()
+json, err := built.JsonOfSelect()
 ```
 
 **输出**：
@@ -264,7 +264,7 @@ built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 20).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **输出**：
@@ -303,7 +303,7 @@ built := xb.Of(&CodeVector{}).
     WithHashDiversity("semantic_hash").  // ⭐ 多样性
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **输出**：
@@ -354,7 +354,7 @@ rows, err := db.Query(sql, args...)
 // SQL 自动忽略多样性，返回 Top-20
 
 // 后端 2: Qdrant (生产/大规模)
-json, err := built.ToQdrantJSON()
+json, err := built.JsonOfSelect()
 // POST http://qdrant:6333/collections/code_vectors/points/search
 // 获取 100 个，应用层去重到 20 个
 ```
@@ -555,7 +555,7 @@ func main() {
     
     // ===== 后端 2: Qdrant =====
     fmt.Println("\n=== Qdrant ===")
-    jsonStr, err := built.ToQdrantJSON()
+    jsonStr, err := built.JsonOfSelect()
     if err != nil {
         panic(err)
     }
@@ -614,7 +614,7 @@ WithMMR(lambda float32) *BuilderX
 
 ```go
 // 生成 JSON 字符串
-ToQdrantJSON() (string, error)
+JsonOfSelect() (string, error)
 
 // 生成请求结构体
 ToQdrantRequest() (*QdrantSearchRequest, error)

@@ -208,7 +208,7 @@ func BasicVectorSearch(query string, embeddingFunc func(string) ([]float32, erro
         }).
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 ```
 
@@ -236,7 +236,7 @@ func HybridSearch(query string, filters SearchFilters, embeddingFunc func(string
         }).
         Build()
 
-    return built.ToQdrantJSON()
+    return built.JsonOfSelect()
 }
 
 type SearchFilters struct {
@@ -259,7 +259,7 @@ func MultiStageSearch(query string) ([]DocumentChunk, error) {
         }).
         Build()
 
-    stage1JSON, err := built1.ToQdrantJSON()
+    stage1JSON, err := built1.JsonOfSelect()
     if err != nil {
         return nil, err
     }
@@ -449,7 +449,7 @@ func (s *RAGService) Query(ctx context.Context, query string, options QueryOptio
         }).
         Build()
 
-    qdrantJSON, err := built.ToQdrantJSON()
+    qdrantJSON, err := built.JsonOfSelect()
     
     if err != nil {
         return nil, err

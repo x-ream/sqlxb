@@ -318,7 +318,7 @@ built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **输出**：

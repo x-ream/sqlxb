@@ -310,7 +310,7 @@ func (built *Built) toQdrantRecommendJSON() (string, error) {
 	return mergeAndSerialize(req, built.Conds)
 }
 
-// ToQdrantScrollJSON 转换为 Qdrant Scroll JSON (v0.10.0)
+// JsonOfSelect 转换为 Qdrant Scroll JSON (v0.10.0)
 // 返回: JSON 字符串, error
 //
 // 示例输出:
@@ -381,7 +381,7 @@ func findDiscoverBb(bbs []Bb) *Bb {
 	return nil
 }
 
-// ToQdrantDiscoverJSON 转换为 Qdrant Discover JSON (v0.10.0)
+// JsonOfSelect 转换为 Qdrant Discover JSON (v0.10.0)
 // 返回: JSON 字符串, error
 //
 // 示例输出:
@@ -538,8 +538,8 @@ func applyQdrantSpecificConfig(bbs []Bb, req *QdrantSearchRequest) {
 			// ⭐ 用户自定义参数
 			// 注意：这些参数会被添加到 JSON 的顶层
 			// 由于 QdrantSearchRequest 是固定结构，
-			// QDRANT_XX 参数在 ToQdrantJSON() 中特殊处理
-			// 这里只是标记，实际处理在 ToQdrantJSON()
+			// QDRANT_XX 参数在 JsonOfSelect() 中特殊处理
+			// 这里只是标记，实际处理在 JsonOfSelect()
 		}
 	}
 }

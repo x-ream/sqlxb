@@ -76,7 +76,7 @@ cb.bbs = [
   ↓
 Build()
   ↓
-ToQdrantJSON()
+JsonOfSelect()
   ↓
 只转换有效的 2 个条件 ✅
 ```
@@ -96,7 +96,7 @@ built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **输出**：
@@ -210,7 +210,7 @@ built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 20).
     Build()
 
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 **Qdrant JSON**：
@@ -333,7 +333,7 @@ built := xb.Of(&CodeVector{}).
     VectorSearch("embedding", queryVector, 100).
     Build()
 
-qdrantResults := qdrantClient.Search(built.ToQdrantJSON())
+qdrantResults := qdrantClient.Search(built.JsonOfSelect())
 
 // 提取 ID
 codeIDs := []int64{}
@@ -401,7 +401,7 @@ sql, args := builder.Build().SqlOfVectorSearch()
 // nil/0 已过滤 ✅
 
 // Qdrant
-json, _ := builder.Build().ToQdrantJSON()
+json, _ := builder.Build().JsonOfSelect()
 // nil/0 已过滤 ✅
 ```
 
@@ -437,7 +437,7 @@ builder.
 sql, args := built.SqlOfVectorSearch()
 
 // 生产环境: Qdrant
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 
 // 未来: Milvus, Weaviate, ...
 // 只需添加 ToMilvusJSON(), ToWeaviateJSON()

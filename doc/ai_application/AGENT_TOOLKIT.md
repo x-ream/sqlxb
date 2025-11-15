@@ -364,7 +364,7 @@ func ExecuteRAGSearch(params map[string]interface{}, embeddingFunc func(string) 
         }).
         Build()
 
-    qdrantJSON, err := built.ToQdrantJSON()
+    qdrantJSON, err := built.JsonOfSelect()
     if err != nil {
         return nil, err
     }

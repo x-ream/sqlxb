@@ -47,7 +47,7 @@ built := xb.Of(&CodeVector{}).
     Build()
 
 // 生成 Qdrant JSON
-json, err := built.ToQdrantJSON()
+json, err := built.JsonOfSelect()
 ```
 
 **生成的 JSON**：
@@ -91,7 +91,7 @@ sql, args := built.SqlOfVectorSearch()
 // SQL: ... LIMIT 20 (不是 100)
 
 // Qdrant: 应用多样性 ✅
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 // limit: 100 (20 * 5 倍过度获取)
 ```
 
@@ -114,7 +114,7 @@ json, _ := built.ToQdrantJSON()
 
 | API | 说明 |
 |-----|------|
-| `ToQdrantJSON()` | 生成 JSON 字符串 |
+| `JsonOfSelect()` | 生成 JSON 字符串 |
 | `ToQdrantRequest()` | 生成请求结构体 |
 
 ---
@@ -230,7 +230,7 @@ xb.Of(&CodeVector{}).
     VectorSearch("embedding", vec, 20).
     WithHashDiversity("semantic_hash").  // ⭐ 新增
     Build().
-    ToQdrantJSON()  // ⭐ 新增
+    JsonOfSelect()  // ⭐ 新增
 ```
 
 ---
@@ -253,7 +253,7 @@ built := xb.Of(&CodeVector{}).
 sql, args := built.SqlOfVectorSearch()
 
 // Qdrant: 过度获取 100 个，应用层去重到 20 个
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 ---
@@ -275,7 +275,7 @@ xb.Of(&Article{}).
 
 ```go
 // Step 1: Qdrant 向量检索
-qdrantResults := qdrantClient.Search(built.ToQdrantJSON())
+qdrantResults := qdrantClient.Search(built.JsonOfSelect())
 
 // Step 2: PostgreSQL 关系查询
 codeIDs := extractIDs(qdrantResults)
@@ -306,7 +306,7 @@ go mod tidy
 builder.WithHashDiversity("semantic_hash")
 
 // 生成 Qdrant JSON（可选）
-json, _ := built.ToQdrantJSON()
+json, _ := built.JsonOfSelect()
 ```
 
 ---

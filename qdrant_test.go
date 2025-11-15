@@ -36,7 +36,7 @@ func (CodeVectorForQdrant) TableName() string {
 }
 
 // 测试基础 Qdrant JSON 生成
-func TestToQdrantJSON_Basic(t *testing.T) {
+func TestJsonOfSelect_Basic(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
 	built := Of(&CodeVectorForQdrant{}).
@@ -67,7 +67,7 @@ func TestToQdrantJSON_Basic(t *testing.T) {
 }
 
 // 测试带标量过滤的 Qdrant JSON
-func TestToQdrantJSON_WithFilter(t *testing.T) {
+func TestJsonOfSelect_WithFilter(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
@@ -79,7 +79,7 @@ func TestToQdrantJSON_WithFilter(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== 带过滤器的 Qdrant JSON ===\n%s", jsonStr)
@@ -99,7 +99,7 @@ func TestToQdrantJSON_WithFilter(t *testing.T) {
 }
 
 // 测试哈希多样性 - Qdrant JSON
-func TestToQdrantJSON_WithHashDiversity(t *testing.T) {
+func TestJsonOfSelect_WithHashDiversity(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
@@ -111,7 +111,7 @@ func TestToQdrantJSON_WithHashDiversity(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== 哈希多样性 Qdrant JSON ===\n%s", jsonStr)
@@ -132,7 +132,7 @@ func TestToQdrantJSON_WithHashDiversity(t *testing.T) {
 }
 
 // 测试最小距离多样性 - Qdrant JSON
-func TestToQdrantJSON_WithMinDistance(t *testing.T) {
+func TestJsonOfSelect_WithMinDistance(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
@@ -143,7 +143,7 @@ func TestToQdrantJSON_WithMinDistance(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== 最小距离多样性 Qdrant JSON ===\n%s", jsonStr)
@@ -164,7 +164,7 @@ func TestToQdrantJSON_WithMinDistance(t *testing.T) {
 }
 
 // 测试 MMR 多样性 - Qdrant JSON
-func TestToQdrantJSON_WithMMR(t *testing.T) {
+func TestJsonOfSelect_WithMMR(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
@@ -176,7 +176,7 @@ func TestToQdrantJSON_WithMMR(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== MMR 多样性 Qdrant JSON ===\n%s", jsonStr)
@@ -197,7 +197,7 @@ func TestToQdrantJSON_WithMMR(t *testing.T) {
 }
 
 // 测试范围查询 - Qdrant JSON
-func TestToQdrantJSON_WithRange(t *testing.T) {
+func TestJsonOfSelect_WithRange(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
@@ -209,7 +209,7 @@ func TestToQdrantJSON_WithRange(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== 范围查询 Qdrant JSON ===\n%s", jsonStr)
@@ -227,7 +227,7 @@ func TestToQdrantJSON_WithRange(t *testing.T) {
 }
 
 // 测试 IN 查询 - Qdrant JSON
-func TestToQdrantJSON_WithIn(t *testing.T) {
+func TestJsonOfSelect_WithIn(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
@@ -238,7 +238,7 @@ func TestToQdrantJSON_WithIn(t *testing.T) {
 
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
 	t.Logf("=== IN 查询 Qdrant JSON ===\n%s", jsonStr)
@@ -316,7 +316,7 @@ func TestQdrant_FullWorkflow(t *testing.T) {
 	t.Log("\n=== 2. Qdrant 后端 ===")
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
-		t.Fatalf("ToQdrantJSON failed: %v", err)
+		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 	t.Logf("JSON:\n%s", jsonStr)
 	t.Logf("✅ 多样性被应用，Limit 扩大到 %d", 20*5)

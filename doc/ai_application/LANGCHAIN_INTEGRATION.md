@@ -84,7 +84,7 @@ func handleVectorSearch(w http.ResponseWriter, r *http.Request) {
         }).
         Build()
 
-    qdrantJSON, err := built.ToQdrantJSON()
+    qdrantJSON, err := built.JsonOfSelect()
     
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)

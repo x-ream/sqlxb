@@ -642,7 +642,7 @@ xb 架构:
       Build()
 
 后端（可替换）:
-  今天: ToQdrantJSON()
+  今天: JsonOfSelect()
   明天: ToLanceDBJSON()（如果它成熟了）
   
 ✅ 用户代码不绑定数据库

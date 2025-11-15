@@ -7,7 +7,7 @@ feat: Add Limit/Offset API + Comprehensive ai_application docs fix (v0.10.1)
 
 📚 Comprehensive Documentation Fixes (ai_application/ directory, 70+ locations)
 - 🔧 API Usage Corrections (50+ locations)
-  - ToQdrantSearch() → Build().ToQdrantJSON()
+  - ToQdrantSearch() → Build().JsonOfSelect()
   - WithLimit()/WithScoreThreshold() → functional parameters
   - VectorSearch() parameter order fixes
   - BuildInsert() call fixes

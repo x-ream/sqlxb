@@ -183,7 +183,7 @@ built := xb.Of(&DocumentChunk{}).
     VectorSearch("embedding", queryVector, 10).
     Eq("language", "zh").
     Build()
-result, _ := built.ToQdrantJSON()
+result, _ := built.JsonOfSelect()
 `, naturalQuery)
     
     // 调用 LLM...
@@ -280,7 +280,7 @@ func NL2SQLDemo() {
     //     QdrantX(func(qx *xb.QdrantBuilderX) {
     //         qx.ScoreThreshold(0.7)
     //     }).
-    //     Build().ToQdrantJSON()
+    //     Build().JsonOfSelect()
     
     // 3. 验证查询
     validator := &QueryValidator{

@@ -117,7 +117,7 @@
 
 ### **2. 向后兼容性**
 
-✅ Old API (ToQdrantJSON) 仍然工作  
+✅ JsonOfSelect（原 ToQdrantJSON）保持兼容  
 ✅ 所有现有测试通过  
 ✅ 无破坏性变更  
 

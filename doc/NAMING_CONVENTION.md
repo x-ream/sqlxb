@@ -190,7 +190,7 @@ func SearchCodeVectors(query string, embedding []float32) ([]Result, error) {
 
 ```go
 // ❌ 错误：不符合命名规范
-func (built *Built) ToQdrantJSON() (string, error)
+func (built *Built) JsonOfSelect() (string, error)
 func (built *Built) GetMilvusSearchJSON() (string, error)
 func (b *BuilderX) GenerateWeaviateQuery() (string, error)
 
