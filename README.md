@@ -1,4 +1,4 @@
-# xb (Extensible Builder)
+# xb (eXtensible Builder)
 [![OSCS Status](https://www.oscs1024.com/platform/badge/fndome/xb.svg?size=small)](https://www.oscs1024.com/project/fndome/xb?ref=badge_small)
 ![workflow build](https://github.com/fndome/xb/actions/workflows/go.yml/badge.svg)
 [![GitHub tag](https://img.shields.io/github/tag/fndome/xb.svg?style=flat)](https://github.com/fndome/xb/tags)
@@ -13,6 +13,12 @@
 - Hybrid pipelines that mix SQL tables with vector similarity
 
 Everything flows through `Custom()` + `Build()` so the surface stays tiny even as capabilities grow.
+
+> **Notes**
+> - Persistence structs mirror the database schema, so numeric primary keys can stay as plain values.
+> - Request/filter DTOs should declare non-primary numeric and boolean fields as pointers to distinguish “unset” from “0/false” and to leverage autobypass logic.
+> - Need to bypass optimizations? Use `X("...")` to inject raw SQL (the clause will never be auto-skipped), and pick explicit JOIN helpers (e.g., `JOIN(NON_JOIN)` or custom builders) when you want to keep every JOIN even if it looks redundant. For `BuilderX`, call `WithoutOptimization()` to disable the JOIN/CTE optimizer entirely.
+> - For non-functional control flow inside fluent chains, use `Any(func(*BuilderX))` to run loops or helper functions without breaking chaining, `Bool(func() bool, func(*CondBuilder))` to conditionally add blocks, and `CondBuilderX.Sub(sql, func(*BuilderX))` to wrap subqueries safely while keeping everything chainable.
 
 ---
 
@@ -40,7 +46,7 @@ import "github.com/fndome/xb"
 type Cat struct {
     ID    uint64   `db:"id"`
     Name  string   `db:"name"`
-    Age   uint     `db:"age"`
+    Age   *uint     `db:"age"`
     Price *float64 `db:"price"`
 }
 
