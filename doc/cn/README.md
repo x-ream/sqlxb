@@ -42,7 +42,7 @@
 type Cat struct {
     ID    uint64   `db:"id"`
     Name  string   `db:"name"`
-    Age   uint     `db:"age"`
+    Age   *uint    `db:"age"`
     Price *float64 `db:"price"`
 }
 
