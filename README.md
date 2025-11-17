@@ -144,7 +144,8 @@ sql, args, _ := builder.Build().SqlOfSelect()
 
 ### Dialect & Custom
 - Dialects (`dialect.go`) let you swap quoting rules, placeholder styles, and vendor-specific predicates without rewriting builders — see [`doc/en/DIALECT_CUSTOM_DESIGN.md`](./doc/en/DIALECT_CUSTOM_DESIGN.md) / [`doc/cn/DIALECT_CUSTOM_DESIGN.md`](./doc/cn/DIALECT_CUSTOM_DESIGN.md).
-- `Custom()` is the escape hatch for vector DBs and bespoke backends: plug in `CustomInterface` implementations, emit JSON via `JsonOfSelect()`, or mix SQL + vector calls in one fluent chain. Deep dives live in [`doc/en/CUSTOM_VECTOR_DB_GUIDE.md`](./doc/en/CUSTOM_VECTOR_DB_GUIDE.md) / [`doc/cn/CUSTOM_VECTOR_DB_GUIDE.md`](./doc/cn/CUSTOM_VECTOR_DB_GUIDE.md).
+- `Custom()` is the escape hatch for vector DBs and bespoke backends: plug in `Custom` implementations, emit JSON via `JsonOfSelect()`, or mix SQL + vector calls in one fluent chain. Deep dives live in [`doc/en/CUSTOM_VECTOR_DB_GUIDE.md`](./doc/en/CUSTOM_VECTOR_DB_GUIDE.md) / [`doc/cn/CUSTOM_VECTOR_DB_GUIDE.md`](./doc/cn/CUSTOM_VECTOR_DB_GUIDE.md).
+- Need Oracle/Milvus/other dialects? Implement a tiny interface `Custom`, register it once, and the fluent chains instantly start outputting those drivers’ SQL/JSON schemas without forking the builder core.
 
 ---
 

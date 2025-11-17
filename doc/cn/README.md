@@ -131,6 +131,8 @@ sql, args, _ := builder.Build().SqlOfSelect()
 | Custom 架构验证 | [CUSTOM_ARCHITECTURE_VALIDATION.md](./CUSTOM_ARCHITECTURE_VALIDATION.md) | [doc/en/CUSTOM_ARCHITECTURE_VALIDATION.md](../en/CUSTOM_ARCHITECTURE_VALIDATION.md) |
 | Dialect vs Custom 设计 | [DIALECT_CUSTOM_DESIGN.md](./DIALECT_CUSTOM_DESIGN.md) | [doc/en/DIALECT_CUSTOM_DESIGN.md](../en/DIALECT_CUSTOM_DESIGN.md) |
 
+> 只需实现极小的 `Custom` 接口，就能把 Oracle、Milvus 等方言挂载进 xb：一次注册即可让所有链式调用自动输出对应数据库/向量库需要的 SQL 或 JSON。
+
 ### 向量数据库相关
 
 | 主题 | 中文 | 英文 |
