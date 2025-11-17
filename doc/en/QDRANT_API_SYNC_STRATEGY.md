@@ -18,7 +18,7 @@ English summary of `xb/doc/QDRANT_API_SYNC_STRATEGY.md`. It records how the proj
 | Qdrant version | xb requirement | Notes |
 |----------------|----------------|-------|
 | 1.6+ | `JsonOfSelect` unified | Recommend/Discover/Scroll supported |
-| 1.4–1.5 | Some APIs require compatibility mode | Use `CustomLegacy()` if needed |
+| 1.4–1.5 | Limited feature support | Recommend upgrading to 1.6+ for full support |
 | <1.4 | Not officially tested | Rely on snapshots or custom fork |
 
 ---

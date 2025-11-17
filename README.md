@@ -161,17 +161,6 @@ sql, args, _ := builder.Build().SqlOfSelect()
 
 ---
 
-## Releases & Migration
-
-- [Release Notes v1.3.0](./RELEASE_v1.3.0.md)
-- [Release Commands v1.3.0](./RELEASE_COMMANDS_v1.3.0.md)
-- [Test Report v1.3.0](./TEST_REPORT_v1.3.0.md)
-- [Migration Guide](./MIGRATION.md)
-
-Older release artifacts stay in the repo for reference.
-
----
-
 ## Contributing
 
 We welcome issues, discussions, PRs!

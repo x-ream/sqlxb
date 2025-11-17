@@ -160,15 +160,6 @@ sql, args, _ := builder.Build().SqlOfSelect()
 
 ---
 
-## 发布 & 迁移
-
-- [Release Notes v1.3.0](../../RELEASE_v1.3.0.md)
-- [Release Commands v1.3.0](../../RELEASE_COMMANDS_v1.3.0.md)
-- [Test Report v1.3.0](../../TEST_REPORT_v1.3.0.md)
-- [Migration Guide](../../MIGRATION.md)
-
----
-
 ## 贡献方式
 
 - 在 [GitHub Issues](https://github.com/fndome/xb/issues) 提交问题 / 功能建议

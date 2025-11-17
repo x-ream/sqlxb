@@ -107,7 +107,7 @@
 2. **VECTOR_QUICKSTART.md** - 快速开始指南（5 分钟）
 3. **VECTOR_DIVERSITY_QDRANT.md** - Qdrant 使用指南
 4. **WHY_QDRANT.md** - 为什么选择 Qdrant 而不是替代方案
-5. **QDRANT_X_USAGE.md** - QdrantX 高级 API
+5. **QDRANT_X_USAGE.md** - QdrantBuilder 高级 API
 6. **AI_MAINTAINABILITY_ANALYSIS.md** - AI 可维护性分析
 7. **FROM_BUILDER_OPTIMIZATION_EXPLAINED.md** - 复杂代码说明
 8. **MAINTENANCE_STRATEGY.md** - 80/15/5 维护模型

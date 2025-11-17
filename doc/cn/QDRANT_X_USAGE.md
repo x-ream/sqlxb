@@ -1,41 +1,69 @@
-# Qdrant X 使用指南
+# Qdrant Builder 使用指南
 
-本文档是 `xb/doc/QDRANT_X_USAGE.md` 的中文版本。它描述了如何使用实验性的 `QdrantX` 扩展点进行高级调优。
+本文档描述了如何使用 `QdrantBuilder` 进行高级调优配置。
 
 ---
 
-## QdrantX 入口点
+## QdrantBuilder 入口点
 
 ```go
 xb.Of(&CodeVector{}).
-    QdrantX(func(qx *xb.QdrantBuilderX) {
-        qx.HnswEf(512).
+    Custom(
+        xb.NewQdrantBuilder().
+            HnswEf(512).
             ScoreThreshold(0.85).
-            WithVector(false)
-    })
+            WithVector(false).
+            Build(),
+    ).
+    Build()
 ```
 
-`QdrantX` 在我们将它们正式化为顶级辅助方法之前暴露较低级别的旋钮。
+`QdrantBuilder` 提供了链式 API 来配置 Qdrant 的高级参数。
 
 ---
 
-## 典型选项
+## 可用选项
 
-- `HnswEf(int)`
-- `ScoreThreshold(float32)`
-- `WithVector(bool)`
-- `Exact(bool)`
-- `ShardKey(string)`
+- `HnswEf(int)` - 设置 HNSW 算法的 ef 参数（推荐值: 64-256）
+- `ScoreThreshold(float32)` - 设置最小相似度阈值（范围: 0.0-1.0）
+- `WithVector(bool)` - 设置是否返回向量数据
 
-谨慎组合它们；某些选项根据后端版本相互排斥。
+这些选项可以通过链式调用组合使用。
 
 ---
 
-## 迁移指南
+## 完整示例
 
-- 每当 `QdrantX` 旋钮升级为一级辅助方法（`WithMinDistance` 等）时，优先使用新的辅助方法。
-- 保持 `QdrantX` 使用本地化，以便未来的重构无痛。
-- 添加涵盖 `QdrantX` 和官方辅助方法的测试以确保对等。
+```go
+// 基础用法
+json, _ := xb.Of(&CodeVector{}).
+    Custom(
+        xb.NewQdrantBuilder().
+            HnswEf(512).
+            ScoreThreshold(0.85).
+            WithVector(false).
+            Build(),
+    ).
+    Eq("language", "golang").
+    VectorSearch("embedding", queryVector, 10).
+    Build().
+    JsonOfSelect()
+
+// 与高级 API 结合使用
+custom := xb.NewQdrantBuilder().
+    HnswEf(256).
+    ScoreThreshold(0.8).
+    Build()
+
+custom = custom.Recommend(func(rb *xb.RecommendBuilder) {
+    rb.Positive(101, 102).Negative(203).Limit(20)
+})
+
+json, _ := xb.Of(&CodeVector{}).
+    Custom(custom).
+    Build().
+    JsonOfSelect()
+```
 
 ---
 

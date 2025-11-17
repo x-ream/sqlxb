@@ -315,7 +315,7 @@ func (b *CondBuilder) MilvusExpr(expr string) *CondBuilder {
 	return b.append(Bb{op: MILVUS_EXPR, value: expr})
 }
 
-// MilvusX 用户自定义 Milvus 参数（类似 Qdrant 的 QdrantX）
+// MilvusX 用户自定义 Milvus 参数（类似 Qdrant 的 QdrantBuilder）
 //
 // 示例:
 //   MilvusX("consistency_level", "Strong")

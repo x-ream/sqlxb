@@ -1,41 +1,69 @@
-# Qdrant X Usage (English)
+# Qdrant Builder Usage (English)
 
-English translation of `xb/doc/QDRANT_X_USAGE.md`. It describes how to use the experimental `QdrantX` extension points for advanced tuning.
+This document describes how to use `QdrantBuilder` for advanced tuning configuration.
 
 ---
 
-## QdrantX entrypoint
+## QdrantBuilder entrypoint
 
 ```go
 xb.Of(&CodeVector{}).
-    QdrantX(func(qx *xb.QdrantBuilderX) {
-        qx.HnswEf(512).
+    Custom(
+        xb.NewQdrantBuilder().
+            HnswEf(512).
             ScoreThreshold(0.85).
-            WithVector(false)
-    })
+            WithVector(false).
+            Build(),
+    ).
+    Build()
 ```
 
-`QdrantX` exposes lower-level knobs before we formalize them into top-level helpers.
+`QdrantBuilder` provides a fluent API to configure advanced Qdrant parameters.
 
 ---
 
-## Typical options
+## Available options
 
-- `HnswEf(int)`
-- `ScoreThreshold(float32)`
-- `WithVector(bool)`
-- `Exact(bool)`
-- `ShardKey(string)`
+- `HnswEf(int)` - Set HNSW algorithm ef parameter (recommended: 64-256)
+- `ScoreThreshold(float32)` - Set minimum similarity threshold (range: 0.0-1.0)
+- `WithVector(bool)` - Set whether to return vector data
 
-Combine them cautiously; some options are mutually exclusive depending on the backend version.
+These options can be combined via method chaining.
 
 ---
 
-## Migration guidance
+## Complete examples
 
-- Whenever a `QdrantX` knob graduates to a first-class helper (`WithMinDistance`, etc.), prefer the new helper.
-- Keep `QdrantX` usage localized so future refactors are painless.
-- Add tests covering both `QdrantX` and the official helper to ensure parity.
+```go
+// Basic usage
+json, _ := xb.Of(&CodeVector{}).
+    Custom(
+        xb.NewQdrantBuilder().
+            HnswEf(512).
+            ScoreThreshold(0.85).
+            WithVector(false).
+            Build(),
+    ).
+    Eq("language", "golang").
+    VectorSearch("embedding", queryVector, 10).
+    Build().
+    JsonOfSelect()
+
+// Combined with advanced APIs
+custom := xb.NewQdrantBuilder().
+    HnswEf(256).
+    ScoreThreshold(0.8).
+    Build()
+
+custom = custom.Recommend(func(rb *xb.RecommendBuilder) {
+    rb.Positive(101, 102).Negative(203).Limit(20)
+})
+
+json, _ := xb.Of(&CodeVector{}).
+    Custom(custom).
+    Build().
+    JsonOfSelect()
+```
 
 ---
 

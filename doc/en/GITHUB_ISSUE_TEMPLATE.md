@@ -107,7 +107,7 @@ Total: 10/10 (100%)
 2. **VECTOR_QUICKSTART.md** - Quick start guide (5 minutes)
 3. **VECTOR_DIVERSITY_QDRANT.md** - Qdrant usage guide
 4. **WHY_QDRANT.md** - Why Qdrant over alternatives
-5. **QDRANT_X_USAGE.md** - QdrantX advanced API
+5. **QDRANT_X_USAGE.md** - QdrantBuilder advanced API
 6. **AI_MAINTAINABILITY_ANALYSIS.md** - AI maintainability analysis
 7. **FROM_BUILDER_OPTIMIZATION_EXPLAINED.md** - Complex code explanation
 8. **MAINTENANCE_STRATEGY.md** - 80/15/5 maintenance model
