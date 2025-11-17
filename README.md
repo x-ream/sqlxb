@@ -142,6 +142,10 @@ sql, args, _ := builder.Build().SqlOfSelect()
 - Register global `BeforeBuild` / `AfterBuild` hooks (see `xb/interceptor`).
 - `Meta(func)` injects metadata before hooks run — perfect for tracing, tenancy, or experiments.
 
+### Dialect & Custom
+- Dialects (`dialect.go`) let you swap quoting rules, placeholder styles, and vendor-specific predicates without rewriting builders — see [`doc/en/DIALECT_CUSTOM_DESIGN.md`](./doc/en/DIALECT_CUSTOM_DESIGN.md) / [`doc/cn/DIALECT_CUSTOM_DESIGN.md`](./doc/cn/DIALECT_CUSTOM_DESIGN.md).
+- `Custom()` is the escape hatch for vector DBs and bespoke backends: plug in `CustomInterface` implementations, emit JSON via `JsonOfSelect()`, or mix SQL + vector calls in one fluent chain. Deep dives live in [`doc/en/CUSTOM_VECTOR_DB_GUIDE.md`](./doc/en/CUSTOM_VECTOR_DB_GUIDE.md) / [`doc/cn/CUSTOM_VECTOR_DB_GUIDE.md`](./doc/cn/CUSTOM_VECTOR_DB_GUIDE.md).
+
 ---
 
 ## Documentation

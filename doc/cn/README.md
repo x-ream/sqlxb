@@ -121,7 +121,7 @@ sql, args, _ := builder.Build().SqlOfSelect()
 | 为什么选择 Qdrant | [WHY_QDRANT.md](./WHY_QDRANT.md) | [doc/en/WHY_QDRANT.md](../en/WHY_QDRANT.md) |
 | 向量多样性与 Qdrant | [VECTOR_DIVERSITY_QDRANT.md](./VECTOR_DIVERSITY_QDRANT.md) | [doc/en/VECTOR_DIVERSITY_QDRANT.md](../en/VECTOR_DIVERSITY_QDRANT.md) |
 
-### Custom 接口相关
+### Custom 方言(Dialect)接口相关
 
 | 主题 | 中文 | 英文 |
 |------|------|------|
