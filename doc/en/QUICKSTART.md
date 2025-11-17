@@ -1,6 +1,6 @@
 # xb Quickstart (English)
 
-This quickstart shows how to build SQL and Qdrant JSON with xb in three steps: define a model, chain conditions, inspect the output. Every snippet compiles against `v1.3.0+`.
+This quickstart shows how to build SQL and Qdrant JSON with xb in three steps: define a model, chain conditions, inspect the output. Every snippet compiles against `v1.4.0+`.
 
 ---
 

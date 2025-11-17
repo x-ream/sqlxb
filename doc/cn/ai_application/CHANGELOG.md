@@ -6,6 +6,7 @@
 
 ## 最近的亮点
 
+- **v1.4.0** – QdrantBuilder API，移除废弃的 QdrantX，完善文档。
 - **v1.3.0** – 统一 `JsonOfSelect`，添加 Recommend/Discover/Scroll 测试，刷新文档。
 - **v1.2.x** – 引入 AI 应用目录，LangChain 和 LlamaIndex 指南。
 - **v1.1.x** – 第一个端到端 RAG 示例项目。

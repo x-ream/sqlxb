@@ -6,6 +6,7 @@ English summary of `xb/doc/ai_application/CHANGELOG.md`. Track notable updates t
 
 ## Recent highlights
 
+- **v1.4.0** – QdrantBuilder API, removed deprecated QdrantX, improved documentation.
 - **v1.3.0** – unified `JsonOfSelect`, added Recommend/Discover/Scroll tests, refreshed docs.
 - **v1.2.x** – introduced AI application directory, LangChain and LlamaIndex guides.
 - **v1.1.x** – first end-to-end RAG sample project.
