@@ -77,7 +77,10 @@ builder := xb.X().
     FromX(func(fb *xb.FromBuilder) {
         fb.Sub(sub).As("p").
             JOIN(xb.INNER).Of("t_dog").As("d").On("d.pet_id = p.id").
-            JOIN(xb.LEFT).Of("t_cat").As("c").On("c.pet_id = p.id")
+            JOIN(xb.LEFT).Of("t_cat").As("c").On("c.pet_id = p.id").
+            Cond(func(on *xb.ON) {
+					on.Gt("p.weight", 10)
+				})
     }).
     Ne("p.type", "PIG")
 
