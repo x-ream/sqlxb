@@ -6,7 +6,7 @@ This document is the English counterpart of `xb/doc/ALL_FILTERING_MECHANISMS.md`
 
 ## 1. Single-value guards
 
-- `Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`, `Between`, `Like`, `LikeLeft`, `LikeRight`
+- `Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`, `Like`, `LikeLeft`
 - Empty strings, zero numbers, `false` booleans, and `nil` pointers are ignored.
 - `time.Time` values are always serialized (converted to `YYYY-MM-DD HH:MM:SS`).
 
@@ -46,8 +46,8 @@ xb.Of("orders").
 
 ## 4. LIKE helpers
 
-- `Like`, `NotLike`, `LikeLeft`, `LikeRight` all skip empty strings.
-- `doLike` injects the proper wildcard placement (`%foo%`, `%foo`, `foo%`).
+- `Like`, `NotLike`, `LikeLeft` all skip empty strings.
+- `doLike` injects the proper wildcard placement (`%foo%`,  `foo%`).
 
 ---
 

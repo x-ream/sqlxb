@@ -32,7 +32,7 @@ Quick reference for mistakes originally documented in `xb/doc/COMMON_ERRORS.md`.
 ## 4. SQL execution
 
 - Use the argument slice returned by `SqlOfSelect` directly; do not re-order manually.
-- For pagination, always call both `Limit` and `Offset` to avoid driver defaults.
+- For pagination, always call both `Limit` and `Offset` to avoid driver defaults; And SqlOfPage() will return: countSQL, dataSQL, vs, metaMap.
 - When joining custom snippets via `X()`, sanitize them to prevent SQL injection.
 
 ---

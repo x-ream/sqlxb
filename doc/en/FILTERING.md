@@ -6,7 +6,7 @@ xb aggressively skips empty inputs so you don’t have to write `if value == "" 
 
 ## 1. Single-value conditions
 
-Methods: `Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`, `Between`, `Like`, `LikeLeft`, `LikeRight`.
+Methods: `Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`, `Like`, `LikeLeft`.
 
 | Type | Skipped values |
 |------|----------------|

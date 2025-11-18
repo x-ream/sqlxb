@@ -32,7 +32,7 @@
 ## 4. SQL 执行
 
 - 直接使用 `SqlOfSelect` 返回的参数切片；不要手动重新排序。
-- 对于分页，始终同时调用 `Limit` 和 `Offset` 以避免驱动程序默认值。
+- 对于分页，始终同时调用 `Limit` 和 `Offset` 以避免驱动程序默认值; 而且SqlOfPage(), 可以返回：countSql, dataSql, vs, metaMap
 - 通过 `X()` 连接自定义片段时，清理它们以防止 SQL 注入。
 
 ---

@@ -6,7 +6,7 @@
 
 ## 1. 单值守卫
 
-- `Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`, `Between`, `Like`, `LikeLeft`, `LikeRight`
+- `Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`,  `Like`, `LikeLeft`
 - 空字符串、零值数字、`false` 布尔值和 `nil` 指针会被忽略。
 - `time.Time` 值总是会被序列化（转换为 `YYYY-MM-DD HH:MM:SS`）。
 
@@ -46,8 +46,8 @@ xb.Of("orders").
 
 ## 4. LIKE 辅助方法
 
-- `Like`, `NotLike`, `LikeLeft`, `LikeRight` 都会跳过空字符串。
-- `doLike` 会注入正确的通配符位置（`%foo%`, `%foo`, `foo%`）。
+- `Like`, `NotLike`, `LikeLeft` 都会跳过空字符串。
+- `doLike` 会注入正确的通配符位置（`%foo%`, `foo%`）。
 
 ---
 
