@@ -75,7 +75,11 @@ json, _ := xb.Of(&CodeVector{}).
 builder := xb.X().
     Select("p.id", "p.weight").
     FromX(func(fb *xb.FromBuilder) {
-        fb.Sub(sub).As("p").
+        fb.Sub(func(sb *xb.BuilderX) {
+            sb.Select("id", "type").
+                From("t_pet").
+                Gt("id", 10000)
+        }).As("p").
             JOIN(xb.INNER).Of("t_dog").As("d").On("d.pet_id = p.id").
             JOIN(xb.LEFT).Of("t_cat").As("c").On("c.pet_id = p.id").
             Cond(func(on *xb.ON) {
