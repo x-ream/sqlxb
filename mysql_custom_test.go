@@ -38,7 +38,7 @@ func (MySQLUser) TableName() string {
 // ============================================================================
 
 func TestMySQLCustom_ImplementsCustomInterface(t *testing.T) {
-	var custom Custom = NewMySQLCustom()
+	var custom Custom = DefaultMySQLCustom()
 	if custom == nil {
 		t.Error("MySQLCustom should implement Custom interface")
 	}
@@ -46,7 +46,7 @@ func TestMySQLCustom_ImplementsCustomInterface(t *testing.T) {
 }
 
 func TestMySQLCustom_DefaultBehavior(t *testing.T) {
-	custom := NewMySQLCustom()
+	custom := DefaultMySQLCustom()
 
 	built := Of(&MySQLUser{}).
 		Custom(custom).
@@ -75,8 +75,7 @@ func TestMySQLCustom_DefaultBehavior(t *testing.T) {
 // ============================================================================
 
 func TestMySQLCustom_Upsert(t *testing.T) {
-	custom := NewMySQLCustom()
-	custom.UseUpsert = true
+	custom := NewMySQLBuilder().UseUpsert(true).Build()
 
 	user := &MySQLUser{Name: "张三", Age: 18}
 	built := Of(user).
@@ -150,8 +149,7 @@ func TestBuilt_SqlOfUpsert(t *testing.T) {
 // ============================================================================
 
 func TestMySQLCustom_InsertIgnore(t *testing.T) {
-	custom := NewMySQLCustom()
-	custom.UseIgnore = true
+	custom := NewMySQLBuilder().UseIgnore(true).Build()
 
 	user := &MySQLUser{Name: "张三", Age: 18}
 	built := Of(user).
@@ -207,7 +205,7 @@ func TestMySQLCustom_VsDefaultBehavior(t *testing.T) {
 
 	// 使用 MySQLCustom
 	built2 := Of(&MySQLUser{}).
-		Custom(NewMySQLCustom()).
+		Custom(DefaultMySQLCustom()).
 		Eq("name", "张三").
 		Build()
 
@@ -233,7 +231,7 @@ func TestMySQLCustom_VsDefaultBehavior(t *testing.T) {
 // ============================================================================
 
 func TestMySQLCustom_ComplexQuery(t *testing.T) {
-	custom := NewMySQLCustom()
+	custom := NewMySQLBuilder().Build()
 
 	built := Of(&MySQLUser{}).
 		Custom(custom).
@@ -264,7 +262,7 @@ func TestMySQLCustom_ComplexQuery(t *testing.T) {
 // ============================================================================
 
 func TestMySQLCustom_Update(t *testing.T) {
-	custom := NewMySQLCustom()
+	custom := NewMySQLBuilder().Build()
 
 	user := &MySQLUser{Name: "李四", Age: 20}
 	built := Of(user).
@@ -324,17 +322,9 @@ func TestMySQLCustom_PresetModes(t *testing.T) {
 		name   string
 		custom *MySQLCustom
 	}{
-		{"Default", NewMySQLCustom()},
-		{"WithUpsert", func() *MySQLCustom {
-			c := NewMySQLCustom()
-			c.UseUpsert = true
-			return c
-		}()},
-		{"WithIgnore", func() *MySQLCustom {
-			c := NewMySQLCustom()
-			c.UseIgnore = true
-			return c
-		}()},
+		{"Default", NewMySQLBuilder().Build()},
+		{"WithUpsert", NewMySQLBuilder().UseUpsert(true).Build()},
+		{"WithIgnore", NewMySQLBuilder().UseIgnore(true).Build()},
 	}
 
 	for _, tt := range tests {
@@ -365,7 +355,7 @@ func TestMySQLCustom_PresetModes(t *testing.T) {
 // ============================================================================
 
 func TestMySQLCustom_MetaMap_WithTablePrefix(t *testing.T) {
-	custom := NewMySQLCustom()
+	custom := NewMySQLBuilder().Build()
 
 	// ⭐ 业务场景：带表前缀的字段查询
 	// Meta map 是 ORM 扫描结果时的字段映射依据
@@ -413,7 +403,7 @@ func TestMySQLCustom_MetaMap_WithTablePrefix(t *testing.T) {
 }
 
 func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
-	custom := NewMySQLCustom()
+	custom := NewMySQLBuilder().Build()
 
 	// ⭐ 业务场景：多表 JOIN 查询
 	// Meta map 记录字段到表的映射，用于 ORM 扫描
@@ -472,7 +462,7 @@ func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
 }
 
 func TestMySQLCustom_MetaMap_WithSelect(t *testing.T) {
-	custom := NewMySQLCustom()
+	custom := NewMySQLBuilder().Build()
 
 	// ⭐ 非分页查询的 Meta map
 	built := Of("users").

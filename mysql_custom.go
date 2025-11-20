@@ -41,7 +41,7 @@ type MySQLBuilder struct {
 //	).Build()
 func NewMySQLBuilder() *MySQLBuilder {
 	return &MySQLBuilder{
-		custom: NewMySQLCustom(),
+		custom: newMySQLCustom(),
 	}
 }
 
@@ -86,13 +86,11 @@ func (mb *MySQLBuilder) Build() *MySQLCustom {
 //
 // 示例：
 //
-//	// 默认配置
-//	built := xb.Of("users").Custom(xb.NewMySQLCustom()).Build()
+//	// 默认配置（使用单例）
+//	built := xb.Of("users").Custom(xb.DefaultMySQLCustom()).Build()
 //
-//	// 自定义配置
-//	custom := &xb.MySQLCustom{
-//	    UseUpsert: true,  // 启用 ON DUPLICATE KEY UPDATE
-//	}
+//	// 自定义配置（使用 Builder）
+//	custom := xb.NewMySQLBuilder().UseUpsert(true).Build()
 //	built := xb.Of("users").Custom(custom).Build()
 type MySQLCustom struct {
 	// UseUpsert 使用 ON DUPLICATE KEY UPDATE（MySQL 特有）
@@ -109,34 +107,8 @@ type MySQLCustom struct {
 // 构造函数
 // ============================================================================
 
-// NewMySQLCustom 创建默认 MySQL Custom
-//
-// ⚠️ 设计原则：只提供这一个构造函数！
-//
-// 不要添加预设函数（如 MySQLWithUpsert/WithIgnore）：
-//   - 原因：增加概念，违背"Don't add concepts to solve problems"原则
-//   - 替代：用户设置字段，或使用 Built.SqlOfUpsert() 便捷方法
-//
-// 如果你想添加预设函数，请先问：
-//   1. 用户不用这个函数能实现吗？（答案：能）
-//   2. 这会增加概念数量吗？（答案：会）
-//   3. 那为什么要加？（答案：...不应该加）
-//
-// 参考：xb v1.1.0 的教训（预设函数 → v1.2.0 全部删除）
-//
-// 正确的使用方式：
-//   方式1：直接调用便捷方法（推荐）
-//     built.SqlOfUpsert()  // ✅ 无需 Custom
-//
-//   方式2：手动配置 Custom
-//     custom := NewMySQLCustom()
-//     custom.UseUpsert = true  // ✅ 显式
-//
-// 默认配置：
-//   - Placeholder: "?"（MySQL 兼容，PostgreSQL 驱动自动转换）
-//   - UseUpsert: false
-//   - UseIgnore: false
-func NewMySQLCustom() *MySQLCustom {
+// newMySQLCustom 内部函数：创建默认 MySQL Custom
+func newMySQLCustom() *MySQLCustom {
 	return &MySQLCustom{
 		Placeholder: "?", // MySQL 占位符
 		UseUpsert:   false,
@@ -149,10 +121,9 @@ func NewMySQLCustom() *MySQLCustom {
 // ============================================================================
 //
 // 配置方式：
-//   1. 直接创建并使用默认值：NewMySQLCustom()
-//   2. 手动设置字段启用功能：
-//      custom := NewMySQLCustom()
-//      custom.UseUpsert = true  // 启用 UPSERT
+//   1. 使用单例（默认配置）：DefaultMySQLCustom()
+//   2. 使用 Builder（推荐）：
+//      custom := NewMySQLBuilder().UseUpsert(true).Build()
 //   3. 或者使用 Built.SqlOfUpsert() 方法（推荐）：
 //      built := xb.Of(user).Insert(func(ib *InsertBuilder) {
 //          ib.Set("name", "张三")
@@ -260,7 +231,7 @@ func (c *MySQLCustom) addIgnoreClause(sql string) string {
 // ============================================================================
 
 // defaultMySQLCustom 默认 MySQL Custom 实例
-var defaultMySQLCustom = NewMySQLCustom()
+var defaultMySQLCustom = newMySQLCustom()
 
 // DefaultMySQLCustom 获取默认 MySQL Custom（单例）
 //
@@ -281,7 +252,7 @@ var defaultMySQLCustom = NewMySQLCustom()
 //
 //	// ⭐ 需要 UPSERT 时
 //	built := xb.Of("users").
-//	    Custom(xb.MySQLWithUpsert()).
+//	    Custom(xb.NewMySQLBuilder().UseUpsert(true).Build()).
 //	    Insert(func(ib *xb.InsertBuilder) {
 //	        ib.Set("name", "张三").Set("age", 18)
 //	    }).
