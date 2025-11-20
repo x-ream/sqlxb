@@ -2,7 +2,7 @@
 [![OSCS Status](https://www.oscs1024.com/platform/badge/fndome/xb.svg?size=small)](https://www.oscs1024.com/project/fndome/xb?ref=badge_small)
 ![workflow build](https://github.com/fndome/xb/actions/workflows/go.yml/badge.svg)
 [![GitHub tag](https://img.shields.io/github/tag/fndome/xb.svg?style=flat)](https://github.com/fndome/xb/tags)
-[![codecov](https://codecov.io/gh/fndome/xb/branch/main/graph/badge.svg)](https://codecov.io/gh/fndome/xb)
+[![codecov](https://codecov.io/gh/fndome/xb/graph/badge.svg?token=3CQJITZJ5L)](https://codecov.io/gh/fndome/xb)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fndome/xb)](https://goreportcard.com/report/github.com/fndome/xb)
 
 > Languages: **English** | [中文](./doc/cn/README.md)
