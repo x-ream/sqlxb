@@ -19,7 +19,7 @@
 |------|---------|
 | 低延迟 | 降低 `limit`，适度的 `HnswEf`，启用 payload 修剪 |
 | 高召回率 | 增加 `HnswEf`、`limit`，禁用 payload 修剪 |
-| 平衡 | 默认 `NewQdrantCustom()` 加上 `WithHashDiversity` |
+| 平衡 | 默认 `NewQdrantBuilder().Build()` 加上 `WithHashDiversity` |
 
 ---
 

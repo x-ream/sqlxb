@@ -7,9 +7,10 @@
 ## 1. 基础用法
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     Namespace("code_vectors").
-    WithPayload(true)
+    WithPayload(true).
+    Build()
 
 json, err := xb.Of(&CodeVector{}).
     Custom(custom).
@@ -30,7 +31,7 @@ json, err := xb.Of(&CodeVector{}).
 ```go
 json, err := xb.Of(&CodeVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Recommend(func(rb *xb.RecommendBuilder) {
                 rb.Positive(111, 222).
                     Negative(333).
@@ -38,7 +39,8 @@ json, err := xb.Of(&CodeVector{}).
                     WithPayloadSelector(map[string]any{
                         "include": []string{"id", "title"},
                     })
-            }),
+            }).
+            Build(),
     ).
     Build().
     JsonOfSelect()
@@ -54,7 +56,7 @@ json, err := xb.Of(&CodeVector{}).
 ```go
 json, err := xb.Of(&ArticleVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Discover(func(db *xb.DiscoverBuilder) {
                 db.
                     TargetVector("news_vector", queryVec).
@@ -62,7 +64,8 @@ json, err := xb.Of(&ArticleVector{}).
                     Filter(func(f *xb.QFilterBuilder) {
                         f.MustEq("region", "us")
                     })
-            }),
+            }).
+            Build(),
     ).
     Build().
     JsonOfSelect()
@@ -78,13 +81,14 @@ json, err := xb.Of(&ArticleVector{}).
 ```go
 json, err := xb.Of(&FeedVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Scroll(func(sb *xb.ScrollBuilder) {
                 sb.
                     PayloadSelector([]string{"id", "tags"}).
                     Limit(100).
                     OffsetID("9001:5")
-            }),
+            }).
+            Build(),
     ).
     Build().
     JsonOfSelect()
@@ -98,7 +102,7 @@ json, err := xb.Of(&FeedVector{}).
 ## 5. 多样性与附加参数
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithHashDiversity(func(h *xb.HashDiversity) {
         h.Field = "category"
         h.Modulo = 6
@@ -114,11 +118,12 @@ custom := xb.NewQdrantCustom().
 ## 6. Payload Selector
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithPayloadSelector(map[string]any{
         "include": []string{"id", "title", "lang"},
         "exclude": []string{"debug"},
-    })
+    }).
+    Build()
 ```
 
 - 可全局设置，也能在 Recommend/Discover builder 内单独覆盖。
@@ -129,7 +134,7 @@ custom := xb.NewQdrantCustom().
 
 | 问题 | 解决方法 |
 |------|----------|
-| `JsonOfSelect failed: Custom is nil` | 在 `Build()` 前附加 `xb.NewQdrantCustom()` |
+| `JsonOfSelect failed: Custom is nil` | 在 `Build()` 前附加 `xb.NewQdrantBuilder().Build()` |
 | 触发错误的 API | 确保同一 builder 中只配置一种高级 API |
 | 过滤条件丢失 | 检查是否被自动跳过（空/零值） |
 | limit 不正确 | 同时在 `VectorSearch` 和高级 builder 中设置 |

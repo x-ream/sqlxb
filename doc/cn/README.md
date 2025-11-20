@@ -59,10 +59,11 @@ sql, args, _ := built.SqlOfSelect()
 ```go
 json, _ := xb.Of(&CodeVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Recommend(func(rb *xb.RecommendBuilder) {
                 rb.Positive(123, 456).Negative(789).Limit(20)
-            }),
+            }).
+            Build(),
     ).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).

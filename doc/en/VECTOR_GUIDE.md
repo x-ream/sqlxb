@@ -63,7 +63,7 @@ xb.Of(&FeedVector{}).
 `QdrantCustom` exposes helpers like `WithHashDiversity`, `WithMinDistance`, and `WithPayloadSelector`. They map directly to Qdrant’s `with_payload_selector`, `diversity` and other knobs.
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithHashDiversity(func(h *xb.HashDiversity) {
         h.Field = "category"
         h.Modulo = 4
@@ -82,7 +82,7 @@ built := xb.Of(&ProductVector{}).
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Empty `filter.must` | Condition values skipped | Check for zero/empty strings—xb auto-skips them |
-| `JsonOfSelect` error: `Custom is nil` | Vector payload without `Custom()` | Attach `xb.NewQdrantCustom()` before `Build()` |
+| `JsonOfSelect` error: `Custom is nil` | Vector payload without `Custom()` | Attach `xb.NewQdrantBuilder().Build()` before `Build()` |
 | Wrong limit | Limit set only on SQL builder | Use `VectorSearch(..., limit)` or `RecommendBuilder.Limit()` |
 | Mixed tenants | Missing `Eq("tenant_id", ...)` | Add tenant guard to every builder |
 

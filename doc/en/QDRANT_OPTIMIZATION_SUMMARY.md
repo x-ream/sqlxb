@@ -19,7 +19,7 @@ English adaptation of `xb/doc/QDRANT_OPTIMIZATION_SUMMARY.md`. It captures tunin
 |------|----------------------|
 | Low latency | Lower `limit`, moderate `HnswEf`, enable payload trimming |
 | High recall | Increase `HnswEf`, `limit`, disable payload trimming |
-| Balanced | Default `NewQdrantCustom()` plus `WithHashDiversity` |
+| Balanced | Default `NewQdrantBuilder().Build()` plus `WithHashDiversity` |
 
 ---
 

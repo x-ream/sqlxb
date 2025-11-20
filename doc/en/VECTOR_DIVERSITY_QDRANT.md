@@ -17,12 +17,13 @@ English remake of `xb/doc/VECTOR_DIVERSITY_QDRANT.md`. It explains how xb balanc
 ## Example
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithHashDiversity(func(h *xb.HashDiversity) {
         h.Field = "category"
         h.Modulo = 4
     }).
-    WithMinDistance(0.35)
+    WithMinDistance(0.35).
+    Build()
 
 json, _ := xb.Of(&ProductVector{}).
     Custom(custom).

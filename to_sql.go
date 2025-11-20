@@ -83,7 +83,7 @@ type UnionClause struct {
 //
 //	// Qdrant
 //	built := xb.Of("code_vectors").
-//	    Custom(xb.NewQdrantCustom()).
+//	    Custom(xb.NewQdrantBuilder().Build()).
 //	    VectorSearch(...).
 //	    Build()
 //

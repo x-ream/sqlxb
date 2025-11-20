@@ -17,7 +17,7 @@ Translation of `xb/doc/QDRANT_CUSTOM_DESIGN_ANALYSIS.md`. It dissects how the Qd
 
 - **Single entry point** – `JsonOfSelect()` inspects the config to choose Search/Recommend/Discover/Scroll.
 - **Composable builders** – advanced APIs re-use the same `CondBuilder` DSL for filters.
-- **Preset functions** – `NewQdrantCustom()` exposes default settings; advanced presets (high recall, high diversity) can be layered on.
+- **Builder pattern** – `NewQdrantBuilder()` provides chained configuration; advanced presets (high recall, high diversity) can be layered on.
 
 ---
 

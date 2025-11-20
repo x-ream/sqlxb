@@ -70,10 +70,11 @@ queryVector := xb.Vector{0.1, 0.2, 0.3}
 
 json, err := xb.Of(&CodeVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Recommend(func(rb *xb.RecommendBuilder) {
                 rb.Positive(123, 456).Negative(789).Limit(20)
-            }),
+            }).
+            Build()
     ).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).

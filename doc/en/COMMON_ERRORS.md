@@ -23,7 +23,7 @@ Quick reference for mistakes originally documented in `xb/doc/COMMON_ERRORS.md`.
 
 ## 3. Custom adapters
 
-- `JsonOfSelect failed: Custom is nil` → attach `xb.NewQdrantCustom()` or your own adapter.
+- `JsonOfSelect failed: Custom is nil` → attach `xb.NewQdrantBuilder().Build()` or your own adapter.
 - `Custom.Generate` returning unsupported types → stick to `string`, `[]byte`, or driver-ready structs.
 - Ensure your `Custom` respects builder state (`Built.Table`, `Built.Conds`, etc.).
 

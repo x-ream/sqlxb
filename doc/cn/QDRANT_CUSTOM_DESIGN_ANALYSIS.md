@@ -17,7 +17,7 @@
 
 - **单一入口点** – `JsonOfSelect()` 检查配置以选择 Search/Recommend/Discover/Scroll。
 - **可组合构建器** – 高级 API 为过滤器重用相同的 `CondBuilder` DSL。
-- **预设函数** – `NewQdrantCustom()` 暴露默认设置；可以在此基础上叠加高级预设（高召回率、高多样性）。
+- **Builder 模式** – `NewQdrantBuilder()` 提供链式配置；可以在此基础上叠加高级预设（高召回率、高多样性）。
 
 ---
 

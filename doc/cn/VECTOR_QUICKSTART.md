@@ -19,7 +19,7 @@
 queryVec := embedder.Encode(prompt)
 
 json, _ := xb.Of(&CodeVector{}).
-    Custom(xb.NewQdrantCustom()).
+    Custom(xb.NewQdrantBuilder().Build()).
     Eq("tenant_id", tenant).
     VectorSearch("embedding", queryVec, 10).
     Build().

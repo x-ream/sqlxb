@@ -17,12 +17,13 @@
 ## 示例
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithHashDiversity(func(h *xb.HashDiversity) {
         h.Field = "category"
         h.Modulo = 4
     }).
-    WithMinDistance(0.35)
+    WithMinDistance(0.35).
+    Build()
 
 json, _ := xb.Of(&ProductVector{}).
     Custom(custom).

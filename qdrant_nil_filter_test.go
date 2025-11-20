@@ -27,7 +27,7 @@ func TestQdrant_NilZeroFilter(t *testing.T) {
 
 	// 构建查询，包含 nil/0 值
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang"). // ✅ 有效
 		Eq("category", "").       // ⭐ 应被过滤（空字符串）
 		Gt("score", 0.8).         // ✅ 有效
@@ -86,7 +86,7 @@ func TestQdrant_AllNilZero(t *testing.T) {
 
 	// 所有条件都是 nil/0
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Eq("category", "").
 		Gt("rank", 0).
 		Lt("count", 0).

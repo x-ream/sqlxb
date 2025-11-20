@@ -36,15 +36,37 @@ type QdrantBuilder struct {
 //
 // 示例:
 //
+//	// 基础配置
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
 //	        ScoreThreshold(0.8).
 //	        Build(),
 //	).Build()
+//
+//	// 高级 API
+//	xb.Of(...).Custom(
+//	    xb.NewQdrantBuilder().
+//	        HnswEf(512).
+//	        Recommend(func(rb *xb.RecommendBuilder) {
+//	            rb.Positive(123, 456).Limit(20)
+//	        }).
+//	        Build(),
+//	).Build()
+//
+//	// 混合配置
+//	xb.Of(...).Custom(
+//	    xb.NewQdrantBuilder().
+//	        HnswEf(512).
+//	        ScoreThreshold(0.8).
+//	        Recommend(func(rb *xb.RecommendBuilder) {
+//	            rb.Positive(123, 456).Limit(20)
+//	        }).
+//	        Build(),
+//	).Build()
 func NewQdrantBuilder() *QdrantBuilder {
 	return &QdrantBuilder{
-		custom: NewQdrantCustom(),
+		custom: newQdrantCustom(),
 	}
 }
 
@@ -77,6 +99,89 @@ func (qb *QdrantBuilder) WithVector(withVector bool) *QdrantBuilder {
 	return qb
 }
 
+// Recommend 启用 Qdrant Recommend API
+//
+// 示例:
+//
+//	xb.NewQdrantBuilder().
+//	    HnswEf(512).
+//	    Recommend(func(rb *xb.RecommendBuilder) {
+//	        rb.Positive(123, 456).Negative(789).Limit(20)
+//	    }).
+//	    Build()
+func (qb *QdrantBuilder) Recommend(fn func(rb *RecommendBuilder)) *QdrantBuilder {
+	if fn == nil {
+		qb.custom.recommendConfig = nil
+		return qb
+	}
+
+	builder := &RecommendBuilder{}
+	fn(builder)
+
+	if len(builder.positive) == 0 {
+		panic("Recommend() requires at least one Positive() id")
+	}
+	if builder.limit <= 0 {
+		panic("Recommend() requires Limit() > 0")
+	}
+
+	qb.custom.recommendConfig = &qdrantRecommendConfig{
+		positive: append([]int64(nil), builder.positive...),
+		negative: append([]int64(nil), builder.negative...),
+		limit:    builder.limit,
+	}
+	return qb
+}
+
+// Discover 启用 Qdrant Discover API
+//
+// 示例:
+//
+//	xb.NewQdrantBuilder().
+//	    HnswEf(512).
+//	    Discover(func(db *xb.DiscoverBuilder) {
+//	        db.Context(101, 102, 103).Limit(20)
+//	    }).
+//	    Build()
+func (qb *QdrantBuilder) Discover(fn func(db *DiscoverBuilder)) *QdrantBuilder {
+	if fn == nil {
+		qb.custom.discoverConfig = nil
+		return qb
+	}
+
+	builder := &DiscoverBuilder{}
+	fn(builder)
+
+	if len(builder.context) == 0 {
+		panic("Discover() requires Context() with at least one id")
+	}
+	if builder.limit <= 0 {
+		panic("Discover() requires Limit() > 0")
+	}
+
+	qb.custom.discoverConfig = &qdrantDiscoverConfig{
+		context: append([]int64(nil), builder.context...),
+		limit:   builder.limit,
+	}
+	return qb
+}
+
+// ScrollID 启用 Qdrant Scroll API
+//
+// 示例:
+//
+//	xb.NewQdrantBuilder().
+//	    HnswEf(512).
+//	    ScrollID("scroll-abc123").
+//	    Build()
+func (qb *QdrantBuilder) ScrollID(scrollID string) *QdrantBuilder {
+	if scrollID == "" {
+		panic("ScrollID() requires a non-empty id")
+	}
+	qb.custom.scrollID = scrollID
+	return qb
+}
+
 // Build 构建并返回 QdrantCustom 配置
 func (qb *QdrantBuilder) Build() *QdrantCustom {
 	return qb.custom
@@ -101,117 +206,13 @@ type QdrantCustom struct {
 	scrollID        string
 }
 
-// NewQdrantCustom 创建 Qdrant Custom（默认配置）
-//
-// ⚠️ 设计原则：只提供这一个构造函数！
-//
-// 不要添加预设函数（如 QdrantHighPrecision/HighSpeed/Balanced）：
-//   - 原因：增加概念负担，影响 Go 生态简洁性
-//   - 替代：使用 NewQdrantBuilder() 链式构建
-//
-// 如果你想添加预设函数，请先问：
-//  1. 用户不用这个函数能实现吗？（答案：能，使用 Builder 即可）
-//  2. 这会增加概念数量吗？（答案：会）
-//  3. 那为什么要加？（答案：...不应该加）
-//
-// 参考：xb v1.1.0 的教训（5 个预设函数 → v1.2.0 全部删除）
-//
-// 正确的用户配置方式：
-//
-// 方式 1: 使用 QdrantBuilder（推荐）
-//
-//	xb.Of(...).Custom(
-//	    xb.NewQdrantBuilder().
-//	        HnswEf(512).
-//	        ScoreThreshold(0.8).
-//	        Build(),
-//	).Build()
-//
-// 方式 2: 直接设置字段
-//
-//	custom := NewQdrantCustom()
-//	custom.DefaultHnswEf = 512
-//	xb.Of(...).Custom(custom).Build()
-func NewQdrantCustom() *QdrantCustom {
+// newQdrantCustom 内部函数：创建 Qdrant Custom（默认配置）
+func newQdrantCustom() *QdrantCustom {
 	return &QdrantCustom{
 		DefaultHnswEf:         128,
 		DefaultScoreThreshold: 0.0,
 		DefaultWithVector:     false, // 向后兼容：默认不返回向量
 	}
-}
-
-// Recommend 启用 Qdrant Recommend API
-//
-// 示例:
-//
-//	custom := xb.NewQdrantCustom().Recommend(func(rb *xb.RecommendBuilder) {
-//		rb.Positive(123, 456).Negative(789).Limit(20)
-//	})
-func (c *QdrantCustom) Recommend(fn func(rb *RecommendBuilder)) *QdrantCustom {
-	if fn == nil {
-		c.recommendConfig = nil
-		return c
-	}
-
-	builder := &RecommendBuilder{}
-	fn(builder)
-
-	if len(builder.positive) == 0 {
-		panic("Recommend() requires at least one Positive() id")
-	}
-	if builder.limit <= 0 {
-		panic("Recommend() requires Limit() > 0")
-	}
-
-	c.recommendConfig = &qdrantRecommendConfig{
-		positive: append([]int64(nil), builder.positive...),
-		negative: append([]int64(nil), builder.negative...),
-		limit:    builder.limit,
-	}
-	return c
-}
-
-// Discover 启用 Qdrant Discover API
-//
-// 示例:
-//
-//	custom := xb.NewQdrantCustom().Discover(func(db *xb.DiscoverBuilder) {
-//		db.Context(101, 102, 103).Limit(20)
-//	})
-func (c *QdrantCustom) Discover(fn func(db *DiscoverBuilder)) *QdrantCustom {
-	if fn == nil {
-		c.discoverConfig = nil
-		return c
-	}
-
-	builder := &DiscoverBuilder{}
-	fn(builder)
-
-	if len(builder.context) == 0 {
-		panic("Discover() requires Context() with at least one id")
-	}
-	if builder.limit <= 0 {
-		panic("Discover() requires Limit() > 0")
-	}
-
-	c.discoverConfig = &qdrantDiscoverConfig{
-		context: append([]int64(nil), builder.context...),
-		limit:   builder.limit,
-	}
-	return c
-}
-
-// ScrollID 启用 Qdrant Scroll API
-//
-// 示例:
-//
-//	custom := xb.NewQdrantCustom().ScrollID("scroll-abc123")
-func (c *QdrantCustom) ScrollID(scrollID string) *QdrantCustom {
-	if scrollID == "" {
-		panic("ScrollID() requires a non-empty id")
-	}
-	c.scrollID = scrollID
-	return c
 }
 
 // Generate 实现 Custom 接口
@@ -254,8 +255,9 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //
 // 配置方式：
 //
-// 方式 1: 使用 QdrantBuilder（推荐）
+// 方式 1: 使用 QdrantBuilder（推荐，统一 Builder 模式）
 //
+//	// 基础配置
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
@@ -263,11 +265,33 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //	        Build(),
 //	).Build()
 //
-// 方式 2: 手动设置字段
+//	// 高级 API
+//	xb.Of(...).Custom(
+//	    xb.NewQdrantBuilder().
+//	        HnswEf(512).
+//	        Recommend(func(rb *xb.RecommendBuilder) {
+//	            rb.Positive(123, 456).Limit(20)
+//	        }).
+//	        Build(),
+//	).Build()
 //
-//	custom := NewQdrantCustom()
-//	custom.DefaultHnswEf = 512
-//	custom.DefaultScoreThreshold = 0.85
+//	// 混合配置（基础 + 高级）
+//	xb.Of(...).Custom(
+//	    xb.NewQdrantBuilder().
+//	        HnswEf(512).
+//	        ScoreThreshold(0.85).
+//	        Recommend(func(rb *xb.RecommendBuilder) {
+//	            rb.Positive(123, 456).Limit(20)
+//	        }).
+//	        Build(),
+//	).Build()
+//
+// 方式 2: 直接构造（不推荐，建议使用 Builder）
+//
+//	custom := &QdrantCustom{
+//	    DefaultHnswEf: 512,
+//	    DefaultScoreThreshold: 0.85,
+//	}
 //	xb.Of(...).Custom(custom).Build()
 //
 // 方式 3: 配置复用

@@ -17,7 +17,7 @@
 
 ## 2. 预设构造函数
 
-- `NewQdrantCustom()` – 官方参考
+- `NewQdrantBuilder()` – 官方参考
 - `NewMilvusCustom()` – 包含服务器端点 + GRPC 选项
 - `NewWeaviateCustom()` – 处理类名 + where 过滤器
 

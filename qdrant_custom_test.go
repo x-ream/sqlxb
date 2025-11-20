@@ -41,9 +41,9 @@ func TestJsonOfSelect_WithQdrantCustom(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVector{}).
-		Custom(NewQdrantCustom().Recommend(func(rb *RecommendBuilder) {
+		Custom(NewQdrantBuilder().Recommend(func(rb *RecommendBuilder) {
 			rb.Positive(123, 456).Limit(20)
-		})).
+		}).Build()).
 		VectorSearch("embedding", queryVector, 20).
 		Eq("language", "golang").
 		Build()
@@ -84,19 +84,19 @@ func TestQdrantCustom_PresetModes(t *testing.T) {
 		expectScore  float32
 		expectVector bool
 	}{
-		{"Default", NewQdrantCustom(), 128, 0.0, false}, // 默认不返回向量（节省带宽）
+		{"Default", NewQdrantBuilder().Build(), 128, 0.0, false}, // 默认不返回向量（节省带宽）
 		{"CustomHnswEf", func() *QdrantCustom {
-			c := NewQdrantCustom()
-			c.DefaultHnswEf = 512
-			c.DefaultScoreThreshold = 0.85
-			return c
+			return NewQdrantBuilder().
+				HnswEf(512).
+				ScoreThreshold(0.85).
+				Build()
 		}(), 512, 0.85, false}, // 继承默认值 false
 		{"CustomHighSpeed", func() *QdrantCustom {
-			c := NewQdrantCustom()
-			c.DefaultHnswEf = 32
-			c.DefaultScoreThreshold = 0.5
-			c.DefaultWithVector = false
-			return c
+			return NewQdrantBuilder().
+				HnswEf(32).
+				ScoreThreshold(0.5).
+				WithVector(false).
+				Build()
 		}(), 32, 0.5, false},
 	}
 
@@ -156,19 +156,19 @@ func TestCustomSwitch_RuntimeSelection(t *testing.T) {
 	// 模拟根据配置选择不同的 Custom
 	// ⭐ 用户可以根据需要手动配置
 	customs := map[string]*QdrantCustom{
-		"default": NewQdrantCustom(),
+		"default": NewQdrantBuilder().Build(),
 		"high_precision": func() *QdrantCustom {
-			c := NewQdrantCustom()
-			c.DefaultHnswEf = 512
-			c.DefaultScoreThreshold = 0.85
-			return c
+			return NewQdrantBuilder().
+				HnswEf(512).
+				ScoreThreshold(0.85).
+				Build()
 		}(),
 		"high_speed": func() *QdrantCustom {
-			c := NewQdrantCustom()
-			c.DefaultHnswEf = 32
-			c.DefaultScoreThreshold = 0.5
-			c.DefaultWithVector = false
-			return c
+			return NewQdrantBuilder().
+				HnswEf(32).
+				ScoreThreshold(0.5).
+				WithVector(false).
+				Build()
 		}(),
 	}
 
@@ -234,9 +234,9 @@ func TestJsonOfSelect_WithRecommendConfig(t *testing.T) {
 	queryVector := Vector{0.01, 0.02, 0.03}
 
 	jsonStr, err := Of(&CodeVector{}).
-		Custom(NewQdrantCustom().Recommend(func(rb *RecommendBuilder) {
+		Custom(NewQdrantBuilder().Recommend(func(rb *RecommendBuilder) {
 			rb.Positive(11, 22).Negative(33).Limit(5)
-		})).
+		}).Build()).
 		VectorSearch("embedding", queryVector, 5).
 		Build().
 		JsonOfSelect()
@@ -264,9 +264,9 @@ func TestJsonOfSelect_WithDiscoverConfig(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	jsonStr, err := Of(&CodeVector{}).
-		Custom(NewQdrantCustom().Discover(func(db *DiscoverBuilder) {
+		Custom(NewQdrantBuilder().Discover(func(db *DiscoverBuilder) {
 			db.Context(101, 102, 103).Limit(8)
-		})).
+		}).Build()).
 		VectorSearch("embedding", queryVector, 8).
 		Build().
 		JsonOfSelect()
@@ -291,7 +291,7 @@ func TestJsonOfSelect_WithScrollConfig(t *testing.T) {
 	scrollID := "scroll-xyz"
 
 	jsonStr, err := Of(&CodeVector{}).
-		Custom(NewQdrantCustom().ScrollID(scrollID)).
+		Custom(NewQdrantBuilder().ScrollID(scrollID).Build()).
 		Eq("language", "golang").
 		Build().
 		JsonOfSelect()

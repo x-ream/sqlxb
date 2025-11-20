@@ -73,7 +73,7 @@ type SQLResult struct {
 //
 //	// Qdrant
 //	built := xb.Of("code_vectors").
-//	    Custom(xb.NewQdrantCustom()).
+//	    Custom(xb.NewQdrantBuilder().Build()).
 //	    Build()
 //
 //	json, _ := built.JsonOfSelect()  // ← 自动处理类型转换

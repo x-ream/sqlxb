@@ -62,7 +62,7 @@ xb.Of(&FeedVector{}).
 `QdrantCustom` 可配置 `WithHashDiversity`、`WithMinDistance`、`WithPayloadSelector` 等 helper。
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithHashDiversity(func(h *xb.HashDiversity) {
         h.Field = "category"
         h.Modulo = 4
@@ -81,7 +81,7 @@ built := xb.Of(&ProductVector{}).
 | 症状 | 可能原因 | 解决办法 |
 |------|----------|----------|
 | `filter.must` 为空 | 条件值被自动跳过 | 检查是否为零值/空字符串 |
-| `Custom is nil` | 未调用 `Custom()` | 添加 `xb.NewQdrantCustom()` |
+| `Custom is nil` | 未调用 `Custom()` | 添加 `xb.NewQdrantBuilder().Build()` |
 | limit 不生效 | 只在 SQL Builder 里设置 | 在 `VectorSearch` 或 Recommend Builder 里设置 |
 | 租户串线 | 忘记 `Eq("tenant_id", ...)` | 所有 builder 加租户守卫 |
 

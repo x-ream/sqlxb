@@ -17,7 +17,7 @@ Based on `xb/doc/CUSTOM_VECTOR_DB_GUIDE.md`. It captures best practices for buil
 
 ## 2. Preset constructors
 
-- `NewQdrantCustom()` – official reference
+- `NewQdrantBuilder()` – official reference
 - `NewMilvusCustom()` – include server endpoint + GRPC options
 - `NewWeaviateCustom()` – handles class names + where filters
 

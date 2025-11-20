@@ -7,9 +7,10 @@
 ## 1. Basics
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     Namespace("code_vectors").
-    WithPayload(true)
+    WithPayload(true).
+    Build()
 
 json, err := xb.Of(&CodeVector{}).
     Custom(custom).
@@ -30,7 +31,7 @@ json, err := xb.Of(&CodeVector{}).
 ```go
 json, err := xb.Of(&CodeVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Recommend(func(rb *xb.RecommendBuilder) {
                 rb.Positive(111, 222).
                     Negative(333).
@@ -38,7 +39,8 @@ json, err := xb.Of(&CodeVector{}).
                     WithPayloadSelector(map[string]any{
                         "include": []string{"id", "title"},
                     })
-            }),
+            }).
+            Build(),
     ).
     Build().
     JsonOfSelect()
@@ -56,7 +58,7 @@ What happens:
 ```go
 json, err := xb.Of(&ArticleVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Discover(func(db *xb.DiscoverBuilder) {
                 db.
                     TargetVector("news_vector", queryVec).
@@ -64,7 +66,8 @@ json, err := xb.Of(&ArticleVector{}).
                     Filter(func(f *xb.QFilterBuilder) {
                         f.MustEq("region", "us")
                     })
-            }),
+            }).
+            Build(),
     ).
     Build().
     JsonOfSelect()
@@ -80,7 +83,7 @@ json, err := xb.Of(&ArticleVector{}).
 ```go
 json, err := xb.Of(&FeedVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Scroll(func(sb *xb.ScrollBuilder) {
                 sb.
                     PayloadSelector([]string{"id", "tags"}).
@@ -100,12 +103,13 @@ json, err := xb.Of(&FeedVector{}).
 ## 5. Diversity helpers
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithHashDiversity(func(h *xb.HashDiversity) {
         h.Field = "category"
         h.Modulo = 6
     }).
-    WithMinDistance(0.35)
+    WithMinDistance(0.35).
+    Build()
 ```
 
 - Hash diversity keeps similar categories from clustering at the top.
@@ -116,11 +120,12 @@ custom := xb.NewQdrantCustom().
 ## 6. Payload selectors
 
 ```go
-custom := xb.NewQdrantCustom().
+custom := xb.NewQdrantBuilder().
     WithPayloadSelector(map[string]any{
         "include": []string{"id", "title", "lang"},
         "exclude": []string{"debug"},
-    })
+    }).
+    Build()
 ```
 
 - You can set selectors globally via the custom object or inside the Recommend/Discover builders.
@@ -132,7 +137,7 @@ custom := xb.NewQdrantCustom().
 
 | Issue | Fix |
 |-------|-----|
-| `JsonOfSelect failed: Custom is nil` | Attach `xb.NewQdrantCustom()` before `Build()` |
+| `JsonOfSelect failed: Custom is nil` | Attach `xb.NewQdrantBuilder().Build()` before `Build()` |
 | Wrong API called | Ensure only one of Recommend/Discover/Scroll is configured per builder |
 | Missing filters | Check `should_skip` rules—empty strings or zero values are ignored |
 | Unexpected limit | Set limit both in `VectorSearch` and the advanced builder |

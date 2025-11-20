@@ -23,7 +23,7 @@
 
 ## 3. Custom 适配器
 
-- `JsonOfSelect failed: Custom is nil` → 附加 `xb.NewQdrantCustom()` 或你自己的适配器。
+- `JsonOfSelect failed: Custom is nil` → 附加 `xb.NewQdrantBuilder().Build()` 或你自己的适配器。
 - `Custom.Generate` 返回不支持的类型 → 坚持使用 `string`、`[]byte` 或驱动程序就绪的结构体。
 - 确保你的 `Custom` 尊重构建器状态（`Built.Table`、`Built.Conds` 等）。
 

@@ -125,7 +125,7 @@ func TestQdrant_EmptyOr_Filtered(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang").
 		Or(func(cb *CondBuilder) {
 			// 空 OR
@@ -221,7 +221,7 @@ func TestComplexFiltering(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang"). // ✅ 有效
 		Eq("category", "").       // ⭐ 空字符串，单个条件过滤
 		Or(func(cb *CondBuilder) {

@@ -30,7 +30,7 @@ import (
 func TestQdrantAPI_Insert(t *testing.T) {
 	// ⭐ 使用 Insert(func(ib *InsertBuilder)) - 与 SQL 一致的 API
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Insert(func(ib *InsertBuilder) {
 			ib.Set("id", 123).
 				Set("vector", []float32{0.1, 0.2, 0.3, 0.4}).
@@ -78,7 +78,7 @@ func TestQdrantAPI_Insert(t *testing.T) {
 // TestQdrantAPI_Update 测试 Qdrant Update API
 func TestQdrantAPI_Update(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Eq("id", 123).
 		Update(func(ub *UpdateBuilder) {
 			ub.Set("language", "rust").
@@ -115,7 +115,7 @@ func TestQdrantAPI_Update(t *testing.T) {
 // TestQdrantAPI_UpdateByFilter 测试根据过滤器更新
 func TestQdrantAPI_UpdateByFilter(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang").
 		Gt("quality_score", 0.8).
 		Update(func(ub *UpdateBuilder) {
@@ -156,7 +156,7 @@ func TestQdrantAPI_UpdateByFilter(t *testing.T) {
 // TestQdrantAPI_Delete 测试 Qdrant Delete API
 func TestQdrantAPI_Delete(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
-		Custom(NewQdrantCustom()).
+		Custom(NewQdrantBuilder().Build()).
 		Eq("id", 456).
 		Build()
 
@@ -187,7 +187,7 @@ func TestQdrantAPI_Delete(t *testing.T) {
 
 // TestQdrantAPI_FullCRUD 测试完整的 CRUD 工作流
 func TestQdrantAPI_FullCRUD(t *testing.T) {
-	qdrant := NewQdrantCustom()
+	qdrant := NewQdrantBuilder().Build()
 
 	// 1. INSERT
 	t.Log("\n=== 1. INSERT ===")
@@ -269,7 +269,7 @@ func TestQdrantAPI_FullCRUD(t *testing.T) {
 
 // TestQdrantAPI_CustomInterfaceUnification 验证 Custom 接口的统一性
 func TestQdrantAPI_CustomInterfaceUnification(t *testing.T) {
-	qdrant := NewQdrantCustom()
+	qdrant := NewQdrantBuilder().Build()
 
 	t.Log("=== 验证：同一个 Custom，处理所有操作 ===")
 

@@ -21,7 +21,7 @@ Each API config attaches to the same builder. `JsonOfSelect()` inspects the stat
 ```go
 json, _ := xb.Of(&FeedVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Recommend(func(rb *xb.RecommendBuilder) {
                 rb.Positive(501, 502).
                     Negative(999).
@@ -29,7 +29,8 @@ json, _ := xb.Of(&FeedVector{}).
                     WithPayloadSelector(map[string]any{
                         "include": []string{"id", "title"},
                     })
-            }),
+            }).
+            Build(),
     ).
     Build().
     JsonOfSelect()
@@ -45,14 +46,15 @@ json, _ := xb.Of(&FeedVector{}).
 ```go
 json, _ := xb.Of(&ArticleVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Discover(func(db *xb.DiscoverBuilder) {
                 db.TargetVector("topic_vec", queryVec).
                     Strategy("best_score").
                     Filter(func(f *xb.QFilterBuilder) {
                         f.MustEq("region", "us")
                     })
-            }),
+            }).
+            Build(),
     ).
     Build().
     JsonOfSelect()
@@ -68,7 +70,7 @@ json, _ := xb.Of(&ArticleVector{}).
 ```go
 json, _ := xb.Of(&FeedVector{}).
     Custom(
-        xb.NewQdrantCustom().
+        xb.NewQdrantBuilder().
             Scroll(func(sb *xb.ScrollBuilder) {
                 sb.PayloadSelector([]string{"id", "tags"}).
                     Limit(100).
