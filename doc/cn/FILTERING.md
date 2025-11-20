@@ -6,7 +6,7 @@ xb 会自动跳过空输入，避免到处写 `if value == ""`。本文列出哪
 
 ## 1. 单值条件
 
-适用方法：`Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`, `Between`, `Like`, `LikeLeft`, `LikeRight`
+适用方法：`Eq`, `Ne`, `Gt`, `Gte`, `Lt`, `Lte`,  `Like`, `LikeLeft`
 
 | 类型 | 被跳过的值 |
 |------|------------|
