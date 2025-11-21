@@ -30,7 +30,7 @@ json, _ := xb.Of(&FeedVector{}).
                         "include": []string{"id", "title"},
                     })
             }).
-            Build(),
+            Build()
     ).
     Build().
     JsonOfSelect()
@@ -54,7 +54,7 @@ json, _ := xb.Of(&ArticleVector{}).
                         f.MustEq("region", "us")
                     })
             }).
-            Build(),
+            Build()
     ).
     Build().
     JsonOfSelect()
@@ -75,7 +75,7 @@ json, _ := xb.Of(&FeedVector{}).
                 sb.PayloadSelector([]string{"id", "tags"}).
                     Limit(100).
                     OffsetID("9012:5")
-            }),
+            })
     ).
     Build().
     JsonOfSelect()
