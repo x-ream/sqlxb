@@ -61,7 +61,7 @@ json, _ := xb.Of(&CodeVector{}).
             Recommend(func(rb *xb.RecommendBuilder) {
                 rb.Positive(123, 456).Negative(789).Limit(20)
             }).
-            Build(),
+            Build()
     ).
     Eq("language", "golang").
     VectorSearch("embedding", queryVector, 10).
