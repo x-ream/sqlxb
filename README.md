@@ -31,8 +31,6 @@ Everything flows through `Custom()` + `Build()` so the surface stays tiny even a
 - **Observability-first** — `Meta(func)` plus interceptors carry TraceID/UserID across builder stages.
 - **AI-assisted maintenance** — code, tests, docs co-authored by AI and reviewed by humans every release.
 
-📦 **Latest**: [v1.4.0](./RELEASE_v1.4.0.md) — QdrantBuilder API + documentation improvements.
-
 ---
 
 ## Quickstart
