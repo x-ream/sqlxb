@@ -255,7 +255,7 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //
 // 配置方式：
 //
-// 方式 1: 使用 QdrantBuilder（推荐，统一 Builder 模式）
+// 使用 QdrantBuilder（统一 Builder 模式）
 //
 //	// 基础配置
 //	xb.Of(...).Custom(
@@ -286,16 +286,7 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //	        Build(),
 //	).Build()
 //
-// 方式 2: 直接构造（不推荐，建议使用 Builder）
-//
-//	custom := &QdrantCustom{
-//	    DefaultHnswEf: 512,
-//	    DefaultScoreThreshold: 0.85,
-//	}
-//	xb.Of(...).Custom(custom).Build()
-//
-// 方式 3: 配置复用
-//
+//	// 配置复用（同一配置可用于多个查询）
 //	highPrecision := xb.NewQdrantBuilder().HnswEf(512).Build()
 //	xb.Of(...).Custom(highPrecision).Build()
 //	xb.Of(...).Custom(highPrecision).Build()  // 复用配置

@@ -136,7 +136,7 @@ sql, args, _ := builder.Build().SqlOfSelect()
 ```
 
 ### Qdrant Recommend / Discover / Scroll
-- Configure via `QdrantCustom.Recommend/Discover/ScrollID`.
+- Configure via `NewQdrantBuilder().Recommend(...).Build()` / `Discover(...)` / `ScrollID(...)`.
 - `JsonOfSelect()` inspects builder state and emits the correct JSON schema.
 - Compatible with diversity helpers (`WithHashDiversity`, `WithMinDistance`) and standard filters.
 

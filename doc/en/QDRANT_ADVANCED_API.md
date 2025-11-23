@@ -8,9 +8,9 @@ English rewrite of `xb/doc/QDRANT_ADVANCED_API.md`. It documents how xb unifies 
 
 | API | When to use | Builder entry |
 |-----|-------------|---------------|
-| Recommend | Rerank positive vs negative feedback | `QdrantCustom.Recommend(func(*RecommendBuilder))` |
-| Discover | Explore content around a context vector | `QdrantCustom.Discover(func(*DiscoverBuilder))` |
-| Scroll | Paginate extremely large collections | `QdrantCustom.Scroll(func(*ScrollBuilder))` |
+| Recommend | Rerank positive vs negative feedback | `NewQdrantBuilder().Recommend(func(*RecommendBuilder)).Build()` |
+| Discover | Explore content around a context vector | `NewQdrantBuilder().Discover(func(*DiscoverBuilder)).Build()` |
+| Scroll | Paginate extremely large collections | `NewQdrantBuilder().ScrollID(string).Build()` |
 
 Each API config attaches to the same builder. `JsonOfSelect()` inspects the state and emits the proper JSON schema automatically.
 

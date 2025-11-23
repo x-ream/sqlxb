@@ -27,7 +27,7 @@
 
 - 保持适配器无状态或易于克隆。
 - 返回类型必须是驱动程序友好的（`string`、`[]byte` 或薄结构体）。
-- 提供构建器（`NewQdrantBuilder()`、`NewMilvusCustom()`）而不是暴露原始结构体。
+- 提供构建器（`NewQdrantBuilder()`、`NewMilvusBuilder()`）而不是暴露原始结构体。
 - 记录高级旋钮，以便用户可以推理权衡。
 
 ---

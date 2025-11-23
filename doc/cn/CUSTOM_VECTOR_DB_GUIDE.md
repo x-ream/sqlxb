@@ -18,8 +18,8 @@
 ## 2. 预设构造函数
 
 - `NewQdrantBuilder()` – 官方参考
-- `NewMilvusCustom()` – 包含服务器端点 + GRPC 选项
-- `NewWeaviateCustom()` – 处理类名 + where 过滤器
+- `NewMilvusBuilder()` – 包含服务器端点 + GRPC 选项（未来实现）
+- `NewWeaviateBuilder()` – 处理类名 + where 过滤器（未来实现）
 
 暴露针对特定工作负载调整的变体，如 `HighPrecision`、`HighRecall` 或 `HighSpeed`。
 

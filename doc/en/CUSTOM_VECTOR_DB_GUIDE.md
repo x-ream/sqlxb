@@ -18,8 +18,8 @@ Based on `xb/doc/CUSTOM_VECTOR_DB_GUIDE.md`. It captures best practices for buil
 ## 2. Preset constructors
 
 - `NewQdrantBuilder()` – official reference
-- `NewMilvusCustom()` – include server endpoint + GRPC options
-- `NewWeaviateCustom()` – handles class names + where filters
+- `NewMilvusBuilder()` – include server endpoint + GRPC options (future implementation)
+- `NewWeaviateBuilder()` – handles class names + where filters (future implementation)
 
 Expose variations like `HighPrecision`, `HighRecall`, or `HighSpeed` tuned for specific workloads.
 

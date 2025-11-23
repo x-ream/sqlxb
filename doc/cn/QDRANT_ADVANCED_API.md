@@ -8,9 +8,9 @@
 
 | API | 何时使用 | 构建器入口 |
 |-----|---------|-----------|
-| Recommend | 对正面与负面反馈进行重排序 | `QdrantCustom.Recommend(func(*RecommendBuilder))` |
-| Discover | 围绕上下文向量探索内容 | `QdrantCustom.Discover(func(*DiscoverBuilder))` |
-| Scroll | 对超大集合进行分页 | `QdrantCustom.Scroll(func(*ScrollBuilder))` |
+| Recommend | 对正面与负面反馈进行重排序 | `NewQdrantBuilder().Recommend(func(*RecommendBuilder)).Build()` |
+| Discover | 围绕上下文向量探索内容 | `NewQdrantBuilder().Discover(func(*DiscoverBuilder)).Build()` |
+| Scroll | 对超大集合进行分页 | `NewQdrantBuilder().ScrollID(string).Build()` |
 
 每个 API 配置都附加到同一个构建器。`JsonOfSelect()` 检查状态并自动发出正确的 JSON 模式。
 

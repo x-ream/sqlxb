@@ -89,13 +89,13 @@ type UnionClause struct {
 //
 //	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
 //
-//	// Milvus
-//	built := xb.Of("users").
-//	    Custom(xb.NewMilvusCustom()).
-//	    VectorSearch(...).
-//	    Build()
-//
-//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
+//	// Milvus（示例：未来实现时使用 Builder 模式）
+//	// built := xb.Of("users").
+//	//     Custom(xb.NewMilvusBuilder().Build()).
+//	//     VectorSearch(...).
+//	//     Build()
+//	//
+//	// json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
 func (built *Built) JsonOfSelect() (string, error) {
 	if built.Custom == nil {
 		return "", fmt.Errorf("Custom is nil, use SqlOfSelect() for SQL databases")

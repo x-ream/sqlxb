@@ -97,20 +97,20 @@ func (x *BuilderX) ensureMeta() *interceptor.Metadata {
 //	        xb.NewQdrantBuilder().
 //	            HnswEf(512).
 //	            ScoreThreshold(0.8).
-//	            Build(),
+//	            Build()
 //	    ).
 //	    Insert(...).
 //	    Build()
 //
 //	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Qdrant
 //
-//	// 直接使用 Custom
-//	built := xb.Of(&User{}).
-//	    Custom(xb.NewMilvusCustom()).
-//	    Insert(...).
-//	    Build()
-//
-//	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Milvus
+//	// 直接使用 Custom（示例：未来实现时使用 Builder 模式）
+//	// built := xb.Of(&User{}).
+//	//     Custom(xb.NewMilvusBuilder().Build()).
+//	//     Insert(...).
+//	//     Build()
+//	//
+//	// json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Milvus
 func (x *BuilderX) Custom(custom Custom) *BuilderX {
 	x.customImpl = custom
 	return x

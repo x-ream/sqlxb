@@ -27,7 +27,7 @@ Summarizes `xb/doc/CUSTOM_INTERFACE_PHILOSOPHY.md`. It describes why xb chose th
 
 - Keep adapters stateless or easily clonable.
 - Return types must be driver-friendly (`string`, `[]byte`, or thin structs).
-- Provide builders (`NewQdrantBuilder()`, `NewMilvusCustom()`) instead of exposing raw structs.
+- Provide builders (`NewQdrantBuilder()`, `NewMilvusBuilder()`) instead of exposing raw structs.
 - Document advanced knobs so users can reason about trade-offs.
 
 ---

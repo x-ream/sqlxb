@@ -60,10 +60,12 @@ type MilvusCustom struct {
     Timeout  time.Duration
 }
 
-func NewMilvusCustom() *MilvusCustom {
-    return &MilvusCustom{
-        Endpoint: "http://localhost:19530",
-        Timeout:  3 * time.Second,
+func NewMilvusBuilder() *MilvusBuilder {
+    return &MilvusBuilder{
+        custom: &MilvusCustom{
+            Endpoint: "http://localhost:19530",
+            Timeout:  3 * time.Second,
+        },
     }
 }
 
@@ -86,7 +88,7 @@ func TestMilvusCustom_Generate(t *testing.T) {
         VectorSearch("embedding", xb.Vector{0.1, 0.2}, 5).
         Build()
 
-    custom := NewMilvusCustom()
+    custom := NewMilvusBuilder().Build()
     payload, err := custom.Generate(built)
 
     require.NoError(t, err)

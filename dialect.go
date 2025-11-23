@@ -78,12 +78,12 @@ type SQLResult struct {
 //
 //	json, _ := built.JsonOfSelect()  // ← 自动处理类型转换
 //
-//	// Oracle
-//	built := xb.Of("users").
-//	    Custom(xb.NewOracleCustom()).
-//	    Build()
-//
-//	sql, args, _ := built.SqlOfSelect()  // ← 自动处理类型转换
+//	// Oracle（示例：未来实现时使用 Builder 模式）
+//	// built := xb.Of("users").
+//	//     Custom(xb.NewOracleBuilder().Build()).
+//	//     Build()
+//	//
+//	// sql, args, _ := built.SqlOfSelect()  // ← 自动处理类型转换
 type Custom interface {
 	// Generate 生成查询（统一接口）
 	// 参数:
