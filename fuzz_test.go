@@ -134,11 +134,11 @@ func FuzzXCondition(f *testing.F) {
 
 // Fuzz 测试辅助结构
 type FuzzTestStruct struct {
-	ID       uint64  `db:"id"`
-	Name     string  `db:"name"`
-	Age      int     `db:"age"`
-	Price    float64 `db:"price"`
-	IsActive *bool   `db:"is_active"`
+	ID       uint64   `db:"id"`
+	Name     string   `db:"name"`
+	Age      *int     `db:"age"`
+	Price    *float64 `db:"price"`
+	IsActive *bool    `db:"is_active"`
 }
 
 func (*FuzzTestStruct) TableName() string {
