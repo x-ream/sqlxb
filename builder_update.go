@@ -66,12 +66,12 @@ func (ub *UpdateBuilder) Set(k string, v interface{}) *UpdateBuilder {
 		ts := v.(time.Time).Format("2006-01-02 15:04:05")
 		v = ts
 	case Vector:
-		// Vector 类型：不做处理，保持原样
-		// 让 database/sql 调用 driver.Valuer 接口
-		// Vector.Value() 会返回正确的数据库格式
+		// Vector type: no processing, keep as is
+		// Let database/sql call driver.Valuer interface
+		// Vector.Value() will return the correct database format
 	case []float32, []float64:
-		// ⭐ 向量数组：保持原样（用于 Qdrant/Milvus）
-		// 不做 JSON 序列化
+		// ⭐ Vector array: keep as is (for Qdrant/Milvus)
+		// No JSON serialization
 	case interface{}:
 		bytes, _ := json.Marshal(v)
 		v = string(bytes)

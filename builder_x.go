@@ -46,10 +46,10 @@ type BuilderX struct {
 	isWithoutOptimization bool
 
 	alia        string
-	limitValue  int                   // ⭐ 新增：LIMIT 值（v0.10.1）
-	offsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
-	meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
-	customImpl  Custom                // ⭐ 新增：数据库专属配置（v0.11.0）（私有字段）
+	limitValue  int                   // ⭐ LIMIT value (v0.10.1)
+	offsetValue int                   // ⭐ OFFSET value (v0.10.1)
+	meta        *interceptor.Metadata // ⭐ Metadata (v0.9.2)
+	customImpl  Custom                // ⭐ Database-specific config (v0.11.0) (private field)
 	withs       []withClause
 	unions      []unionClause
 }
@@ -65,8 +65,8 @@ type unionClause struct {
 	builder  *BuilderX
 }
 
-// Meta 配置元数据（链式调用）
-// 主要用于透传 TraceID、TenantID 等上下文信息
+// Meta configures metadata (chainable)
+// Mainly used to pass through TraceID, TenantID and other context information
 func (x *BuilderX) Meta(fn func(meta *interceptor.Metadata)) *BuilderX {
 	if fn != nil {
 		fn(x.ensureMeta())
@@ -81,17 +81,17 @@ func (x *BuilderX) ensureMeta() *interceptor.Metadata {
 	return x.meta
 }
 
-// Custom 设置数据库专属配置
+// Custom sets database-specific configuration
 //
-// 参数:
-//   - custom: 数据库专属配置（QdrantCustom/MilvusCustom/WeaviateCustom 等）
+// Parameters:
+//   - custom: Database-specific config (QdrantCustom/MilvusCustom/WeaviateCustom, etc.)
 //
-// 返回:
-//   - *BuilderX: 链式调用
+// Returns:
+//   - *BuilderX: Chainable
 //
-// 示例:
+// Example:
 //
-//	// 使用 QdrantBuilder（推荐）
+//	// Using QdrantBuilder (recommended)
 //	built := xb.Of(&CodeVector{}).
 //	    Custom(
 //	        xb.NewQdrantBuilder().
@@ -102,26 +102,26 @@ func (x *BuilderX) ensureMeta() *interceptor.Metadata {
 //	    Insert(...).
 //	    Build()
 //
-//	json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Qdrant
+//	json, _ := built.JsonOfInsert()  // ⭐ Automatically uses Qdrant
 //
-//	// 直接使用 Custom（示例：未来实现时使用 Builder 模式）
+//	// Direct Custom usage (example: future implementation using Builder pattern)
 //	// built := xb.Of(&User{}).
 //	//     Custom(xb.NewMilvusBuilder().Build()).
 //	//     Insert(...).
 //	//     Build()
 //	//
-//	// json, _ := built.JsonOfInsert()  // ⭐ 自动使用 Milvus
+//	// json, _ := built.JsonOfInsert()  // ⭐ Automatically uses Milvus
 func (x *BuilderX) Custom(custom Custom) *BuilderX {
 	x.customImpl = custom
 	return x
 }
 
-// With 定义公共表达式（CTE）
+// With defines a common table expression (CTE)
 func (x *BuilderX) With(name string, fn func(sb *BuilderX)) *BuilderX {
 	return x.addWith(name, false, fn)
 }
 
-// WithRecursive 定义递归公共表达式（CTE）
+// WithRecursive defines a recursive common table expression (CTE)
 func (x *BuilderX) WithRecursive(name string, fn func(sb *BuilderX)) *BuilderX {
 	return x.addWith(name, true, fn)
 }
@@ -141,7 +141,7 @@ func (x *BuilderX) addWith(name string, recursive bool, fn func(sb *BuilderX)) *
 	return x
 }
 
-// UNION 组合查询
+// UNION combines queries
 func (x *BuilderX) UNION(kind UNION, fn func(sb *BuilderX)) *BuilderX {
 	if fn == nil {
 		return x
@@ -334,8 +334,8 @@ func (x *BuilderX) In(k string, vs ...interface{}) *BuilderX {
 	return x
 }
 
-// InRequired 必需的 IN 条件（空值时报错）
-// 详见 CondBuilder.InRequired() 文档
+// InRequired required IN condition (panics on empty values)
+// See CondBuilder.InRequired() documentation for details
 func (x *BuilderX) InRequired(k string, vs ...interface{}) *BuilderX {
 	x.CondBuilder.InRequired(k, vs...)
 	return x
@@ -381,8 +381,8 @@ func (x *BuilderX) Paged(f func(pb *PageBuilder)) *BuilderX {
 	return x
 }
 
-// Limit 设置返回记录数量（适用于简单查询，非分页场景）
-// 支持 PostgreSQL 和 MySQL
+// Limit sets the number of records to return (for simple queries, not pagination)
+// Supports PostgreSQL and MySQL
 func (x *BuilderX) Limit(limit int) *BuilderX {
 	if limit > 0 {
 		x.limitValue = limit
@@ -390,8 +390,8 @@ func (x *BuilderX) Limit(limit int) *BuilderX {
 	return x
 }
 
-// Offset 设置跳过记录数量（通常与 Limit 配合使用）
-// 支持 PostgreSQL 和 MySQL
+// Offset sets the number of records to skip (usually used with Limit)
+// Supports PostgreSQL and MySQL
 func (x *BuilderX) Offset(offset int) *BuilderX {
 	if offset > 0 {
 		x.offsetValue = offset
@@ -423,7 +423,7 @@ func (x *BuilderX) Build() *Built {
 		panic("xb.Builder is nil")
 	}
 
-	// ⭐ 执行 BeforeBuild 拦截器（只设置元数据）
+	// ⭐ Execute BeforeBuild interceptors (only set metadata)
 	for _, ic := range interceptor.GetAll() {
 		if err := ic.BeforeBuild(x.ensureMeta()); err != nil {
 			panic(fmt.Sprintf("Interceptor %s BeforeBuild failed: %v", ic.Name(), err))
@@ -438,14 +438,14 @@ func (x *BuilderX) Build() *Built {
 		built := Built{
 			OrFromSql: baseFrom,
 			Inserts:   x.inserts,
-			Meta:      x.meta,       // ⭐ 传递元数据
-			Custom:    x.customImpl, // ⭐ 传递 Custom
+			Meta:      x.meta,       // ⭐ Pass metadata
+			Custom:    x.customImpl, // ⭐ Pass Custom
 			Alia:      x.alia,
 			Withs:     withs,
 			Unions:    unions,
 		}
 
-		// ⭐ 执行 AfterBuild 拦截器
+		// ⭐ Execute AfterBuild interceptors
 		for _, ic := range interceptor.GetAll() {
 			if err := ic.AfterBuild(&built); err != nil {
 				panic(fmt.Sprintf("Interceptor %s AfterBuild failed: %v", ic.Name(), err))
@@ -469,10 +469,10 @@ func (x *BuilderX) Build() *Built {
 		OrFromSql:   baseFrom,
 		Fxs:         x.sxs,
 		Svs:         x.svs,
-		LimitValue:  x.limitValue,  // ⭐ 传递 Limit
-		OffsetValue: x.offsetValue, // ⭐ 传递 Offset
-		Meta:        x.meta,        // ⭐ 传递元数据
-		Custom:      x.customImpl,  // ⭐ 传递 Custom
+		LimitValue:  x.limitValue,
+		OffsetValue: x.offsetValue,
+		Meta:        x.meta,
+		Custom:      x.customImpl,
 		Alia:        x.alia,
 		Withs:       withs,
 		Unions:      unions,
@@ -482,7 +482,6 @@ func (x *BuilderX) Build() *Built {
 		built.PageCondition = &x.pageBuilder.condition
 	}
 
-	// ⭐ 执行 AfterBuild 拦截器
 	for _, ic := range interceptor.GetAll() {
 		if err := ic.AfterBuild(&built); err != nil {
 			panic(fmt.Sprintf("Interceptor %s AfterBuild failed: %v", ic.Name(), err))

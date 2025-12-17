@@ -21,10 +21,10 @@ import (
 	"strings"
 )
 
-// SqlOfVectorSearch 生成向量检索 SQL
-// 返回: sql, args
+// SqlOfVectorSearch generates vector search SQL
+// Returns: sql, args
 //
-// 示例输出:
+// Example output:
 //
 //	SELECT *, embedding <-> ? AS distance
 //	FROM code_vectors
@@ -36,22 +36,22 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 	var sb strings.Builder
 	var args []interface{}
 
-	// 1. SELECT 子句
+	// 1. SELECT clause
 	sb.WriteString("SELECT ")
 
-	// 添加字段
+	// Add fields
 	if len(built.ResultKeys) > 0 {
 		sb.WriteString(strings.Join(built.ResultKeys, ", "))
 	} else {
 		sb.WriteString("*")
 	}
 
-	// 查找向量检索参数
+	// Find vector search parameters
 	vectorBb := findVectorSearchBb(built.Conds)
 	if vectorBb != nil {
 		params := vectorBb.Value.(VectorSearchParams)
 
-		// 添加距离字段
+		// Add distance field
 		sb.WriteString(fmt.Sprintf(
 			", %s %s ? AS distance",
 			vectorBb.Key,
@@ -60,11 +60,11 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 		args = append(args, params.QueryVector)
 	}
 
-	// 2. FROM 子句
+	// 2. FROM clause
 	sb.WriteString(" FROM ")
 	sb.WriteString(built.OrFromSql)
 
-	// 3. WHERE 子句（标量条件 + 向量距离过滤）
+	// 3. WHERE clause (scalar conditions + vector distance filtering)
 	scalarConds := filterScalarConds(built.Conds)
 	vectorDistConds := filterVectorDistanceConds(built.Conds)
 
@@ -73,12 +73,12 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 	if len(allConds) > 0 {
 		sb.WriteString(" WHERE ")
 
-		// ⭐ 使用 toCondSql 而不是 buildConditionSql，以正确处理 OR/AND 子查询
+		// ⭐ Use toCondSql instead of buildConditionSql to properly handle OR/AND subqueries
 		if len(scalarConds) > 0 {
 			built.toCondSql(scalarConds, &sb, &args, nil)
 		}
 
-		// 构建向量距离过滤条件
+		// Build vector distance filter conditions
 		if len(vectorDistConds) > 0 {
 			if len(scalarConds) > 0 {
 				sb.WriteString(" AND ")
@@ -89,7 +89,7 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 		}
 	}
 
-	// 4. ORDER BY 距离
+	// 4. ORDER BY distance
 	if vectorBb != nil {
 		sb.WriteString(" ORDER BY distance")
 		params := vectorBb.Value.(VectorSearchParams)
@@ -101,7 +101,7 @@ func (built *Built) SqlOfVectorSearch() (string, []interface{}) {
 	return sb.String(), args
 }
 
-// 辅助函数：查找向量检索 Bb
+// Helper function: find vector search Bb
 func findVectorSearchBb(bbs []Bb) *Bb {
 	for i := range bbs {
 		if bbs[i].Op == VECTOR_SEARCH {
@@ -111,15 +111,15 @@ func findVectorSearchBb(bbs []Bb) *Bb {
 	return nil
 }
 
-// 辅助函数：过滤标量条件
+// Helper function: filter scalar conditions
 func filterScalarConds(bbs []Bb) []Bb {
 	result := []Bb{}
 	for _, bb := range bbs {
-		// 跳过向量操作符
+		// Skip vector operators
 		if bb.Op == VECTOR_SEARCH || bb.Op == VECTOR_DISTANCE_FILTER {
 			continue
 		}
-		// ⭐ 跳过 Qdrant 专属操作符（PostgreSQL 不支持）
+		// ⭐ Skip Qdrant-specific operators (PostgreSQL doesn't support)
 		if isQdrantSpecificOp(bb.Op) {
 			continue
 		}
@@ -128,7 +128,7 @@ func filterScalarConds(bbs []Bb) []Bb {
 	return result
 }
 
-// isQdrantSpecificOp 判断是否为 Qdrant 专属操作符
+// isQdrantSpecificOp checks if operator is Qdrant-specific
 func isQdrantSpecificOp(op string) bool {
 	return op == QDRANT_HNSW_EF ||
 		op == QDRANT_EXACT ||
@@ -137,7 +137,7 @@ func isQdrantSpecificOp(op string) bool {
 		op == QDRANT_XX
 }
 
-// 辅助函数：过滤向量距离条件
+// Helper function: filter vector distance conditions
 func filterVectorDistanceConds(bbs []Bb) []Bb {
 	result := []Bb{}
 	for _, bb := range bbs {
@@ -148,10 +148,10 @@ func filterVectorDistanceConds(bbs []Bb) []Bb {
 	return result
 }
 
-// 辅助函数：构建条件 SQL（复用现有逻辑）
+// Helper function: build condition SQL (reuse existing logic)
 func buildConditionSql(bbs []Bb) (string, []interface{}) {
-	// TODO: 这里需要复用 to_sql.go 中的 buildCondSql 逻辑
-	// 暂时简化实现
+	// TODO: Need to reuse buildCondSql logic from to_sql.go
+	// Temporarily simplified implementation
 	if len(bbs) == 0 {
 		return "", nil
 	}
@@ -164,7 +164,7 @@ func buildConditionSql(bbs []Bb) (string, []interface{}) {
 			sb.WriteString(" AND ")
 		}
 
-		// 简化处理：只处理基本运算符
+		// Simplified handling: only process basic operators
 		sb.WriteString(bb.Key)
 		sb.WriteString(" ")
 		sb.WriteString(bb.Op)
@@ -176,7 +176,7 @@ func buildConditionSql(bbs []Bb) (string, []interface{}) {
 	return sb.String(), args
 }
 
-// 辅助函数：构建向量距离过滤 SQL
+// Helper function: build vector distance filter SQL
 func buildVectorDistanceCondSql(bbs []Bb) (string, []interface{}) {
 	if len(bbs) == 0 {
 		return "", nil

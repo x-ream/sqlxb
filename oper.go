@@ -74,13 +74,13 @@ func NonNull() string {
 	return NON_NULL
 }
 
-// 向量操作符（v0.8.0 新增）
+// Vector operators (v0.8.0 added)
 const (
 	VECTOR_SEARCH          = "VECTOR_SEARCH"
 	VECTOR_DISTANCE_FILTER = "VECTOR_DISTANCE_FILTER"
 )
 
-// Qdrant 专属操作符（v0.9.1 新增）
+// Qdrant-specific operators (v0.9.1 added)
 const (
 	QDRANT_HNSW_EF         = "QDRANT_HNSW_EF"
 	QDRANT_EXACT           = "QDRANT_EXACT"
@@ -90,5 +90,5 @@ const (
 	QDRANT_SCROLL          = "QDRANT_SCROLL"       // Scroll API (v0.10.0)
 	QDRANT_BATCH_SEARCH    = "QDRANT_BATCH_SEARCH" // Batch Search (v0.10.1)
 	QDRANT_DISCOVER        = "QDRANT_DISCOVER"     // Discover API (v0.10.1)
-	QDRANT_XX              = "QDRANT_XX"           // 用户自定义 Qdrant 专属参数
+	QDRANT_XX              = "QDRANT_XX"           // User-defined Qdrant-specific parameters
 )

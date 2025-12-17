@@ -20,18 +20,18 @@ package xb
 import "strings"
 
 // ============================================================================
-// MySQLBuilder: Builder 模式配置构建器
+// MySQLBuilder: Builder Pattern Configuration Builder
 // ============================================================================
 
-// MySQLBuilder MySQL 配置构建器
-// 使用 Builder 模式构建 MySQLCustom 配置
+// MySQLBuilder MySQL configuration builder
+// Uses Builder pattern to construct MySQLCustom configuration
 type MySQLBuilder struct {
 	custom *MySQLCustom
 }
 
-// NewMySQLBuilder 创建 MySQL 配置构建器
+// NewMySQLBuilder creates a MySQL configuration builder
 //
-// 示例:
+// Example:
 //
 //	xb.Of(...).Custom(
 //	    xb.NewMySQLBuilder().
@@ -45,115 +45,115 @@ func NewMySQLBuilder() *MySQLBuilder {
 	}
 }
 
-// UseUpsert 设置是否使用 ON DUPLICATE KEY UPDATE
+// UseUpsert sets whether to use ON DUPLICATE KEY UPDATE
 func (mb *MySQLBuilder) UseUpsert(use bool) *MySQLBuilder {
 	mb.custom.UseUpsert = use
 	return mb
 }
 
-// UseIgnore 设置是否使用 INSERT IGNORE
+// UseIgnore sets whether to use INSERT IGNORE
 func (mb *MySQLBuilder) UseIgnore(use bool) *MySQLBuilder {
 	mb.custom.UseIgnore = use
 	return mb
 }
 
-// Placeholder 设置占位符
+// Placeholder sets the placeholder
 func (mb *MySQLBuilder) Placeholder(placeholder string) *MySQLBuilder {
 	mb.custom.Placeholder = placeholder
 	return mb
 }
 
-// Build 构建并返回 MySQLCustom 配置
+// Build constructs and returns MySQLCustom configuration
 func (mb *MySQLBuilder) Build() *MySQLCustom {
 	return mb.custom
 }
 
 // ============================================================================
-// MySQLCustom：MySQL/MariaDB 专属配置（v1.1.0）
+// MySQLCustom: MySQL/MariaDB-Specific Configuration (v1.1.0)
 // ============================================================================
 
-// MySQLCustom MySQL 数据库专属配置
+// MySQLCustom MySQL database-specific configuration
 //
-// 说明：
-//   - xb 默认使用 MySQL 兼容的 SQL 语法（? 占位符、LIMIT/OFFSET）
-//   - PostgreSQL/SQLite 驱动会自动转换占位符（? → $1, $2）
-//   - 大部分场景不需要 Custom，直接使用默认实现即可
+// Notes:
+//   - xb defaults to MySQL-compatible SQL syntax (? placeholder, LIMIT/OFFSET)
+//   - PostgreSQL/SQLite drivers automatically convert placeholders (? → $1, $2)
+//   - Most scenarios don't need Custom, use default implementation directly
 //
-// 使用场景：
-//   - MySQL 特殊语法（ON DUPLICATE KEY UPDATE、INSERT IGNORE）
-//   - 性能优化（STRAIGHT_JOIN、FORCE INDEX）
-//   - 扩展功能（用户自定义）
+// Use cases:
+//   - MySQL special syntax (ON DUPLICATE KEY UPDATE, INSERT IGNORE)
+//   - Performance optimization (STRAIGHT_JOIN, FORCE INDEX)
+//   - Extended functionality (user-defined)
 //
-// 示例：
+// Example:
 //
-//	// 默认配置（使用单例）
+//	// Default configuration (using singleton)
 //	built := xb.Of("users").Custom(xb.DefaultMySQLCustom()).Build()
 //
-//	// 自定义配置（使用 Builder）
+//	// Custom configuration (using Builder)
 //	custom := xb.NewMySQLBuilder().UseUpsert(true).Build()
 //	built := xb.Of("users").Custom(custom).Build()
 type MySQLCustom struct {
-	// UseUpsert 使用 ON DUPLICATE KEY UPDATE（MySQL 特有）
+	// UseUpsert uses ON DUPLICATE KEY UPDATE (MySQL-specific)
 	UseUpsert bool
 
-	// UseIgnore 使用 INSERT IGNORE（忽略重复键错误）
+	// UseIgnore uses INSERT IGNORE (ignores duplicate key errors)
 	UseIgnore bool
 
-	// Placeholder 占位符（默认 "?"，兼容 MySQL/PostgreSQL/SQLite）
+	// Placeholder placeholder (default "?", compatible with MySQL/PostgreSQL/SQLite)
 	Placeholder string
 }
 
 // ============================================================================
-// 构造函数
+// Constructors
 // ============================================================================
 
-// newMySQLCustom 内部函数：创建默认 MySQL Custom
+// newMySQLCustom internal function: creates default MySQL Custom
 func newMySQLCustom() *MySQLCustom {
 	return &MySQLCustom{
-		Placeholder: "?", // MySQL 占位符
+		Placeholder: "?", // MySQL placeholder
 		UseUpsert:   false,
 		UseIgnore:   false,
 	}
 }
 
 // ============================================================================
-// 使用说明
+// Usage Instructions
 // ============================================================================
 //
-// 配置方式：
-//   1. 使用单例（默认配置）：DefaultMySQLCustom()
-//   2. 使用 Builder（推荐）：
+// Configuration methods:
+//   1. Using singleton (default configuration): DefaultMySQLCustom()
+//   2. Using Builder (recommended):
 //      custom := NewMySQLBuilder().UseUpsert(true).Build()
-//   3. 或者使用 Built.SqlOfUpsert() 方法（推荐）：
+//   3. Or use Built.SqlOfUpsert() method (recommended):
 //      built := xb.Of(user).Insert(func(ib *InsertBuilder) {
 //          ib.Set("name", "张三")
 //      }).Build()
-//      sql, args := built.SqlOfUpsert()  // 直接生成 UPSERT SQL
+//      sql, args := built.SqlOfUpsert()  // Directly generates UPSERT SQL
 //
 
 // ============================================================================
-// 实现 Custom 接口
+// Implements Custom Interface
 // ============================================================================
 
-// Generate 实现 Custom 接口
+// Generate implements Custom interface
 //
-// 说明：
-//   - 大部分场景使用默认 SQL 生成逻辑
-//   - 特殊场景（UPSERT、IGNORE）时使用 MySQL 专属语法
+// Notes:
+//   - Most scenarios use default SQL generation logic
+//   - Special scenarios (UPSERT, IGNORE) use MySQL-specific syntax
 //
-// 参数：
-//   - built: Built 对象
+// Parameters:
+//   - built: Built object
 //
-// 返回：
+// Returns:
 //   - interface{}: *SQLResult
-//   - error: 错误信息
+//   - error: error information
 func (c *MySQLCustom) Generate(built *Built) (interface{}, error) {
-	// ⭐ Insert 场景：可能需要 UPSERT 或 IGNORE
+	// ⭐ Insert scenario: may need UPSERT or IGNORE
 	if built.Inserts != nil {
 		return c.generateInsert(built)
 	}
 
-	// ⭐ Update 场景
+	// ⭐ Update scenario
 	if built.Updates != nil {
 		vs := []interface{}{}
 		km := make(map[string]string)
@@ -161,8 +161,8 @@ func (c *MySQLCustom) Generate(built *Built) (interface{}, error) {
 		return &SQLResult{SQL: sql, Args: vs, Meta: km}, nil
 	}
 
-	// ⭐ Select/Delete 场景（使用默认实现）
-	// 注意：MySQL DELETE 语法与标准 SQL 一致，无需特殊处理
+	// ⭐ Select/Delete scenario (uses default implementation)
+	// Note: MySQL DELETE syntax is consistent with standard SQL, no special handling needed
 	vs := []interface{}{}
 	km := make(map[string]string)
 	sql, kmp := built.SqlData(&vs, km)
@@ -174,21 +174,21 @@ func (c *MySQLCustom) Generate(built *Built) (interface{}, error) {
 }
 
 // ============================================================================
-// 内部实现
+// Internal Implementation
 // ============================================================================
 
-// generateInsert 生成 MySQL INSERT 语句
+// generateInsert generates MySQL INSERT statement
 func (c *MySQLCustom) generateInsert(built *Built) (*SQLResult, error) {
-	// 使用默认 SQL 生成逻辑
+	// Use default SQL generation logic
 	vs := []interface{}{}
 	sql := built.SqlInsert(&vs)
 
-	// ⭐ MySQL 特殊语法：ON DUPLICATE KEY UPDATE
+	// ⭐ MySQL special syntax: ON DUPLICATE KEY UPDATE
 	if c.UseUpsert {
 		sql = c.addUpsertClause(sql, built)
 	}
 
-	// ⭐ MySQL 特殊语法：INSERT IGNORE
+	// ⭐ MySQL special syntax: INSERT IGNORE
 	if c.UseIgnore {
 		sql = c.addIgnoreClause(sql)
 	}
@@ -199,13 +199,13 @@ func (c *MySQLCustom) generateInsert(built *Built) (*SQLResult, error) {
 	}, nil
 }
 
-// addUpsertClause 添加 ON DUPLICATE KEY UPDATE 子句
+// addUpsertClause adds ON DUPLICATE KEY UPDATE clause
 func (c *MySQLCustom) addUpsertClause(sql string, built *Built) string {
 	if built.Inserts == nil || len(*built.Inserts) == 0 {
 		return sql
 	}
 
-	// 构建 ON DUPLICATE KEY UPDATE 子句
+	// Build ON DUPLICATE KEY UPDATE clause
 	sql += "\nON DUPLICATE KEY UPDATE "
 
 	inserts := *built.Inserts
@@ -219,33 +219,33 @@ func (c *MySQLCustom) addUpsertClause(sql string, built *Built) string {
 	return sql
 }
 
-// addIgnoreClause 添加 IGNORE 关键字
+// addIgnoreClause adds IGNORE keyword
 func (c *MySQLCustom) addIgnoreClause(sql string) string {
-	// 在 INSERT 后面插入 IGNORE
+	// Insert IGNORE after INSERT
 	// INSERT INTO ... → INSERT IGNORE INTO ...
-	return "INSERT IGNORE" + sql[6:] // 跳过 "INSERT"
+	return "INSERT IGNORE" + sql[6:] // Skip "INSERT"
 }
 
 // ============================================================================
-// 默认 MySQL Custom（全局单例）
+// Default MySQL Custom (Global Singleton)
 // ============================================================================
 
-// defaultMySQLCustom 默认 MySQL Custom 实例
+// defaultMySQLCustom default MySQL Custom instance
 var defaultMySQLCustom = newMySQLCustom()
 
-// DefaultMySQLCustom 获取默认 MySQL Custom（单例）
+// DefaultMySQLCustom gets default MySQL Custom (singleton)
 //
-// 说明：
-//   - 返回全局单例，避免重复创建
-//   - xb 默认使用 MySQL 兼容的 SQL 语法，大部分场景无需设置 Custom
-//   - 只在需要 MySQL 特殊语法（UPSERT、INSERT IGNORE）时使用
+// Notes:
+//   - Returns global singleton to avoid repeated creation
+//   - xb defaults to MySQL-compatible SQL syntax, most scenarios don't need to set Custom
+//   - Only use when MySQL special syntax (UPSERT, INSERT IGNORE) is needed
 //
-// 返回：
+// Returns:
 //   - *MySQLCustom
 //
-// 示例：
+// Example:
 //
-//	// ⭐ 默认场景（推荐，最简洁）
+//	// ⭐ Default scenario (recommended, most concise)
 //	built := xb.Of("users").Eq("id", 1).Build()
 //	sql, args, _ := built.SqlOfSelect()
 //	// SELECT * FROM users WHERE id = ?
@@ -265,18 +265,18 @@ func DefaultMySQLCustom() *MySQLCustom {
 }
 
 // ============================================================================
-// Built 便捷方法（无需 Custom）
+// Built Convenience Methods (No Custom Required)
 // ============================================================================
 
-// SqlOfUpsert 生成 MySQL UPSERT SQL（INSERT ... ON DUPLICATE KEY UPDATE）
+// SqlOfUpsert generates MySQL UPSERT SQL (INSERT ... ON DUPLICATE KEY UPDATE)
 //
-// 说明：
-//   - 无需设置 Custom，直接调用即可
-//   - 自动生成 ON DUPLICATE KEY UPDATE 子句
+// Notes:
+//   - No need to set Custom, call directly
+//   - Automatically generates ON DUPLICATE KEY UPDATE clause
 //
-// 返回：
-//   - string: SQL 语句
-//   - []interface{}: 参数列表
+// Returns:
+//   - string: SQL statement
+//   - []interface{}: parameter list
 //
 // 示例：
 //
@@ -295,13 +295,13 @@ func (built *Built) SqlOfUpsert() (string, []interface{}) {
 	vs := []interface{}{}
 	sql := built.SqlInsert(&vs)
 
-	// 添加 ON DUPLICATE KEY UPDATE
+	// Add ON DUPLICATE KEY UPDATE
 	sql += " ON DUPLICATE KEY UPDATE "
 
 	inserts := *built.Inserts
 	updateParts := []string{}
 	for _, bb := range inserts {
-		// 跳过主键（通常是 id）
+		// Skip primary key (usually id)
 		if bb.Key == "id" {
 			continue
 		}
@@ -313,17 +313,17 @@ func (built *Built) SqlOfUpsert() (string, []interface{}) {
 	return sql, vs
 }
 
-// SqlOfInsertIgnore 生成 MySQL INSERT IGNORE SQL
+// SqlOfInsertIgnore generates MySQL INSERT IGNORE SQL
 //
-// 说明：
-//   - 无需设置 Custom，直接调用即可
-//   - 忽略重复键错误，不抛异常
+// Notes:
+//   - No need to set Custom, call directly
+//   - Ignores duplicate key errors, doesn't throw exceptions
 //
-// 返回：
-//   - string: SQL 语句
-//   - []interface{}: 参数列表
+// Returns:
+//   - string: SQL statement
+//   - []interface{}: parameter list
 //
-// 示例：
+// Example:
 //
 //	built := xb.Of(user).Insert(func(ib *InsertBuilder) {
 //	    ib.Set("id", 1).Set("name", "张三")
@@ -339,7 +339,7 @@ func (built *Built) SqlOfInsertIgnore() (string, []interface{}) {
 	vs := []interface{}{}
 	sql := built.SqlInsert(&vs)
 
-	// 将 INSERT 替换为 INSERT IGNORE
+	// Replace INSERT with INSERT IGNORE
 	sql = strings.Replace(sql, "INSERT INTO", "INSERT IGNORE INTO", 1)
 
 	return sql, vs

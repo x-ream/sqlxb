@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-// 测试用的向量数据模型
+// Test vector data model
 type CodeVector struct {
 	Id        int64     `db:"id"`
 	Content   string    `db:"content"`
@@ -35,7 +35,7 @@ func (CodeVector) TableName() string {
 	return "code_vectors"
 }
 
-// 测试基础向量检索
+// Test basic vector search
 func TestVectorSearch_Basic(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
@@ -44,21 +44,21 @@ func TestVectorSearch_Basic(t *testing.T) {
 		Build().
 		SqlOfVectorSearch()
 
-	t.Logf("=== SELECT 向量检索测试 ===")
+	t.Logf("=== SELECT vector search test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args count: %d", len(args))
 	if len(args) > 0 {
 		t.Logf("Args[0] type: %T", args[0])
 		t.Logf("Args[0] value: %v", args[0])
 
-		// 检查查询参数类型
+		// Check query parameter type
 		switch args[0].(type) {
 		case Vector:
-			t.Logf("✅ 查询参数是 Vector 类型，driver.Valuer 会被调用")
+			t.Logf("✅ Query parameter is Vector type, driver.Valuer will be called")
 		case string:
-			t.Logf("⚠️ 查询参数是 string 类型")
+			t.Logf("⚠️ Query parameter is string type")
 		default:
-			t.Logf("❓ 查询参数是未知类型: %T", args[0])
+			t.Logf("❓ Query parameter is unknown type: %T", args[0])
 		}
 	}
 
@@ -73,7 +73,7 @@ func TestVectorSearch_Basic(t *testing.T) {
 	}
 }
 
-// 测试向量检索 + 标量过滤
+// Test vector search + scalar filter
 func TestVectorSearch_WithScalarFilter(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -87,7 +87,7 @@ func TestVectorSearch_WithScalarFilter(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %d", len(args))
 
-	// SQL 应该包含 WHERE 条件
+	// SQL should contain WHERE condition
 	if !containsString(sql, "WHERE") {
 		t.Errorf("Expected WHERE clause in SQL: %s", sql)
 	}
@@ -110,7 +110,7 @@ func TestVectorSearch_WithScalarFilter(t *testing.T) {
 	}
 }
 
-// 测试 L2 距离
+// Test L2 distance
 func TestVectorSearch_L2Distance(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -124,13 +124,13 @@ func TestVectorSearch_L2Distance(t *testing.T) {
 	t.Logf("Distance Metric: L2Distance (<#>)")
 	t.Logf("Args: %d", len(args))
 
-	// SQL 应该使用 <#> 运算符
+	// SQL should use <#> operator
 	if !containsString(sql, "<#>") {
 		t.Errorf("Expected <#> (L2 distance) in SQL: %s", sql)
 	}
 }
 
-// 测试向量距离过滤
+// Test vector distance filtering
 func TestVectorDistanceFilter(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -144,7 +144,7 @@ func TestVectorDistanceFilter(t *testing.T) {
 	t.Logf("Threshold: < 0.3")
 	t.Logf("Args: %d", len(args))
 
-	// SQL 应该包含距离过滤条件
+	// SQL should contain distance filter condition
 	if !containsString(sql, "<-> ?") {
 		t.Errorf("Expected distance filter in SQL: %s", sql)
 	}
@@ -154,17 +154,17 @@ func TestVectorDistanceFilter(t *testing.T) {
 	}
 
 	// args: "golang", queryVector, 0.3
-	// 注意：VectorDistanceFilter 不会在顶部添加向量，只在 WHERE 中
+	// Note: VectorDistanceFilter does not add vector at the top, only in WHERE
 	if len(args) < 3 {
 		t.Errorf("Expected at least 3 args, got %d", len(args))
 	}
 }
 
-// 测试自动忽略 nil
+// Test auto ignore nil
 func TestVectorSearch_AutoIgnoreNil(t *testing.T) {
 	queryVector := Vector{0.1, 0.2}
 
-	// language 为空字符串，应该被忽略
+	// language is an empty string, should be ignored
 	sql, args := Of(&CodeVector{}).
 		Eq("language", "").
 		Eq("layer", "repository").
@@ -173,10 +173,10 @@ func TestVectorSearch_AutoIgnoreNil(t *testing.T) {
 		SqlOfVectorSearch()
 
 	t.Logf("SQL: %s", sql)
-	t.Logf("Note: Empty language auto-ignored")
+	t.Logf("Note: Empty language is auto-ignored")
 	t.Logf("Args: %d", len(args))
 
-	// SQL 不应该包含 language（因为是空字符串）
+	// SQL should not contain language (because it's an empty string)
 	// 但应该包含 layer
 	if containsString(sql, "language") {
 		t.Errorf("Empty language should be ignored, but found in SQL: %s", sql)
@@ -186,25 +186,25 @@ func TestVectorSearch_AutoIgnoreNil(t *testing.T) {
 		t.Errorf("Expected layer filter in SQL: %s", sql)
 	}
 
-	// args: queryVector, "repository"
+	// Args: queryVector, "repository"
 	if len(args) != 2 {
 		t.Errorf("Expected 2 args, got %d", len(args))
 	}
 }
 
-// 测试向量类型的距离计算
+// Test vector distance calculation
 func TestVector_Distance(t *testing.T) {
 	vec1 := Vector{1.0, 0.0, 0.0}
 	vec2 := Vector{0.0, 1.0, 0.0}
 
-	// 余弦距离
+	// Cosine distance
 	cosDist := vec1.Distance(vec2, CosineDistance)
 	t.Logf("Cosine Distance: %.4f", cosDist)
 	if cosDist != 1.0 {
 		t.Errorf("Expected cosine distance 1.0, got %f", cosDist)
 	}
 
-	// L2 距离
+	// L2 distance
 	l2Dist := vec1.Distance(vec2, L2Distance)
 	t.Logf("L2 Distance: %.4f", l2Dist)
 	expected := float32(1.414213) // sqrt(2)
@@ -213,15 +213,15 @@ func TestVector_Distance(t *testing.T) {
 	}
 }
 
-// 测试向量归一化
+// Test vector normalization
 func TestVector_Normalize(t *testing.T) {
-	vec := Vector{3.0, 4.0} // 长度为 5
+	vec := Vector{3.0, 4.0} // Length is 5
 	normalized := vec.Normalize()
 
 	t.Logf("Original: %v", vec)
 	t.Logf("Normalized: %v", normalized)
 
-	// 归一化后长度应该为 1
+	// After normalization, length should be 1
 	expected := Vector{0.6, 0.8}
 
 	if abs(normalized[0]-expected[0]) > 0.001 {
@@ -233,7 +233,7 @@ func TestVector_Normalize(t *testing.T) {
 	}
 }
 
-// 测试向量插入
+// Test vector insert
 func TestVector_Insert(t *testing.T) {
 	code := &CodeVector{
 		Content:   "func main() { fmt.Println(\"Hello\") }",
@@ -252,7 +252,7 @@ func TestVector_Insert(t *testing.T) {
 		Build().
 		SqlOfInsert()
 
-	t.Logf("=== INSERT 测试 ===")
+	t.Logf("=== INSERT test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args count: %d", len(args))
 	for i, arg := range args {
@@ -260,7 +260,7 @@ func TestVector_Insert(t *testing.T) {
 		t.Logf("Args[%d] value: %v", i, arg)
 	}
 
-	// 验证 SQL 包含所有字段
+	// Verify SQL contains all fields
 	if !containsString(sql, "content") {
 		t.Errorf("Expected content field in SQL: %s", sql)
 	}
@@ -272,7 +272,7 @@ func TestVector_Insert(t *testing.T) {
 	}
 }
 
-// 测试向量更新
+// Test vector update
 func TestVector_Update(t *testing.T) {
 	newEmbedding := Vector{0.5, 0.6, 0.7, 0.8}
 
@@ -285,7 +285,7 @@ func TestVector_Update(t *testing.T) {
 		Build().
 		SqlOfUpdate()
 
-	t.Logf("=== UPDATE 测试 ===")
+	t.Logf("=== UPDATE test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args count: %d", len(args))
 	for i, arg := range args {
@@ -293,7 +293,7 @@ func TestVector_Update(t *testing.T) {
 		t.Logf("Args[%d] value: %v", i, arg)
 	}
 
-	// 验证 SQL
+	// Verify SQL
 	if !containsString(sql, "UPDATE") {
 		t.Errorf("Expected UPDATE in SQL: %s", sql)
 	}
@@ -305,11 +305,11 @@ func TestVector_Update(t *testing.T) {
 	}
 }
 
-// 测试向量类型在 Set() 中的处理
+// Test vector type handling in Set()
 func TestVector_SetBehavior(t *testing.T) {
 	vec := Vector{1.0, 2.0, 3.0}
 
-	// 测试 InsertBuilder.Set()
+	// Test InsertBuilder.Set()
 	sql, args := Of(&CodeVector{}).
 		Insert(func(ib *InsertBuilder) {
 			ib.Set("embedding", vec)
@@ -317,30 +317,30 @@ func TestVector_SetBehavior(t *testing.T) {
 		Build().
 		SqlOfInsert()
 
-	t.Logf("=== Vector Set() 行为测试 ===")
-	t.Logf("原始 Vector: %v (类型: %T)", vec, vec)
+	t.Logf("=== Vector Set() behavior test ===")
+	t.Logf("Original Vector: %v (type: %T)", vec, vec)
 	t.Logf("SQL: %s", sql)
 
 	if len(args) > 0 {
-		t.Logf("Set() 后 args[0] 类型: %T", args[0])
-		t.Logf("Set() 后 args[0] 值: %v", args[0])
+		t.Logf("After Set(), args[0] type: %T", args[0])
+		t.Logf("After Set(), args[0] value: %v", args[0])
 
-		// 关键检查：args[0] 是 Vector 还是 string？
+		// Key check: args[0] is Vector or string?
 		switch args[0].(type) {
 		case Vector:
-			t.Logf("✅ args[0] 是 Vector 类型，driver.Valuer 会被调用")
+			t.Logf("✅ args[0] is Vector type, driver.Valuer will be called")
 		case string:
-			t.Logf("⚠️ args[0] 是 string 类型，已被 JSON Marshal")
-			t.Logf("⚠️ driver.Valuer 不会被调用")
+			t.Logf("⚠️ args[0] is string type, has been JSON Marshal")
+			t.Logf("⚠️ driver.Valuer will not be called")
 		case []float32:
-			t.Logf("✅ args[0] 是 []float32 类型")
+			t.Logf("✅ args[0] is []float32 type")
 		default:
-			t.Logf("❓ args[0] 是未知类型: %T", args[0])
+			t.Logf("❓ args[0] is unknown type: %T", args[0])
 		}
 	}
 }
 
-// 辅助函数
+// Helper functions
 func containsString(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) && findSubstring(s, substr))
 }

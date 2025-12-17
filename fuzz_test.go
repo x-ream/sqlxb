@@ -20,9 +20,9 @@ import (
 	"testing"
 )
 
-// Fuzz 测试：测试字符串条件（Eq, Like 等）
+// Fuzz test: test string conditions (Eq, Like, etc.)
 func FuzzStringConditions(f *testing.F) {
-	// 种子语料
+	// Seed corpus
 	f.Add("test", "value")
 	f.Add("", "")
 	f.Add("user_name", "alice")
@@ -31,34 +31,34 @@ func FuzzStringConditions(f *testing.F) {
 	f.Add("field", "'; DROP TABLE users; --")
 
 	f.Fuzz(func(t *testing.T, field string, value string) {
-		// 测试不应该 panic
+		// Test should not panic
 		defer func() {
 			if r := recover(); r != nil {
 				t.Errorf("Unexpected panic: %v (field=%q, value=%q)", r, field, value)
 			}
 		}()
 
-		// 测试 Eq
+		// Test Eq
 		builder := Of(&FuzzTestStruct{}).Eq(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 
-		// 测试 Ne
+		// Test Ne
 		builder = Of(&FuzzTestStruct{}).Ne(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 
-		// 测试 Like
+		// Test Like
 		builder = Of(&FuzzTestStruct{}).Like(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 
-		// 测试 LikeLeft
+		// Test LikeLeft
 		builder = Of(&FuzzTestStruct{}).LikeLeft(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 	})
 }
 
-// Fuzz 测试：测试数值条件（Gt, Lt 等）
+// Fuzz test: test numeric conditions (Gt, Lt, etc.)
 func FuzzNumericConditions(f *testing.F) {
-	// 种子语料
+	// Seed corpus
 	f.Add("age", int64(0))
 	f.Add("price", int64(100))
 	f.Add("id", int64(-1))
@@ -71,25 +71,25 @@ func FuzzNumericConditions(f *testing.F) {
 			}
 		}()
 
-		// 测试 Gt
+		// Test Gt
 		builder := Of(&FuzzTestStruct{}).Gt(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 
-		// 测试 Gte
+		// Test Gte
 		builder = Of(&FuzzTestStruct{}).Gte(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 
-		// 测试 Lt
+		// Test Lt
 		builder = Of(&FuzzTestStruct{}).Lt(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 
-		// 测试 Lte
+		// Test Lte
 		builder = Of(&FuzzTestStruct{}).Lte(field, value)
 		_, _, _ = builder.Build().SqlOfCond()
 	})
 }
 
-// Fuzz 测试：测试 Limit/Offset
+// Fuzz test: test Limit/Offset
 func FuzzPagination(f *testing.F) {
 	f.Add(10, 0)
 	f.Add(100, 50)
@@ -112,7 +112,7 @@ func FuzzPagination(f *testing.F) {
 	})
 }
 
-// Fuzz 测试：测试 X() 硬编码条件
+// Fuzz test: test X() hardcoded conditions
 func FuzzXCondition(f *testing.F) {
 	f.Add("id > ?", int64(100))
 	f.Add("status = ?", int64(1))
@@ -122,7 +122,7 @@ func FuzzXCondition(f *testing.F) {
 	f.Fuzz(func(t *testing.T, condition string, value int64) {
 		defer func() {
 			if r := recover(); r != nil {
-				// X() 允许任何字符串，不应该 panic
+				// X() allows any string, should not panic
 				t.Errorf("Unexpected panic: %v (condition=%q, value=%d)", r, condition, value)
 			}
 		}()
@@ -132,7 +132,7 @@ func FuzzXCondition(f *testing.F) {
 	})
 }
 
-// Fuzz 测试辅助结构
+// Fuzz test helper structure
 type FuzzTestStruct struct {
 	ID       uint64   `db:"id"`
 	Name     string   `db:"name"`

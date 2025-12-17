@@ -42,18 +42,18 @@ type Built struct {
 
 	PageCondition *PageCondition
 
-	// ⭐ 数据库专属配置（Dialect + Custom）
-	// 如果为 nil，默认为 SQL 方言
+	// ⭐ Database-specific configuration (Dialect + Custom)
+	// If nil, defaults to SQL dialect
 	Custom      Custom
-	LimitValue  int                   // ⭐ 新增：LIMIT 值（v0.10.1）
-	OffsetValue int                   // ⭐ 新增：OFFSET 值（v0.10.1）
-	Meta        *interceptor.Metadata // ⭐ 新增：元数据（v0.9.2）
+	LimitValue  int                   // ⭐ LIMIT value (v0.10.1)
+	OffsetValue int                   // ⭐ OFFSET value (v0.10.1)
+	Meta        *interceptor.Metadata // ⭐ Metadata (v0.9.2)
 	Alia        string
 	Withs       []WithClause
 	Unions      []UnionClause
 }
 
-// WithClause 公共表达式（CTE）定义
+// WithClause common table expression (CTE) definition
 type WithClause struct {
 	Name      string
 	SQL       string
@@ -61,7 +61,7 @@ type WithClause struct {
 	Recursive bool
 }
 
-// UnionClause UNION 定义
+// UnionClause UNION definition
 type UnionClause struct {
 	Operator string
 	SQL      string
@@ -69,17 +69,17 @@ type UnionClause struct {
 }
 
 // ============================================================================
-// 统一的查询生成接口（v0.11.0）
+// Unified Query Generation Interface (v0.11.0)
 // ============================================================================
 
-// JsonOfSelect 生成查询 JSON（统一接口）
-// ⭐ 根据 Built.Custom 自动选择数据库方言（Qdrant/Milvus/Weaviate 等）
+// JsonOfSelect generates query JSON (unified interface)
+// ⭐ Automatically selects database dialect based on Built.Custom (Qdrant/Milvus/Weaviate, etc.)
 //
-// 返回:
-//   - JSON 字符串
+// Returns:
+//   - JSON string
 //   - error
 //
-// 示例:
+// Example:
 //
 //	// Qdrant
 //	built := xb.Of("code_vectors").
@@ -87,32 +87,32 @@ type UnionClause struct {
 //	    VectorSearch(...).
 //	    Build()
 //
-//	json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Qdrant
+//	json, _ := built.JsonOfSelect()  // ⭐ Automatically uses Qdrant
 //
-//	// Milvus（示例：未来实现时使用 Builder 模式）
+//	// Milvus (example: future implementation using Builder pattern)
 //	// built := xb.Of("users").
 //	//     Custom(xb.NewMilvusBuilder().Build()).
 //	//     VectorSearch(...).
 //	//     Build()
 //	//
-//	// json, _ := built.JsonOfSelect()  // ⭐ 自动使用 Milvus
+//	// json, _ := built.JsonOfSelect()  // ⭐ Automatically uses Milvus
 func (built *Built) JsonOfSelect() (string, error) {
 	if built.Custom == nil {
 		return "", fmt.Errorf("Custom is nil, use SqlOfSelect() for SQL databases")
 	}
 
-	// ⭐ 调用 Custom.Generate()
+	// ⭐ Call Custom.Generate()
 	result, err := built.Custom.Generate(built)
 	if err != nil {
 		return "", err
 	}
 
-	// ⭐ 类型断言：期望是 string（JSON）
+	// ⭐ Type assertion: expect string (JSON)
 	if jsonStr, ok := result.(string); ok {
 		return jsonStr, nil
 	}
 
-	// 如果是 SQLResult，转换为 JSON（可选）
+	// If SQLResult, convert to JSON (optional)
 	if sqlResult, ok := result.(*SQLResult); ok {
 		return "", fmt.Errorf("got SQL result, use SqlOfSelect() instead. SQL: %s", sqlResult.SQL)
 	}
@@ -120,8 +120,8 @@ func (built *Built) JsonOfSelect() (string, error) {
 	return "", fmt.Errorf("unexpected result type: %T", result)
 }
 
-// JsonOfInsert 生成插入 JSON（向量数据库）
-// ⭐ 用于 Qdrant/Milvus 等向量数据库的插入操作
+// JsonOfInsert generates insert JSON (vector databases)
+// ⭐ Used for insert operations in vector databases like Qdrant/Milvus
 func (built *Built) JsonOfInsert() (string, error) {
 	if built.Custom == nil {
 		return "", fmt.Errorf("Custom is nil, use SqlOfInsert() for SQL databases")
@@ -139,8 +139,8 @@ func (built *Built) JsonOfInsert() (string, error) {
 	return "", fmt.Errorf("unexpected result type: %T", result)
 }
 
-// JsonOfUpdate 生成更新 JSON（向量数据库）
-// ⭐ 用于 Qdrant/Milvus 等向量数据库的更新操作
+// JsonOfUpdate generates update JSON (vector databases)
+// ⭐ Used for update operations in vector databases like Qdrant/Milvus
 func (built *Built) JsonOfUpdate() (string, error) {
 	if built.Custom == nil {
 		return "", fmt.Errorf("Custom is nil, use SqlOfUpdate() for SQL databases")
@@ -158,14 +158,14 @@ func (built *Built) JsonOfUpdate() (string, error) {
 	return "", fmt.Errorf("unexpected result type: %T", result)
 }
 
-// JsonOfDelete 生成删除 JSON（向量数据库）
-// ⭐ 用于 Qdrant/Milvus 等向量数据库的删除操作
+// JsonOfDelete generates delete JSON (vector databases)
+// ⭐ Used for delete operations in vector databases like Qdrant/Milvus
 func (built *Built) JsonOfDelete() (string, error) {
 	if built.Custom == nil {
 		return "", fmt.Errorf("Custom is nil, use SqlOfDelete() for SQL databases")
 	}
 
-	// ⭐ 自动设置 Delete 标记
+	// ⭐ Automatically set Delete flag
 	built.Delete = true
 
 	result, err := built.Custom.Generate(built)
@@ -296,7 +296,7 @@ func (built *Built) toCondSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, 
 			next := bbs[nextIdx]
 			if built.isOr(next) {
 				if built.isOR(next) {
-					// next 是纯 OR 操作符（由 OR() 方法创建）
+					// next is a pure OR operator (created by OR() method)
 					if i+1 < length-1 {
 						nextNext := bbs[nextIdx+1]
 						if !built.isOR(nextNext) {
@@ -305,10 +305,10 @@ func (built *Built) toCondSql(bbs []Bb, bp *strings.Builder, vs *[]interface{}, 
 						i++
 					}
 				} else if len(next.Subs) > 0 {
-					// next 是 OR_SUB（有 subs），使用 AND 连接
+					// next is OR_SUB (has subs), use AND to connect
 					bp.WriteString(AND_SCRIPT)
 				} else {
-					// 其他 OR 情况（理论上不应该发生）
+					// Other OR cases (theoretically should not happen)
 					bp.WriteString(OR_SCRIPT)
 				}
 			} else {
@@ -371,8 +371,8 @@ func (built *Built) toSortSql(bp *strings.Builder) {
 }
 
 func (built *Built) toPageSql(bp *strings.Builder) {
-	// ⭐ 优先使用 Paged()（Web 分页，支持 COUNT + Last 优化）
-	// 如果 PageCondition 存在，忽略 Limit/Offset
+	// ⭐ Prefer Paged() (web pagination, supports COUNT + Last optimization)
+	// If PageCondition exists, ignore Limit/Offset
 	if built.PageCondition != nil {
 		if built.PageCondition.Rows >= 1 {
 			bp.WriteString(LIMIT)
@@ -385,10 +385,10 @@ func (built *Built) toPageSql(bp *strings.Builder) {
 				bp.WriteString(strconv.Itoa(int((built.PageCondition.Page - 1) * built.PageCondition.Rows)))
 			}
 		}
-		return // ⭐ 直接返回，忽略 Limit/Offset
+		return // ⭐ Return directly, ignore Limit/Offset
 	}
 
-	// ⭐ 只有在没有 Paged() 时，才使用 Limit/Offset（简单查询）
+	// ⭐ Only use Limit/Offset when Paged() is not used (simple queries)
 	if built.LimitValue > 0 {
 		bp.WriteString(LIMIT)
 		bp.WriteString(strconv.Itoa(built.LimitValue))
@@ -420,22 +420,22 @@ func (built *Built) countBuilder() *strings.Builder {
 	pageCondition := built.PageCondition
 	if pageCondition != nil && pageCondition.Rows > 1 && !pageCondition.IsTotalRowsIgnored {
 		sb := strings.Builder{}
-		sb.Grow(128) // 预分配 128 字节
+		sb.Grow(128) // Pre-allocate 128 bytes
 		sbCount = &sb
 	}
 	return sbCount
 }
 
 func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]string) {
-	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	// ⭐ If Custom is set, try to get from Custom
 	if built.Custom != nil {
 		result, err := built.Custom.Generate(built)
 		if err == nil {
 			if sqlResult, ok := result.(*SQLResult); ok {
-				// ⭐ 优先使用 Custom 提供的 CountSQL
+				// ⭐ Prefer CountSQL provided by Custom
 				countSQL := sqlResult.CountSQL
 				if countSQL == "" {
-					// ⭐ 如果 Custom 没提供，使用默认生成
+					// ⭐ If Custom didn't provide, use default generation
 					countSQL = built.SqlCount()
 				}
 
@@ -448,7 +448,7 @@ func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]strin
 		}
 	}
 
-	// ⭐ 默认实现
+	// ⭐ Default implementation
 	vs := []interface{}{}
 	km := make(map[string]string)
 	dataSql, kmp := built.SqlData(&vs, km)
@@ -458,11 +458,11 @@ func (built *Built) SqlOfPage() (string, string, []interface{}, map[string]strin
 }
 
 func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
-	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	// ⭐ If Custom is set, try to get from Custom
 	if built.Custom != nil {
 		result, err := built.Custom.Generate(built)
 		if err == nil {
-			// ⭐ 类型断言：期望是 *SQLResult
+			// ⭐ Type assertion: expect *SQLResult
 			if sqlResult, ok := result.(*SQLResult); ok {
 				meta := sqlResult.Meta
 				if meta == nil {
@@ -471,10 +471,10 @@ func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 				return sqlResult.SQL, sqlResult.Args, meta
 			}
 		}
-		// 如果 Custom 返回的不是 SQLResult，继续使用默认实现
+		// If Custom didn't return SQLResult, continue with default implementation
 	}
 
-	// ⭐ 默认实现（原有逻辑）
+	// ⭐ Default implementation (original logic)
 	vs := []interface{}{}
 	km := make(map[string]string)
 	dataSql, kmp := built.SqlData(&vs, km)
@@ -482,7 +482,7 @@ func (built *Built) SqlOfSelect() (string, []interface{}, map[string]string) {
 }
 
 func (built *Built) SqlOfInsert() (string, []interface{}) {
-	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	// ⭐ If Custom is set, try to get from Custom
 	if built.Custom != nil {
 		result, err := built.Custom.Generate(built)
 		if err == nil {
@@ -492,14 +492,14 @@ func (built *Built) SqlOfInsert() (string, []interface{}) {
 		}
 	}
 
-	// ⭐ 默认实现
+	// ⭐ Default implementation
 	vs := []interface{}{}
 	sql := built.SqlInsert(&vs)
 	return sql, vs
 }
 
 func (built *Built) SqlOfUpdate() (string, []interface{}) {
-	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	// ⭐ If Custom is set, try to get from Custom
 	if built.Custom != nil {
 		result, err := built.Custom.Generate(built)
 		if err == nil {
@@ -509,7 +509,7 @@ func (built *Built) SqlOfUpdate() (string, []interface{}) {
 		}
 	}
 
-	// ⭐ 默认实现
+	// ⭐ Default implementation
 	vs := []interface{}{}
 	km := make(map[string]string)
 	dataSql, _ := built.SqlData(&vs, km)
@@ -517,7 +517,7 @@ func (built *Built) SqlOfUpdate() (string, []interface{}) {
 }
 
 func (built *Built) SqlOfDelete() (string, []interface{}) {
-	// ⭐ 如果设置了 Custom，尝试从 Custom 获取
+	// ⭐ If Custom is set, try to get from Custom
 	if built.Custom != nil {
 		result, err := built.Custom.Generate(built)
 		if err == nil {
@@ -527,7 +527,7 @@ func (built *Built) SqlOfDelete() (string, []interface{}) {
 		}
 	}
 
-	// ⭐ 默认实现
+	// ⭐ Default implementation
 	vs := []interface{}{}
 	sql := built.sqlDelete(&vs)
 	return sql, vs
@@ -537,7 +537,7 @@ func (built *Built) SqlOfCond() (string, string, []interface{}) {
 	vs := []interface{}{}
 
 	joinB := strings.Builder{}
-	joinB.Grow(128) // 预分配 128 字节用于 JOIN 语句
+	joinB.Grow(128) // Pre-allocate 128 bytes for JOIN statements
 	if built.Fxs != nil {
 		for i, fx := range built.Fxs {
 			if i > 0 {
@@ -547,7 +547,7 @@ func (built *Built) SqlOfCond() (string, string, []interface{}) {
 	}
 
 	condB := strings.Builder{}
-	condB.Grow(256) // 预分配 256 字节用于 WHERE 条件
+	condB.Grow(256) // Pre-allocate 256 bytes for WHERE conditions
 	built.toCondSql(built.Conds, &condB, &vs, built.filterLast)
 
 	return joinB.String(), condB.String(), vs
@@ -588,7 +588,7 @@ func (built *Built) toDelete(bp *strings.Builder) {
 
 func (built *Built) sqlDelete(vs *[]interface{}) string {
 	sb := strings.Builder{}
-	sb.Grow(128) // 预分配 128 字节，减少内存重新分配
+	sb.Grow(128) // Pre-allocate 128 bytes to reduce memory reallocation
 	built.toDelete(&sb)
 	built.sqlFrom(&sb)
 	built.toFromSql(vs, &sb)
@@ -605,21 +605,21 @@ func (built *Built) sqlDelete(vs *[]interface{}) string {
 	return deleteSql
 }
 
-// SqlData 生成数据查询 SQL（SELECT 或 UPDATE）
+// SqlData generates data query SQL (SELECT or UPDATE)
 //
-// 说明：
-//   - 生成完整的 SELECT 或 UPDATE SQL（不含分页的 COUNT SQL）
-//   - Custom 实现可以调用此方法生成基础 SQL
+// Notes:
+//   - Generates complete SELECT or UPDATE SQL (does not include pagination COUNT SQL)
+//   - Custom implementations can call this method to generate base SQL
 //
-// 参数：
-//   - vs: 参数列表（指针）
-//   - km: 元数据 map
+// Parameters:
+//   - vs: parameter list (pointer)
+//   - km: metadata map
 //
-// 返回：
-//   - string: SQL 语句
-//   - map[string]string: 元数据
+// Returns:
+//   - string: SQL statement
+//   - map[string]string: metadata
 //
-// 示例：
+// Example:
 //
 //	vs := []interface{}{}
 //	km := make(map[string]string)
@@ -627,7 +627,7 @@ func (built *Built) sqlDelete(vs *[]interface{}) string {
 //	// SELECT * FROM users WHERE age > ?
 func (built *Built) SqlData(vs *[]interface{}, km map[string]string) (string, map[string]string) {
 	sb := strings.Builder{}
-	sb.Grow(256) // 预分配 256 字节，SELECT 语句通常较长
+	sb.Grow(256) // Pre-allocate 256 bytes, SELECT statements are usually longer
 	built.appendWithClauses(&sb, vs)
 	built.writeSelectCore(&sb, vs, km)
 	built.appendUnionClauses(&sb, vs)
@@ -638,16 +638,16 @@ func (built *Built) SqlData(vs *[]interface{}, km map[string]string) (string, ma
 	return dataSql, km
 }
 
-// SqlCount 生成 COUNT SQL（用于分页）
+// SqlCount generates COUNT SQL (for pagination)
 //
-// 说明：
-//   - 用于生成 COUNT(*) SQL，通常与 SqlData 配合用于分页
-//   - Custom 实现可以调用此方法生成 count SQL
+// Notes:
+//   - Used to generate COUNT(*) SQL, usually used with SqlData for pagination
+//   - Custom implementations can call this method to generate count SQL
 //
-// 返回：
+// Returns:
 //   - string: COUNT SQL
 //
-// 示例：
+// Example:
 //
 //	countSQL := built.SqlCount()
 //	// SELECT COUNT(*) FROM users WHERE age > ?
@@ -656,7 +656,7 @@ func (built *Built) SqlCount() string {
 	if sbCount == nil {
 		return ""
 	}
-	sbCount.Grow(128) // 预分配 128 字节，COUNT 语句相对较短
+	sbCount.Grow(128) // Pre-allocate 128 bytes, COUNT statements are relatively short
 	built.appendWithClauses(sbCount, nil)
 	built.toResultKeySqlOfCount(sbCount)
 	built.countSqlFrom(sbCount)

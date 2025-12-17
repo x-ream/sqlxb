@@ -22,23 +22,23 @@ import (
 )
 
 // ============================================================================
-// Qdrant 专属接口（继承通用接口）
+// Qdrant-Specific Interface (extends common interface)
 // ============================================================================
 
-// QdrantRequest Qdrant 专属请求接口
-// 在通用接口基础上，增加 Qdrant 特有的 HNSW 参数
+// QdrantRequest Qdrant-specific request interface
+// Extends common interface with Qdrant-specific HNSW parameters
 type QdrantRequest interface {
-	VectorDBRequest // ⭐ 继承通用接口
+	VectorDBRequest // ⭐ Extends common interface
 
-	// GetParams 获取 Qdrant 专属搜索参数（HNSW, Exact 等）
+	// GetParams gets Qdrant-specific search parameters (HNSW, Exact, etc.)
 	GetParams() **QdrantSearchParams
 
-	// GetQdrantFilter 获取 Qdrant 专属过滤器（类型安全）
+	// GetQdrantFilter gets Qdrant-specific filter (type-safe)
 	GetQdrantFilter() **QdrantFilter
 }
 
-// QdrantSearchRequest Qdrant 搜索请求结构
-// 文档: https://qdrant.tech/documentation/concepts/search/
+// QdrantSearchRequest Qdrant search request structure
+// Documentation: https://qdrant.tech/documentation/concepts/search/
 type QdrantSearchRequest struct {
 	Vector         []float32           `json:"vector"`
 	Limit          int                 `json:"limit"`
@@ -50,7 +50,7 @@ type QdrantSearchRequest struct {
 	Params         *QdrantSearchParams `json:"params,omitempty"`
 }
 
-// 实现 VectorDBRequest 接口（通用）
+// Implements VectorDBRequest interface (common)
 func (r *QdrantSearchRequest) GetScoreThreshold() **float32 {
 	return &r.ScoreThreshold
 }
@@ -63,7 +63,7 @@ func (r *QdrantSearchRequest) GetFilter() interface{} {
 	return &r.Filter
 }
 
-// 实现 QdrantRequest 接口（专属）
+// Implements QdrantRequest interface (specific)
 func (r *QdrantSearchRequest) GetParams() **QdrantSearchParams {
 	return &r.Params
 }
@@ -72,27 +72,27 @@ func (r *QdrantSearchRequest) GetQdrantFilter() **QdrantFilter {
 	return &r.Filter
 }
 
-// QdrantFilter Qdrant 过滤器
+// QdrantFilter Qdrant filter
 type QdrantFilter struct {
 	Must    []QdrantCondition `json:"must,omitempty"`
 	Should  []QdrantCondition `json:"should,omitempty"`
 	MustNot []QdrantCondition `json:"must_not,omitempty"`
 }
 
-// QdrantCondition Qdrant 条件
+// QdrantCondition Qdrant condition
 type QdrantCondition struct {
 	Key   string                `json:"key,omitempty"`
 	Match *QdrantMatchCondition `json:"match,omitempty"`
 	Range *QdrantRangeCondition `json:"range,omitempty"`
 }
 
-// QdrantMatchCondition Qdrant 精确匹配条件
+// QdrantMatchCondition Qdrant exact match condition
 type QdrantMatchCondition struct {
 	Value interface{}   `json:"value,omitempty"`
 	Any   []interface{} `json:"any,omitempty"`
 }
 
-// QdrantRangeCondition Qdrant 范围条件
+// QdrantRangeCondition Qdrant range condition
 type QdrantRangeCondition struct {
 	Gt  *float64 `json:"gt,omitempty"`
 	Gte *float64 `json:"gte,omitempty"`
@@ -100,18 +100,18 @@ type QdrantRangeCondition struct {
 	Lte *float64 `json:"lte,omitempty"`
 }
 
-// QdrantSearchParams Qdrant 搜索参数
+// QdrantSearchParams Qdrant search parameters
 type QdrantSearchParams struct {
 	HnswEf      int  `json:"hnsw_ef,omitempty"`
 	Exact       bool `json:"exact,omitempty"`
 	IndexedOnly bool `json:"indexed_only,omitempty"`
 }
 
-// QdrantRecommendRequest Qdrant 推荐请求结构 (v0.10.0)
-// 文档: https://qdrant.tech/documentation/concepts/explore/#recommendation-api
+// QdrantRecommendRequest Qdrant recommend request structure (v0.10.0)
+// Documentation: https://qdrant.tech/documentation/concepts/explore/#recommendation-api
 type QdrantRecommendRequest struct {
-	Positive       []int64             `json:"positive"`           // 正样本 ID 列表
-	Negative       []int64             `json:"negative,omitempty"` // 负样本 ID 列表（可选）
+	Positive       []int64             `json:"positive"`           // Positive sample ID list
+	Negative       []int64             `json:"negative,omitempty"` // Negative sample ID list (optional)
 	Limit          int                 `json:"limit"`
 	Filter         *QdrantFilter       `json:"filter,omitempty"`
 	WithPayload    interface{}         `json:"with_payload,omitempty"` // true, false, or []string
@@ -122,7 +122,7 @@ type QdrantRecommendRequest struct {
 	Strategy       string              `json:"strategy,omitempty"` // "average_vector" or "best_score"
 }
 
-// 实现 VectorDBRequest 接口（通用）
+// Implements VectorDBRequest interface (common)
 func (r *QdrantRecommendRequest) GetScoreThreshold() **float32 {
 	return &r.ScoreThreshold
 }
@@ -135,7 +135,7 @@ func (r *QdrantRecommendRequest) GetFilter() interface{} {
 	return &r.Filter
 }
 
-// 实现 QdrantRequest 接口（专属）
+// Implements QdrantRequest interface (specific)
 func (r *QdrantRecommendRequest) GetParams() **QdrantSearchParams {
 	return &r.Params
 }
@@ -144,8 +144,8 @@ func (r *QdrantRecommendRequest) GetQdrantFilter() **QdrantFilter {
 	return &r.Filter
 }
 
-// QdrantScrollRequest Qdrant Scroll 请求结构 (v0.10.0)
-// 文档: https://qdrant.tech/documentation/concepts/points/#scroll-points
+// QdrantScrollRequest Qdrant Scroll request structure (v0.10.0)
+// Documentation: https://qdrant.tech/documentation/concepts/points/#scroll-points
 type QdrantScrollRequest struct {
 	ScrollID    string        `json:"scroll_id,omitempty"`
 	Limit       int           `json:"limit,omitempty"`
@@ -154,9 +154,9 @@ type QdrantScrollRequest struct {
 	WithVector  bool          `json:"with_vector,omitempty"`
 }
 
-// 实现 VectorDBRequest 接口（通用）
+// Implements VectorDBRequest interface (common)
 func (r *QdrantScrollRequest) GetScoreThreshold() **float32 {
-	return nil // Scroll 不支持分数阈值
+	return nil // Scroll does not support score threshold
 }
 
 func (r *QdrantScrollRequest) GetWithVector() *bool {
@@ -167,19 +167,19 @@ func (r *QdrantScrollRequest) GetFilter() interface{} {
 	return &r.Filter
 }
 
-// 实现 QdrantRequest 接口（专属）
+// Implements QdrantRequest interface (specific)
 func (r *QdrantScrollRequest) GetParams() **QdrantSearchParams {
-	return nil // Scroll 不支持搜索参数
+	return nil // Scroll does not support search parameters
 }
 
 func (r *QdrantScrollRequest) GetQdrantFilter() **QdrantFilter {
 	return &r.Filter
 }
 
-// QdrantDiscoverRequest Qdrant Discover 请求结构 (v0.10.0)
-// 文档: https://qdrant.tech/documentation/concepts/explore/#discovery-api
+// QdrantDiscoverRequest Qdrant Discover request structure (v0.10.0)
+// Documentation: https://qdrant.tech/documentation/concepts/explore/#discovery-api
 type QdrantDiscoverRequest struct {
-	Context        []int64             `json:"context"` // 上下文样本 ID 列表
+	Context        []int64             `json:"context"` // Context sample ID list
 	Limit          int                 `json:"limit"`
 	Filter         *QdrantFilter       `json:"filter,omitempty"`
 	WithPayload    interface{}         `json:"with_payload,omitempty"` // true, false, or []string
@@ -189,7 +189,7 @@ type QdrantDiscoverRequest struct {
 	Params         *QdrantSearchParams `json:"params,omitempty"`
 }
 
-// 实现 VectorDBRequest 接口（通用）
+// Implements VectorDBRequest interface (common)
 func (r *QdrantDiscoverRequest) GetScoreThreshold() **float32 {
 	return &r.ScoreThreshold
 }
@@ -202,7 +202,7 @@ func (r *QdrantDiscoverRequest) GetFilter() interface{} {
 	return &r.Filter
 }
 
-// 实现 QdrantRequest 接口（专属）
+// Implements QdrantRequest interface (specific)
 func (r *QdrantDiscoverRequest) GetParams() **QdrantSearchParams {
 	return &r.Params
 }
@@ -221,7 +221,7 @@ func ensureQdrantAdvanced(built *Built) *Built {
 	return built
 }
 
-// toQdrantJSON 内部实现
+// toQdrantJSON internal implementation
 func (built *Built) toQdrantJSON() (string, error) {
 	built = ensureQdrantAdvanced(built)
 	req, err := built.ToQdrantRequest()
@@ -229,11 +229,11 @@ func (built *Built) toQdrantJSON() (string, error) {
 		return "", err
 	}
 
-	// ⭐ 检查是否有用户自定义参数（QDRANT_XX）
+	// ⭐ Check if there are user-defined parameters (QDRANT_XX)
 	customParams := extractQdrantCustomParams(built.Conds)
 
 	if len(customParams) == 0 {
-		// 无自定义参数，直接序列化
+		// No custom parameters, serialize directly
 		bytes, err := json.MarshalIndent(req, "", "  ")
 		if err != nil {
 			return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
@@ -241,7 +241,7 @@ func (built *Built) toQdrantJSON() (string, error) {
 		return string(bytes), nil
 	}
 
-	// 有自定义参数，先序列化为 map，再添加自定义字段
+	// Has custom parameters, first serialize to map, then add custom fields
 	bytes, err := json.Marshal(req)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
@@ -252,12 +252,12 @@ func (built *Built) toQdrantJSON() (string, error) {
 		return "", fmt.Errorf("failed to unmarshal to map: %w", err)
 	}
 
-	// ⭐ 添加用户自定义参数
+	// ⭐ Add user-defined parameters
 	for k, v := range customParams {
 		reqMap[k] = v
 	}
 
-	// 重新序列化
+	// Re-serialize
 	finalBytes, err := json.MarshalIndent(reqMap, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal final JSON: %w", err)
@@ -266,16 +266,16 @@ func (built *Built) toQdrantJSON() (string, error) {
 	return string(finalBytes), nil
 }
 
-// extractQdrantCustomParams 提取 Qdrant 自定义参数（兼容旧版本）
-// ⭐ 推荐使用通用版本 extractCustomParams（定义在 vector_db_request.go）
+// extractQdrantCustomParams extracts Qdrant custom parameters (backward compatible)
+// ⭐ Recommended to use general version extractCustomParams (defined in vector_db_request.go)
 func extractQdrantCustomParams(bbs []Bb) map[string]interface{} {
 	return ExtractCustomParams(bbs, QDRANT_XX)
 }
 
-// toQdrantRecommendJSON 内部实现
+// toQdrantRecommendJSON internal implementation
 func (built *Built) toQdrantRecommendJSON() (string, error) {
 	built = ensureQdrantAdvanced(built)
-	// 查找推荐参数
+	// Find recommend parameters
 	recommendBb := findRecommendBb(built.Conds)
 	if recommendBb == nil {
 		return "", fmt.Errorf("no recommend configuration found")
@@ -283,7 +283,7 @@ func (built *Built) toQdrantRecommendJSON() (string, error) {
 
 	recommendData := recommendBb.Value.(map[string]interface{})
 
-	// 构建推荐请求
+	// Build recommend request
 	req := &QdrantRecommendRequest{
 		Positive:    recommendData["positive"].([]int64),
 		Negative:    []int64{},
@@ -292,28 +292,28 @@ func (built *Built) toQdrantRecommendJSON() (string, error) {
 		WithVector:  false,
 	}
 
-	// 处理负样本（可选）
+	// Handle negative samples (optional)
 	if negative, ok := recommendData["negative"].([]int64); ok && len(negative) > 0 {
 		req.Negative = negative
 	}
 
-	// ⭐ 使用统一的参数应用函数
+	// ⭐ Use unified parameter application function
 	applyQdrantParams(built.Conds, req)
 
-	// 应用过滤器
+	// Apply filter
 	filter, err := buildQdrantFilter(built.Conds)
 	if err == nil && (len(filter.Must) > 0 || len(filter.Should) > 0 || len(filter.MustNot) > 0) {
 		req.Filter = filter
 	}
 
-	// ⭐ 使用统一的序列化函数
+	// ⭐ Use unified serialization function
 	return mergeAndSerialize(req, built.Conds)
 }
 
-// JsonOfSelect 转换为 Qdrant Scroll JSON (v0.10.0)
-// 返回: JSON 字符串, error
+// JsonOfSelect converts to Qdrant Scroll JSON (v0.10.0)
+// Returns: JSON string, error
 //
-// 示例输出:
+// Example output:
 //
 //	{
 //	  "scroll_id": "xxxx-yyyy-zzzz",
@@ -321,37 +321,37 @@ func (built *Built) toQdrantRecommendJSON() (string, error) {
 //	  "filter": {...}
 //	}
 //
-// toQdrantScrollJSON 内部实现
+// toQdrantScrollJSON internal implementation
 func (built *Built) toQdrantScrollJSON() (string, error) {
 	built = ensureQdrantAdvanced(built)
-	// 查找 Scroll ID
+	// Find Scroll ID
 	scrollBb := findScrollBb(built.Conds)
 	if scrollBb == nil {
 		return "", fmt.Errorf("no scroll_id found")
 	}
 
-	// 构建 Scroll 请求
+	// Build Scroll request
 	req := &QdrantScrollRequest{
 		ScrollID:    scrollBb.Value.(string),
-		Limit:       100, // 默认值
+		Limit:       100, // Default value
 		WithPayload: true,
 		WithVector:  false,
 	}
 
-	// ⭐ 使用统一的参数应用函数（Scroll 支持 WithVector）
+	// ⭐ Use unified parameter application function (Scroll supports WithVector)
 	applyQdrantParams(built.Conds, req)
 
-	// 应用过滤器
+	// Apply filter
 	filter, err := buildQdrantFilter(built.Conds)
 	if err == nil && (len(filter.Must) > 0 || len(filter.Should) > 0 || len(filter.MustNot) > 0) {
 		req.Filter = filter
 	}
 
-	// ⭐ 使用统一的序列化函数
+	// ⭐ Use unified serialization function
 	return mergeAndSerialize(req, built.Conds)
 }
 
-// findRecommendBb 查找推荐配置
+// findRecommendBb finds recommend configuration
 func findRecommendBb(bbs []Bb) *Bb {
 	for i := range bbs {
 		if bbs[i].Op == QDRANT_RECOMMEND {
@@ -361,7 +361,7 @@ func findRecommendBb(bbs []Bb) *Bb {
 	return nil
 }
 
-// findScrollBb 查找 Scroll ID
+// findScrollBb finds Scroll ID
 func findScrollBb(bbs []Bb) *Bb {
 	for i := range bbs {
 		if bbs[i].Op == QDRANT_SCROLL {
@@ -371,7 +371,7 @@ func findScrollBb(bbs []Bb) *Bb {
 	return nil
 }
 
-// findDiscoverBb 查找 Discover 配置
+// findDiscoverBb finds Discover configuration
 func findDiscoverBb(bbs []Bb) *Bb {
 	for i := range bbs {
 		if bbs[i].Op == QDRANT_DISCOVER {
@@ -381,10 +381,10 @@ func findDiscoverBb(bbs []Bb) *Bb {
 	return nil
 }
 
-// JsonOfSelect 转换为 Qdrant Discover JSON (v0.10.0)
-// 返回: JSON 字符串, error
+// JsonOfSelect converts to Qdrant Discover JSON (v0.10.0)
+// Returns: JSON string, error
 //
-// 示例输出:
+// Example output:
 //
 //	{
 //	  "context": [101, 102, 103],
@@ -392,10 +392,10 @@ func findDiscoverBb(bbs []Bb) *Bb {
 //	  "filter": {...}
 //	}
 //
-// toQdrantDiscoverJSON 内部实现
+// toQdrantDiscoverJSON internal implementation
 func (built *Built) toQdrantDiscoverJSON() (string, error) {
 	built = ensureQdrantAdvanced(built)
-	// 查找探索配置
+	// Find discover configuration
 	discoverBb := findDiscoverBb(built.Conds)
 	if discoverBb == nil {
 		return "", fmt.Errorf("no discover configuration found")
@@ -403,7 +403,7 @@ func (built *Built) toQdrantDiscoverJSON() (string, error) {
 
 	discoverData := discoverBb.Value.(map[string]interface{})
 
-	// 构建探索请求
+	// Build discover request
 	req := &QdrantDiscoverRequest{
 		Context:     discoverData["context"].([]int64),
 		Limit:       discoverData["limit"].(int),
@@ -411,24 +411,24 @@ func (built *Built) toQdrantDiscoverJSON() (string, error) {
 		WithVector:  false,
 	}
 
-	// ⭐ 使用统一的参数应用函数
+	// ⭐ Use unified parameter application function
 	applyQdrantParams(built.Conds, req)
 
-	// 应用过滤器
+	// Apply filter
 	filter, err := buildQdrantFilter(built.Conds)
 	if err == nil && (len(filter.Must) > 0 || len(filter.Should) > 0 || len(filter.MustNot) > 0) {
 		req.Filter = filter
 	}
 
-	// ⭐ 使用统一的序列化函数
+	// ⭐ Use unified serialization function
 	return mergeAndSerialize(req, built.Conds)
 }
 
-// ToQdrantRequest 构建 Qdrant 请求对象
-// ⭐ 公开方法：供测试和高级用法使用
+// ToQdrantRequest builds Qdrant request object
+// ⭐ Public method: for testing and advanced usage
 func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 	built = ensureQdrantAdvanced(built)
-	// 查找向量检索参数
+	// Find vector search parameters
 	vectorBb := findVectorSearchBb(built.Conds)
 	if vectorBb == nil {
 		return nil, fmt.Errorf("no vector search found")
@@ -436,7 +436,7 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 
 	params := vectorBb.Value.(VectorSearchParams)
 
-	// 构建请求
+	// Build request
 	req := &QdrantSearchRequest{
 		Vector:      params.QueryVector,
 		Limit:       params.TopK,
@@ -444,19 +444,19 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 		WithVector:  false,
 	}
 
-	// ⭐ 多样性处理：如果启用了多样性，需要过度获取
+	// ⭐ Diversity handling: if diversity is enabled, need to over-fetch
 	if params.Diversity != nil && params.Diversity.Enabled {
 		factor := params.Diversity.OverFetchFactor
 		if factor <= 0 {
-			factor = 5 // 默认 5 倍
+			factor = 5 // Default 5x
 		}
 		req.Limit = params.TopK * factor
 
-		// 注意：Qdrant 不原生支持多样性，需要在应用层处理
-		// 这里只是获取更多结果，后续需要应用层过滤
+		// Note: Qdrant doesn't natively support diversity, needs application-layer processing
+		// Here we just fetch more results, application layer needs to filter later
 	}
 
-	// 构建过滤器
+	// Build filter
 	filter, err := buildQdrantFilter(built.Conds)
 	if err != nil {
 		return nil, err
@@ -465,12 +465,12 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 		req.Filter = filter
 	}
 
-	// 设置搜索参数（使用 Custom 的默认值，如果有）
+	// Set search parameters (use Custom's default values if available)
 	defaultHnswEf := 128
 	defaultScoreThreshold := float32(0.0)
 	defaultWithVector := false
 
-	// ⭐ 从 Custom 中读取默认值（方案 1 实现）
+	// ⭐ Read default values from Custom (implementation approach 1)
 	if built.Custom != nil {
 		if qdrantCustom, ok := built.Custom.(*QdrantCustom); ok {
 			defaultHnswEf = qdrantCustom.DefaultHnswEf
@@ -485,23 +485,23 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 		IndexedOnly: false,
 	}
 
-	// 应用 Custom 的默认值
+	// Apply Custom's default values
 	if defaultScoreThreshold > 0 {
 		req.ScoreThreshold = &defaultScoreThreshold
 	}
 	req.WithVector = defaultWithVector
 
-	// ⭐ 应用 Qdrant 专属配置（从 Conds 中提取，会覆盖默认值）
+	// ⭐ Apply Qdrant-specific configuration (extracted from Conds, will override defaults)
 	applyQdrantSpecificConfig(built.Conds, req)
 
-	// 应用分页配置（如果有）
+	// Apply pagination configuration (if any)
 	if built.PageCondition != nil {
 		req.Limit = int(built.PageCondition.Rows)
 		if built.PageCondition.Page > 1 {
 			req.Offset = int((built.PageCondition.Page - 1) * built.PageCondition.Rows)
 		}
 
-		// 如果启用了多样性，需要覆盖 limit
+		// If diversity is enabled, need to override limit
 		if params.Diversity != nil && params.Diversity.Enabled {
 			factor := params.Diversity.OverFetchFactor
 			if factor <= 0 {
@@ -514,7 +514,7 @@ func (built *Built) ToQdrantRequest() (*QdrantSearchRequest, error) {
 	return req, nil
 }
 
-// applyQdrantSpecificConfig 从 Bb 中提取 Qdrant 专属配置
+// applyQdrantSpecificConfig extracts Qdrant-specific configuration from Bb
 func applyQdrantSpecificConfig(bbs []Bb, req *QdrantSearchRequest) {
 	for _, bb := range bbs {
 		switch bb.Op {
@@ -535,35 +535,35 @@ func applyQdrantSpecificConfig(bbs []Bb, req *QdrantSearchRequest) {
 				req.WithVector = withVec
 			}
 		case QDRANT_XX:
-			// ⭐ 用户自定义参数
-			// 注意：这些参数会被添加到 JSON 的顶层
-			// 由于 QdrantSearchRequest 是固定结构，
-			// QDRANT_XX 参数在 JsonOfSelect() 中特殊处理
-			// 这里只是标记，实际处理在 JsonOfSelect()
+			// ⭐ User-defined parameters
+			// Note: These parameters will be added to the top level of JSON
+			// Since QdrantSearchRequest is a fixed structure,
+			// QDRANT_XX parameters are specially handled in JsonOfSelect()
+			// This is just a marker, actual processing is in JsonOfSelect()
 		}
 	}
 }
 
-// buildQdrantFilter 构建 Qdrant 过滤器
+// buildQdrantFilter builds Qdrant filter
 func buildQdrantFilter(bbs []Bb) (*QdrantFilter, error) {
 	filter := &QdrantFilter{
 		Must: []QdrantCondition{},
 	}
 
 	for _, bb := range bbs {
-		// ⭐ 跳过向量专属操作符（单独处理）
+		// ⭐ Skip vector-specific operators (handled separately)
 		if isVectorOp(bb.Op) {
 			continue
 		}
 
-		// ⭐ 跳过 Qdrant 专属操作符（单独处理）
+		// ⭐ Skip Qdrant-specific operators (handled separately)
 		if isQdrantOp(bb.Op) {
 			continue
 		}
 
 		cond, err := bbToQdrantCondition(bb)
 		if err != nil {
-			// ⭐ 关键：不支持的操作不报错，忽略即可
+			// ⭐ Key: unsupported operations don't error, just ignore
 			continue
 		}
 
@@ -575,12 +575,12 @@ func buildQdrantFilter(bbs []Bb) (*QdrantFilter, error) {
 	return filter, nil
 }
 
-// isVectorOp 判断是否为向量操作符
+// isVectorOp checks if operator is vector operator
 func isVectorOp(op string) bool {
 	return op == VECTOR_SEARCH || op == VECTOR_DISTANCE_FILTER
 }
 
-// isQdrantOp 判断是否为 Qdrant 专属操作符
+// isQdrantOp checks if operator is Qdrant-specific operator
 func isQdrantOp(op string) bool {
 	return op == QDRANT_HNSW_EF ||
 		op == QDRANT_EXACT ||
@@ -589,7 +589,7 @@ func isQdrantOp(op string) bool {
 		op == QDRANT_XX
 }
 
-// bbToQdrantCondition 将 Bb 转换为 Qdrant 条件
+// bbToQdrantCondition converts Bb to Qdrant condition
 func bbToQdrantCondition(bb Bb) (*QdrantCondition, error) {
 	switch bb.Op {
 	case EQ:
@@ -601,13 +601,13 @@ func bbToQdrantCondition(bb Bb) (*QdrantCondition, error) {
 		}, nil
 
 	case NE:
-		// 注意：Qdrant 的 != 需要用 must_not
-		// 这里简化处理，调用者需要在上层处理
+		// Note: Qdrant's != needs to use must_not
+		// Simplified handling here, caller needs to handle at upper level
 		return nil, fmt.Errorf("NE not directly supported, use must_not")
 
 	case IN:
-		// IN 转换为 match.any
-		// 注意：IN 的 value 是 *[]string
+		// IN converts to match.any
+		// Note: IN's value is *[]string
 		var anyValues []interface{}
 
 		switch v := bb.Value.(type) {
@@ -688,16 +688,16 @@ func bbToQdrantCondition(bb Bb) (*QdrantCondition, error) {
 		}, nil
 
 	case LIKE:
-		// Qdrant 不原生支持 LIKE，忽略
+		// Qdrant doesn't natively support LIKE, ignore
 		return nil, fmt.Errorf("LIKE not supported in Qdrant")
 
 	default:
-		// 不支持的操作，返回 nil（忽略）
+		// Unsupported operations, return nil (ignore)
 		return nil, nil
 	}
 }
 
-// toFloat64 辅助函数：转换为 float64
+// toFloat64 helper function: converts to float64
 func toFloat64(v interface{}) (float64, error) {
 	switch val := v.(type) {
 	case int:
@@ -715,7 +715,7 @@ func toFloat64(v interface{}) (float64, error) {
 	}
 }
 
-// QdrantDistanceMetric 转换距离度量
+// QdrantDistanceMetric converts distance metric
 func QdrantDistanceMetric(metric VectorDistance) string {
 	switch metric {
 	case CosineDistance:
@@ -730,20 +730,20 @@ func QdrantDistanceMetric(metric VectorDistance) string {
 }
 
 // ============================================================================
-// 统一的参数应用和序列化函数（消除重复代码）
+// Unified Parameter Application and Serialization Functions (Eliminate Duplicate Code)
 // ============================================================================
 
-// applyQdrantParams 统一应用 Qdrant 专属参数
-// 用于替代 applyQdrantParamsToRecommend 和 applyQdrantParamsToDiscover
+// applyQdrantParams unified application of Qdrant-specific parameters
+// Used to replace applyQdrantParamsToRecommend and applyQdrantParamsToDiscover
 //
-// 优化: 分为两层处理
-//  1. 通用参数（ScoreThreshold, WithVector）→ ApplyCommonVectorParams
-//  2. Qdrant 专属参数（HnswEf, Exact）→ 此函数
+// Optimization: divided into two layers
+//  1. Common parameters (ScoreThreshold, WithVector) → ApplyCommonVectorParams
+//  2. Qdrant-specific parameters (HnswEf, Exact) → this function
 func applyQdrantParams(bbs []Bb, req QdrantRequest) {
-	// ⭐ 第一层：应用通用参数（复用跨数据库逻辑）
+	// ⭐ First layer: apply common parameters (reuse cross-database logic)
 	ApplyCommonVectorParams(bbs, req)
 
-	// ⭐ 第二层：应用 Qdrant 专属参数
+	// ⭐ Second layer: apply Qdrant-specific parameters
 	for _, bb := range bbs {
 		switch bb.Op {
 		case QDRANT_HNSW_EF:
@@ -758,12 +758,12 @@ func applyQdrantParams(bbs []Bb, req QdrantRequest) {
 				(*req.GetParams()).Exact = bb.Value.(bool)
 			}
 
-			// ⭐ QDRANT_SCORE_THRESHOLD 和 QDRANT_WITH_VECTOR 已在 ApplyCommonVectorParams 处理
+			// ⭐ QDRANT_SCORE_THRESHOLD and QDRANT_WITH_VECTOR are already handled in ApplyCommonVectorParams
 		}
 	}
 }
 
-// ensureParams 确保 Params 字段已初始化
+// ensureParams ensures Params field is initialized
 func ensureParams(req QdrantRequest) {
 	params := req.GetParams()
 	if params != nil && *params == nil {
@@ -771,13 +771,13 @@ func ensureParams(req QdrantRequest) {
 	}
 }
 
-// mergeAndSerialize 合并自定义参数并序列化为 JSON
+// mergeAndSerialize merges custom parameters and serializes to JSON
 func mergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
-	// 提取自定义参数
+	// Extract custom parameters
 	customParams := extractQdrantCustomParams(bbs)
 
 	if len(customParams) == 0 {
-		// 无自定义参数，直接序列化
+		// No custom parameters, serialize directly
 		bytes, err := json.MarshalIndent(req, "", "  ")
 		if err != nil {
 			return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
@@ -785,7 +785,7 @@ func mergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
 		return string(bytes), nil
 	}
 
-	// 有自定义参数，先序列化为 map，再添加自定义字段
+	// Has custom parameters, first serialize to map, then add custom fields
 	bytes, err := json.Marshal(req)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal Qdrant request: %w", err)
@@ -796,12 +796,12 @@ func mergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
 		return "", fmt.Errorf("failed to unmarshal to map: %w", err)
 	}
 
-	// 添加用户自定义参数
+	// Add user-defined parameters
 	for k, v := range customParams {
 		reqMap[k] = v
 	}
 
-	// 重新序列化
+	// Re-serialize
 	finalBytes, err := json.MarshalIndent(reqMap, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal final JSON: %w", err)

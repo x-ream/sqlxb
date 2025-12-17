@@ -189,10 +189,10 @@ func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuil
 		return cb
 	}
 
-	// ⭐ 检查是否有实际的条件（不仅仅是纯操作符）
+	// ⭐ Check if there are real conditions (not just pure operators)
 	hasRealCondition := false
 	for _, b := range c.bbs {
-		// 纯操作符 Bb：op=OR/AND, key="", value=nil, subs=nil/empty
+		// Pure operator Bb: op=OR/AND, key="", value=nil, subs=nil/empty
 		isPureOperator := (b.Op == OR || b.Op == AND) && b.Key == "" && b.Value == nil && (b.Subs == nil || len(b.Subs) == 0)
 		if !isPureOperator {
 			hasRealCondition = true
@@ -200,7 +200,7 @@ func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuil
 		}
 	}
 
-	// 如果没有实际条件（只有纯操作符），不添加此 OR/AND 子查询
+	// If there are no real conditions (only pure operators), don't add this OR/AND subquery
 	if !hasRealCondition {
 		return cb
 	}
@@ -208,7 +208,7 @@ func (cb *CondBuilder) orAndSub(orAnd string, f func(cb *CondBuilder)) *CondBuil
 	bb := Bb{
 		Op:   orAnd,
 		Key:  orAnd,
-		Subs: c.bbs, // ⭐ 保留所有 bbs（包括纯操作符，它们用于连接条件）
+		Subs: c.bbs, // ⭐ Keep all bbs (including pure operators, they are used to connect conditions)
 	}
 	cb.bbs = append(cb.bbs, bb)
 	return cb
@@ -300,37 +300,37 @@ func (cb *CondBuilder) In(k string, vs ...interface{}) *CondBuilder {
 	return cb.doIn(IN, k, vs...)
 }
 
-// InRequired 必需的 IN 条件（空值时报错）
-// 用于必须提供筛选条件的场景，防止意外查询所有数据
+// InRequired required IN condition (panics on empty values)
+// Used for scenarios where filter conditions must be provided to prevent accidentally querying all data
 //
-// 报错场景:
-//   - 空切片: InRequired("id") 或 InRequired("id", []int{}...)
-//   - nil 值: InRequired("id", nil)
-//   - 零值: InRequired("id", 0)
+// Panic scenarios:
+//   - Empty slice: InRequired("id") or InRequired("id", []int{}...)
+//   - nil value: InRequired("id", nil)
+//   - Zero value: InRequired("id", 0)
 //
-// 示例:
+// Example:
 //
-//	// ✅ 正常使用
+//	// ✅ Normal usage
 //	ids := []int{1, 2, 3}
 //	xb.Of(&User{}).InRequired("id", toInterfaces(ids)...).Build()
 //
-//	// ❌ 报错：空切片
+//	// ❌ Panic: empty slice
 //	ids := []int{}
 //	xb.Of(&User{}).InRequired("id", toInterfaces(ids)...).Build()
 //	// panic: InRequired("id") received empty values, this would match all records
 func (cb *CondBuilder) InRequired(k string, vs ...interface{}) *CondBuilder {
-	// 检查是否为空
+	// Check if empty
 	if vs == nil || len(vs) == 0 {
 		panic("InRequired(\"" + k + "\") received empty values, this would match all records. Use In() if optional filtering is intended.")
 	}
 
-	// 检查是否只有一个 nil 或 0
+	// Check if there's only one nil or 0
 	if len(vs) == 1 {
 		v := vs[0]
 		if v == nil {
 			panic("InRequired(\"" + k + "\") received [nil], this would match all records. Use In() if optional filtering is intended.")
 		}
-		// 检查各种 0 值
+		// Check various zero values
 		switch v.(type) {
 		case int:
 			if v.(int) == 0 {
@@ -359,7 +359,7 @@ func (cb *CondBuilder) InRequired(k string, vs ...interface{}) *CondBuilder {
 		}
 	}
 
-	// 调用普通的 doIn（会过滤掉 nil 和 0 值）
+	// Call normal doIn (will filter out nil and zero values)
 	return cb.doIn(IN, k, vs...)
 }
 
@@ -373,46 +373,46 @@ func (cb *CondBuilder) NonNull(key string) *CondBuilder {
 	return cb.null(NON_NULL, key)
 }
 
-// X 自定义 SQL 片段（万能补充）
+// X custom SQL fragment (universal supplement)
 //
-// 用于特殊场景：查询 0 值、false、或复杂 SQL 表达式
+// Used for special scenarios: query zero values, false, or complex SQL expressions
 //
-// 两种用法：
+// Two usage patterns:
 //
-//  1. 无参数（推荐）：直接写 SQL 片段
+//  1. No parameters (recommended): write SQL fragment directly
 //     .X("age = 0")
 //     .X("is_active = false")
 //     .X("YEAR(created_at) = 2024")
 //
-//  2. 有参数：使用占位符（仍然会过滤 0 值）
-//     .X("name = ?", name)  // name="" 时会被过滤
-//     .X("age > ?", age)    // age=0 时会被过滤 ⚠️
+//  2. With parameters: use placeholders (still filters zero values)
+//     .X("name = ?", name)  // name="" will be filtered
+//     .X("age > ?", age)    // age=0 will be filtered ⚠️
 //
-// ⚠️ 重要：如果要查询 0 值或 false，请使用无参数方式！
+// ⚠️ Important: If you want to query zero values or false, use the no-parameter approach!
 //
-// 示例：
+// Example:
 //
-//	// ✅ 查询 age = 0
+//	// ✅ Query age = 0
 //	xb.Of("users").X("age = 0").Build()
 //
-//	// ✅ 查询 is_active = false
+//	// ✅ Query is_active = false
 //	xb.Of("users").X("is_active = false").Build()
 //
-//	// ✅ 复杂表达式
+//	// ✅ Complex expression
 //	xb.Of("orders").X("total_amt > discount_amt").Build()
 //
-//	// ❌ 错误：age=0 会被过滤
+//	// ❌ Wrong: age=0 will be filtered
 //	xb.Of("users").X("age = ?", 0).Build()
 //
-//	// ✅ 正确：直接写 SQL
+//	// ✅ Correct: write SQL directly
 //	xb.Of("users").X("age = 0").Build()
 //
-// ⚠️ 子查询请使用 Sub() 方法（更安全、更灵活）：
+// ⚠️ For subqueries, use Sub() method (safer and more flexible):
 //
-//	// ❌ 不推荐：手写子查询
+//	// ❌ Not recommended: handwritten subquery
 //	.X("user_id IN (SELECT id FROM vip_users)")
 //
-//	// ✅ 推荐：使用 Sub()
+//	// ✅ Recommended: use Sub()
 //	.Sub("user_id IN ?", func(sb *BuilderX) {
 //	    sb.Of(&VipUser{}).Select("id")
 //	})

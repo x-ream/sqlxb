@@ -23,20 +23,20 @@ import (
 )
 
 // ============================================================================
-// QdrantBuilder: Builder 模式配置构建器
+// QdrantBuilder: Builder Pattern Configuration Builder
 // ============================================================================
 
-// QdrantBuilder Qdrant 配置构建器
-// 使用 Builder 模式构建 QdrantCustom 配置
+// QdrantBuilder Qdrant configuration builder
+// Uses Builder pattern to construct QdrantCustom configuration
 type QdrantBuilder struct {
 	custom *QdrantCustom
 }
 
-// NewQdrantBuilder 创建 Qdrant 配置构建器
+// NewQdrantBuilder creates a Qdrant configuration builder
 //
-// 示例:
+// Example:
 //
-//	// 基础配置
+//	// Basic configuration
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
@@ -44,7 +44,7 @@ type QdrantBuilder struct {
 //	        Build(),
 //	).Build()
 //
-//	// 高级 API
+//	// Advanced API
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
@@ -54,7 +54,7 @@ type QdrantBuilder struct {
 //	        Build(),
 //	).Build()
 //
-//	// 混合配置
+//	// Mixed configuration
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
@@ -70,9 +70,9 @@ func NewQdrantBuilder() *QdrantBuilder {
 	}
 }
 
-// HnswEf 设置 HNSW 算法的 ef 参数
-// ef 越大，查询精度越高，但速度越慢
-// 推荐值: 64-256
+// HnswEf sets the ef parameter for HNSW algorithm
+// Larger ef means higher query precision but slower speed
+// Recommended value: 64-256
 func (qb *QdrantBuilder) HnswEf(ef int) *QdrantBuilder {
 	if ef < 1 {
 		panic(fmt.Sprintf("HnswEf must be >= 1, got: %d", ef))
@@ -81,8 +81,8 @@ func (qb *QdrantBuilder) HnswEf(ef int) *QdrantBuilder {
 	return qb
 }
 
-// ScoreThreshold 设置最小相似度阈值
-// 只返回相似度 >= threshold 的结果
+// ScoreThreshold sets the minimum similarity threshold
+// Only returns results with similarity >= threshold
 func (qb *QdrantBuilder) ScoreThreshold(threshold float32) *QdrantBuilder {
 	if threshold < 0 || threshold > 1 {
 		panic(fmt.Sprintf("ScoreThreshold must be in [0, 1], got: %f", threshold))
@@ -91,17 +91,17 @@ func (qb *QdrantBuilder) ScoreThreshold(threshold float32) *QdrantBuilder {
 	return qb
 }
 
-// WithVector 设置是否返回向量数据
-// true: 返回向量（占用带宽）
-// false: 不返回向量（节省带宽）
+// WithVector sets whether to return vector data
+// true: return vectors (uses bandwidth)
+// false: don't return vectors (saves bandwidth)
 func (qb *QdrantBuilder) WithVector(withVector bool) *QdrantBuilder {
 	qb.custom.DefaultWithVector = withVector
 	return qb
 }
 
-// Recommend 启用 Qdrant Recommend API
+// Recommend enables Qdrant Recommend API
 //
-// 示例:
+// Example:
 //
 //	xb.NewQdrantBuilder().
 //	    HnswEf(512).
@@ -133,9 +133,9 @@ func (qb *QdrantBuilder) Recommend(fn func(rb *RecommendBuilder)) *QdrantBuilder
 	return qb
 }
 
-// Discover 启用 Qdrant Discover API
+// Discover enables Qdrant Discover API
 //
-// 示例:
+// Example:
 //
 //	xb.NewQdrantBuilder().
 //	    HnswEf(512).
@@ -166,9 +166,9 @@ func (qb *QdrantBuilder) Discover(fn func(db *DiscoverBuilder)) *QdrantBuilder {
 	return qb
 }
 
-// ScrollID 启用 Qdrant Scroll API
+// ScrollID enables Qdrant Scroll API
 //
-// 示例:
+// Example:
 //
 //	xb.NewQdrantBuilder().
 //	    HnswEf(512).
@@ -182,60 +182,60 @@ func (qb *QdrantBuilder) ScrollID(scrollID string) *QdrantBuilder {
 	return qb
 }
 
-// Build 构建并返回 QdrantCustom 配置
+// Build constructs and returns QdrantCustom configuration
 func (qb *QdrantBuilder) Build() *QdrantCustom {
 	return qb.custom
 }
 
 // ============================================================================
-// QdrantCustom: Qdrant 数据库专属配置
+// QdrantCustom: Qdrant Database-Specific Configuration
 // ============================================================================
 
-// QdrantCustom Qdrant 专属配置实现
+// QdrantCustom Qdrant-specific configuration implementation
 //
-// 实现 Custom 接口，提供 Qdrant 的默认配置和预设模式
+// Implements Custom interface, provides Qdrant default configuration and preset modes
 type QdrantCustom struct {
-	// 默认参数（如果用户没有显式指定，使用这些默认值）
-	DefaultHnswEf         int     // 默认 HNSW EF 参数
-	DefaultScoreThreshold float32 // 默认相似度阈值
-	DefaultWithVector     bool    // 默认是否返回向量
+	// Default parameters (used if user doesn't explicitly specify)
+	DefaultHnswEf         int     // Default HNSW EF parameter
+	DefaultScoreThreshold float32 // Default similarity threshold
+	DefaultWithVector     bool    // Default whether to return vectors
 
-	// 高级 API 配置（Recommend / Discover / Scroll）
+	// Advanced API configuration (Recommend / Discover / Scroll)
 	recommendConfig *qdrantRecommendConfig
 	discoverConfig  *qdrantDiscoverConfig
 	scrollID        string
 }
 
-// newQdrantCustom 内部函数：创建 Qdrant Custom（默认配置）
+// newQdrantCustom internal function: creates Qdrant Custom (default configuration)
 func newQdrantCustom() *QdrantCustom {
 	return &QdrantCustom{
 		DefaultHnswEf:         128,
 		DefaultScoreThreshold: 0.0,
-		DefaultWithVector:     false, // 向后兼容：默认不返回向量
+		DefaultWithVector:     false, // Backward compatible: default to not returning vectors
 	}
 }
 
-// Generate 实现 Custom 接口
-// ⭐ 根据操作类型返回不同的 JSON
+// Generate implements Custom interface
+// ⭐ Returns different JSON based on operation type
 func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 	built = c.applyAdvancedConfig(built)
 
-	// ⭐ INSERT: 生成 Qdrant upsert JSON
+	// ⭐ INSERT: generate Qdrant upsert JSON
 	if built.Inserts != nil && len(*built.Inserts) > 0 {
 		return c.generateInsertJSON(built)
 	}
 
-	// ⭐ UPDATE: 生成 Qdrant update payload JSON
+	// ⭐ UPDATE: generate Qdrant update payload JSON
 	if built.Updates != nil && len(*built.Updates) > 0 {
 		return c.generateUpdateJSON(built)
 	}
 
-	// ⭐ DELETE: 生成 Qdrant delete JSON
+	// ⭐ DELETE: generate Qdrant delete JSON
 	if built.Delete {
 		return c.generateDeleteJSON(built)
 	}
 
-	// ⭐ SELECT: 生成 Qdrant search JSON
+	// ⭐ SELECT: generate Qdrant search JSON
 	switch {
 	case hasBbWithOp(built.Conds, QDRANT_RECOMMEND):
 		return built.toQdrantRecommendJSON()
@@ -250,14 +250,14 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 }
 
 // ============================================================================
-// 使用说明
+// Usage Instructions
 // ============================================================================
 //
-// 配置方式：
+// Configuration methods:
 //
-// 使用 QdrantBuilder（统一 Builder 模式）
+// Using QdrantBuilder (unified Builder pattern)
 //
-//	// 基础配置
+//	// Basic configuration
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
@@ -265,7 +265,7 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //	        Build(),
 //	).Build()
 //
-//	// 高级 API
+//	// Advanced API
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
@@ -275,7 +275,7 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //	        Build(),
 //	).Build()
 //
-//	// 混合配置（基础 + 高级）
+//	// Mixed configuration (basic + advanced)
 //	xb.Of(...).Custom(
 //	    xb.NewQdrantBuilder().
 //	        HnswEf(512).
@@ -286,24 +286,24 @@ func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //	        Build(),
 //	).Build()
 //
-//	// 配置复用（同一配置可用于多个查询）
+//	// Configuration reuse (same configuration can be used for multiple queries)
 //	highPrecision := xb.NewQdrantBuilder().HnswEf(512).Build()
 //	xb.Of(...).Custom(highPrecision).Build()
-//	xb.Of(...).Custom(highPrecision).Build()  // 复用配置
+//	xb.Of(...).Custom(highPrecision).Build()  // Reuse configuration
 //
 
 // ============================================================================
-// Insert/Update/Delete JSON 生成
+// Insert/Update/Delete JSON Generation
 // ============================================================================
 
-// QdrantPoint Qdrant 点结构
+// QdrantPoint Qdrant point structure
 type QdrantPoint struct {
 	ID      interface{}            `json:"id"`
 	Vector  interface{}            `json:"vector"`
 	Payload map[string]interface{} `json:"payload,omitempty"`
 }
 
-// generateInsertJSON 生成 Qdrant upsert JSON
+// generateInsertJSON generates Qdrant upsert JSON
 // PUT /collections/{collection_name}/points
 func (c *QdrantCustom) generateInsertJSON(built *Built) (string, error) {
 	inserts := *built.Inserts
@@ -311,15 +311,15 @@ func (c *QdrantCustom) generateInsertJSON(built *Built) (string, error) {
 		return "", fmt.Errorf("no insert data")
 	}
 
-	// Qdrant upsert 请求结构
+	// Qdrant upsert request structure
 	type QdrantUpsertRequest struct {
 		Points []QdrantPoint `json:"points"`
 	}
 
 	points := []QdrantPoint{}
 
-	// ⭐ 使用 Insert(func(ib)) 格式
-	// 多个 bb（字段-值对）组成一个 point
+	// ⭐ Using Insert(func(ib)) format
+	// Multiple bbs (field-value pairs) form one point
 	point, err := c.extractPointFromBbs(inserts)
 	if err != nil {
 		return "", err
@@ -335,7 +335,7 @@ func (c *QdrantCustom) generateInsertJSON(built *Built) (string, error) {
 	return string(bytes), nil
 }
 
-// generateUpdateJSON 生成 Qdrant update payload JSON
+// generateUpdateJSON generates Qdrant update payload JSON
 // POST /collections/{collection_name}/points/payload
 func (c *QdrantCustom) generateUpdateJSON(built *Built) (string, error) {
 	updates := *built.Updates
@@ -343,14 +343,14 @@ func (c *QdrantCustom) generateUpdateJSON(built *Built) (string, error) {
 		return "", fmt.Errorf("no update data")
 	}
 
-	// Qdrant update payload 请求结构
+	// Qdrant update payload request structure
 	type QdrantUpdateRequest struct {
-		Points  []interface{}          `json:"points,omitempty"` // 点 ID 列表
-		Filter  *QdrantFilter          `json:"filter,omitempty"` // 或使用过滤器
-		Payload map[string]interface{} `json:"payload"`          // 要更新的 payload
+		Points  []interface{}          `json:"points,omitempty"` // Point ID list
+		Filter  *QdrantFilter          `json:"filter,omitempty"` // Or use filter
+		Payload map[string]interface{} `json:"payload"`          // Payload to update
 	}
 
-	// 提取 payload
+	// Extract payload
 	payload := make(map[string]interface{})
 	for _, bb := range updates {
 		payload[bb.Key] = bb.Value
@@ -360,7 +360,7 @@ func (c *QdrantCustom) generateUpdateJSON(built *Built) (string, error) {
 		Payload: payload,
 	}
 
-	// 从条件中提取 point IDs 或构建 filter
+	// Extract point IDs from conditions or build filter
 	ids, filter := c.extractIdsOrFilter(built.Conds)
 	if len(ids) > 0 {
 		req.Points = ids
@@ -376,18 +376,18 @@ func (c *QdrantCustom) generateUpdateJSON(built *Built) (string, error) {
 	return string(bytes), nil
 }
 
-// generateDeleteJSON 生成 Qdrant delete JSON
+// generateDeleteJSON generates Qdrant delete JSON
 // POST /collections/{collection_name}/points/delete
 func (c *QdrantCustom) generateDeleteJSON(built *Built) (string, error) {
-	// Qdrant delete 请求结构
+	// Qdrant delete request structure
 	type QdrantDeleteRequest struct {
-		Points []interface{} `json:"points,omitempty"` // 点 ID 列表
-		Filter *QdrantFilter `json:"filter,omitempty"` // 或使用过滤器
+		Points []interface{} `json:"points,omitempty"` // Point ID list
+		Filter *QdrantFilter `json:"filter,omitempty"` // Or use filter
 	}
 
 	req := QdrantDeleteRequest{}
 
-	// 从条件中提取 point IDs 或构建 filter
+	// Extract point IDs from conditions or build filter
 	ids, filter := c.extractIdsOrFilter(built.Conds)
 	if len(ids) > 0 {
 		req.Points = ids
@@ -406,11 +406,11 @@ func (c *QdrantCustom) generateDeleteJSON(built *Built) (string, error) {
 }
 
 // ============================================================================
-// 辅助方法
+// Helper Methods
 // ============================================================================
 
-// extractPointFromBbs 从 InsertBuilder 的 bbs 中提取 Qdrant Point
-// 用于 Insert(func(ib *InsertBuilder)) 格式
+// extractPointFromBbs extracts Qdrant Point from InsertBuilder's bbs
+// Used for Insert(func(ib *InsertBuilder)) format
 func (c *QdrantCustom) extractPointFromBbs(bbs []Bb) (QdrantPoint, error) {
 	point := QdrantPoint{
 		Payload: make(map[string]interface{}),
@@ -423,12 +423,12 @@ func (c *QdrantCustom) extractPointFromBbs(bbs []Bb) (QdrantPoint, error) {
 		case "vector":
 			point.Vector = bb.Value
 		default:
-			// 其他字段放入 payload
+			// Other fields go into payload
 			point.Payload[bb.Key] = bb.Value
 		}
 	}
 
-	// 验证必需字段
+	// Validate required fields
 	if point.ID == nil {
 		return QdrantPoint{}, fmt.Errorf("point must have 'id' field")
 	}
@@ -439,15 +439,15 @@ func (c *QdrantCustom) extractPointFromBbs(bbs []Bb) (QdrantPoint, error) {
 	return point, nil
 }
 
-// extractIdsOrFilter 从条件中提取 point IDs 或构建 filter
+// extractIdsOrFilter extracts point IDs from conditions or builds filter
 func (c *QdrantCustom) extractIdsOrFilter(conds []Bb) ([]interface{}, *QdrantFilter) {
 	ids := []interface{}{}
 
-	// 查找 id IN (...) 条件
+	// Find id IN (...) condition
 	for _, bb := range conds {
 		if bb.Key == "id" {
 			if bb.Op == IN {
-				// IN 条件：提取 ID 列表
+				// IN condition: extract ID list
 				if arr, ok := bb.Value.(*[]string); ok {
 					for _, id := range *arr {
 						ids = append(ids, id)
@@ -455,14 +455,14 @@ func (c *QdrantCustom) extractIdsOrFilter(conds []Bb) ([]interface{}, *QdrantFil
 					return ids, nil
 				}
 			} else if bb.Op == EQ {
-				// 单个 ID
+				// Single ID
 				ids = append(ids, bb.Value)
 				return ids, nil
 			}
 		}
 	}
 
-	// 如果没有 id 条件，构建 filter
+	// If no id condition, build filter
 	if len(conds) > 0 {
 		filter := &QdrantFilter{}
 		filter.Must = []QdrantCondition{}
@@ -515,27 +515,27 @@ func toFloat64Ptr(v interface{}) *float64 {
 	return nil
 }
 
-// qdrantRecommendConfig Recommend API 配置
+// qdrantRecommendConfig Recommend API configuration
 type qdrantRecommendConfig struct {
 	positive []int64
 	negative []int64
 	limit    int
 }
 
-// qdrantDiscoverConfig Discover API 配置
+// qdrantDiscoverConfig Discover API configuration
 type qdrantDiscoverConfig struct {
 	context []int64
 	limit   int
 }
 
-// RecommendBuilder Recommend API 构建器
+// RecommendBuilder Recommend API builder
 type RecommendBuilder struct {
 	positive []int64
 	negative []int64
 	limit    int
 }
 
-// Positive 设置正样本 ID
+// Positive sets positive sample IDs
 func (rb *RecommendBuilder) Positive(ids ...int64) *RecommendBuilder {
 	if len(ids) == 0 {
 		return rb
@@ -544,7 +544,7 @@ func (rb *RecommendBuilder) Positive(ids ...int64) *RecommendBuilder {
 	return rb
 }
 
-// Negative 设置负样本 ID
+// Negative sets negative sample IDs
 func (rb *RecommendBuilder) Negative(ids ...int64) *RecommendBuilder {
 	if len(ids) == 0 {
 		return rb
@@ -553,19 +553,19 @@ func (rb *RecommendBuilder) Negative(ids ...int64) *RecommendBuilder {
 	return rb
 }
 
-// Limit 设置返回条数
+// Limit sets the number of results to return
 func (rb *RecommendBuilder) Limit(limit int) *RecommendBuilder {
 	rb.limit = limit
 	return rb
 }
 
-// DiscoverBuilder Discover API 构建器
+// DiscoverBuilder Discover API builder
 type DiscoverBuilder struct {
 	context []int64
 	limit   int
 }
 
-// Context 设置上下文 ID
+// Context sets context IDs
 func (db *DiscoverBuilder) Context(ids ...int64) *DiscoverBuilder {
 	if len(ids) == 0 {
 		return db
@@ -574,13 +574,13 @@ func (db *DiscoverBuilder) Context(ids ...int64) *DiscoverBuilder {
 	return db
 }
 
-// Limit 设置返回条数
+// Limit sets the number of results to return
 func (db *DiscoverBuilder) Limit(limit int) *DiscoverBuilder {
 	db.limit = limit
 	return db
 }
 
-// ensureAdvancedConds 将高级配置注入到条件列表
+// ensureAdvancedConds injects advanced configuration into condition list
 func (c *QdrantCustom) ensureAdvancedConds(conds []Bb) []Bb {
 	if c == nil {
 		return conds

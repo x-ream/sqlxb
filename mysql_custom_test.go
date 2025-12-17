@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-// 测试用户模型（使用 MySQLUser 避免与其他测试冲突）
+// Test user model (using MySQLUser to avoid conflicts with other tests)
 type MySQLUser struct {
 	Id   int64  `db:"id"`
 	Name string `db:"name"`
@@ -34,7 +34,7 @@ func (MySQLUser) TableName() string {
 }
 
 // ============================================================================
-// 基础测试
+// Basic test
 // ============================================================================
 
 func TestMySQLCustom_ImplementsCustomInterface(t *testing.T) {
@@ -71,7 +71,7 @@ func TestMySQLCustom_DefaultBehavior(t *testing.T) {
 }
 
 // ============================================================================
-// UPSERT 测试
+// UPSERT test
 // ============================================================================
 
 func TestMySQLCustom_Upsert(t *testing.T) {
@@ -90,12 +90,12 @@ func TestMySQLCustom_Upsert(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证包含 ON DUPLICATE KEY UPDATE
+	// Verify contains ON DUPLICATE KEY UPDATE
 	if !strings.Contains(sql, "ON DUPLICATE KEY UPDATE") {
 		t.Errorf("Expected ON DUPLICATE KEY UPDATE, got: %s", sql)
 	}
 
-	// 验证包含 VALUES(name), VALUES(age)
+	// Verify contains VALUES(name), VALUES(age)
 	if !strings.Contains(sql, "VALUES(name)") || !strings.Contains(sql, "VALUES(age)") {
 		t.Errorf("Expected VALUES() clause, got: %s", sql)
 	}
@@ -107,9 +107,9 @@ func TestMySQLCustom_Upsert(t *testing.T) {
 	t.Log("✅ MySQL UPSERT works")
 }
 
-// TestBuilt_SqlOfUpsert 测试 SqlOfUpsert() 便捷方法（无需 Custom）
+// TestBuilt_SqlOfUpsert tests SqlOfUpsert() convenience method (no Custom needed)
 func TestBuilt_SqlOfUpsert(t *testing.T) {
-	user := &MySQLUser{Name: "李四", Age: 25}
+	user := &MySQLUser{Name: "LiSi", Age: 25}
 	built := Of(user).
 		Insert(func(ib *InsertBuilder) {
 			ib.Set("id", 100).
@@ -123,7 +123,7 @@ func TestBuilt_SqlOfUpsert(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 UPSERT 语法
+	// Verify UPSERT syntax
 	if !strings.Contains(sql, "ON DUPLICATE KEY UPDATE") {
 		t.Errorf("Expected ON DUPLICATE KEY UPDATE in SQL")
 	}
@@ -132,7 +132,7 @@ func TestBuilt_SqlOfUpsert(t *testing.T) {
 		t.Errorf("Expected name = VALUES(name) in SQL")
 	}
 
-	// id 应该被跳过（不在 UPDATE 子句中）
+	// id should be skipped (not in UPDATE clause)
 	if strings.Contains(sql, "id = VALUES(id)") {
 		t.Errorf("Should not update id field in UPSERT")
 	}
@@ -141,11 +141,11 @@ func TestBuilt_SqlOfUpsert(t *testing.T) {
 		t.Errorf("Expected 3 args, got %d", len(args))
 	}
 
-	t.Log("✅ SqlOfUpsert() 便捷方法 works")
+	t.Log("✅ SqlOfUpsert() convenience method works")
 }
 
 // ============================================================================
-// INSERT IGNORE 测试
+// INSERT IGNORE test
 // ============================================================================
 
 func TestMySQLCustom_InsertIgnore(t *testing.T) {
@@ -164,7 +164,7 @@ func TestMySQLCustom_InsertIgnore(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证包含 INSERT IGNORE
+	// Verify contains INSERT IGNORE
 	if !strings.Contains(sql, "INSERT IGNORE") {
 		t.Errorf("Expected INSERT IGNORE, got: %s", sql)
 	}
@@ -177,7 +177,7 @@ func TestMySQLCustom_InsertIgnore(t *testing.T) {
 }
 
 // ============================================================================
-// 单例测试
+// Singleton test
 // ============================================================================
 
 func TestDefaultMySQLCustom_Singleton(t *testing.T) {
@@ -192,18 +192,18 @@ func TestDefaultMySQLCustom_Singleton(t *testing.T) {
 }
 
 // ============================================================================
-// 与默认行为对比测试
+// Comparison test with default behavior
 // ============================================================================
 
 func TestMySQLCustom_VsDefaultBehavior(t *testing.T) {
-	// 默认行为（不设置 Custom）
+	// Default behavior (no Custom set)
 	built1 := Of(&MySQLUser{}).
 		Eq("name", "张三").
 		Build()
 
 	sql1, args1, _ := built1.SqlOfSelect()
 
-	// 使用 MySQLCustom
+	// Using MySQLCustom
 	built2 := Of(&MySQLUser{}).
 		Custom(DefaultMySQLCustom()).
 		Eq("name", "张三").
@@ -214,7 +214,7 @@ func TestMySQLCustom_VsDefaultBehavior(t *testing.T) {
 	t.Logf("Default SQL: %s", sql1)
 	t.Logf("MySQL Custom SQL: %s", sql2)
 
-	// 两者应该一致（因为 MySQLCustom 的默认行为就是标准 SQL）
+	// Both should be consistent (because MySQLCustom's default behavior is standard SQL)
 	if sql1 != sql2 {
 		t.Errorf("SQL should be the same, got:\nDefault: %s\nMySQL: %s", sql1, sql2)
 	}
@@ -227,7 +227,7 @@ func TestMySQLCustom_VsDefaultBehavior(t *testing.T) {
 }
 
 // ============================================================================
-// 复杂场景测试
+// Complex scenario test
 // ============================================================================
 
 func TestMySQLCustom_ComplexQuery(t *testing.T) {
@@ -249,7 +249,7 @@ func TestMySQLCustom_ComplexQuery(t *testing.T) {
 	t.Logf("Data SQL: %s", dataSQL)
 	t.Logf("Args: %v", args)
 
-	// 验证分页
+	// Verify pagination
 	if !strings.Contains(dataSQL, "LIMIT 10 OFFSET 10") {
 		t.Errorf("Expected LIMIT/OFFSET, got: %s", dataSQL)
 	}
@@ -258,7 +258,7 @@ func TestMySQLCustom_ComplexQuery(t *testing.T) {
 }
 
 // ============================================================================
-// Update/Delete 测试
+// Update/Delete test
 // ============================================================================
 
 func TestMySQLCustom_Update(t *testing.T) {
@@ -291,7 +291,7 @@ func TestMySQLCustom_Update(t *testing.T) {
 }
 
 func TestMySQLCustom_Delete(t *testing.T) {
-	// ⭐ MySQL DELETE 语法与默认一致，无需 Custom
+	// ⭐ MySQL DELETE syntax is consistent with default, no Custom needed
 	// 测试不设置 Custom 的 DELETE
 	built := Of(&MySQLUser{}).
 		Eq("id", 123).
@@ -314,7 +314,7 @@ func TestMySQLCustom_Delete(t *testing.T) {
 }
 
 // ============================================================================
-// 预设模式对比测试
+// Preset mode comparison test
 // ============================================================================
 
 func TestMySQLCustom_PresetModes(t *testing.T) {
@@ -351,14 +351,14 @@ func TestMySQLCustom_PresetModes(t *testing.T) {
 }
 
 // ============================================================================
-// Meta Map 测试（字段别名映射）- 业务场景
+// Meta Map test (field alias mapping) - business scenario
 // ============================================================================
 
 func TestMySQLCustom_MetaMap_WithTablePrefix(t *testing.T) {
 	custom := NewMySQLBuilder().Build()
 
-	// ⭐ 业务场景：带表前缀的字段查询
-	// Meta map 是 ORM 扫描结果时的字段映射依据
+	// ⭐ Business scenario: field queries with table prefix
+	// Meta map is the field mapping reference when ORM scanning results
 	built := Of("users").
 		As("u").
 		Custom(custom).
@@ -376,10 +376,10 @@ func TestMySQLCustom_MetaMap_WithTablePrefix(t *testing.T) {
 	t.Logf("Args: %v", args)
 	t.Logf("Meta: %v (len=%d)", meta, len(meta))
 
-	// ⭐ 验证 Meta 包含字段映射
-	// u.id → 自动生成别名 c0
-	// u.name → 自动生成别名 c1
-	// u.age → 自动生成别名 c2
+	// ⭐ Verify Meta contains field mappings
+	// u.id → auto-generated alias c0
+	// u.name → auto-generated alias c1
+	// u.age → auto-generated alias c2
 	// COUNT(*) AS total → total
 	if len(meta) == 0 {
 		t.Error("❌ Meta should not be empty for table.field queries")
@@ -390,7 +390,6 @@ func TestMySQLCustom_MetaMap_WithTablePrefix(t *testing.T) {
 		}
 	}
 
-	// 验证自动生成的别名
 	if _, ok := meta["c0"]; !ok {
 		t.Error("Expected auto-generated alias 'c0' for u.id")
 	}
@@ -405,8 +404,8 @@ func TestMySQLCustom_MetaMap_WithTablePrefix(t *testing.T) {
 func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
 	custom := NewMySQLBuilder().Build()
 
-	// ⭐ 业务场景：多表 JOIN 查询
-	// Meta map 记录字段到表的映射，用于 ORM 扫描
+	// ⭐ Business scenario: multi-table JOIN query
+	// Meta map records field-to-table mappings, used for ORM scanning
 	built := Of("users").
 		As("u").
 		Custom(custom).
@@ -429,7 +428,7 @@ func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
 	t.Logf("Args: %v", args)
 	t.Logf("Meta: %v (len=%d)", meta, len(meta))
 
-	// ⭐ 验证 Meta 映射
+	// ⭐ Verify Meta mappings
 	// u.id → c0
 	// u.name → c1
 	// o.order_id → c2
@@ -443,17 +442,14 @@ func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
 		t.Logf("  Meta[%s] = %s", k, v)
 	}
 
-	// 验证自动生成的别名
 	if meta["c0"] != "u.id" {
 		t.Errorf("Expected meta[c0] = u.id, got %s", meta["c0"])
 	}
 
-	// 验证显式别名
 	if meta["order_amount"] != "order_amount" {
 		t.Errorf("Expected meta[order_amount] = order_amount, got %s", meta["order_amount"])
 	}
 
-	// 验证 MySQL 分页语法（LIMIT/OFFSET）
 	if !strings.Contains(dataSQL, "LIMIT 20") {
 		t.Errorf("Expected LIMIT in MySQL query, got: %s", dataSQL)
 	}
@@ -464,7 +460,6 @@ func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
 func TestMySQLCustom_MetaMap_WithSelect(t *testing.T) {
 	custom := NewMySQLBuilder().Build()
 
-	// ⭐ 非分页查询的 Meta map
 	built := Of("users").
 		Custom(custom).
 		Select("id", "name", "email AS user_email").
@@ -477,7 +472,7 @@ func TestMySQLCustom_MetaMap_WithSelect(t *testing.T) {
 	t.Logf("Args: %v", args)
 	t.Logf("Meta: %v (len=%d)", meta, len(meta))
 
-	// 验证 Meta
+	// Verify Meta
 	if meta["user_email"] != "user_email" {
 		t.Errorf("Expected meta[user_email] = user_email, got %s", meta["user_email"])
 	}

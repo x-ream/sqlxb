@@ -23,26 +23,26 @@ import (
 	"math"
 )
 
-// Vector 向量类型（兼容 PostgreSQL pgvector）
+// Vector vector type (compatible with PostgreSQL pgvector)
 type Vector []float32
 
-// Value 实现 driver.Valuer 接口
+// Value implements driver.Valuer interface
 func (v Vector) Value() (driver.Value, error) {
 	if v == nil {
 		return nil, nil
 	}
 
-	// PostgreSQL pgvector 格式: '[1,2,3]'
+	// PostgreSQL pgvector format: '[1,2,3]'
 	bytes, err := json.Marshal(v)
 	if err != nil {
 		return nil, err
 	}
 
-	// 转换 [1,2,3] 为 '[1,2,3]' 字符串格式
+	// Convert [1,2,3] to '[1,2,3]' string format
 	return string(bytes), nil
 }
 
-// Scan 实现 sql.Scanner 接口
+// Scan implements sql.Scanner interface
 func (v *Vector) Scan(value interface{}) error {
 	if value == nil {
 		*v = nil
@@ -59,24 +59,24 @@ func (v *Vector) Scan(value interface{}) error {
 	}
 }
 
-// VectorDistance 向量距离度量类型
+// VectorDistance vector distance metric type
 type VectorDistance string
 
 const (
-	// CosineDistance 余弦距离（最常用）
+	// CosineDistance cosine distance (most commonly used)
 	// PostgreSQL: <->
 	CosineDistance VectorDistance = "<->"
 
-	// L2Distance 欧氏距离（L2范数）
+	// L2Distance Euclidean distance (L2 norm)
 	// PostgreSQL: <#>
 	L2Distance VectorDistance = "<#>"
 
-	// InnerProduct 内积距离（点积）
+	// InnerProduct inner product distance (dot product)
 	// PostgreSQL: <=>
 	InnerProduct VectorDistance = "<=>"
 )
 
-// Distance 计算两个向量的距离
+// Distance calculates the distance between two vectors
 func (v Vector) Distance(other Vector, metric VectorDistance) float32 {
 	if len(v) != len(other) {
 		panic("vectors must have same dimension")
@@ -94,7 +94,7 @@ func (v Vector) Distance(other Vector, metric VectorDistance) float32 {
 	}
 }
 
-// cosineDistance 计算余弦距离
+// cosineDistance calculates cosine distance
 // distance = 1 - (dot(a,b) / (||a|| * ||b||))
 func cosineDistance(a, b Vector) float32 {
 	var dotProduct, normA, normB float32
@@ -106,7 +106,7 @@ func cosineDistance(a, b Vector) float32 {
 	}
 
 	if normA == 0 || normB == 0 {
-		return 1.0 // 完全不相似
+		return 1.0 // Completely dissimilar
 	}
 
 	normA = float32(math.Sqrt(float64(normA)))
@@ -115,7 +115,7 @@ func cosineDistance(a, b Vector) float32 {
 	return 1.0 - (dotProduct / (normA * normB))
 }
 
-// l2Distance 计算欧氏距离（L2范数）
+// l2Distance calculates Euclidean distance (L2 norm)
 // distance = sqrt(sum((a[i] - b[i])^2))
 func l2Distance(a, b Vector) float32 {
 	var sum float32
@@ -128,9 +128,9 @@ func l2Distance(a, b Vector) float32 {
 	return float32(math.Sqrt(float64(sum)))
 }
 
-// innerProduct 计算内积距离
+// innerProduct calculates inner product distance
 // distance = -sum(a[i] * b[i])
-// 注意：负号是因为排序时越大越相似
+// Note: negative sign because larger values mean more similar when sorting
 func innerProduct(a, b Vector) float32 {
 	var sum float32
 
@@ -141,7 +141,7 @@ func innerProduct(a, b Vector) float32 {
 	return -sum
 }
 
-// Normalize 向量归一化（L2范数）
+// Normalize vector normalization (L2 norm)
 func (v Vector) Normalize() Vector {
 	var norm float32
 	for _, val := range v {
@@ -161,50 +161,50 @@ func (v Vector) Normalize() Vector {
 	return normalized
 }
 
-// Dim 返回向量维度
+// Dim returns vector dimension
 func (v Vector) Dim() int {
 	return len(v)
 }
 
-// DiversityStrategy 多样性策略
+// DiversityStrategy diversity strategy
 type DiversityStrategy string
 
 const (
-	// DiversityByHash 基于语义哈希去重
+	// DiversityByHash deduplication based on semantic hash
 	DiversityByHash DiversityStrategy = "hash"
 
-	// DiversityByDistance 基于向量距离去重
+	// DiversityByDistance deduplication based on vector distance
 	DiversityByDistance DiversityStrategy = "distance"
 
-	// DiversityByMMR 使用 MMR（Maximal Marginal Relevance）算法
+	// DiversityByMMR uses MMR (Maximal Marginal Relevance) algorithm
 	DiversityByMMR DiversityStrategy = "mmr"
 )
 
-// DiversityParams 多样性查询参数
+// DiversityParams diversity query parameters
 type DiversityParams struct {
-	// Enabled 是否启用多样性
+	// Enabled whether diversity is enabled
 	Enabled bool
 
-	// Strategy 多样性策略
+	// Strategy diversity strategy
 	Strategy DiversityStrategy
 
-	// HashField 语义哈希字段名（用于 DiversityByHash）
-	// 例如: "semantic_hash", "content_hash"
+	// HashField semantic hash field name (for DiversityByHash)
+	// Example: "semantic_hash", "content_hash"
 	HashField string
 
-	// MinDistance 结果之间的最小距离（用于 DiversityByDistance）
-	// 例如: 0.3 表示结果之间的距离至少为 0.3
+	// MinDistance minimum distance between results (for DiversityByDistance)
+	// Example: 0.3 means distance between results is at least 0.3
 	MinDistance float32
 
-	// Lambda MMR 平衡参数（用于 DiversityByMMR）
-	// 范围: 0-1
-	// 0 = 完全多样性
-	// 1 = 完全相关性
-	// 0.5 = 平衡（推荐）
+	// Lambda MMR balance parameter (for DiversityByMMR)
+	// Range: 0-1
+	// 0 = complete diversity
+	// 1 = complete relevance
+	// 0.5 = balanced (recommended)
 	Lambda float32
 
-	// OverFetchFactor 过度获取因子
-	// 先获取 TopK * OverFetchFactor 个结果，再应用多样性过滤
-	// 默认: 5（获取 5 倍的结果后过滤）
+	// OverFetchFactor over-fetch factor
+	// First fetch TopK * OverFetchFactor results, then apply diversity filtering
+	// Default: 5 (fetch 5x results then filter)
 	OverFetchFactor int
 }

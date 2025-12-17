@@ -5,10 +5,10 @@ const (
 	unionAll      = "UNION ALL"
 )
 
-// UNION 组合操作符
+// UNION combination operator
 type UNION func() string
 
-// ALL 返回 UNION ALL 操作符
+// ALL returns UNION ALL operator
 func ALL() string {
 	return unionAll
 }

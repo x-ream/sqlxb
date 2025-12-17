@@ -22,19 +22,19 @@ import (
 	. "github.com/fndome/xb/internal"
 )
 
-// SqlInsert 生成 INSERT SQL
+// SqlInsert generates INSERT SQL
 //
-// 说明：
-//   - 生成标准的 INSERT SQL 语句
-//   - Custom 实现可以调用此方法生成基础 INSERT SQL
+// Notes:
+//   - Generates standard INSERT SQL statement
+//   - Custom implementations can call this method to generate base INSERT SQL
 //
-// 参数：
-//   - vs: 参数列表（指针）
+// Parameters:
+//   - vs: parameter list (pointer)
 //
-// 返回：
+// Returns:
 //   - string: INSERT SQL
 //
-// 示例：
+// Example:
 //
 //	vs := []interface{}{}
 //	sql := built.SqlInsert(&vs)
@@ -42,7 +42,7 @@ import (
 func (built *Built) SqlInsert(vs *[]interface{}) string {
 
 	bp := strings.Builder{}
-	bp.Grow(128) // 预分配 128 字节，INSERT 语句通常不太长
+	bp.Grow(128) // Pre-allocate 128 bytes, INSERT statements are usually not very long
 	bp.WriteString(INSERT)
 	bp.WriteString(built.OrFromSql)
 	bp.WriteString(SPACE)

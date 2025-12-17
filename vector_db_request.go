@@ -17,77 +17,73 @@
 package xb
 
 // ============================================================================
-// 向量数据库通用接口（跨数据库抽象）
+// Vector database common interface (cross-database abstraction)
 // ============================================================================
 
-// VectorDBRequest 向量数据库请求通用接口
-// 适用于所有向量数据库（Qdrant, Milvus, Weaviate, Pinecone 等）
+// VectorDBRequest Vector database request common interface
+// Suitable for all vector databases (Qdrant, Milvus, Weaviate, Pinecone, etc.)
 //
-// 设计原则：
-//  1. 只包含所有向量数据库都支持的通用字段
-//  2. 每个数据库通过继承此接口，添加专属字段
-//  3. 使用 **Type 模式支持 nil 初始化和修改
+// Design principles:
+//  1. Only include common fields supported by all vector databases
+//  2. Each database inherits this interface and adds its own fields
+//  3. Use **Type mode to support nil initialization and modification
 //
-// 示例：
+// Example:
 //
-//	// Qdrant 继承通用接口
+//	// Qdrant inherits common interface
 //	type QdrantRequest interface {
-//	    VectorDBRequest           // 继承
-//	    GetParams() **QdrantSearchParams  // 专属字段
+//	    VectorDBRequest           // Inherits common interface
+//	    GetParams() **QdrantSearchParams  // Own fields
 //	}
 //
-//	// Milvus 继承通用接口
+//	// Milvus inherits common interface
 //	type MilvusRequest interface {
-//	    VectorDBRequest           // 继承
-//	    GetSearchParams() **MilvusSearchParams  // 专属字段
+//	    VectorDBRequest           // Inherits common interface
+//	    GetSearchParams() **MilvusSearchParams  // Own fields
 //	}
 type VectorDBRequest interface {
-	// GetScoreThreshold 获取相似度阈值
-	// 所有向量数据库都支持设置最低相似度阈值
-	// 返回值: **float32 支持 nil 值判断和修改
+	// GetScoreThreshold get similarity threshold
+	// All vector databases support setting the minimum similarity threshold
+	// Return value: **float32 supports nil value judgment and modification
 	GetScoreThreshold() **float32
 
-	// GetWithVector 是否返回向量数据
-	// 控制查询结果是否包含原始向量（节省带宽）
-	// 返回值: *bool 支持直接修改
+	// GetWithVector whether to return vector data
+	// Control whether the query result contains the original vector (saving bandwidth)
+	// Return value: *bool supports direct modification
 	GetWithVector() *bool
 
-	// GetFilter 获取过滤器
-	// 不同数据库的过滤器结构不同：
+	// GetFilter get filter
+	// The filter structure is different for different databases:
 	//  - Qdrant: *QdrantFilter
 	//  - Milvus: *string (Expr)
 	//  - Weaviate: *WeaviateFilter
-	// 返回值: interface{} 允许任意类型，调用者需要类型断言
+	// Return value: interface{} allows any type, the caller needs to type assert
 	GetFilter() interface{}
 }
 
 // ============================================================================
-// 通用参数应用函数（跨数据库复用）
+// Common parameter application function (cross-database reuse)
 // ============================================================================
 
-// ApplyCommonVectorParams 应用所有向量数据库通用的参数
-// 这个函数可以被 Qdrant、Milvus、Weaviate 等所有数据库复用
+// ApplyCommonVectorParams apply all vector database common parameters
+// This function can be reused by all databases (Qdrant, Milvus, Weaviate, etc.)
 //
-// 参数:
-//   - bbs: xb 的条件数组
-//   - req: 实现了 VectorDBRequest 接口的任意请求对象
+// Parameters:
+//   - bbs: xb's condition array
+//   - req: any request object that implements the VectorDBRequest interface
 //
-// 说明:
-//   - 目前使用 QDRANT_SCORE_THRESHOLD 和 QDRANT_WITH_VECTOR（定义在 oper.go）
-//   - 未来可以重命名为 VECTOR_SCORE_THRESHOLD（向量数据库通用）
+// Example:
 //
-// 示例:
-//
-//	// Qdrant 使用
+//	// Qdrant uses
 //	ApplyCommonVectorParams(built.Conds, qdrantReq)
 //
-//	// Milvus 使用
+//	// Milvus uses
 //	ApplyCommonVectorParams(built.Conds, milvusReq)
 func ApplyCommonVectorParams(bbs []Bb, req VectorDBRequest) {
 	for _, bb := range bbs {
 		switch bb.Op {
-		// ⭐ 注意：目前使用 QDRANT_* 前缀（历史原因）
-		// TODO(future): 重命名为 VECTOR_SCORE_THRESHOLD（所有向量数据库通用）
+		// ⭐ Note: Currently using QDRANT_* prefix (historical reasons)
+		// TODO(future): Rename to VECTOR_SCORE_THRESHOLD (all vector databases common)
 		case QDRANT_SCORE_THRESHOLD:
 			if req.GetScoreThreshold() != nil {
 				threshold := bb.Value.(float32)
@@ -103,25 +99,25 @@ func ApplyCommonVectorParams(bbs []Bb, req VectorDBRequest) {
 }
 
 // ============================================================================
-// 通用辅助函数（跨数据库复用）
+// Common helper function (cross-database reuse)
 // ============================================================================
 
-// ExtractCustomParams 提取用户自定义参数（通用版本）
-// 可被 Qdrant、Milvus、Weaviate 等所有数据库复用
+// ExtractCustomParams extract user-defined parameters (common version)
+// Can be reused by all databases (Qdrant, Milvus, Weaviate, etc.)
 //
-// 参数:
-//   - bbs: xb 的条件数组
-//   - customOp: 自定义操作符（QDRANT_XX, MILVUS_XX, WEAVIATE_XX 等）
+// Parameters:
+//   - bbs: xb's condition array
+//   - customOp: custom operator (QDRANT_XX, MILVUS_XX, WEAVIATE_XX, etc.)
 //
-// 返回:
-//   - map[string]interface{}: 提取出的自定义参数
+// Return:
+//   - map[string]interface{}: extracted user-defined parameters
 //
-// 示例:
+// Example:
 //
-//	// Qdrant
+//	// Qdrant uses
 //	customParams := ExtractCustomParams(bbs, QDRANT_XX)
 //
-//	// Milvus
+//	// Milvus uses
 //	customParams := ExtractCustomParams(bbs, MILVUS_XX)
 func ExtractCustomParams(bbs []Bb, customOp string) map[string]interface{} {
 	params := make(map[string]interface{})
@@ -134,26 +130,26 @@ func ExtractCustomParams(bbs []Bb, customOp string) map[string]interface{} {
 }
 
 // ============================================================================
-// 未来扩展示例（注释说明）
+// Future expansion example (comment description)
 // ============================================================================
 
 /*
-扩展示例：支持 Milvus
+Future expansion example: support Milvus
 
-// 1. 定义 Milvus 专属请求接口
+// 1. Define Milvus own request interface
 type MilvusRequest interface {
-    VectorDBRequest  // 继承通用接口
-    GetSearchParams() **MilvusSearchParams  // Milvus 专属
+    VectorDBRequest  // Inherits common interface
+    GetSearchParams() **MilvusSearchParams  // Milvus own fields
 }
 
-// 2. 实现接口
+// 2. Implement interface
 type MilvusSearchRequest struct {
     Vectors        [][]float32
     TopK           int
-    MetricType     string
-    ScoreThreshold *float32            // 通用字段
-    WithVector     bool                // 通用字段
-    SearchParams   *MilvusSearchParams // Milvus 专属
+	MetricType     string
+	ScoreThreshold *float32            // Common fields
+	WithVector     bool                // Common fields
+	SearchParams   *MilvusSearchParams // Milvus own fields
 }
 
 func (r *MilvusSearchRequest) GetScoreThreshold() **float32 {
@@ -165,19 +161,19 @@ func (r *MilvusSearchRequest) GetWithVector() *bool {
 }
 
 func (r *MilvusSearchRequest) GetFilter() interface{} {
-    return nil // Milvus 使用 Expr，不是 Filter
+    return nil // Milvus uses Expr, not Filter
 }
 
 func (r *MilvusSearchRequest) GetSearchParams() **MilvusSearchParams {
     return &r.SearchParams
 }
 
-// 3. 应用参数
+// 3. Apply parameters
 func applyMilvusParams(bbs []Bb, req MilvusRequest) {
-    // 复用通用参数应用
+    // Reuse common parameter application
     ApplyCommonVectorParams(bbs, req)
 
-    // 应用 Milvus 专属参数
+    // Apply Milvus own parameters
     for _, bb := range bbs {
         switch bb.op {
         case MILVUS_NPROBE:

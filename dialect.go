@@ -18,125 +18,125 @@
 package xb
 
 // ============================================================================
-// 结果类型定义
+// Result Type Definitions
 // ============================================================================
 
-// SQLResult SQL 查询结果（SQL + 参数）
-// 用于 SQL 数据库（PostgreSQL, MySQL, Oracle 等）
+// SQLResult SQL query result (SQL + parameters)
+// Used for SQL databases (PostgreSQL, MySQL, Oracle, etc.)
 type SQLResult struct {
-	SQL      string            // Data SQL（带占位符）
-	CountSQL string            // Count SQL（可选，用于分页，Oracle/ClickHouse 等需要）
-	Args     []interface{}     // 参数值
-	Meta     map[string]string // 元数据（可选）
+	SQL      string            // Data SQL (with placeholders)
+	CountSQL string            // Count SQL (optional, for pagination, required by Oracle/ClickHouse, etc.)
+	Args     []interface{}     // Parameter values
+	Meta     map[string]string // Metadata (optional)
 }
 
 // ============================================================================
-// Custom 接口：数据库专属配置（核心抽象）
+// Custom Interface: Database-Specific Configuration (Core Abstraction)
 // ============================================================================
 
-// Custom 数据库专属配置接口
-// 每个数据库实现自己的 Custom，通过接口多态实现不同的行为
+// Custom database-specific configuration interface
+// Each database implements its own Custom, achieving different behaviors through interface polymorphism
 //
-// 设计原则（v1.1.0）：
-//  - ✅ 统一返回类型：Generate() 返回 interface{}
-//  - ✅ 类型灵活：可以是 string（JSON）或 *SQLResult（SQL）
-//  - ✅ 性能无损：SQL 不需要包装成 JSON
-//  - ✅ 接口极简：一个方法搞定所有数据库
+// Design principles (v1.1.0):
+//   - ✅ Unified return type: Generate() returns interface{}
+//   - ✅ Type flexibility: can be string (JSON) or *SQLResult (SQL)
+//   - ✅ Zero performance overhead: SQL doesn't need to be wrapped in JSON
+//   - ✅ Minimal interface: one method handles all databases
 //
-// 返回值类型：
-//  - string：      向量数据库 JSON（Qdrant/Milvus/Weaviate）
-//  - *SQLResult：  SQL 数据库结果（PostgreSQL/Oracle/MySQL）
+// Return value types:
+//   - string:      Vector database JSON (Qdrant/Milvus/Weaviate)
+//   - *SQLResult:  SQL database result (PostgreSQL/Oracle/MySQL)
 //
-// 实现示例：
+// Implementation examples:
 //
-//	// Qdrant（返回 JSON string）
+//	// Qdrant (returns JSON string)
 //	type QdrantCustom struct {
 //	    DefaultHnswEf int
 //	}
 //
 //	func (c *QdrantCustom) Generate(built *Built) (interface{}, error) {
 //	    json, err := built.toQdrantJSON()
-//	    return json, err  // ← 返回 string
+//	    return json, err  // ← returns string
 //	}
 //
-//	// Oracle（返回 SQLResult）
+//	// Oracle (returns SQLResult)
 //	type OracleCustom struct {
 //	    UseRowNum bool
 //	}
 //
 //	func (c *OracleCustom) Generate(built *Built) (interface{}, error) {
 //	    sql, args, _ := built.toOracleSQL()
-//	    return &SQLResult{SQL: sql, Args: args}, nil  // ← 返回 *SQLResult
+//	    return &SQLResult{SQL: sql, Args: args}, nil  // ← returns *SQLResult
 //	}
 //
-// 使用示例：
+// Usage examples:
 //
 //	// Qdrant
 //	built := xb.Of("code_vectors").
 //	    Custom(xb.NewQdrantBuilder().Build()).
 //	    Build()
 //
-//	json, _ := built.JsonOfSelect()  // ← 自动处理类型转换
+//	json, _ := built.JsonOfSelect()  // ← automatic type conversion
 //
-//	// Oracle（示例：未来实现时使用 Builder 模式）
+//	// Oracle (example: future implementation using Builder pattern)
 //	// built := xb.Of("users").
 //	//     Custom(xb.NewOracleBuilder().Build()).
 //	//     Build()
 //	//
-//	// sql, args, _ := built.SqlOfSelect()  // ← 自动处理类型转换
+//	// sql, args, _ := built.SqlOfSelect()  // ← automatic type conversion
 type Custom interface {
-	// Generate 生成查询（统一接口）
-	// 参数:
-	//   - built: Built 对象（包含所有查询条件）
-	// 返回:
-	//   - interface{}: string（JSON）或 *SQLResult（SQL + Args）
+	// Generate generates query (unified interface)
+	// Parameters:
+	//   - built: Built object (contains all query conditions)
+	// Returns:
+	//   - interface{}: string (JSON) or *SQLResult (SQL + Args)
 	//   - error
 	//
-	// 说明:
-	//   - 向量数据库：返回 string（JSON）
-	//   - SQL 数据库：返回 *SQLResult（SQL + Args）
-	//   - 调用者使用 JsonOfSelect() 或 SqlOfSelect() 自动处理类型转换
+	// Notes:
+	//   - Vector databases: returns string (JSON)
+	//   - SQL databases: returns *SQLResult (SQL + Args)
+	//   - Callers use JsonOfSelect() or SqlOfSelect() for automatic type conversion
 	Generate(built *Built) (interface{}, error)
 }
 
 // ============================================================================
-// 说明和使用场景
+// Notes and Use Cases
 // ============================================================================
 
-// Custom 接口极简设计，只需一个 Generate() 方法
+// Custom interface has minimal design, only one Generate() method
 //
-// 为什么 Generate() 返回 interface{}？
-//  - 向量数据库：返回 string（JSON）
-//  - SQL 数据库：返回 *SQLResult（SQL + Args）
-//  - 未来：可以返回 GraphQL、Protobuf 等任意格式
+// Why does Generate() return interface{}?
+//  - Vector databases: returns string (JSON)
+//  - SQL databases: returns *SQLResult (SQL + Args)
+//  - Future: can return GraphQL, Protobuf, or any other format
 //
-// 为什么所有操作都用同一个方法？
-//  - ClickHouse Insert：批量插入，FORMAT JSONEachRow
-//  - ClickHouse Update：ALTER TABLE UPDATE（不是标准 UPDATE）
-//  - ClickHouse Delete：ALTER TABLE DELETE（不是标准 DELETE）
-//  - Oracle 分页：ROWNUM 或 FETCH FIRST（不是 LIMIT/OFFSET）
-//  - TimescaleDB：超表特殊语法
+// Why use the same method for all operations?
+//  - ClickHouse Insert: batch insert, FORMAT JSONEachRow
+//  - ClickHouse Update: ALTER TABLE UPDATE (not standard UPDATE)
+//  - ClickHouse Delete: ALTER TABLE DELETE (not standard DELETE)
+//  - Oracle pagination: ROWNUM or FETCH FIRST (not LIMIT/OFFSET)
+//  - TimescaleDB: hypertable special syntax
 //
-// 示例：ClickHouse Insert
+// Example: ClickHouse Insert
 //
 //	type ClickHouseCustom struct {
 //	    UseJSONFormat bool
 //	}
 //
 //	func (c *ClickHouseCustom) Generate(built *Built) (interface{}, error) {
-//	    // 检查是 Insert 还是 Select
+//	    // Check if Insert or Select
 //	    if built.Inserts != nil {
-//	        // ClickHouse 批量插入
+//	        // ClickHouse batch insert
 //	        sql := "INSERT INTO t FORMAT JSONEachRow\n"
 //	        return &SQLResult{SQL: sql, Args: nil}, nil
 //	    }
 //
-//	    // ClickHouse 查询
+//	    // ClickHouse query
 //	    sql, args, _ := built.toSqlOfSelect()
 //	    return &SQLResult{SQL: sql, Args: args}, nil
 //	}
 //
-// 示例：Oracle 分页（需要提供 CountSQL）
+// Example: Oracle pagination (requires CountSQL)
 //
 //	type OracleCustom struct {
 //	    UseRowNum bool
@@ -144,26 +144,26 @@ type Custom interface {
 //
 //	func (c *OracleCustom) Generate(built *Built) (interface{}, error) {
 //	    if built.PageCondition != nil {
-//	        // Oracle 分页（嵌套查询）
+//	        // Oracle pagination (nested query)
 //	        dataSQL := `SELECT * FROM (
 //	            SELECT a.*, ROWNUM rn FROM (
 //	                SELECT * FROM users WHERE age > ?
 //	            ) a WHERE ROWNUM <= 30
 //	        ) WHERE rn > 20`
 //
-//	        // ⭐ 提供独立的 Count SQL
+//	        // ⭐ Provide independent Count SQL
 //	        countSQL := "SELECT COUNT(*) FROM users WHERE age > ?"
 //
 //	        return &SQLResult{
 //	            SQL:      dataSQL,
-//	            CountSQL: countSQL,  // ⭐ Oracle Custom 负责生成
+//	            CountSQL: countSQL,  // ⭐ Oracle Custom is responsible for generation
 //	            Args:     []interface{}{18},
 //	        }, nil
 //	    }
 //
-//	    // 普通查询
+//	    // Normal query
 //	    sql, args, _ := built.toSqlOfSelect()
 //	    return &SQLResult{SQL: sql, Args: args}, nil
 //	}
 //
-// 这就是 Go 的哲学：简单、直接、实用、灵活
+// This is Go's philosophy: simple, direct, practical, flexible

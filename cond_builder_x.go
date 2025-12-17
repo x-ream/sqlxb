@@ -20,25 +20,25 @@ type CondBuilderX struct {
 	CondBuilder
 }
 
-// Sub 子查询（类型安全的子查询构建）
+// Sub subquery (type-safe subquery construction)
 //
-// 用于构建嵌套查询，使用 xb 的链式 API 而不是手写 SQL
+// # Used to build nested queries using xb's fluent API instead of handwritten SQL
 //
-// 参数：
-//   - s: SQL 模板，使用 ? 作为子查询占位符
-//   - f: 子查询构建函数
+// Parameters:
+//   - s: SQL template, use ? as subquery placeholder
+//   - f: subquery construction function
 //
-// 示例：
+// Example:
 //
-//	// ✅ IN 子查询
+//	// ✅ IN subquery
 //	xb.Of("orders").
 //	    Sub("user_id IN ?", func(sb *BuilderX) {
 //	        sb.Of(&VipUser{}).Select("id")
 //	    }).
 //	    Build()
-//	// 生成: SELECT * FROM orders WHERE user_id IN (SELECT id FROM vip_users)
+//	// Generates: SELECT * FROM orders WHERE user_id IN (SELECT id FROM vip_users)
 //
-//	// ✅ EXISTS 子查询
+//	// ✅ EXISTS subquery
 //	xb.Of(&User{}).
 //	    Sub("EXISTS ?", func(sb *BuilderX) {
 //	        sb.Of(&Order{}).
@@ -46,9 +46,9 @@ type CondBuilderX struct {
 //	           X("orders.user_id = users.id")
 //	    }).
 //	    Build()
-//	// 生成: SELECT * FROM users WHERE EXISTS (SELECT 1 FROM orders WHERE orders.user_id = users.id)
+//	// Generates: SELECT * FROM users WHERE EXISTS (SELECT 1 FROM orders WHERE orders.user_id = users.id)
 //
-//	// ✅ 复杂子查询
+//	// ✅ Complex subquery
 //	xb.Of(&Product{}).
 //	    Sub("price > ?", func(sb *BuilderX) {
 //	        sb.Of(&Product{}).
@@ -56,12 +56,12 @@ type CondBuilderX struct {
 //	           Eq("category", "electronics")
 //	    }).
 //	    Build()
-//	// 生成: SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products WHERE category = ?)
+//	// Generates: SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products WHERE category = ?)
 //
-// 优势：
-//   - 类型安全：使用 xb API 而不是字符串拼接
-//   - 可读性高：嵌套结构清晰
-//   - 可维护：子查询也能用 Eq/In/X 等方法
+// Advantages:
+//   - Type-safe: uses xb API instead of string concatenation
+//   - High readability: clear nested structure
+//   - Maintainable: subqueries can also use Eq/In/X and other methods
 func (x *CondBuilderX) Sub(s string, f func(sb *BuilderX)) *CondBuilderX {
 
 	b := new(BuilderX)

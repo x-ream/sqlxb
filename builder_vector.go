@@ -16,34 +16,37 @@
 // limitations under the License.
 package xb
 
-// VectorSearch 向量相似度检索（BuilderX 扩展）
-// 与 CondBuilder.VectorSearch() 功能相同，但返回 *BuilderX 用于链式调用
+// VectorSearch vector similarity search (BuilderX extension)
+// Same functionality as CondBuilder.VectorSearch(), but returns *BuilderX for chaining
 //
-// 示例:
-//   xb.Of(&CodeVector{}).
-//       Eq("language", "golang").
-//       VectorSearch("embedding", queryVector, 10).
-//       Build().
-//       SqlOfVectorSearch()
+// Example:
+//
+//	xb.Of(&CodeVector{}).
+//	    Eq("language", "golang").
+//	    VectorSearch("embedding", queryVector, 10).
+//	    Build().
+//	    SqlOfVectorSearch()
 func (x *BuilderX) VectorSearch(field string, queryVector Vector, topK int) *BuilderX {
 	x.CondBuilder.VectorSearch(field, queryVector, topK)
 	return x
 }
 
-// VectorDistance 设置向量距离度量（BuilderX 扩展）
+// VectorDistance sets vector distance metric (BuilderX extension)
 //
-// 示例:
-//   builder.VectorSearch("embedding", vec, 10).
-//       VectorDistance(xb.L2Distance)
+// Example:
+//
+//	builder.VectorSearch("embedding", vec, 10).
+//	    VectorDistance(xb.L2Distance)
 func (x *BuilderX) VectorDistance(metric VectorDistance) *BuilderX {
 	x.CondBuilder.VectorDistance(metric)
 	return x
 }
 
-// VectorDistanceFilter 向量距离过滤（BuilderX 扩展）
+// VectorDistanceFilter vector distance filtering (BuilderX extension)
 //
-// 示例:
-//   builder.VectorDistanceFilter("embedding", queryVector, "<", 0.3)
+// Example:
+//
+//	builder.VectorDistanceFilter("embedding", queryVector, "<", 0.3)
 func (x *BuilderX) VectorDistanceFilter(
 	field string,
 	queryVector Vector,
@@ -54,50 +57,54 @@ func (x *BuilderX) VectorDistanceFilter(
 	return x
 }
 
-// WithDiversity 设置多样性参数（BuilderX 扩展）
-// ⭐ 核心：如果数据库不支持，会被自动忽略
+// WithDiversity sets diversity parameters (BuilderX extension)
+// ⭐ Core: if database doesn't support, will be automatically ignored
 //
-// 示例:
-//   xb.Of(&CodeVector{}).
-//       VectorSearch("embedding", vec, 20).
-//       WithDiversity(xb.DiversityByHash, "semantic_hash").
-//       Build()
+// Example:
+//
+//	xb.Of(&CodeVector{}).
+//	    VectorSearch("embedding", vec, 20).
+//	    WithDiversity(xb.DiversityByHash, "semantic_hash").
+//	    Build()
 func (x *BuilderX) WithDiversity(strategy DiversityStrategy, params ...interface{}) *BuilderX {
 	x.CondBuilder.WithDiversity(strategy, params...)
 	return x
 }
 
-// WithMinDistance 设置最小距离多样性（BuilderX 扩展）
+// WithMinDistance sets minimum distance diversity (BuilderX extension)
 //
-// 示例:
-//   xb.Of(&CodeVector{}).
-//       VectorSearch("embedding", vec, 20).
-//       WithMinDistance(0.3).
-//       Build()
+// Example:
+//
+//	xb.Of(&CodeVector{}).
+//	    VectorSearch("embedding", vec, 20).
+//	    WithMinDistance(0.3).
+//	    Build()
 func (x *BuilderX) WithMinDistance(minDistance float32) *BuilderX {
 	x.CondBuilder.WithMinDistance(minDistance)
 	return x
 }
 
-// WithHashDiversity 设置哈希去重（BuilderX 扩展）
+// WithHashDiversity sets hash deduplication (BuilderX extension)
 //
-// 示例:
-//   xb.Of(&CodeVector{}).
-//       VectorSearch("embedding", vec, 20).
-//       WithHashDiversity("semantic_hash").
-//       Build()
+// Example:
+//
+//	xb.Of(&CodeVector{}).
+//	    VectorSearch("embedding", vec, 20).
+//	    WithHashDiversity("semantic_hash").
+//	    Build()
 func (x *BuilderX) WithHashDiversity(hashField string) *BuilderX {
 	x.CondBuilder.WithHashDiversity(hashField)
 	return x
 }
 
-// WithMMR 设置 MMR 算法（BuilderX 扩展）
+// WithMMR sets MMR algorithm (BuilderX extension)
 //
-// 示例:
-//   xb.Of(&CodeVector{}).
-//       VectorSearch("embedding", vec, 20).
-//       WithMMR(0.5).
-//       Build()
+// Example:
+//
+//	xb.Of(&CodeVector{}).
+//	    VectorSearch("embedding", vec, 20).
+//	    WithMMR(0.5).
+//	    Build()
 func (x *BuilderX) WithMMR(lambda float32) *BuilderX {
 	x.CondBuilder.WithMMR(lambda)
 	return x

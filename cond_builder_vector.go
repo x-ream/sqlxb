@@ -16,35 +16,37 @@
 // limitations under the License.
 package xb
 
-// VectorSearch 向量相似度检索
-// field: 向量字段名
-// queryVector: 查询向量
-// topK: 返回 Top-K 个最相似的结果
+// VectorSearch vector similarity search
+// field: vector field name
+// queryVector: query vector
+// topK: returns Top-K most similar results
 //
-// 示例:
-//   builder.VectorSearch("embedding", queryVector, 10)
+// Example:
 //
-// 生成 SQL:
-//   ORDER BY embedding <-> $1 LIMIT 10
+//	builder.VectorSearch("embedding", queryVector, 10)
+//
+// Generates SQL:
+//
+//	ORDER BY embedding <-> $1 LIMIT 10
 func (cb *CondBuilder) VectorSearch(field string, queryVector Vector, topK int) *CondBuilder {
 
-	// 参数验证（自动忽略无效参数）
+	// Parameter validation (automatically ignores invalid parameters)
 	if field == "" || queryVector == nil || len(queryVector) == 0 {
 		return cb
 	}
 
 	if topK <= 0 {
-		topK = 10 // 默认值
+		topK = 10 // Default value
 	}
 
-	// 创建向量检索 Bb
+	// Create vector search Bb
 	bb := Bb{
 		Op:  VECTOR_SEARCH,
 		Key: field,
 		Value: VectorSearchParams{
 			QueryVector:    queryVector,
 			TopK:           topK,
-			DistanceMetric: CosineDistance, // 默认余弦距离
+			DistanceMetric: CosineDistance, // Default cosine distance
 		},
 	}
 
@@ -52,14 +54,15 @@ func (cb *CondBuilder) VectorSearch(field string, queryVector Vector, topK int) 
 	return cb
 }
 
-// VectorDistance 设置向量距离度量
-// 必须在 VectorSearch() 之后调用
+// VectorDistance sets vector distance metric
+// Must be called after VectorSearch()
 //
-// 示例:
-//   builder.VectorSearch("embedding", vec, 10).VectorDistance(xb.L2Distance)
+// Example:
+//
+//	builder.VectorSearch("embedding", vec, 10).VectorDistance(xb.L2Distance)
 func (cb *CondBuilder) VectorDistance(metric VectorDistance) *CondBuilder {
 
-	// 找到最后一个 VECTOR_SEARCH
+	// Find the last VECTOR_SEARCH
 	length := len(cb.bbs)
 	if length == 0 {
 		return cb
@@ -67,7 +70,7 @@ func (cb *CondBuilder) VectorDistance(metric VectorDistance) *CondBuilder {
 
 	for i := length - 1; i >= 0; i-- {
 		if cb.bbs[i].Op == VECTOR_SEARCH {
-			// 修改距离度量
+			// Modify distance metric
 			if params, ok := cb.bbs[i].Value.(VectorSearchParams); ok {
 				params.DistanceMetric = metric
 				cb.bbs[i].Value = params
@@ -79,14 +82,16 @@ func (cb *CondBuilder) VectorDistance(metric VectorDistance) *CondBuilder {
 	return cb
 }
 
-// VectorDistanceFilter 向量距离过滤
-// 用于: WHERE distance < threshold
+// VectorDistanceFilter vector distance filtering
+// Used for: WHERE distance < threshold
 //
-// 示例:
-//   builder.VectorDistanceFilter("embedding", queryVector, "<", 0.3)
+// Example:
 //
-// 生成 SQL:
-//   WHERE (embedding <-> $1) < 0.3
+//	builder.VectorDistanceFilter("embedding", queryVector, "<", 0.3)
+//
+// Generates SQL:
+//
+//	WHERE (embedding <-> $1) < 0.3
 func (cb *CondBuilder) VectorDistanceFilter(
 	field string,
 	queryVector Vector,
@@ -94,16 +99,16 @@ func (cb *CondBuilder) VectorDistanceFilter(
 	threshold float32,
 ) *CondBuilder {
 
-	// 参数验证
+	// Parameter validation
 	if field == "" || queryVector == nil || len(queryVector) == 0 {
 		return cb
 	}
 
 	if op == "" {
-		op = "<" // 默认小于
+		op = "<" // Default less than
 	}
 
-	// 创建向量距离过滤 Bb
+	// Create vector distance filter Bb
 	bb := Bb{
 		Op:  VECTOR_DISTANCE_FILTER,
 		Key: field,
@@ -111,7 +116,7 @@ func (cb *CondBuilder) VectorDistanceFilter(
 			QueryVector:    queryVector,
 			Operator:       op,
 			Threshold:      threshold,
-			DistanceMetric: CosineDistance, // 默认余弦距离
+			DistanceMetric: CosineDistance, // Default cosine distance
 		},
 	}
 
@@ -119,15 +124,15 @@ func (cb *CondBuilder) VectorDistanceFilter(
 	return cb
 }
 
-// VectorSearchParams 向量检索参数
+// VectorSearchParams vector search parameters
 type VectorSearchParams struct {
 	QueryVector    Vector
 	TopK           int
 	DistanceMetric VectorDistance
-	Diversity      *DiversityParams // ⭐ 新增：多样性参数（可选）
+	Diversity      *DiversityParams // ⭐ Added: diversity parameters (optional)
 }
 
-// VectorDistanceFilterParams 向量距离过滤参数
+// VectorDistanceFilterParams vector distance filter parameters
 type VectorDistanceFilterParams struct {
 	QueryVector    Vector
 	Operator       string // <, <=, >, >=, =
@@ -135,14 +140,15 @@ type VectorDistanceFilterParams struct {
 	DistanceMetric VectorDistance
 }
 
-// WithDiversity 链式设置多样性参数
-// ⭐ 核心：如果数据库不支持，会被自动忽略
+// WithDiversity chain sets diversity parameters
+// ⭐ Core: if database doesn't support, will be automatically ignored
 //
-// 示例:
-//   builder.VectorSearch("embedding", vec, 20).
-//       WithDiversity(xb.DiversityByHash, "semantic_hash")
+// Example:
+//
+//	builder.VectorSearch("embedding", vec, 20).
+//	    WithDiversity(xb.DiversityByHash, "semantic_hash")
 func (cb *CondBuilder) WithDiversity(strategy DiversityStrategy, params ...interface{}) *CondBuilder {
-	// 找到最后一个 VECTOR_SEARCH
+	// Find the last VECTOR_SEARCH
 	length := len(cb.bbs)
 	if length == 0 {
 		return cb
@@ -155,18 +161,18 @@ func (cb *CondBuilder) WithDiversity(strategy DiversityStrategy, params ...inter
 				return cb
 			}
 
-			// 初始化 DiversityParams
+			// Initialize DiversityParams
 			if searchParams.Diversity == nil {
 				searchParams.Diversity = &DiversityParams{
 					Enabled:         true,
 					Strategy:        strategy,
-					OverFetchFactor: 5, // 默认 5 倍过度获取
+					OverFetchFactor: 5, // Default 5x over-fetch
 				}
 			}
 
 			searchParams.Diversity.Strategy = strategy
 
-			// 根据策略设置参数
+			// Set parameters according to strategy
 			switch strategy {
 			case DiversityByHash:
 				if len(params) > 0 {
@@ -192,11 +198,11 @@ func (cb *CondBuilder) WithDiversity(strategy DiversityStrategy, params ...inter
 						searchParams.Diversity.Lambda = float32(lambda)
 					}
 				} else {
-					searchParams.Diversity.Lambda = 0.5 // 默认平衡
+					searchParams.Diversity.Lambda = 0.5 // Default balanced
 				}
 			}
 
-			// 可选：设置过度获取因子
+			// Optional: set over-fetch factor
 			if len(params) > 1 {
 				if factor, ok := params[1].(int); ok && factor > 0 {
 					searchParams.Diversity.OverFetchFactor = factor
@@ -211,29 +217,32 @@ func (cb *CondBuilder) WithDiversity(strategy DiversityStrategy, params ...inter
 	return cb
 }
 
-// WithMinDistance 快捷方法：设置最小距离多样性
+// WithMinDistance convenience method: sets minimum distance diversity
 //
-// 示例:
-//   builder.VectorSearch("embedding", vec, 20).
-//       WithMinDistance(0.3)
+// Example:
+//
+//	builder.VectorSearch("embedding", vec, 20).
+//	    WithMinDistance(0.3)
 func (cb *CondBuilder) WithMinDistance(minDistance float32) *CondBuilder {
 	return cb.WithDiversity(DiversityByDistance, minDistance)
 }
 
-// WithHashDiversity 快捷方法：设置哈希去重
+// WithHashDiversity convenience method: sets hash deduplication
 //
-// 示例:
-//   builder.VectorSearch("embedding", vec, 20).
-//       WithHashDiversity("semantic_hash")
+// Example:
+//
+//	builder.VectorSearch("embedding", vec, 20).
+//	    WithHashDiversity("semantic_hash")
 func (cb *CondBuilder) WithHashDiversity(hashField string) *CondBuilder {
 	return cb.WithDiversity(DiversityByHash, hashField)
 }
 
-// WithMMR 快捷方法：设置 MMR 算法
+// WithMMR convenience method: sets MMR algorithm
 //
-// 示例:
-//   builder.VectorSearch("embedding", vec, 20).
-//       WithMMR(0.5)  // lambda = 0.5，平衡相关性和多样性
+// Example:
+//
+//	builder.VectorSearch("embedding", vec, 20).
+//	    WithMMR(0.5)  // lambda = 0.5, balances relevance and diversity
 func (cb *CondBuilder) WithMMR(lambda float32) *CondBuilder {
 	return cb.WithDiversity(DiversityByMMR, lambda)
 }
