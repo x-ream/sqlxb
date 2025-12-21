@@ -19,19 +19,19 @@
 // +build ignore
 
 // ============================================================================
-// Milvus 扩展模板（复制此文件到 to_milvus_json.go 开始实现）
+// Milvus Extension Template (copy this file to to_milvus_json.go to start implementation)
 // ============================================================================
 //
-// ⭐ 注意：此文件仅作为模板参考，不会被编译（build ignore）
+// ⭐ Note: This file is only a template reference and will not be compiled (build ignore)
 //
-// 这是一个完整的 Milvus 支持模板，展示如何基于 VectorDBRequest 接口
-// 快速实现 Milvus 向量数据库的支持。
+// This is a complete Milvus support template showing how to quickly implement
+// Milvus vector database support based on the VectorDBRequest interface.
 //
-// 实现步骤：
-//  1. 复制此文件为 to_milvus_json.go（移除 build ignore 标签）
-//  2. 在 oper.go 添加 Milvus 操作符常量
-//  3. 在 cond_builder_milvus.go 添加 Builder 方法
-//  4. 运行测试验证
+// Implementation steps:
+//  1. Copy this file to to_milvus_json.go (remove build ignore tag)
+//  2. Add Milvus operator constants in oper.go
+//  3. Add Builder methods in cond_builder_milvus.go
+//  4. Run tests to verify
 //
 // ============================================================================
 
@@ -45,84 +45,84 @@ import (
 )
 
 // ============================================================================
-// Step 1: 在 oper.go 添加 Milvus 专属操作符
+// Step 1: Add Milvus-specific operators in oper.go
 // ============================================================================
 
 /*
-在 oper.go 文件添加：
+Add in oper.go file:
 
 const (
-	MILVUS_NPROBE     = "MILVUS_NPROBE"      // 搜索参数 nprobe
-	MILVUS_ROUND_DEC  = "MILVUS_ROUND_DEC"   // 小数位四舍五入
-	MILVUS_EF         = "MILVUS_EF"          // HNSW 搜索参数
-	MILVUS_EXPR       = "MILVUS_EXPR"        // 过滤表达式
-	MILVUS_XX         = "MILVUS_XX"          // 自定义参数
+	MILVUS_NPROBE     = "MILVUS_NPROBE"      // Search parameter nprobe
+	MILVUS_ROUND_DEC  = "MILVUS_ROUND_DEC"   // Round decimal places
+	MILVUS_EF         = "MILVUS_EF"          // HNSW search parameter
+	MILVUS_EXPR       = "MILVUS_EXPR"        // Filter expression
+	MILVUS_XX         = "MILVUS_XX"          // Custom parameter
 )
 */
 
 // ============================================================================
-// Step 2: 定义 Milvus 专属接口（继承 VectorDBRequest）
+// Step 2: Define Milvus-specific interface (inherits VectorDBRequest)
 // ============================================================================
 
-// MilvusRequest Milvus 专属请求接口
-// 继承 VectorDBRequest，自动支持通用参数（ScoreThreshold, WithVector）
+// MilvusRequest Milvus-specific request interface
+// Inherits VectorDBRequest, automatically supports common parameters (ScoreThreshold, WithVector)
 type MilvusRequest interface {
-	VectorDBRequest // ⭐ 继承通用接口
+	VectorDBRequest // ⭐ Inherit common interface
 
-	// Milvus 专属方法
+	// Milvus-specific methods
 	GetSearchParams() **MilvusSearchParams
 	GetExpr() *string
 }
 
 // ============================================================================
-// Step 3: 定义 Milvus 请求结构体
+// Step 3: Define Milvus request struct
 // ============================================================================
 
-// MilvusSearchRequest Milvus 搜索请求
+// MilvusSearchRequest Milvus search request
 type MilvusSearchRequest struct {
 	CollectionName string      `json:"collection_name"`
 	Vectors        [][]float32 `json:"vectors"`
 	TopK           int         `json:"topk"`
 	MetricType     string      `json:"metric_type"`
 
-	// ⭐ 通用字段（自动支持）
+	// ⭐ Common fields (automatically supported)
 	ScoreThreshold *float32 `json:"score_threshold,omitempty"`
-	OutputFields   []string `json:"output_fields,omitempty"` // WithVector 控制此字段
+	OutputFields   []string `json:"output_fields,omitempty"` // WithVector controls this field
 
-	// ⭐ Milvus 专属字段
+	// ⭐ Milvus-specific fields
 	SearchParams *MilvusSearchParams `json:"search_params,omitempty"`
 	Expr         string              `json:"expr,omitempty"`
 }
 
-// MilvusSearchParams Milvus 搜索参数
+// MilvusSearchParams Milvus search parameters
 type MilvusSearchParams struct {
 	NProbe   int `json:"nprobe,omitempty"`
 	RoundDec int `json:"round_decimal,omitempty"`
-	Ef       int `json:"ef,omitempty"` // HNSW 参数
+	Ef       int `json:"ef,omitempty"` // HNSW parameter
 }
 
 // ============================================================================
-// Step 4: 实现接口方法
+// Step 4: Implement interface methods
 // ============================================================================
 
-// ⭐ 实现 VectorDBRequest（通用接口）
+// ⭐ Implement VectorDBRequest (common interface)
 
 func (r *MilvusSearchRequest) GetScoreThreshold() **float32 {
 	return &r.ScoreThreshold
 }
 
 func (r *MilvusSearchRequest) GetWithVector() *bool {
-	// Milvus 通过 OutputFields 控制是否返回向量
-	// 这里返回 nil 表示不支持直接设置 bool
-	// 实际应用中需要在 applyMilvusParams 中处理
+	// Milvus controls whether to return vectors through OutputFields
+	// Returning nil here means direct bool setting is not supported
+	// In actual applications, need to handle in applyMilvusParams
 	return nil
 }
 
 func (r *MilvusSearchRequest) GetFilter() interface{} {
-	return &r.Expr // Milvus 使用 Expr 字符串过滤
+	return &r.Expr // Milvus uses Expr string for filtering
 }
 
-// ⭐ 实现 MilvusRequest（Milvus 专属接口）
+// ⭐ Implement MilvusRequest (Milvus-specific interface)
 
 func (r *MilvusSearchRequest) GetSearchParams() **MilvusSearchParams {
 	return &r.SearchParams
@@ -133,18 +133,18 @@ func (r *MilvusSearchRequest) GetExpr() *string {
 }
 
 // ============================================================================
-// Step 5: 参数应用函数（复用通用逻辑）
+// Step 5: Parameter application function (reuse common logic)
 // ============================================================================
 
-// applyMilvusParams 应用 Milvus 专属参数
+// applyMilvusParams applies Milvus-specific parameters
 func applyMilvusParams(bbs []Bb, req MilvusRequest) {
-	// ⭐ 第一层：复用通用参数应用
+	// ⭐ First layer: reuse common parameter application
 	ApplyCommonVectorParams(bbs, req)
 
-	// ⭐ 第二层：应用 Milvus 专属参数
+	// ⭐ Second layer: apply Milvus-specific parameters
 	for _, bb := range bbs {
 		switch bb.Op {
-		case "MILVUS_NPROBE": // 需要在 oper.go 定义
+		case "MILVUS_NPROBE": // Need to define in oper.go
 			ensureMilvusParams(req)
 			(*req.GetSearchParams()).NProbe = bb.Value.(int)
 
@@ -163,7 +163,7 @@ func applyMilvusParams(bbs []Bb, req MilvusRequest) {
 	}
 }
 
-// ensureMilvusParams 确保 SearchParams 已初始化
+// ensureMilvusParams ensures SearchParams is initialized
 func ensureMilvusParams(req MilvusRequest) {
 	params := req.GetSearchParams()
 	if *params == nil {
@@ -172,30 +172,30 @@ func ensureMilvusParams(req MilvusRequest) {
 }
 
 // ============================================================================
-// Step 6: JSON 转换函数（在 Built 上，与 Qdrant 一致）
+// Step 6: JSON conversion function (on Built, consistent with Qdrant)
 // ============================================================================
 
-// JsonOfMilvusSelect 转换为 Milvus 搜索 JSON
-// ⭐ 命名与 SQL 一致：JsonOfSelect (Milvus 版本)
-// ⭐ 设计与 Qdrant 一致：在 Built 上调用，从 VectorSearch 参数中获取信息
+// JsonOfMilvusSelect converts to Milvus search JSON
+// ⭐ Naming consistent with SQL: JsonOfSelect (Milvus version)
+// ⭐ Design consistent with Qdrant: called on Built, get information from VectorSearch parameters
 //
-// 返回:
-//   - JSON 字符串
+// Returns:
+//   - JSON string
 //   - error
 //
-// 示例:
+// Example:
 //
 //	built := C().
-//	    VectorScoreThreshold(0.8).      // 通用参数
-//	    MilvusNProbe(64).               // Milvus 专属
-//	    MilvusExpr("age > 18").         // 过滤表达式
-//	    MilvusX("consistency_level", "Strong"). // 自定义参数
+//	    VectorScoreThreshold(0.8).      // Common parameter
+//	    MilvusNProbe(64).               // Milvus-specific
+//	    MilvusExpr("age > 18").         // Filter expression
+//	    MilvusX("consistency_level", "Strong"). // Custom parameter
 //	    VectorSearch("users", "embedding", []float32{0.1, 0.2}, 10, L2Distance).
 //	    Build()
 //
 //	json, err := built.JsonOfMilvusSelect()
 func (built *Built) JsonOfMilvusSelect() (string, error) {
-	// 1️⃣ 从 Built.Conds 中找到 VECTOR_SEARCH 参数
+	// 1️⃣ Find VECTOR_SEARCH parameter from Built.Conds
 	vectorBb := findVectorSearchBb(built.Conds)
 	if vectorBb == nil {
 		return "", fmt.Errorf("no VECTOR_SEARCH found, use VectorSearch() to specify search parameters")
@@ -203,7 +203,7 @@ func (built *Built) JsonOfMilvusSelect() (string, error) {
 
 	params := vectorBb.Value.(VectorSearchParams)
 
-	// 2️⃣ 创建 Milvus 请求对象
+	// 2️⃣ Create Milvus request object
 	req := &MilvusSearchRequest{
 		CollectionName: params.TableName,
 		Vectors:        [][]float32{params.Vector},
@@ -211,14 +211,14 @@ func (built *Built) JsonOfMilvusSelect() (string, error) {
 		MetricType:     milvusDistanceMetric(params.Distance),
 	}
 
-	// 3️⃣ 应用参数（自动处理通用 + 专属参数）
+	// 3️⃣ Apply parameters (automatically handle common + specific parameters)
 	applyMilvusParams(built.Conds, req)
 
-	// 4️⃣ 序列化为 JSON（复用通用逻辑）
+	// 4️⃣ Serialize to JSON (reuse common logic)
 	return milvusMergeAndSerialize(req, built.Conds)
 }
 
-// findVectorSearchBb 从 Bb 数组中找到 VECTOR_SEARCH
+// findVectorSearchBb finds VECTOR_SEARCH from Bb array
 func findVectorSearchBb(bbs []Bb) *Bb {
 	for i := range bbs {
 		if bbs[i].Op == VECTOR_SEARCH {
@@ -228,7 +228,7 @@ func findVectorSearchBb(bbs []Bb) *Bb {
 	return nil
 }
 
-// milvusDistanceMetric 转换距离度量
+// milvusDistanceMetric converts distance metric
 func milvusDistanceMetric(metric VectorDistance) string {
 	switch metric {
 	case CosineDistance:
@@ -242,14 +242,14 @@ func milvusDistanceMetric(metric VectorDistance) string {
 	}
 }
 
-// milvusMergeAndSerialize 合并自定义参数并序列化
-// ⭐ 这个函数和 Qdrant 的 mergeAndSerialize 逻辑完全一致
+// milvusMergeAndSerialize merges custom parameters and serializes
+// ⭐ This function is completely consistent with Qdrant's mergeAndSerialize logic
 func milvusMergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
-	// ⭐ 复用通用提取函数
+	// ⭐ Reuse common extraction function
 	customParams := ExtractCustomParams(bbs, "MILVUS_XX")
 
 	if len(customParams) == 0 {
-		// 无自定义参数，直接序列化
+		// No custom parameters, serialize directly
 		bytes, err := json.MarshalIndent(req, "", "  ")
 		if err != nil {
 			return "", fmt.Errorf("failed to marshal Milvus request: %w", err)
@@ -257,7 +257,7 @@ func milvusMergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
 		return string(bytes), nil
 	}
 
-	// 有自定义参数，先序列化为 map，再添加自定义字段
+	// Has custom parameters, first serialize to map, then add custom fields
 	bytes, err := json.Marshal(req)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal Milvus request: %w", err)
@@ -268,12 +268,12 @@ func milvusMergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
 		return "", fmt.Errorf("failed to unmarshal to map: %w", err)
 	}
 
-	// 添加用户自定义参数
+	// Add user custom parameters
 	for k, v := range customParams {
 		reqMap[k] = v
 	}
 
-	// 重新序列化
+	// Re-serialize
 	finalBytes, err := json.MarshalIndent(reqMap, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal final JSON: %w", err)
@@ -283,41 +283,41 @@ func milvusMergeAndSerialize(req interface{}, bbs []Bb) (string, error) {
 }
 
 // ============================================================================
-// Step 7: 在 cond_builder_milvus.go 添加 Builder 方法
+// Step 7: Add Builder methods in cond_builder_milvus.go
 // ============================================================================
 
 /*
-创建 cond_builder_milvus.go 文件：
+Create cond_builder_milvus.go file:
 
 package xb
 
-// ⭐ 通用参数（已在 cond_builder.go 实现）
+// ⭐ Common parameters (already implemented in cond_builder.go)
 // func (b *CondBuilder) VectorScoreThreshold(threshold float32)
 // func (b *CondBuilder) VectorWithVector(withVector bool)
 
-// MilvusNProbe 设置 Milvus nprobe 搜索参数
+// MilvusNProbe sets Milvus nprobe search parameter
 func (b *CondBuilder) MilvusNProbe(nprobe int) *CondBuilder {
 	return b.append(Bb{op: MILVUS_NPROBE, value: nprobe})
 }
 
-// MilvusRoundDec 设置 Milvus 小数位四舍五入
+// MilvusRoundDec sets Milvus decimal rounding
 func (b *CondBuilder) MilvusRoundDec(dec int) *CondBuilder {
 	return b.append(Bb{op: MILVUS_ROUND_DEC, value: dec})
 }
 
-// MilvusEf 设置 Milvus HNSW ef 参数
+// MilvusEf sets Milvus HNSW ef parameter
 func (b *CondBuilder) MilvusEf(ef int) *CondBuilder {
 	return b.append(Bb{op: MILVUS_EF, value: ef})
 }
 
-// MilvusExpr 设置 Milvus 过滤表达式
+// MilvusExpr sets Milvus filter expression
 func (b *CondBuilder) MilvusExpr(expr string) *CondBuilder {
 	return b.append(Bb{op: MILVUS_EXPR, value: expr})
 }
 
-// MilvusX 用户自定义 Milvus 参数（类似 Qdrant 的 QdrantBuilder）
+// MilvusX user-defined Milvus parameter (similar to Qdrant's QdrantBuilder)
 //
-// 示例:
+// Example:
 //   MilvusX("consistency_level", "Strong")
 //   MilvusX("travel_timestamp", 12345)
 func (b *CondBuilder) MilvusX(key string, value interface{}) *CondBuilder {
@@ -326,11 +326,11 @@ func (b *CondBuilder) MilvusX(key string, value interface{}) *CondBuilder {
 */
 
 // ============================================================================
-// Step 8: 测试示例
+// Step 8: Test example
 // ============================================================================
 
 /*
-创建 to_milvus_json_test.go 文件：
+Create to_milvus_json_test.go file:
 
 package xb
 
@@ -342,15 +342,15 @@ import (
 func TestMilvusSearchRequest_Interface(t *testing.T) {
 	req := &MilvusSearchRequest{}
 
-	// ✅ 验证实现了 VectorDBRequest
+	// ✅ Verify implements VectorDBRequest
 	var _ VectorDBRequest = req
 
-	// ✅ 验证实现了 MilvusRequest
+	// ✅ Verify implements MilvusRequest
 	var _ MilvusRequest = req
 }
 
 func TestJsonOfMilvusSelect(t *testing.T) {
-	// ⭐ 与 SQL 命名一致的调用方式
+	// ⭐ Call style consistent with SQL naming
 	built := C().
 		VectorScoreThreshold(0.8).
 		MilvusNProbe(64).
@@ -364,13 +364,13 @@ func TestJsonOfMilvusSelect(t *testing.T) {
 		t.Fatalf("JsonOfMilvusSelect failed: %v", err)
 	}
 
-	// 验证 JSON 结构
+	// Verify JSON structure
 	var result map[string]interface{}
 	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
 		t.Fatalf("JSON unmarshal failed: %v", err)
 	}
 
-	// 验证基本字段
+	// Verify basic fields
 	if result["collection_name"] != "users" {
 		t.Errorf("collection_name = %v, want 'users'", result["collection_name"])
 	}
@@ -383,12 +383,12 @@ func TestJsonOfMilvusSelect(t *testing.T) {
 		t.Errorf("metric_type = %v, want 'L2'", result["metric_type"])
 	}
 
-	// 验证通用参数
+	// Verify common parameters
 	if result["score_threshold"] != 0.8 {
 		t.Errorf("score_threshold = %v, want 0.8", result["score_threshold"])
 	}
 
-	// 验证 Milvus 专属参数
+	// Verify Milvus-specific parameters
 	searchParams := result["search_params"].(map[string]interface{})
 	if searchParams["nprobe"] != 64 {
 		t.Errorf("nprobe = %v, want 64", searchParams["nprobe"])
@@ -398,7 +398,7 @@ func TestJsonOfMilvusSelect(t *testing.T) {
 		t.Errorf("expr = %v, want 'age > 18'", result["expr"])
 	}
 
-	// 验证自定义参数
+	// Verify custom parameters
 	if result["consistency_level"] != "Strong" {
 		t.Errorf("consistency_level = %v, want 'Strong'", result["consistency_level"])
 	}
@@ -406,23 +406,23 @@ func TestJsonOfMilvusSelect(t *testing.T) {
 */
 
 // ============================================================================
-// 总结
+// Summary
 // ============================================================================
 
 /*
-通过这个模板，Milvus 用户只需：
+Through this template, Milvus users only need:
 
-✅ 5 个步骤（定义操作符 → 定义接口 → 实现方法 → 应用参数 → 序列化）
-✅ 自动复用通用逻辑（ApplyCommonVectorParams, extractCustomParams）
-✅ 代码零重复（通用参数、自定义参数、JSON 序列化全部复用）
-✅ 类型安全（编译时检查）
-✅ 优雅的 API（像 Qdrant 一样流畅）
+✅ 5 steps (define operators → define interface → implement methods → apply parameters → serialize)
+✅ Automatically reuse common logic (ApplyCommonVectorParams, extractCustomParams)
+✅ Zero code duplication (common parameters, custom parameters, JSON serialization all reused)
+✅ Type safety (compile-time checking)
+✅ Elegant API (as fluent as Qdrant)
 
-估计代码量：
-- to_milvus_json.go: ~200 行
-- cond_builder_milvus.go: ~50 行
-- to_milvus_json_test.go: ~100 行
-总计：~350 行（vs Qdrant 的 800 行，代码量减少 56%）
+Estimated code size:
+- to_milvus_json.go: ~200 lines
+- cond_builder_milvus.go: ~50 lines
+- to_milvus_json_test.go: ~100 lines
+Total: ~350 lines (vs Qdrant's 800 lines, 56% code reduction)
 
-核心原因：复用了通用接口和函数！🎉
+Core reason: reused common interfaces and functions! 🎉
 */
