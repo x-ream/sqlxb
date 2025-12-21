@@ -20,7 +20,7 @@ import (
 	"testing"
 )
 
-// 测试 ASC 函数
+// Test ASC function
 func TestASC(t *testing.T) {
 	result := ASC()
 	if result != "ASC" {
@@ -28,7 +28,7 @@ func TestASC(t *testing.T) {
 	}
 }
 
-// 测试 DESC 函数
+// Test DESC function
 func TestDESC(t *testing.T) {
 	result := DESC()
 	if result != "DESC" {
@@ -36,7 +36,7 @@ func TestDESC(t *testing.T) {
 	}
 }
 
-// 测试 Sort 结构
+// Test Sort structure
 type testStruct struct {
 	Id        int64  `db:"id"`
 	CreatedAt int64  `db:"created_at"`
@@ -48,7 +48,7 @@ func (*testStruct) TableName() string {
 }
 
 func TestSort(t *testing.T) {
-	// 测试 ASC 排序
+	// Test ASC sorting
 	builder := Of(&testStruct{}).
 		Sort("id", ASC).
 		Build()
@@ -58,7 +58,7 @@ func TestSort(t *testing.T) {
 		t.Errorf("Sort ASC failed, got: %s", sql)
 	}
 
-	// 测试 DESC 排序
+	// Test DESC sorting
 	builder = Of(&testStruct{}).
 		Sort("created_at", DESC).
 		Build()
@@ -68,7 +68,7 @@ func TestSort(t *testing.T) {
 		t.Errorf("Sort DESC failed, got: %s", sql)
 	}
 
-	// 测试多个排序
+	// Test multiple sorting
 	builder = Of(&testStruct{}).
 		Sort("status", ASC).
 		Sort("id", DESC).

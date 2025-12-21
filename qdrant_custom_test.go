@@ -23,11 +23,11 @@ import (
 )
 
 // ============================================================================
-// Custom 接口测试
+// Custom interface test
 // ============================================================================
 
 func TestQdrantCustom_ImplementsCustomInterface(t *testing.T) {
-	// ✅ 验证 QdrantCustom 实现了 Custom 接口
+	// ✅ Verify QdrantCustom implements Custom interface
 	var _ Custom = (*QdrantCustom)(nil)
 	t.Log("✅ QdrantCustom implements Custom interface")
 }

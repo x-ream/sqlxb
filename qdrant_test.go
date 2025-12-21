@@ -21,21 +21,21 @@ import (
 	"testing"
 )
 
-// 测试用的向量数据模型（与 vector_test.go 相同）
+// Test vector data model (same as vector_test.go)
 type CodeVectorForQdrant struct {
 	Id           int64  `db:"id"`
 	Content      string `db:"content"`
 	Embedding    Vector `db:"embedding"`
 	Language     string `db:"language"`
 	Layer        string `db:"layer"`
-	SemanticHash string `db:"semantic_hash"` // ⭐ 用于多样性去重
+	SemanticHash string `db:"semantic_hash"` // ⭐ Used for diversity deduplication
 }
 
 func (CodeVectorForQdrant) TableName() string {
 	return "code_vectors"
 }
 
-// 测试基础 Qdrant JSON 生成
+// Test basic Qdrant JSON generation
 func TestJsonOfSelect_Basic(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
@@ -49,15 +49,15 @@ func TestJsonOfSelect_Basic(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== 基础 Qdrant JSON ===\n%s", jsonStr)
+	t.Logf("=== Basic Qdrant JSON ===\n%s", jsonStr)
 
-	// 验证 JSON 格式
+	// Verify JSON format
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// 验证字段
+	// Verify fields
 	if len(req.Vector) != 4 {
 		t.Errorf("Expected vector length 4, got %d", len(req.Vector))
 	}
@@ -66,7 +66,7 @@ func TestJsonOfSelect_Basic(t *testing.T) {
 	}
 }
 
-// 测试带标量过滤的 Qdrant JSON
+// Test Qdrant JSON with scalar filtering
 func TestJsonOfSelect_WithFilter(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -82,15 +82,15 @@ func TestJsonOfSelect_WithFilter(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== 带过滤器的 Qdrant JSON ===\n%s", jsonStr)
+	t.Logf("=== Qdrant JSON with Filter ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// 验证 filter
+	// Verify filter
 	if req.Filter == nil {
 		t.Errorf("Expected filter, got nil")
 	} else if len(req.Filter.Must) != 2 {
@@ -98,7 +98,7 @@ func TestJsonOfSelect_WithFilter(t *testing.T) {
 	}
 }
 
-// 测试哈希多样性 - Qdrant JSON
+// Test hash diversity - Qdrant JSON
 func TestJsonOfSelect_WithHashDiversity(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -106,7 +106,7 @@ func TestJsonOfSelect_WithHashDiversity(t *testing.T) {
 		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang").
 		VectorSearch("embedding", queryVector, 20).
-		WithHashDiversity("semantic_hash"). // ⭐ 多样性：哈希去重
+		WithHashDiversity("semantic_hash"). // ⭐ Diversity: hash deduplication
 		Build()
 
 	jsonStr, err := built.JsonOfSelect()
@@ -114,31 +114,31 @@ func TestJsonOfSelect_WithHashDiversity(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== 哈希多样性 Qdrant JSON ===\n%s", jsonStr)
+	t.Logf("=== Hash Diversity Qdrant JSON ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// ⭐ 多样性：limit 应该被放大（过度获取）
-	if req.Limit != 20*5 { // 默认 5 倍
+	// ⭐ Diversity: limit should be enlarged (over-fetch)
+	if req.Limit != 20*5 { // Default 5x
 		t.Errorf("Expected limit %d (20*5), got %d", 20*5, req.Limit)
 	}
 
-	t.Logf("✅ 多样性启用：Limit 从 20 扩大到 %d（5倍过度获取）", req.Limit)
-	t.Logf("ℹ️  后续需要在应用层基于 semantic_hash 去重到 20 个")
+	t.Logf("✅ Diversity enabled: Limit from 20 to %d (5x over-fetch)", req.Limit)
+	t.Logf("ℹ️  Need to deduplicate based on semantic_hash to 20 in application layer")
 }
 
-// 测试最小距离多样性 - Qdrant JSON
+// Test minimum distance diversity - Qdrant JSON
 func TestJsonOfSelect_WithMinDistance(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
 		VectorSearch("embedding", queryVector, 20).
-		WithMinDistance(0.3). // ⭐ 多样性：最小距离 0.3
+		WithMinDistance(0.3). // ⭐ Diversity: minimum distance 0.3
 		Build()
 
 	jsonStr, err := built.JsonOfSelect()
@@ -146,24 +146,24 @@ func TestJsonOfSelect_WithMinDistance(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== 最小距离多样性 Qdrant JSON ===\n%s", jsonStr)
+	t.Logf("=== Minimum Distance Diversity Qdrant JSON ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// ⭐ 多样性：limit 应该被放大
+	// ⭐ Diversity: limit should be enlarged
 	if req.Limit != 20*5 {
 		t.Errorf("Expected limit %d, got %d", 20*5, req.Limit)
 	}
 
-	t.Logf("✅ 多样性启用：Limit 从 20 扩大到 %d", req.Limit)
-	t.Logf("ℹ️  后续需要在应用层确保结果间距离 >= 0.3")
+	t.Logf("✅ Diversity enabled: Limit expanded from 20 to %d", req.Limit)
+	t.Logf("ℹ️  Need to ensure distance >= 0.3 between results in application layer")
 }
 
-// 测试 MMR 多样性 - Qdrant JSON
+// Test MMR diversity - Qdrant JSON
 func TestJsonOfSelect_WithMMR(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -171,7 +171,7 @@ func TestJsonOfSelect_WithMMR(t *testing.T) {
 		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang").
 		VectorSearch("embedding", queryVector, 20).
-		WithMMR(0.5). // ⭐ 多样性：MMR lambda=0.5
+		WithMMR(0.5). // ⭐ Diversity: MMR lambda=0.5
 		Build()
 
 	jsonStr, err := built.JsonOfSelect()
@@ -179,24 +179,24 @@ func TestJsonOfSelect_WithMMR(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== MMR 多样性 Qdrant JSON ===\n%s", jsonStr)
+	t.Logf("=== MMR Diversity Qdrant JSON ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// ⭐ 多样性：limit 应该被放大
+	// ⭐ Diversity: limit should be enlarged
 	if req.Limit != 20*5 {
 		t.Errorf("Expected limit %d, got %d", 20*5, req.Limit)
 	}
 
-	t.Logf("✅ 多样性启用：Limit 从 20 扩大到 %d", req.Limit)
-	t.Logf("ℹ️  后续需要在应用层使用 MMR 算法（lambda=0.5）过滤")
+	t.Logf("✅ Diversity enabled: Limit expanded from 20 to %d", req.Limit)
+	t.Logf("ℹ️  Need to filter using MMR algorithm (lambda=0.5) in application layer")
 }
 
-// 测试范围查询 - Qdrant JSON
+// Test range query - Qdrant JSON
 func TestJsonOfSelect_WithRange(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -212,27 +212,27 @@ func TestJsonOfSelect_WithRange(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== 范围查询 Qdrant JSON ===\n%s", jsonStr)
+	t.Logf("=== Range Query Qdrant JSON ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// 验证 filter
+	// Verify filter
 	if req.Filter == nil || len(req.Filter.Must) < 2 {
 		t.Errorf("Expected at least 2 range conditions")
 	}
 }
 
-// 测试 IN 查询 - Qdrant JSON
+// Test IN query - Qdrant JSON
 func TestJsonOfSelect_WithIn(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
-		In("language", "golang", "python", "rust"). // ⭐ 修正：直接传值，不是 slice
+		In("language", "golang", "python", "rust"). // ⭐ Fix: pass values directly, not slice
 		VectorSearch("embedding", queryVector, 10).
 		Build()
 
@@ -241,45 +241,45 @@ func TestJsonOfSelect_WithIn(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== IN 查询 Qdrant JSON ===\n%s", jsonStr)
+	t.Logf("=== IN Query Qdrant JSON ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// 验证 filter
+	// Verify filter
 	if req.Filter == nil || len(req.Filter.Must) == 0 {
 		t.Errorf("Expected IN condition in filter")
 	}
 }
 
-// 测试 PostgreSQL SQL 不受多样性影响
+// Test PostgreSQL SQL ignores diversity
 func TestSqlOfVectorSearch_IgnoresDiversity(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// ⭐ 关键测试：即使设置了多样性，PostgreSQL SQL 也应该正常工作
+	// ⭐ Key test: PostgreSQL SQL should work normally even with diversity set
 	built := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
 		VectorSearch("embedding", queryVector, 20).
-		WithHashDiversity("semantic_hash"). // ⭐ 多样性设置
+		WithHashDiversity("semantic_hash"). // ⭐ Diversity setting
 		Build()
 
-	// 生成 PostgreSQL SQL
+	// Generate PostgreSQL SQL
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== PostgreSQL SQL（应忽略多样性）===")
+	t.Logf("=== PostgreSQL SQL (should ignore diversity) ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// ⭐ 关键验证：SQL 不应该包含多样性相关逻辑
-	// LIMIT 应该保持为 20，而不是 100
+	// ⭐ Key verification: SQL should not contain diversity-related logic
+	// LIMIT should remain 20, not 100
 	if !containsString(sql, "LIMIT 20") {
 		t.Errorf("Expected LIMIT 20 in SQL (diversity should be ignored)")
 	}
 
-	// 验证基本查询功能正常
+	// Verify basic query functionality is normal
 	if !containsString(sql, "language") {
 		t.Errorf("Expected language filter in SQL")
 	}
@@ -288,14 +288,14 @@ func TestSqlOfVectorSearch_IgnoresDiversity(t *testing.T) {
 		t.Errorf("Expected ORDER BY distance in SQL")
 	}
 
-	t.Logf("✅ 多样性参数被正确忽略（PostgreSQL 不支持）")
+	t.Logf("✅ Diversity parameters correctly ignored (PostgreSQL doesn't support)")
 }
 
-// 测试完整的工作流
+// Test full workflow
 func TestQdrant_FullWorkflow(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3, 0.4}
 
-	// 构建查询
+	// Build query
 	builder := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang").
@@ -305,24 +305,24 @@ func TestQdrant_FullWorkflow(t *testing.T) {
 
 	built := builder.Build()
 
-	// 1. PostgreSQL 使用
-	t.Log("\n=== 1. PostgreSQL 后端 ===")
+	// 1. PostgreSQL usage
+	t.Log("\n=== 1. PostgreSQL Backend ===")
 	sql, args := built.SqlOfVectorSearch()
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args count: %d", len(args))
-	t.Logf("✅ 多样性被忽略，正常生成 SQL")
+	t.Logf("✅ Diversity ignored, SQL generated normally")
 
-	// 2. Qdrant 使用
-	t.Log("\n=== 2. Qdrant 后端 ===")
+	// 2. Qdrant usage
+	t.Log("\n=== 2. Qdrant Backend ===")
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 	t.Logf("JSON:\n%s", jsonStr)
-	t.Logf("✅ 多样性被应用，Limit 扩大到 %d", 20*5)
+	t.Logf("✅ Diversity applied, Limit expanded to %d", 20*5)
 
-	// 3. 验证同一个 Built 对象可以用于不同后端
-	t.Log("\n=== 3. 同一查询，多后端兼容 ===")
-	t.Logf("✅ 一份代码，两种后端：PostgreSQL 和 Qdrant")
-	t.Logf("✅ 优雅降级：不支持的功能自动忽略")
+	// 3. Verify the same Built object can be used for different backends
+	t.Log("\n=== 3. Same Query, Multi-Backend Compatible ===")
+	t.Logf("✅ One code, two backends: PostgreSQL and Qdrant")
+	t.Logf("✅ Graceful degradation: unsupported features automatically ignored")
 }

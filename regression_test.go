@@ -21,10 +21,10 @@ import (
 	"testing"
 )
 
-// 回归测试：README 中的 And()/Or() 示例
-// Bug: v0.9.0 中 SqlOfVectorSearch 无法正确处理 Or()
+// Regression test: README example of And()/Or()
+// Bug: SqlOfVectorSearch cannot handle Or() correctly in v0.9.0
 func TestRegression_README_AndOr(t *testing.T) {
-	// 复用已有的 CodeVectorForQdrant 类型，避免类型冲突
+	// Reuse existing CodeVectorForQdrant type to avoid type conflict
 	builder := Of(&CodeVectorForQdrant{}).
 		Gt("id", 10000).
 		And(func(cb *CondBuilder) {
@@ -36,11 +36,11 @@ func TestRegression_README_AndOr(t *testing.T) {
 
 	sql, args, _ := builder.SqlOfSelect()
 
-	t.Logf("=== README And/Or 回归测试 ===")
+	t.Logf("=== README And/Or regression test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 正确
+	// Verify SQL is correct
 	expectedSQL := "SELECT * FROM t_cat WHERE id > ? AND (price >= ? OR is_sold = ?)"
 	if !containsString(sql, "id > ?") {
 		t.Errorf("Missing 'id > ?'")
@@ -55,38 +55,38 @@ func TestRegression_README_AndOr(t *testing.T) {
 		t.Errorf("Missing OR operator, got: %s", sql)
 	}
 
-	// 验证参数
+	// Verify parameters
 	if len(args) != 3 {
 		t.Errorf("Expected 3 args, got %d", len(args))
 	}
 
-	t.Logf("✅ README 示例测试通过: %s", expectedSQL)
+	t.Logf("✅ README example test passed: %s", expectedSQL)
 }
 
-// 回归测试：float64 零值过滤
-// Bug: v0.9.0 中 interface{} == 0 对 float64 无效
+// Regression test: float64 zero value filtering
+// Bug: interface{} == 0 is invalid for float64 in v0.9.0
 func TestRegression_Float64_ZeroFilter(t *testing.T) {
-	// 所有数值类型的零值测试
+	// Test for all numeric types zero values
 	builder := Of(&CodeVectorForQdrant{}).
-		Eq("name", "laptop"). // ✅ 保留
-		// float64 零值
-		Gt("min_price", 0.0).   // ❌ 应过滤
-		Lt("max_price", 999.9). // ✅ 保留
-		// float32 零值
-		Gt("min_score", float32(0.0)). // ❌ 应过滤
-		Lt("max_score", float32(0.9)). // ✅ 保留
-		// int 零值
-		Gt("min_weight", 0).    // ❌ 应过滤
-		Lt("max_weight", 1000). // ✅ 保留
+		Eq("name", "laptop"). // ✅ Keep
+		// float64 zero value
+		Gt("min_price", 0.0).   // ❌ Should be filtered
+		Lt("max_price", 999.9). // ✅ Keep
+		// float32 zero value
+		Gt("min_score", float32(0.0)). // ❌ Should be filtered
+		Lt("max_score", float32(0.9)). // ✅ Keep
+		// int zero value
+		Gt("min_weight", 0).    // ❌ Should be filtered
+		Lt("max_weight", 1000). // ✅ Keep
 		Build()
 
 	sql, args, _ := builder.SqlOfSelect()
 
-	t.Logf("=== float64/int 零值过滤测试 ===")
+	t.Logf("=== float64/int zero value filtering test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证零值被过滤
+	// Verify zero values are filtered
 	if containsString(sql, "min_price") {
 		t.Errorf("min_price=0.0 should be filtered")
 	}
@@ -97,7 +97,7 @@ func TestRegression_Float64_ZeroFilter(t *testing.T) {
 		t.Errorf("min_weight=0 should be filtered")
 	}
 
-	// 验证非零值保留
+	// Verify non-zero values are kept
 	if !containsString(sql, "max_price") {
 		t.Errorf("max_price should exist")
 	}
@@ -108,20 +108,20 @@ func TestRegression_Float64_ZeroFilter(t *testing.T) {
 		t.Errorf("max_weight should exist")
 	}
 
-	// 验证参数数量
+	// Verify parameter count
 	if len(args) != 4 { // name, max_price, max_score, max_weight
 		t.Errorf("Expected 4 args, got %d: %v", len(args), args)
 	}
 
-	t.Logf("✅ 所有数值类型零值过滤正确")
+	t.Logf("✅ All numeric types zero value filtering correct")
 }
 
-// 回归测试：向量查询 + And/Or 组合
-// Bug: v0.9.0 中 SqlOfVectorSearch 使用简化的 buildConditionSql，忽略 subs
+// Regression test: vector search + And/Or combination
+// Bug: SqlOfVectorSearch uses simplified buildConditionSql in v0.9.0, ignoring subs
 func TestRegression_VectorSearch_WithAndOr(t *testing.T) {
 	vec := Vector{0.1, 0.2, 0.3}
 
-	// 组合测试：向量检索 + And/Or 子查询
+	// Combined test: vector search + And/Or subquery
 	builder := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
 		VectorSearch("embedding", vec, 10).
@@ -134,11 +134,11 @@ func TestRegression_VectorSearch_WithAndOr(t *testing.T) {
 
 	sql, args := builder.SqlOfVectorSearch()
 
-	t.Logf("=== 向量查询 + And/Or 回归测试 ===")
+	t.Logf("=== vector search + And/Or regression test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 结构
+	// Verify SQL structure
 	if !containsString(sql, "embedding <-> ?") {
 		t.Errorf("Missing vector search")
 	}
@@ -155,18 +155,18 @@ func TestRegression_VectorSearch_WithAndOr(t *testing.T) {
 		t.Errorf("Missing OR operator, got: %s", sql)
 	}
 
-	// 验证参数
+	// Verify parameters
 	if len(args) != 4 { // vec, language, quality, verified
 		t.Errorf("Expected 4 args, got %d", len(args))
 	}
 
-	t.Logf("✅ 向量查询 + And/Or 正确工作")
+	t.Logf("✅ vector search + And/Or correctly works")
 }
 
-// 回归测试：SqlOfSelect 和 SqlOfVectorSearch 一致性
-// Bug: 两者使用不同的条件构建逻辑，导致行为不一致
+// Regression test: consistency between SqlOfSelect and SqlOfVectorSearch
+// Bug: Both use different condition building logic, causing inconsistent behavior
 func TestRegression_SqlOfSelect_vs_SqlOfVectorSearch(t *testing.T) {
-	// 构建相同的查询条件
+	// Build same query conditions
 	buildQuery := func() *Built {
 		return Of(&CodeVectorForQdrant{}).
 			Eq("language", "golang").
@@ -179,7 +179,7 @@ func TestRegression_SqlOfSelect_vs_SqlOfVectorSearch(t *testing.T) {
 			Build()
 	}
 
-	// 测试 SqlOfSelect
+	// Test SqlOfSelect
 	built1 := buildQuery()
 	sql1, args1, _ := built1.SqlOfSelect()
 
@@ -187,7 +187,7 @@ func TestRegression_SqlOfSelect_vs_SqlOfVectorSearch(t *testing.T) {
 	t.Logf("SQL: %s", sql1)
 	t.Logf("Args: %v", args1)
 
-	// 测试 SqlOfVectorSearch（添加向量检索）
+	// Test SqlOfVectorSearch (add vector search)
 	vec := Vector{0.1, 0.2, 0.3}
 	built2 := buildQuery()
 	built2.Conds = append(built2.Conds, Bb{
@@ -201,19 +201,19 @@ func TestRegression_SqlOfSelect_vs_SqlOfVectorSearch(t *testing.T) {
 	t.Logf("SQL: %s", sql2)
 	t.Logf("Args: %v", args2)
 
-	// 验证：两者对 Or() 的处理应该一致
-	// SqlOfSelect 应该有 (layer = ? OR layer = ?)
+	// Verify: Both should handle Or() consistently
+	// SqlOfSelect should have (layer = ? OR layer = ?)
 	if !containsString(sql1, "OR") {
 		t.Errorf("SqlOfSelect missing OR")
 	}
 
-	// SqlOfVectorSearch 也应该有 (layer = ? OR layer = ?)
+	// SqlOfVectorSearch should also have (layer = ? OR layer = ?)
 	if !containsString(sql2, "OR") {
-		t.Errorf("SqlOfVectorSearch missing OR (这是 v0.9.0 的 bug!)")
+		t.Errorf("SqlOfVectorSearch missing OR (this is a bug in v0.9.0!)")
 	}
 
-	// 两者的 layer 条件数量应该相同
-	// 注意：SqlOfVectorSearch 会多一个 vector 参数
+	// The number of layer conditions should be the same
+	// Note: SqlOfVectorSearch will have one more vector parameter
 	if len(args1) != 4 { // language, layer(service), layer(repository), quality
 		t.Errorf("SqlOfSelect expected 4 args, got %d", len(args1))
 	}
@@ -221,18 +221,18 @@ func TestRegression_SqlOfSelect_vs_SqlOfVectorSearch(t *testing.T) {
 		t.Errorf("SqlOfVectorSearch expected 5 args, got %d", len(args2))
 	}
 
-	t.Logf("✅ SqlOfSelect 和 SqlOfVectorSearch 行为一致")
+	t.Logf("✅ SqlOfSelect and SqlOfVectorSearch behavior一致")
 }
 
-// 回归测试：空 And/Or 子查询过滤
-// 确保在所有查询类型中都能正确过滤
+// Regression test: empty And/Or subquery filtering
+// Ensure correct filtering in all query types
 func TestRegression_EmptyAndOr_AllQueryTypes(t *testing.T) {
 	vec := Vector{0.1, 0.2, 0.3}
 
 	builder := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
 		Or(func(cb *CondBuilder) {
-			// ⭐ 所有条件都是空值，整个 Or 应该被过滤
+			// ⭐ All conditions are empty, the entire Or should be filtered
 			cb.Eq("tag", "").
 				OR().
 				Gt("count", 0)
@@ -240,7 +240,7 @@ func TestRegression_EmptyAndOr_AllQueryTypes(t *testing.T) {
 		VectorSearch("embedding", vec, 10).
 		Build()
 
-	// 测试 SqlOfSelect
+	// Test SqlOfSelect
 	sql1, args1, _ := builder.SqlOfSelect()
 	t.Logf("=== SqlOfSelect (Empty Or) ===")
 	t.Logf("SQL: %s", sql1)
@@ -250,7 +250,7 @@ func TestRegression_EmptyAndOr_AllQueryTypes(t *testing.T) {
 		t.Errorf("SqlOfSelect: Empty Or should be filtered")
 	}
 
-	// 测试 SqlOfVectorSearch
+	// Test SqlOfVectorSearch
 	sql2, args2 := builder.SqlOfVectorSearch()
 	t.Logf("\n=== SqlOfVectorSearch (Empty Or) ===")
 	t.Logf("SQL: %s", sql2)
@@ -260,21 +260,21 @@ func TestRegression_EmptyAndOr_AllQueryTypes(t *testing.T) {
 		t.Errorf("SqlOfVectorSearch: Empty Or should be filtered")
 	}
 
-	// 测试 ToQdrantRequest
+	// Test ToQdrantRequest
 	req, _ := builder.ToQdrantRequest()
 	t.Logf("\n=== Qdrant Request (Empty Or) ===")
 	t.Logf("Filters: %d", len(req.Filter.Must))
 
-	// Qdrant 应该只有 1 个 filter（language）
+	// Qdrant should only have 1 filter (language)
 	if len(req.Filter.Must) != 1 {
 		t.Errorf("Qdrant: Expected 1 filter, got %d", len(req.Filter.Must))
 	}
 
-	t.Logf("✅ 空 And/Or 在所有查询类型中都被正确过滤")
+	t.Logf("✅ Empty And/Or is correctly filtered in all query types")
 }
 
-// 回归测试：嵌套 And/Or
-// 确保复杂嵌套也能正确处理
+// Regression test: nested And/Or
+// Ensure complex nesting can be handled correctly
 func TestRegression_NestedAndOr(t *testing.T) {
 	builder := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
@@ -291,11 +291,11 @@ func TestRegression_NestedAndOr(t *testing.T) {
 
 	sql, args, _ := builder.SqlOfSelect()
 
-	t.Logf("=== 嵌套 And/Or 回归测试 ===")
+	t.Logf("=== Nested And/Or regression test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证嵌套结构
+	// Verify nested structure
 	if !containsString(sql, "layer") {
 		t.Errorf("Missing nested layer conditions")
 	}
@@ -303,8 +303,8 @@ func TestRegression_NestedAndOr(t *testing.T) {
 		t.Errorf("Missing quality condition")
 	}
 
-	// 应该有至少 2 个 OR
-	// TODO: 更精确的验证
+	// Should have at least 2 OR
+	// TODO: More precise verification
 
-	t.Logf("✅ 嵌套 And/Or 正确处理")
+	t.Logf("✅ Nested And/Or correctly handled")
 }
