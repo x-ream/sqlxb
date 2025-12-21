@@ -21,18 +21,18 @@ import (
 	"testing"
 )
 
-// 测试 nil/0 自动过滤
+// Test nil/0 automatic filtering
 func TestQdrant_NilZeroFilter(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// 构建查询，包含 nil/0 值
+	// Build query containing nil/0 values
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
-		Eq("language", "golang"). // ✅ 有效
-		Eq("category", "").       // ⭐ 应被过滤（空字符串）
-		Gt("score", 0.8).         // ✅ 有效
-		Gt("rank", 0).            // ⭐ 应被过滤（0）
-		Lt("complexity", 100).    // ✅ 有效
+		Eq("language", "golang"). // ✅ Valid
+		Eq("category", "").       // ⭐ Should be filtered (empty string)
+		Gt("score", 0.8).         // ✅ Valid
+		Gt("rank", 0).            // ⭐ Should be filtered (0)
+		Lt("complexity", 100).    // ✅ Valid
 		VectorSearch("embedding", queryVector, 20).
 		Build()
 
@@ -41,23 +41,23 @@ func TestQdrant_NilZeroFilter(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== nil/0 过滤测试 ===\n%s", jsonStr)
+	t.Logf("=== nil/0 Filtering Test ===\n%s", jsonStr)
 
-	// 解析 JSON
+	// Parse JSON
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// ⭐ 关键验证：filter 中应该只有 3 个条件
+	// ⭐ Key verification: filter should only have 3 conditions
 	// language=golang, score>0.8, complexity<100
-	// category="" 和 rank=0 应该被过滤掉
+	// category="" and rank=0 should be filtered out
 	if req.Filter == nil {
 		t.Errorf("Expected filter, got nil")
 	} else {
 		mustCount := len(req.Filter.Must)
 
-		// 应该只有 3 个条件（不包括 category="" 和 rank=0）
+		// Should only have 3 conditions (excluding category="" and rank=0)
 		if mustCount != 3 {
 			t.Errorf("Expected 3 must conditions (filtered out empty string and 0), got %d", mustCount)
 			t.Logf("Conditions:")
@@ -65,10 +65,10 @@ func TestQdrant_NilZeroFilter(t *testing.T) {
 				t.Logf("  %d: key=%s, match=%v, range=%v", i, cond.Key, cond.Match, cond.Range)
 			}
 		} else {
-			t.Logf("✅ nil/0 过滤成功：只有 3 个有效条件")
+			t.Logf("✅ nil/0 filtering successful: only 3 valid conditions")
 		}
 
-		// 验证不包含 category 和 rank
+		// Verify does not contain category and rank
 		for _, cond := range req.Filter.Must {
 			if cond.Key == "category" {
 				t.Errorf("category with empty value should be filtered")
@@ -80,11 +80,11 @@ func TestQdrant_NilZeroFilter(t *testing.T) {
 	}
 }
 
-// 测试全部为 nil/0 的情况
+// Test case when all are nil/0
 func TestQdrant_AllNilZero(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// 所有条件都是 nil/0
+	// All conditions are nil/0
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
 		Eq("category", "").
@@ -98,41 +98,41 @@ func TestQdrant_AllNilZero(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== 全部 nil/0 测试 ===\n%s", jsonStr)
+	t.Logf("=== All nil/0 Test ===\n%s", jsonStr)
 
 	var req QdrantSearchRequest
 	if err := json.Unmarshal([]byte(jsonStr), &req); err != nil {
 		t.Errorf("Invalid JSON: %v", err)
 	}
 
-	// filter 应该为空或没有 must 条件
+	// filter should be empty or have no must conditions
 	if req.Filter != nil && len(req.Filter.Must) > 0 {
 		t.Errorf("Expected no filter conditions, got %d", len(req.Filter.Must))
 	} else {
-		t.Logf("✅ 所有 nil/0 条件被过滤")
+		t.Logf("✅ All nil/0 conditions filtered")
 	}
 }
 
-// 测试 PostgreSQL 也有相同的过滤
+// Test PostgreSQL also has the same filtering
 func TestPostgreSQL_NilZeroFilter(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// 相同的查询
+	// Same query
 	built := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
-		Eq("category", ""). // ⭐ 应被过滤
+		Eq("category", ""). // ⭐ Should be filtered
 		Gt("score", 0.8).
-		Gt("rank", 0). // ⭐ 应被过滤
+		Gt("rank", 0). // ⭐ Should be filtered
 		VectorSearch("embedding", queryVector, 20).
 		Build()
 
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== PostgreSQL nil/0 过滤测试 ===")
+	t.Logf("=== PostgreSQL nil/0 Filtering Test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// SQL 不应该包含 category 和 rank
+	// SQL should not contain category and rank
 	if containsString(sql, "category") {
 		t.Errorf("category with empty value should be filtered from SQL")
 	}
@@ -140,11 +140,10 @@ func TestPostgreSQL_NilZeroFilter(t *testing.T) {
 		t.Errorf("rank with value 0 should be filtered from SQL")
 	}
 
-	// 应该只有 2 个参数：queryVector 和 "golang"
-	// (加上 0.8 是 3 个)
+	// Should only have 3 args: queryVector, "golang", and 0.8
 	if len(args) != 3 {
 		t.Errorf("Expected 3 args (vector, language, score), got %d: %v", len(args), args)
 	} else {
-		t.Logf("✅ PostgreSQL nil/0 过滤成功")
+		t.Logf("✅ PostgreSQL nil/0 filtering successful")
 	}
 }
