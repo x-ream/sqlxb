@@ -18,7 +18,7 @@ package xb
 
 import "testing"
 
-// 测试所有 Pointer 辅助函数
+// Test all Pointer helpers
 func TestPointerHelpers(t *testing.T) {
 	// Bool
 	b := Bool(true)
@@ -87,7 +87,7 @@ func TestPointerHelpers(t *testing.T) {
 	}
 }
 
-// 测试 Np2s 函数（Nullable Pointer to String）
+// Test Np2s function (Nullable Pointer to String)
 func TestNp2s(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -95,7 +95,7 @@ func TestNp2s(t *testing.T) {
 		expected string
 		valid    bool
 	}{
-		// 非 nil 指针
+		// Non nil pointer
 		{"uint64", Uint64(123), "123", true},
 		{"uint", Uint(456), "456", true},
 		{"int64", Int64(-789), "-789", true},
@@ -107,7 +107,7 @@ func TestNp2s(t *testing.T) {
 		{"float64", Float64(3.14), "3.14", true},
 		{"float32", Float32(2.71), "2.71", true},
 
-		// nil 指针
+		// Nil pointer
 		{"nil uint64", (*uint64)(nil), "", false},
 		{"nil uint", (*uint)(nil), "", false},
 		{"nil int64", (*int64)(nil), "", false},
@@ -133,7 +133,7 @@ func TestNp2s(t *testing.T) {
 	}
 }
 
-// 测试 N2s 函数（Number to String）
+// Test N2s function (Number to String)
 func TestN2s(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -163,7 +163,7 @@ func TestN2s(t *testing.T) {
 	}
 }
 
-// 测试 NilOrNumber 函数
+// Test NilOrNumber function
 func TestNilOrNumber(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -171,7 +171,7 @@ func TestNilOrNumber(t *testing.T) {
 		expectNil bool
 		expected  interface{}
 	}{
-		// 非 nil 指针
+		// Non nil pointer
 		{"uint64", Uint64(123), false, uint64(123)},
 		{"uint", Uint(456), false, uint(456)},
 		{"int64", Int64(-789), false, int64(-789)},
@@ -184,7 +184,7 @@ func TestNilOrNumber(t *testing.T) {
 		{"float32", Float32(2.71), false, float32(2.71)},
 		{"bool", Bool(true), false, true},
 
-		// nil 指针
+		// Nil pointer
 		{"nil uint64", (*uint64)(nil), true, nil},
 		{"nil uint", (*uint)(nil), true, nil},
 		{"nil int64", (*int64)(nil), true, nil},
@@ -211,7 +211,7 @@ func TestNilOrNumber(t *testing.T) {
 	}
 }
 
-// 测试 NilOrNumber panic 情况
+// Test NilOrNumber panic case
 func TestNilOrNumber_Panic(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
@@ -219,6 +219,6 @@ func TestNilOrNumber_Panic(t *testing.T) {
 		}
 	}()
 
-	// 不支持的类型应该 panic
+	// Unsupported type should panic
 	NilOrNumber("unsupported")
 }

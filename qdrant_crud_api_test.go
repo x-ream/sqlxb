@@ -23,12 +23,12 @@ import (
 )
 
 // ============================================================================
-// Qdrant INSERT 测试（使用真实 API）
+// Qdrant INSERT test (using real API)
 // ============================================================================
 
-// TestQdrantAPI_Insert 测试 Qdrant Insert API
+// TestQdrantAPI_Insert test Qdrant Insert API
 func TestQdrantAPI_Insert(t *testing.T) {
-	// ⭐ 使用 Insert(func(ib *InsertBuilder)) - 与 SQL 一致的 API
+	// ⭐ Use Insert(func(ib *InsertBuilder)) - API consistent with SQL
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
 		Insert(func(ib *InsertBuilder) {
@@ -46,7 +46,7 @@ func TestQdrantAPI_Insert(t *testing.T) {
 
 	t.Logf("=== Qdrant Insert API ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req struct {
 		Points []QdrantPoint `json:"points"`
 	}
@@ -58,12 +58,12 @@ func TestQdrantAPI_Insert(t *testing.T) {
 		t.Errorf("Expected 1 point, got %d", len(req.Points))
 	}
 
-	// 验证 ID
+	// Verify ID
 	if int(req.Points[0].ID.(float64)) != 123 {
 		t.Errorf("Expected ID 123, got %v", req.Points[0].ID)
 	}
 
-	// 验证 payload
+	// Verify payload
 	if req.Points[0].Payload["language"] != "golang" {
 		t.Errorf("Expected language=golang, got %v", req.Points[0].Payload["language"])
 	}
@@ -72,10 +72,10 @@ func TestQdrantAPI_Insert(t *testing.T) {
 }
 
 // ============================================================================
-// Qdrant UPDATE 测试（使用真实 API）
+// Qdrant UPDATE test (using real API)
 // ============================================================================
 
-// TestQdrantAPI_Update 测试 Qdrant Update API
+// TestQdrantAPI_Update test Qdrant Update API
 func TestQdrantAPI_Update(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
@@ -112,7 +112,7 @@ func TestQdrantAPI_Update(t *testing.T) {
 	t.Logf("✅ Qdrant Update API works")
 }
 
-// TestQdrantAPI_UpdateByFilter 测试根据过滤器更新
+// TestQdrantAPI_UpdateByFilter test update by filter
 func TestQdrantAPI_UpdateByFilter(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
@@ -150,10 +150,10 @@ func TestQdrantAPI_UpdateByFilter(t *testing.T) {
 }
 
 // ============================================================================
-// Qdrant DELETE 测试（使用真实 API）
+// Qdrant DELETE test (using real API)
 // ============================================================================
 
-// TestQdrantAPI_Delete 测试 Qdrant Delete API
+// TestQdrantAPI_Delete test Qdrant Delete API
 func TestQdrantAPI_Delete(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
@@ -182,10 +182,10 @@ func TestQdrantAPI_Delete(t *testing.T) {
 }
 
 // ============================================================================
-// 完整 CRUD 工作流测试（使用真实 API）
+// Full CRUD workflow test (using real API)
 // ============================================================================
 
-// TestQdrantAPI_FullCRUD 测试完整的 CRUD 工作流
+// TestQdrantAPI_FullCRUD test full CRUD workflow
 func TestQdrantAPI_FullCRUD(t *testing.T) {
 	qdrant := NewQdrantBuilder().Build()
 
@@ -260,18 +260,18 @@ func TestQdrantAPI_FullCRUD(t *testing.T) {
 	}
 	t.Logf("Delete JSON:\n%s", deleteJSON)
 
-	t.Log("\n✅ 完整 CRUD 工作流测试成功（使用真实 API）！")
+	t.Log("\n✅ CRUD workflow test successful (using real API)!")
 }
 
 // ============================================================================
-// 架构验证：Custom 接口的统一性
+// Architecture validation: Custom interface unification
 // ============================================================================
 
-// TestQdrantAPI_CustomInterfaceUnification 验证 Custom 接口的统一性
+// TestQdrantAPI_CustomInterfaceUnification test Custom interface unification
 func TestQdrantAPI_CustomInterfaceUnification(t *testing.T) {
 	qdrant := NewQdrantBuilder().Build()
 
-	t.Log("=== 验证：同一个 Custom，处理所有操作 ===")
+	t.Log("=== Verify: same Custom, handle all operations ===")
 
 	// INSERT
 	insertBuilt := Of(&CodeVectorForQdrant{}).
@@ -324,6 +324,6 @@ func TestQdrantAPI_CustomInterfaceUnification(t *testing.T) {
 		t.Errorf("SELECT failed: %v", err)
 	}
 
-	t.Log("✅ 同一个 Custom 实例处理所有 CRUD 操作")
-	t.Log("✅ Custom 接口设计验证成功")
+	t.Log("✅ Same Custom instance handles all CRUD operations")
+	t.Log("✅ Custom interface design verification successful")
 }

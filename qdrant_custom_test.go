@@ -33,11 +33,11 @@ func TestQdrantCustom_ImplementsCustomInterface(t *testing.T) {
 }
 
 // ============================================================================
-// JsonOfSelect 统一接口测试
+// JsonOfSelect unified interface test
 // ============================================================================
 
 func TestJsonOfSelect_WithQdrantCustom(t *testing.T) {
-	// 测试通过 Custom 自动调用 Qdrant 逻辑
+	// Test automatically calling Qdrant logic through Custom
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVector{}).
@@ -48,19 +48,19 @@ func TestJsonOfSelect_WithQdrantCustom(t *testing.T) {
 		Eq("language", "golang").
 		Build()
 
-	// ⭐ 统一接口：JsonOfSelect()
+	// ⭐ Unified interface: JsonOfSelect()
 	jsonStr, err := built.JsonOfSelect()
 	if err != nil {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	// 验证 JSON 结构
+	// Verify JSON structure
 	var result map[string]interface{}
 	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
 		t.Fatalf("JSON unmarshal failed: %v", err)
 	}
 
-	// 验证基本字段
+	// Verify basic fields
 	if result["limit"] != float64(20) {
 		t.Errorf("limit = %v, want 20", result["limit"])
 	}
@@ -73,7 +73,7 @@ func TestJsonOfSelect_WithQdrantCustom(t *testing.T) {
 }
 
 // ============================================================================
-// Custom 预设模式测试
+// Custom preset mode test
 // ============================================================================
 
 func TestQdrantCustom_PresetModes(t *testing.T) {
@@ -84,13 +84,13 @@ func TestQdrantCustom_PresetModes(t *testing.T) {
 		expectScore  float32
 		expectVector bool
 	}{
-		{"Default", NewQdrantBuilder().Build(), 128, 0.0, false}, // 默认不返回向量（节省带宽）
+		{"Default", NewQdrantBuilder().Build(), 128, 0.0, false}, // Default: don't return vector (save bandwidth)
 		{"CustomHnswEf", func() *QdrantCustom {
 			return NewQdrantBuilder().
 				HnswEf(512).
 				ScoreThreshold(0.85).
 				Build()
-		}(), 512, 0.85, false}, // 继承默认值 false
+		}(), 512, 0.85, false}, // Inherit default value false
 		{"CustomHighSpeed", func() *QdrantCustom {
 			return NewQdrantBuilder().
 				HnswEf(32).
@@ -121,23 +121,23 @@ func TestQdrantCustom_PresetModes(t *testing.T) {
 }
 
 // ============================================================================
-// Custom 为 nil 的情况
+// Case when Custom is nil
 // ============================================================================
 
 func TestJsonOfSelect_CustomIsNil(t *testing.T) {
-	// 没有设置 Custom 的情况
+	// Case when Custom is not set
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of("code_vectors").
 		VectorSearch("embedding", queryVector, 10).
 		Build()
 
-	// built.Custom 应该是 nil
+	// built.Custom should be nil
 	if built.Custom != nil {
 		t.Fatalf("Custom should be nil, got %T", built.Custom)
 	}
 
-	// JsonOfSelect 应该返回错误
+	// JsonOfSelect should return error
 	_, err := built.JsonOfSelect()
 	if err == nil {
 		t.Fatalf("JsonOfSelect should return error when Custom is nil")
@@ -147,14 +147,14 @@ func TestJsonOfSelect_CustomIsNil(t *testing.T) {
 }
 
 // ============================================================================
-// Custom 切换测试（运行时切换）
+// Custom switch test (runtime switching)
 // ============================================================================
 
 func TestCustomSwitch_RuntimeSelection(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// 模拟根据配置选择不同的 Custom
-	// ⭐ 用户可以根据需要手动配置
+	// Simulate selecting different Custom based on configuration
+	// ⭐ Users can manually configure as needed
 	customs := map[string]*QdrantCustom{
 		"default": NewQdrantBuilder().Build(),
 		"high_precision": func() *QdrantCustom {
@@ -195,11 +195,11 @@ func TestCustomSwitch_RuntimeSelection(t *testing.T) {
 }
 
 // ============================================================================
-// 自定义配置测试
+// Custom configuration test
 // ============================================================================
 
 func TestQdrantCustom_CustomConfiguration(t *testing.T) {
-	// 用户自定义配置
+	// User custom configuration
 	customConfig := &QdrantCustom{
 		DefaultHnswEf:         256,
 		DefaultScoreThreshold: 0.75,
@@ -227,7 +227,7 @@ func TestQdrantCustom_CustomConfiguration(t *testing.T) {
 }
 
 // ============================================================================
-// JsonOfSelect 高级 API 回归测试
+// JsonOfSelect advanced API regression test
 // ============================================================================
 
 func TestJsonOfSelect_WithRecommendConfig(t *testing.T) {

@@ -25,9 +25,9 @@ import (
 	"testing"
 )
 
-// TestQdrantBuilder_Insert 测试 QdrantBuilder 构建 Custom 并用于 Insert
+// TestQdrantBuilder_Insert test QdrantBuilder build Custom and use for Insert
 func TestQdrantBuilder_Insert(t *testing.T) {
-	// ✅ 使用 QdrantBuilder 构建 Custom
+	// ✅ Use QdrantBuilder to build Custom
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(
 			NewQdrantBuilder().
@@ -51,7 +51,7 @@ func TestQdrantBuilder_Insert(t *testing.T) {
 
 	t.Logf("=== QdrantBuilder Insert ===\n%s", jsonStr)
 
-	// 验证 JSON
+	// Verify JSON
 	var req struct {
 		Points []QdrantPoint `json:"points"`
 	}
@@ -63,12 +63,12 @@ func TestQdrantBuilder_Insert(t *testing.T) {
 		t.Errorf("Expected 1 point, got %d", len(req.Points))
 	}
 
-	// 验证 ID
+	// Verify ID
 	if int(req.Points[0].ID.(float64)) != 456 {
 		t.Errorf("Expected ID 456, got %v", req.Points[0].ID)
 	}
 
-	// 验证 payload
+	// Verify payload
 	if req.Points[0].Payload["language"] != "rust" {
 		t.Errorf("Expected language=rust, got %v", req.Points[0].Payload["language"])
 	}
@@ -76,15 +76,15 @@ func TestQdrantBuilder_Insert(t *testing.T) {
 	t.Logf("✅ QdrantBuilder works correctly")
 }
 
-// TestQdrantBuilder_ConfigReuse 测试 QdrantBuilder 配置复用
+// TestQdrantBuilder_ConfigReuse test QdrantBuilder config reuse
 func TestQdrantBuilder_ConfigReuse(t *testing.T) {
-	// ✅ 配置可以复用
+	// ✅ Config can be reused
 	highPrecision := NewQdrantBuilder().
 		HnswEf(512).
 		ScoreThreshold(0.9).
 		Build()
 
-	// 第一次使用
+	// First use
 	built1 := Of(&CodeVectorForQdrant{}).
 		Custom(highPrecision).
 		Insert(func(ib *InsertBuilder) {
@@ -97,7 +97,7 @@ func TestQdrantBuilder_ConfigReuse(t *testing.T) {
 	json1, _ := built1.JsonOfInsert()
 	t.Logf("=== First use ===\n%s", json1)
 
-	// 第二次使用（复用配置）
+	// Second use (reuse config)
 	built2 := Of(&CodeVectorForQdrant{}).
 		Custom(highPrecision).
 		Insert(func(ib *InsertBuilder) {
@@ -113,9 +113,9 @@ func TestQdrantBuilder_ConfigReuse(t *testing.T) {
 	t.Logf("✅ Config reuse works")
 }
 
-// TestQdrantBuilder_ChainStyle 测试 QdrantBuilder 链式调用
+// TestQdrantBuilder_ChainStyle test QdrantBuilder chain style
 func TestQdrantBuilder_ChainStyle(t *testing.T) {
-	// ✅ 演示链式调用的流畅性
+	// ✅ Demonstrate the smoothness of chain style
 	jsonStr, err := Of(&CodeVectorForQdrant{}).
 		Custom(
 			NewQdrantBuilder().

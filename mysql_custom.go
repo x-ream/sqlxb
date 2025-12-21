@@ -126,7 +126,7 @@ func newMySQLCustom() *MySQLCustom {
 //      custom := NewMySQLBuilder().UseUpsert(true).Build()
 //   3. Or use Built.SqlOfUpsert() method (recommended):
 //      built := xb.Of(user).Insert(func(ib *InsertBuilder) {
-//          ib.Set("name", "张三")
+//          ib.Set("name", "John Doe")
 //      }).Build()
 //      sql, args := built.SqlOfUpsert()  // Directly generates UPSERT SQL
 //
@@ -250,11 +250,11 @@ var defaultMySQLCustom = newMySQLCustom()
 //	sql, args, _ := built.SqlOfSelect()
 //	// SELECT * FROM users WHERE id = ?
 //
-//	// ⭐ 需要 UPSERT 时
+//	// ⭐ When UPSERT is needed
 //	built := xb.Of("users").
 //	    Custom(xb.NewMySQLBuilder().UseUpsert(true).Build()).
 //	    Insert(func(ib *xb.InsertBuilder) {
-//	        ib.Set("name", "张三").Set("age", 18)
+//	        ib.Set("name", "John Doe").Set("age", 18)
 //	    }).
 //	    Build()
 //	sql, args := built.SqlOfInsert()
@@ -278,10 +278,10 @@ func DefaultMySQLCustom() *MySQLCustom {
 //   - string: SQL statement
 //   - []interface{}: parameter list
 //
-// 示例：
+// Example:
 //
 //	built := xb.Of(user).Insert(func(ib *InsertBuilder) {
-//	    ib.Set("id", 1).Set("name", "张三").Set("age", 18)
+//	    ib.Set("id", 1).Set("name", "John Doe").Set("age", 18)
 //	}).Build()
 //
 //	sql, args := built.SqlOfUpsert()
@@ -326,7 +326,7 @@ func (built *Built) SqlOfUpsert() (string, []interface{}) {
 // Example:
 //
 //	built := xb.Of(user).Insert(func(ib *InsertBuilder) {
-//	    ib.Set("id", 1).Set("name", "张三")
+//	    ib.Set("id", 1).Set("name", "John Doe")
 //	}).Build()
 //
 //	sql, args := built.SqlOfInsertIgnore()

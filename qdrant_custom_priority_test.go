@@ -22,11 +22,11 @@ import (
 	"testing"
 )
 
-// TestQdrantCustom_OnlyCustom 测试只用 Custom（推荐用法）
+// TestQdrantCustom_OnlyCustom test only use Custom (recommended usage)
 func TestQdrantCustom_OnlyCustomNoQdrantX(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// 只使用 Custom，不使用 QdrantX
+	// Only use Custom, not use QdrantX
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(
 			NewQdrantBuilder().
@@ -43,12 +43,12 @@ func TestQdrantCustom_OnlyCustomNoQdrantX(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== 只用 Custom ===\n%s", jsonStr)
+	t.Logf("=== Only use Custom ===\n%s", jsonStr)
 
 	var req QdrantSearchRequest
 	json.Unmarshal([]byte(jsonStr), &req)
 
-	// ✅ 验证：使用 Custom 的默认值
+	// ✅ Verify: using Custom's default values
 	if req.Params.HnswEf != 512 {
 		t.Errorf("Expected HnswEf 512, got %d", req.Params.HnswEf)
 	}
@@ -61,5 +61,5 @@ func TestQdrantCustom_OnlyCustomNoQdrantX(t *testing.T) {
 		t.Errorf("Expected WithVector true, got false")
 	}
 
-	t.Logf("✅ Custom 默认值正确应用：HnswEf=512, ScoreThreshold=0.75, WithVector=true")
+	t.Logf("✅ Custom default values correctly applied: HnswEf=512, ScoreThreshold=0.75, WithVector=true")
 }

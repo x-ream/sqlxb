@@ -77,7 +77,7 @@ func TestMySQLCustom_DefaultBehavior(t *testing.T) {
 func TestMySQLCustom_Upsert(t *testing.T) {
 	custom := NewMySQLBuilder().UseUpsert(true).Build()
 
-	user := &MySQLUser{Name: "张三", Age: 18}
+	user := &MySQLUser{Name: "John Doe", Age: 18}
 	built := Of(user).
 		Custom(custom).
 		Insert(func(ib *InsertBuilder) {
@@ -151,7 +151,7 @@ func TestBuilt_SqlOfUpsert(t *testing.T) {
 func TestMySQLCustom_InsertIgnore(t *testing.T) {
 	custom := NewMySQLBuilder().UseIgnore(true).Build()
 
-	user := &MySQLUser{Name: "张三", Age: 18}
+	user := &MySQLUser{Name: "John Doe", Age: 18}
 	built := Of(user).
 		Custom(custom).
 		Insert(func(ib *InsertBuilder) {
@@ -198,7 +198,7 @@ func TestDefaultMySQLCustom_Singleton(t *testing.T) {
 func TestMySQLCustom_VsDefaultBehavior(t *testing.T) {
 	// Default behavior (no Custom set)
 	built1 := Of(&MySQLUser{}).
-		Eq("name", "张三").
+		Eq("name", "John Doe").
 		Build()
 
 	sql1, args1, _ := built1.SqlOfSelect()
@@ -206,7 +206,7 @@ func TestMySQLCustom_VsDefaultBehavior(t *testing.T) {
 	// Using MySQLCustom
 	built2 := Of(&MySQLUser{}).
 		Custom(DefaultMySQLCustom()).
-		Eq("name", "张三").
+		Eq("name", "John Doe").
 		Build()
 
 	sql2, args2, _ := built2.SqlOfSelect()
@@ -235,7 +235,7 @@ func TestMySQLCustom_ComplexQuery(t *testing.T) {
 
 	built := Of(&MySQLUser{}).
 		Custom(custom).
-		Eq("name", "张三").
+		Eq("name", "John Doe").
 		Gt("age", 18).
 		In("status", "active", "pending").
 		Paged(func(pb *PageBuilder) {
@@ -264,7 +264,7 @@ func TestMySQLCustom_ComplexQuery(t *testing.T) {
 func TestMySQLCustom_Update(t *testing.T) {
 	custom := NewMySQLBuilder().Build()
 
-	user := &MySQLUser{Name: "李四", Age: 20}
+	user := &MySQLUser{Name: "John Doe", Age: 20}
 	built := Of(user).
 		Custom(custom).
 		Update(func(ub *UpdateBuilder) {
@@ -282,7 +282,7 @@ func TestMySQLCustom_Update(t *testing.T) {
 		t.Errorf("Expected UPDATE, got: %s", sql)
 	}
 
-	// args: [李四, 20, 123]
+	// args: [John Doe, 20, 123]
 	if len(args) != 3 {
 		t.Errorf("Expected 3 args, got %d", len(args))
 	}
@@ -292,7 +292,7 @@ func TestMySQLCustom_Update(t *testing.T) {
 
 func TestMySQLCustom_Delete(t *testing.T) {
 	// ⭐ MySQL DELETE syntax is consistent with default, no Custom needed
-	// 测试不设置 Custom 的 DELETE
+	// Test without Custom DELETE
 	built := Of(&MySQLUser{}).
 		Eq("id", 123).
 		Build()
@@ -340,7 +340,7 @@ func TestMySQLCustom_PresetModes(t *testing.T) {
 			sql, _ := built.SqlOfInsert()
 			t.Logf("%s SQL: %s", tt.name, sql)
 
-			// 验证生成的 SQL 是有效的
+			// Verify generated SQL is valid
 			if !strings.Contains(sql, "INSERT") {
 				t.Errorf("Invalid SQL: %s", sql)
 			}
@@ -422,7 +422,7 @@ func TestMySQLCustom_MetaMap_WithJoin(t *testing.T) {
 
 	countSQL, dataSQL, args, meta := built.SqlOfPage()
 
-	t.Logf("=== JOIN 查询 Meta Map 测试 ===")
+	t.Logf("=== JOIN query Meta Map test ===")
 	t.Logf("Count SQL: %s", countSQL)
 	t.Logf("Data SQL: %s", dataSQL)
 	t.Logf("Args: %v", args)

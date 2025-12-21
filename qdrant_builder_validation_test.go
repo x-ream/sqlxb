@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-// TestQdrantBuilder_HnswEf_Validation 测试 HnswEf 参数校验
+// TestQdrantBuilder_HnswEf_Validation test HnswEf parameter validation
 func TestQdrantBuilder_HnswEf_Validation(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -68,7 +68,7 @@ func TestQdrantBuilder_HnswEf_Validation(t *testing.T) {
 	}
 }
 
-// TestQdrantBuilder_ScoreThreshold_Validation 测试 ScoreThreshold 参数校验
+// TestQdrantBuilder_ScoreThreshold_Validation test ScoreThreshold parameter validation
 func TestQdrantBuilder_ScoreThreshold_Validation(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -115,7 +115,7 @@ func TestQdrantBuilder_ScoreThreshold_Validation(t *testing.T) {
 	}
 }
 
-// TestQdrantBuilder_ChainedValidation 测试链式调用中的参数校验
+// TestQdrantBuilder_ChainedValidation test parameter validation in chained calls
 func TestQdrantBuilder_ChainedValidation(t *testing.T) {
 	t.Run("Valid chain", func(t *testing.T) {
 		qb := NewQdrantBuilder().

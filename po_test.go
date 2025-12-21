@@ -18,7 +18,7 @@ package xb
 
 import "testing"
 
-// 测试 Po 接口
+// Test Po interface
 type TestPo struct {
 	ID   uint64 `db:"id"`
 	Name string `db:"name"`
@@ -37,7 +37,7 @@ func TestPoInterface(t *testing.T) {
 	}
 }
 
-// 测试 LongId 接口
+// Test LongId interface
 type TestLongId struct {
 	ID uint64 `db:"id"`
 }
@@ -55,7 +55,7 @@ func TestLongIdInterface(t *testing.T) {
 	}
 }
 
-// 测试 StringId 接口
+// Test StringId interface
 type TestStringId struct {
 	ID string `db:"id"`
 }
