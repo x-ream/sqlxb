@@ -24,23 +24,23 @@ import (
 	"github.com/fndome/xb/interceptor"
 )
 
-// 测试元数据设置
+// TestInterceptor_Metadata test metadata setting
 func TestInterceptor_Metadata(t *testing.T) {
-	// 清空拦截器
+	// Clear interceptor
 	interceptor.Clear()
 
-	// 注册测试拦截器
+	// Register test interceptor
 	testInterceptor := &TestMetadataInterceptor{}
 	interceptor.Register(testInterceptor)
 
-	defer interceptor.Clear() // 测试后清空
+	defer interceptor.Clear() // Test after clear
 
-	// 构建查询
+	// Build query
 	built := Of(&Product{}).
 		Eq("name", "test").
 		Build()
 
-	// 验证元数据
+	// Verify metadata
 	if built.Meta == nil {
 		t.Fatal("Meta should not be nil")
 	}
@@ -58,13 +58,13 @@ func TestInterceptor_Metadata(t *testing.T) {
 		t.Errorf("Expected endpoint '/api/products', got '%s'", endpoint)
 	}
 
-	t.Logf("✅ Metadata 设置成功")
+	t.Logf("✅ Metadata setting successful")
 	t.Logf("   TraceID: %s", built.Meta.TraceID)
 	t.Logf("   UserID: %d", built.Meta.UserID)
 	t.Logf("   Custom.endpoint: %s", endpoint)
 }
 
-// 测试 AfterBuild 观察 SQL
+// TestInterceptor_AfterBuild test AfterBuild observe SQL
 func TestInterceptor_AfterBuild(t *testing.T) {
 	interceptor.Clear()
 
@@ -73,7 +73,7 @@ func TestInterceptor_AfterBuild(t *testing.T) {
 
 	defer interceptor.Clear()
 
-	// 构建查询
+	// Build query
 	built := Of(&Product{}).
 		Eq("name", "test").
 		Gt("price", 100).
@@ -81,7 +81,7 @@ func TestInterceptor_AfterBuild(t *testing.T) {
 
 	sql, args, _ := built.SqlOfSelect()
 
-	// 验证 SQL 被记录
+	// Verify SQL is recorded
 	if !strings.Contains(sqlLogger.LastSQL, "SELECT") {
 		t.Errorf("Expected SQL to be logged")
 	}
@@ -90,25 +90,25 @@ func TestInterceptor_AfterBuild(t *testing.T) {
 		t.Errorf("Expected 2 args, got %d", len(sqlLogger.LastArgs))
 	}
 
-	t.Logf("✅ AfterBuild 执行成功")
+	t.Logf("✅ AfterBuild executed successfully")
 	t.Logf("   SQL: %s", sql)
 	t.Logf("   Args: %v", args)
 	t.Logf("   Logged SQL: %s", sqlLogger.LastSQL)
 }
 
-// 测试多个拦截器按顺序执行
+// TestInterceptor_Order test multiple interceptors execute in order
 func TestInterceptor_Order(t *testing.T) {
 	interceptor.Clear()
 
 	var executionOrder []string
 
-	// 拦截器 1
+	// Interceptor 1
 	interceptor.Register(&OrderTestInterceptor{
 		name:  "first",
 		order: &executionOrder,
 	})
 
-	// 拦截器 2
+	// Interceptor 2
 	interceptor.Register(&OrderTestInterceptor{
 		name:  "second",
 		order: &executionOrder,
@@ -116,10 +116,10 @@ func TestInterceptor_Order(t *testing.T) {
 
 	defer interceptor.Clear()
 
-	// 构建查询
+	// Build query
 	Of(&Product{}).Eq("name", "test").Build()
 
-	// 验证执行顺序
+	// Verify execution order
 	if len(executionOrder) != 4 {
 		t.Fatalf("Expected 4 executions, got %d", len(executionOrder))
 	}
@@ -131,17 +131,17 @@ func TestInterceptor_Order(t *testing.T) {
 		}
 	}
 
-	t.Logf("✅ 拦截器按顺序执行")
-	t.Logf("   执行顺序: %v", executionOrder)
+	t.Logf("✅ Interceptors execute in order")
+	t.Logf("   Execution order: %v", executionOrder)
 }
 
-// 测试拦截器编译时类型限制
+// TestInterceptor_TypeSafety test interceptor compile time type restriction
 func TestInterceptor_TypeSafety(t *testing.T) {
 	interceptor.Clear()
 
-	// ⭐ 这个测试验证编译时限制
+	// ⭐ This test verifies compile time restriction
 	// BeforeBuild 只能接收 *Metadata
-	// 无法访问 BuilderX 的查询方法
+	// Cannot access BuilderX's query methods
 
 	safeInterceptor := &TypeSafeInterceptor{}
 	interceptor.Register(safeInterceptor)
@@ -152,7 +152,7 @@ func TestInterceptor_TypeSafety(t *testing.T) {
 		Eq("name", "test").
 		Build()
 
-	// 验证只设置了元数据，没有修改查询
+	// Verify only metadata is set, no query modification
 	sql, args, _ := built.SqlOfSelect()
 
 	if strings.Contains(sql, "tenant_id") {
@@ -163,12 +163,12 @@ func TestInterceptor_TypeSafety(t *testing.T) {
 		t.Errorf("Expected 1 arg (name), got %d", len(args))
 	}
 
-	t.Logf("✅ 类型安全验证通过：Interceptor 无法修改查询")
+	t.Logf("✅ Type safety verification passed: Interceptor cannot modify query")
 	t.Logf("   SQL: %s", sql)
 	t.Logf("   Args: %v", args)
 }
 
-// 测试注册和卸载
+// TestInterceptor_RegisterUnregister test register and unregister
 func TestInterceptor_RegisterUnregister(t *testing.T) {
 	interceptor.Clear()
 
@@ -183,7 +183,7 @@ func TestInterceptor_RegisterUnregister(t *testing.T) {
 		t.Fatalf("Expected 2 interceptors, got %d", len(all))
 	}
 
-	// 卸载一个
+	// Unregister one
 	interceptor.Unregister("test-metadata")
 
 	all = interceptor.GetAll()
@@ -195,7 +195,7 @@ func TestInterceptor_RegisterUnregister(t *testing.T) {
 		t.Errorf("Expected remaining interceptor 'sql-logging', got '%s'", all[0].Name())
 	}
 
-	// 清空所有
+	// Clear all
 	interceptor.Clear()
 
 	all = interceptor.GetAll()
@@ -203,12 +203,12 @@ func TestInterceptor_RegisterUnregister(t *testing.T) {
 		t.Fatalf("Expected 0 interceptors after clear, got %d", len(all))
 	}
 
-	t.Logf("✅ 注册和卸载测试通过")
+	t.Logf("✅ Register and unregister test passed")
 }
 
-// ===== 测试辅助类型 =====
+// ===== Test helper types =====
 
-// TestMetadataInterceptor 测试元数据设置
+// TestMetadataInterceptor test metadata setting
 type TestMetadataInterceptor struct{}
 
 func (t *TestMetadataInterceptor) Name() string {
@@ -229,7 +229,7 @@ func (t *TestMetadataInterceptor) AfterBuild(built interface{}) error {
 	return nil
 }
 
-// SQLLoggingInterceptor 测试 SQL 日志
+// SQLLoggingInterceptor test SQL logging
 type SQLLoggingInterceptor struct {
 	LastSQL  string
 	LastArgs []interface{}
@@ -253,7 +253,7 @@ func (s *SQLLoggingInterceptor) AfterBuild(built interface{}) error {
 	return nil
 }
 
-// OrderTestInterceptor 测试执行顺序
+// OrderTestInterceptor test execution order
 type OrderTestInterceptor struct {
 	name  string
 	order *[]string
@@ -273,7 +273,7 @@ func (o *OrderTestInterceptor) AfterBuild(built interface{}) error {
 	return nil
 }
 
-// TypeSafeInterceptor 验证类型安全
+// TypeSafeInterceptor test type safety
 type TypeSafeInterceptor struct{}
 
 func (t *TypeSafeInterceptor) Name() string {
@@ -281,13 +281,13 @@ func (t *TypeSafeInterceptor) Name() string {
 }
 
 func (t *TypeSafeInterceptor) BeforeBuild(meta *interceptor.Metadata) error {
-	// ✅ 只能设置元数据
+	// ✅ Only metadata can be set (compile time restriction)
 	meta.UserID = 123
 	meta.Set("test", "value")
 
-	// ❌ 无法调用查询方法（编译时限制）
-	// meta.Eq("tenant_id", 123)  // 编译错误
-	// meta.VectorSearch(...)      // 编译错误
+	// ❌ Cannot call query methods
+	// meta.Eq("tenant_id", 123)  // Compile error
+	// meta.VectorSearch(...)      // Compile error
 
 	return nil
 }

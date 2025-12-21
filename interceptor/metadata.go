@@ -18,25 +18,25 @@ package interceptor
 
 import "time"
 
-// Metadata 查询元数据
-// 不影响查询逻辑，只用于观察
+// Metadata query metadata
+// Does not affect query logic, only for observation
 type Metadata struct {
-	// 追踪相关
+	// Trace related
 	TraceID   string `json:"trace_id,omitempty"`
 	RequestID string `json:"request_id,omitempty"`
 
-	// 用户相关
+	// User related
 	UserID   int64 `json:"user_id,omitempty"`
 	TenantID int64 `json:"tenant_id,omitempty"`
 
-	// 性能相关
+	// Performance related
 	StartTime time.Time `json:"start_time,omitempty"`
 
-	// 扩展点（自定义元数据）
+	// Extension point (custom metadata)
 	Custom map[string]interface{} `json:"custom,omitempty"`
 }
 
-// Set 设置自定义元数据
+// Set set custom metadata
 func (m *Metadata) Set(key string, value interface{}) {
 	if m.Custom == nil {
 		m.Custom = make(map[string]interface{})
@@ -44,7 +44,7 @@ func (m *Metadata) Set(key string, value interface{}) {
 	m.Custom[key] = value
 }
 
-// Get 获取自定义元数据
+// Get get custom metadata
 func (m *Metadata) Get(key string) interface{} {
 	if m.Custom == nil {
 		return nil
@@ -52,7 +52,7 @@ func (m *Metadata) Get(key string) interface{} {
 	return m.Custom[key]
 }
 
-// GetString 获取字符串类型的元数据
+// GetString get string type metadata
 func (m *Metadata) GetString(key string) string {
 	v := m.Get(key)
 	if v == nil {
@@ -64,7 +64,7 @@ func (m *Metadata) GetString(key string) string {
 	return ""
 }
 
-// GetInt64 获取 int64 类型的元数据
+// GetInt64 get int64 type metadata
 func (m *Metadata) GetInt64(key string) int64 {
 	v := m.Get(key)
 	if v == nil {
@@ -76,7 +76,7 @@ func (m *Metadata) GetInt64(key string) int64 {
 	return 0
 }
 
-// GetFloat64 获取 float64 类型的元数据
+// GetFloat64 get float64 type metadata
 func (m *Metadata) GetFloat64(key string) float64 {
 	v := m.Get(key)
 	if v == nil {
@@ -88,7 +88,7 @@ func (m *Metadata) GetFloat64(key string) float64 {
 	return 0
 }
 
-// GetBool 获取 bool 类型的元数据
+// GetBool get bool type metadata
 func (m *Metadata) GetBool(key string) bool {
 	v := m.Get(key)
 	if v == nil {

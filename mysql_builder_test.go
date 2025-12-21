@@ -21,10 +21,10 @@ import (
 	"testing"
 )
 
-// TestMySQLBuilder_Upsert 测试 MySQLBuilder 构建 Upsert 配置
+// TestMySQLBuilder_Upsert test MySQLBuilder build Upsert configuration
 func TestMySQLBuilder_Upsert(t *testing.T) {
-	// ✅ 使用 MySQLBuilder 构建 Custom
-	user := &MySQLUser{Name: "张三", Age: 18}
+	// ✅ Use MySQLBuilder to build Custom
+	user := &MySQLUser{Name: "John Doe", Age: 18}
 	built := Of(user).
 		Custom(
 			NewMySQLBuilder().
@@ -41,7 +41,7 @@ func TestMySQLBuilder_Upsert(t *testing.T) {
 
 	t.Logf("=== MySQLBuilder Upsert ===\nSQL: %s\nArgs: %v", sql, args)
 
-	// 验证 SQL 包含 ON DUPLICATE KEY UPDATE
+	// Verify SQL contains ON DUPLICATE KEY UPDATE
 	if !contains(sql, "ON DUPLICATE KEY UPDATE") {
 		t.Errorf("Expected ON DUPLICATE KEY UPDATE in SQL, got: %s", sql)
 	}
@@ -49,10 +49,10 @@ func TestMySQLBuilder_Upsert(t *testing.T) {
 	t.Logf("✅ MySQLBuilder Upsert works correctly")
 }
 
-// TestMySQLBuilder_Ignore 测试 MySQLBuilder 构建 Ignore 配置
+// TestMySQLBuilder_Ignore test MySQLBuilder build Ignore configuration
 func TestMySQLBuilder_Ignore(t *testing.T) {
-	// ✅ 使用 MySQLBuilder 构建 Custom
-	user := &MySQLUser{Name: "李四", Age: 20}
+	// ✅ Use MySQLBuilder to build Custom
+	user := &MySQLUser{Name: "John Doe", Age: 20}
 	built := Of(user).
 		Custom(
 			NewMySQLBuilder().
@@ -60,7 +60,7 @@ func TestMySQLBuilder_Ignore(t *testing.T) {
 				Build(),
 		).
 		Insert(func(ib *InsertBuilder) {
-			ib.Set("name", "李四").
+			ib.Set("name", "John Doe").
 				Set("age", 20)
 		}).
 		Build()
@@ -69,7 +69,7 @@ func TestMySQLBuilder_Ignore(t *testing.T) {
 
 	t.Logf("=== MySQLBuilder Ignore ===\nSQL: %s\nArgs: %v", sql, args)
 
-	// 验证 SQL 包含 INSERT IGNORE
+	// Verify SQL contains INSERT IGNORE
 	if !contains(sql, "INSERT IGNORE") {
 		t.Errorf("Expected INSERT IGNORE in SQL, got: %s", sql)
 	}
@@ -77,10 +77,10 @@ func TestMySQLBuilder_Ignore(t *testing.T) {
 	t.Logf("✅ MySQLBuilder Ignore works correctly")
 }
 
-// TestMySQLBuilder_ChainStyle 测试 MySQLBuilder 链式调用
+// TestMySQLBuilder_ChainStyle test MySQLBuilder chain style
 func TestMySQLBuilder_ChainStyle(t *testing.T) {
-	// ✅ 演示链式调用的流畅性
-	user := &MySQLUser{Name: "王五", Age: 25}
+	// ✅ Demonstrate the smoothness of chain style
+	user := &MySQLUser{Name: "John Doe", Age: 25}
 	sql, args := Of(user).
 		Custom(
 			NewMySQLBuilder().
@@ -89,7 +89,7 @@ func TestMySQLBuilder_ChainStyle(t *testing.T) {
 				Build(),
 		).
 		Insert(func(ib *InsertBuilder) {
-			ib.Set("name", "王五").
+			ib.Set("name", "John Doe").
 				Set("age", 25)
 		}).
 		Build().
@@ -104,38 +104,38 @@ func TestMySQLBuilder_ChainStyle(t *testing.T) {
 	t.Logf("✅ Chain style works perfectly")
 }
 
-// TestMySQLBuilder_ConfigReuse 测试 MySQLBuilder 配置复用
+// TestMySQLBuilder_ConfigReuse test MySQLBuilder config reuse
 func TestMySQLBuilder_ConfigReuse(t *testing.T) {
-	// ✅ 配置可以复用
+	// ✅ Config can be reused
 	upsertConfig := NewMySQLBuilder().
 		UseUpsert(true).
 		Build()
 
-	// 第一次使用
-	user1 := &MySQLUser{Name: "用户1", Age: 30}
+	// First use
+	user1 := &MySQLUser{Name: "John Doe", Age: 30}
 	sql1, _ := Of(user1).
 		Custom(upsertConfig).
 		Insert(func(ib *InsertBuilder) {
-			ib.Set("name", "用户1").Set("age", 30)
+			ib.Set("name", "John Doe").Set("age", 30)
 		}).
 		Build().
 		SqlOfInsert()
 
 	t.Logf("=== First use ===\n%s", sql1)
 
-	// 第二次使用（复用配置）
-	user2 := &MySQLUser{Name: "用户2", Age: 35}
+	// Second use (reuse config)
+	user2 := &MySQLUser{Name: "John Doe", Age: 35}
 	sql2, _ := Of(user2).
 		Custom(upsertConfig).
 		Insert(func(ib *InsertBuilder) {
-			ib.Set("name", "用户2").Set("age", 35)
+			ib.Set("name", "John Doe").Set("age", 35)
 		}).
 		Build().
 		SqlOfInsert()
 
 	t.Logf("=== Second use (reused config) ===\n%s", sql2)
 
-	// 两者都应该有 ON DUPLICATE KEY UPDATE
+	// Both should have ON DUPLICATE KEY UPDATE
 	if !contains(sql1, "ON DUPLICATE KEY UPDATE") {
 		t.Errorf("First SQL should have ON DUPLICATE KEY UPDATE")
 	}
@@ -146,7 +146,7 @@ func TestMySQLBuilder_ConfigReuse(t *testing.T) {
 	t.Logf("✅ Config reuse works")
 }
 
-// 辅助函数
+// Helper function
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) && containsHelper(s, substr))
 }

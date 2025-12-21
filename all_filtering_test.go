@@ -20,51 +20,51 @@ import (
 	"testing"
 )
 
-// 综合测试：所有过滤机制
+// TestAllFiltering_Comprehensive test comprehensive: all filtering mechanisms
 func TestAllFiltering_Comprehensive(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
-	// 模拟用户输入（很多字段可能为空/0）
-	name := ""                  // 空字符串
-	category := "electronics"   // 有效值
+	// Simulate user input (many fields may be empty/0)
+	name := ""                  // Empty string
+	category := "electronics"   // Valid value
 	minScore := 0.0             // 0
-	maxScore := 0.9             // 有效值
-	tags := []interface{}{}     // 空数组
-	searchTerm := ""            // 空字符串
-	role := ""                  // 空字符串
-	department := "engineering" // 有效值
+	maxScore := 0.9             // Valid value
+	tags := []interface{}{}     // Empty array
+	searchTerm := ""            // Empty string
+	role := ""                  // Empty string
+	department := "engineering" // Valid value
 
 	built := Of(&CodeVectorForQdrant{}).
-		// 单个条件过滤
-		Eq("name", name).          // ⭐ 过滤：空字符串
-		Eq("category", category).  // ✅ 保留
-		Gt("min_score", minScore). // ⭐ 过滤：0
-		Lt("max_score", maxScore). // ✅ 保留
-		// IN 过滤
-		In("tags", tags...). // ⭐ 过滤：空数组
-		// LIKE 过滤
-		Like("description", searchTerm). // ⭐ 过滤：空字符串
-		// 空 OR 过滤
+		// Single condition filtering
+		Eq("name", name).          // ⭐ Filtered: empty string
+		Eq("category", category).  // ✅ Retained
+		Gt("min_score", minScore). // ⭐ Filtered: 0
+		Lt("max_score", maxScore). // ✅ Retained
+		// IN filtering
+		In("tags", tags...). // ⭐ Filtered: empty array
+		// LIKE filtering
+		Like("description", searchTerm). // ⭐ Filtered: empty string
+		// Empty OR filtering
 		Or(func(cb *CondBuilder) {
-			cb.Eq("role", role) // ⭐ 过滤：空字符串
-			cb.Gt("level", 0)   // ⭐ 过滤：0
-		}). // ⭐ 整个 OR 被过滤
-		// 部分有效的 AND
+			cb.Eq("role", role) // ⭐ Filtered: empty string
+			cb.Gt("level", 0)   // ⭐ Filtered: 0
+		}). // ⭐ Entire OR filtered
+		// Partially valid AND
 		And(func(cb *CondBuilder) {
-			cb.Eq("department", department) // ✅ 保留
-			cb.Gt("rank", 0)                // ⭐ 过滤：0
-		}). // ✅ AND 保留（有 1 个有效条件）
+			cb.Eq("department", department) // ✅ Retained
+			cb.Gt("rank", 0)                // ⭐ Filtered: 0
+		}). // ✅ AND retained (1 valid condition)
 		VectorSearch("embedding", queryVector, 20).
 		Build()
 
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== 综合过滤测试 ===")
+	t.Logf("=== Comprehensive Filtering Test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args count: %d", len(args))
 	t.Logf("Args: %v", args)
 
-	// 验证：应该只有 3 个有效条件
+	// Verify: should only have 3 valid conditions
 	// 1. category = 'electronics'
 	// 2. max_score < 0.9
 	// 3. AND (department = 'engineering')
@@ -91,7 +91,7 @@ func TestAllFiltering_Comprehensive(t *testing.T) {
 		t.Errorf("rank=0 should be filtered")
 	}
 
-	// 应该包含的条件
+	// Should contain conditions
 	if !containsString(sql, "category") {
 		t.Errorf("category should exist")
 	}
@@ -102,12 +102,12 @@ func TestAllFiltering_Comprehensive(t *testing.T) {
 		t.Errorf("department should exist")
 	}
 
-	t.Logf("✅ 所有过滤机制正常工作")
+	t.Logf("✅ All filtering mechanisms work correctly")
 }
 
-// 测试用户场景：动态查询表单
+// TestRealWorldScenario_SearchForm test user scenario: dynamic query form
 func TestRealWorldScenario_SearchForm(t *testing.T) {
-	// 模拟用户搜索表单（很多字段未填）
+	// Simulate user search form (many fields not filled)
 	type SearchForm struct {
 		Keyword    string
 		Category   string
@@ -121,50 +121,50 @@ func TestRealWorldScenario_SearchForm(t *testing.T) {
 		Role       string
 	}
 
-	// 用户只填了部分字段
+	// User only filled some fields
 	form := SearchForm{
 		Keyword:    "laptop",
-		Category:   "",         // 未填
-		MinPrice:   0,          // 未填
-		MaxPrice:   1500.0,     // 已填
-		Tags:       []string{}, // 未填
+		Category:   "",         // Not filled
+		MinPrice:   0,          // Not filled
+		MaxPrice:   1500.0,     // Filled
+		Tags:       []string{}, // Not filled
 		Status:     "active",
-		StartDate:  "", // 未填
-		EndDate:    "", // 未填
+		StartDate:  "", // Not filled
+		EndDate:    "", // Not filled
 		Department: "sales",
-		Role:       "", // 未填
+		Role:       "", // Not filled
 	}
 
-	// 无需任何判断，直接构建查询
+	// No need for any checks, build query directly
 	tags := make([]interface{}, len(form.Tags))
 	for i, tag := range form.Tags {
 		tags[i] = tag
 	}
 
 	builder := Of(&Product{}).
-		Like("name", form.Keyword).    // ✅ 保留
-		Eq("category", form.Category). // ⭐ 过滤
-		Gte("price", form.MinPrice).   // ⭐ 过滤
-		Lte("price", form.MaxPrice).   // ✅ 保留
-		In("tag", tags...).            // ⭐ 过滤
-		Eq("status", form.Status).     // ✅ 保留
+		Like("name", form.Keyword).    // ✅ Retained
+		Eq("category", form.Category). // ⭐ Filtered
+		Gte("price", form.MinPrice).   // ⭐ Filtered
+		Lte("price", form.MaxPrice).   // ✅ Retained
+		In("tag", tags...).            // ⭐ Filtered
+		Eq("status", form.Status).     // ✅ Retained
 		And(func(cb *CondBuilder) {
-			cb.Gte("created_at", form.StartDate) // ⭐ 过滤
-			cb.Lte("created_at", form.EndDate)   // ⭐ 过滤
-		}). // ⭐ 整个 AND 被过滤
+			cb.Gte("created_at", form.StartDate) // ⭐ Filtered
+			cb.Lte("created_at", form.EndDate)   // ⭐ Filtered
+		}). // ⭐ Entire AND filtered
 		Or(func(cb *CondBuilder) {
-			cb.Eq("department", form.Department) // ✅ 保留
-			cb.Eq("role", form.Role)             // ⭐ 过滤
-		}). // ✅ OR 保留（有 1 个有效条件）
+			cb.Eq("department", form.Department) // ✅ Retained
+			cb.Eq("role", form.Role)             // ⭐ Filtered
+		}). // ✅ OR retained (1 valid condition)
 		Build()
 
 	sql, args, _ := builder.SqlOfSelect()
 
-	t.Logf("=== 真实场景测试：搜索表单 ===")
+	t.Logf("=== Real World Scenario: Search Form ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 应该只包含用户实际填写的字段
+	// Should only contain fields user actually filled
 	if !containsString(sql, "LIKE") {
 		t.Errorf("Keyword LIKE should exist")
 	}
@@ -178,7 +178,7 @@ func TestRealWorldScenario_SearchForm(t *testing.T) {
 		t.Errorf("MaxPrice should exist")
 	}
 
-	// 不应该包含未填写的字段
+	// Should not contain fields not filled
 	if containsString(sql, "category") {
 		t.Errorf("Empty category should be filtered")
 	}
@@ -189,12 +189,12 @@ func TestRealWorldScenario_SearchForm(t *testing.T) {
 		t.Errorf("Empty date range should be filtered")
 	}
 
-	t.Logf("✅ 真实场景测试通过：只查询用户实际填写的字段")
+	t.Logf("✅ Real World Scenario: Search Form passed: only query fields user actually filled")
 }
 
-// 测试：复杂的时间范围（用户提到的场景）
+// TestTimeRangeFiltering test complex time range (user mentioned scenario)
 func TestTimeRangeFiltering(t *testing.T) {
-	// 场景 1: 两个时间都为空
+	// Scenario 1: both times are empty
 	t.Run("Both times empty", func(t *testing.T) {
 		startTime := ""
 		endTime := ""
@@ -211,13 +211,13 @@ func TestTimeRangeFiltering(t *testing.T) {
 
 		t.Logf("SQL (both empty): %s", sql)
 
-		// 整个 AND 应该被过滤
+		// Entire AND should be filtered
 		if containsString(sql, "created_at") {
 			t.Errorf("Empty time range AND should be filtered")
 		}
 	})
 
-	// 场景 2: 只有开始时间
+	// Scenario 2: only start time
 	t.Run("Only start time", func(t *testing.T) {
 		startTime := "2024-01-01"
 		endTime := ""
@@ -234,13 +234,13 @@ func TestTimeRangeFiltering(t *testing.T) {
 
 		t.Logf("SQL (only start): %s", sql)
 
-		// 应该只有 created_at > ?
+		// Should only have created_at > ?
 		if !containsString(sql, "created_at >") {
 			t.Errorf("Start time condition should exist")
 		}
 	})
 
-	// 场景 3: 两个时间都有
+	// Scenario 3: both times are valid
 	t.Run("Both times valid", func(t *testing.T) {
 		startTime := "2024-01-01"
 		endTime := "2024-12-31"
@@ -258,7 +258,7 @@ func TestTimeRangeFiltering(t *testing.T) {
 		t.Logf("SQL (both valid): %s", sql)
 		t.Logf("Args: %v", args)
 
-		// 应该有完整的时间范围
+		// Should have complete time range
 		if !containsString(sql, "created_at >") {
 			t.Errorf("Start time condition should exist")
 		}
@@ -266,37 +266,37 @@ func TestTimeRangeFiltering(t *testing.T) {
 			t.Errorf("End time condition should exist")
 		}
 
-		// 应该有 3 个参数：status, startTime, endTime
+		// Should have 3 args: status, startTime, endTime
 		if len(args) != 3 {
 			t.Errorf("Expected 3 args, got %d", len(args))
 		}
 	})
 
-	t.Logf("✅ 时间范围过滤测试通过")
+	t.Logf("✅ Time range filtering test passed")
 }
 
-// 测试：Select 和 GroupBy 过滤
+// TestSelectGroupByFiltering test Select and GroupBy filtering
 func TestSelectGroupByFiltering(t *testing.T) {
 	built := X().
 		From("products").
-		Select("id", "", "name", "", "price"). // ⭐ 过滤空字符串
-		GroupBy("").                           // ⭐ 过滤空字符串
-		GroupBy("category").                   // ✅ 保留
-		Agg("", "count").                      // ⭐ 过滤空函数名
-		Agg("SUM", "price").                   // ✅ 保留
+		Select("id", "", "name", "", "price"). // ⭐ Filtered empty string
+		GroupBy("").                           // ⭐ Filtered empty string
+		GroupBy("category").                   // ✅ Retained
+		Agg("", "count").                      // ⭐ Filtered empty function name
+		Agg("SUM", "price").                   // ✅ Retained
 		Build()
 
 	sql, _, _ := built.SqlOfSelect()
 
-	t.Logf("=== Select/GroupBy 过滤测试 ===")
+	t.Logf("=== Select/GroupBy filtering test ===")
 	t.Logf("SQL: %s", sql)
 
-	// SELECT 应该只有 id, name, price
+	// SELECT should only have id, name, price
 	if !containsString(sql, "SELECT") {
 		t.Errorf("SELECT should exist")
 	}
 
-	// GROUP BY 应该只有 category
+	// GROUP BY should only have category
 	if !containsString(sql, "GROUP BY") {
 		t.Errorf("GROUP BY should exist")
 	}
@@ -304,15 +304,15 @@ func TestSelectGroupByFiltering(t *testing.T) {
 		t.Errorf("category GROUP BY should exist")
 	}
 
-	// 应该有 SUM(price)
+	// Should have SUM(price)
 	if !containsString(sql, "SUM") {
 		t.Errorf("SUM agg should exist")
 	}
 
-	t.Logf("✅ Select/GroupBy 过滤正常")
+	t.Logf("✅ Select/GroupBy filtering works correctly")
 }
 
-// 测试：Bool 条件过滤
+// TestBoolFiltering test Bool condition filtering
 func TestBoolFiltering(t *testing.T) {
 	includeOptional := false
 	includeAdvanced := true
@@ -329,21 +329,21 @@ func TestBoolFiltering(t *testing.T) {
 
 	sql, args, _ := built.SqlOfSelect()
 
-	t.Logf("=== Bool 条件过滤测试 ===")
+	t.Logf("=== Bool condition filtering test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// optional_field 不应该存在
+	// optional_field should not exist
 	if containsString(sql, "optional_field") {
 		t.Errorf("Optional field should be filtered (includeOptional=false)")
 	}
 
-	// score 应该存在
+	// score should exist
 	if !containsString(sql, "score") {
 		t.Errorf("Score should exist (includeAdvanced=true)")
 	}
 
-	t.Logf("✅ Bool 条件过滤正常")
+	t.Logf("✅ Bool condition filtering works correctly")
 }
 
 type Product struct {

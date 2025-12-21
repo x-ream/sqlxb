@@ -20,32 +20,32 @@ import (
 	"testing"
 )
 
-// 测试空 OR 条件被自动过滤
+// TestEmptyOr_Filtered test empty OR condition is automatically filtered
 func TestEmptyOr_Filtered(t *testing.T) {
-	// 构建查询：包含一个空的 OR
+	// Build query: contains an empty OR
 	built := Of(&CodeVectorForQdrant{}).
-		Eq("language", "golang"). // ✅ 有效
+		Eq("language", "golang"). // ✅ Valid
 		Or(func(cb *CondBuilder) {
-			// ⭐ OR 中的所有条件都是 nil/0，会被过滤
+			// ⭐ All conditions in OR are nil/0, will be filtered
 			cb.Eq("category", "")
 			cb.Gt("rank", 0)
 			cb.Lt("score", 0)
 		}).
-		Gt("quality", 0.8). // ✅ 有效
+		Gt("quality", 0.8). // ✅ Valid
 		Build()
 
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== 空 OR 过滤测试 ===")
+	t.Logf("=== Empty OR filtering test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// ⭐ 验证：SQL 不应该包含 OR
+	// ⭐ Verify: SQL should not contain OR
 	if containsString(sql, "OR") {
 		t.Errorf("Empty OR should be filtered out, but found in SQL")
 	}
 
-	// ⭐ 验证：只有 2 个有效条件
+	// ⭐ Verify: only 2 valid conditions
 	// language = golang AND quality > 0.8
 	if !containsString(sql, "language") {
 		t.Errorf("Expected language condition")
@@ -54,15 +54,15 @@ func TestEmptyOr_Filtered(t *testing.T) {
 		t.Errorf("Expected quality condition")
 	}
 
-	t.Logf("✅ 空 OR 被成功过滤")
+	t.Logf("✅ Empty OR is successfully filtered")
 }
 
-// 测试空 AND 条件被自动过滤
+// TestEmptyAnd_Filtered test empty AND condition is automatically filtered
 func TestEmptyAnd_Filtered(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
 		And(func(cb *CondBuilder) {
-			// ⭐ AND 中的所有条件都是 nil/0
+			// ⭐ All conditions in AND are nil/0
 			cb.Eq("category", "")
 			cb.Gt("rank", 0)
 		}).
@@ -71,30 +71,30 @@ func TestEmptyAnd_Filtered(t *testing.T) {
 
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== 空 AND 过滤测试 ===")
+	t.Logf("=== Empty AND filtering test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// ⭐ 验证：不应该有额外的 AND () 结构
-	// 正常应该是：language = ? AND quality > ?
+	// ⭐ Verify: should not have extra AND ( ) structure
+	// Normally should be: language = ? AND quality > ?
 	if len(args) != 2 {
 		t.Errorf("Expected 2 args (language, quality), got %d", len(args))
 	}
 
-	t.Logf("✅ 空 AND 被成功过滤")
+	t.Logf("✅ Empty AND is successfully filtered")
 }
 
-// 测试混合场景：部分 OR 为空
+// TestPartialEmptyOr test mixed scenario: partial OR is empty
 func TestPartialEmptyOr(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
 		Or(func(cb *CondBuilder) {
-			// ⭐ 第一个 OR：有效条件
+			// ⭐ First OR: valid conditions
 			cb.Eq("category", "service")
 			cb.Eq("category", "repository")
 		}).
 		Or(func(cb *CondBuilder) {
-			// ⭐ 第二个 OR：全部为空
+			// ⭐ Second OR: all are empty
 			cb.Eq("tag", "")
 			cb.Gt("count", 0)
 		}).
@@ -103,24 +103,24 @@ func TestPartialEmptyOr(t *testing.T) {
 
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== 部分空 OR 测试 ===")
+	t.Logf("=== Partial empty OR test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// ⭐ 应该包含第一个 OR（有效）
+	// ⭐ Should contain first OR (valid)
 	if !containsString(sql, "category") {
 		t.Errorf("Expected first OR with category")
 	}
 
-	// ⭐ 不应该包含第二个 OR（空）
+	// ⭐ Should not contain second OR (empty)
 	if containsString(sql, "tag") || containsString(sql, "count") {
 		t.Errorf("Second empty OR should be filtered")
 	}
 
-	t.Logf("✅ 只有有效的 OR 被保留")
+	t.Logf("✅ Only valid OR is retained")
 }
 
-// 测试 Qdrant JSON：空 OR 被过滤
+// TestQdrant_EmptyOr_Filtered test Qdrant JSON: empty OR is filtered
 func TestQdrant_EmptyOr_Filtered(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
@@ -128,7 +128,7 @@ func TestQdrant_EmptyOr_Filtered(t *testing.T) {
 		Custom(NewQdrantBuilder().Build()).
 		Eq("language", "golang").
 		Or(func(cb *CondBuilder) {
-			// 空 OR
+			// Empty OR
 			cb.Eq("category", "")
 			cb.Gt("rank", 0)
 		}).
@@ -140,28 +140,28 @@ func TestQdrant_EmptyOr_Filtered(t *testing.T) {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
 
-	t.Logf("=== Qdrant 空 OR 测试 ===\n%s", jsonStr)
+	t.Logf("=== Qdrant Empty OR Test ===\n%s", jsonStr)
 
-	// ⭐ JSON 不应该包含 should（OR 对应 should）
+	// ⭐ JSON should not contain should (OR corresponds to should)
 	if containsString(jsonStr, "should") {
 		t.Errorf("Empty OR should be filtered from Qdrant JSON")
 	}
 
-	// ⭐ 应该只有 language 条件
+	// ⭐ Should only have language condition
 	if !containsString(jsonStr, "language") {
 		t.Errorf("Expected language condition")
 	}
 
-	t.Logf("✅ Qdrant JSON 中空 OR 被过滤")
+	t.Logf("✅ Empty OR filtered in Qdrant JSON")
 }
 
-// 测试嵌套空 OR
+// Test nested empty OR
 func TestNestedEmptyOr(t *testing.T) {
 	built := Of(&CodeVectorForQdrant{}).
 		Eq("language", "golang").
 		Or(func(cb *CondBuilder) {
 			cb.And(func(cb2 *CondBuilder) {
-				// 嵌套的 AND 也是空的
+				// Nested AND is also empty
 				cb2.Eq("tag", "")
 			})
 		}).
@@ -170,24 +170,24 @@ func TestNestedEmptyOr(t *testing.T) {
 
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== 嵌套空 OR 测试 ===")
+	t.Logf("=== Nested Empty OR Test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// ⭐ 整个 OR 应该被过滤
+	// ⭐ Entire OR should be filtered
 	if containsString(sql, "OR") {
 		t.Errorf("Nested empty OR should be filtered")
 	}
 
-	// 应该只有 2 个条件
+	// Should only have 2 conditions
 	if len(args) != 2 {
 		t.Errorf("Expected 2 args, got %d", len(args))
 	}
 
-	t.Logf("✅ 嵌套空 OR 被成功过滤")
+	t.Logf("✅ Nested empty OR successfully filtered")
 }
 
-// 测试 Bool() 函数配合空 OR
+// Test Bool() function with empty OR
 func TestBoolWithEmptyOr(t *testing.T) {
 	includeOptional := false
 
@@ -203,39 +203,39 @@ func TestBoolWithEmptyOr(t *testing.T) {
 
 	sql, args := built.SqlOfVectorSearch()
 
-	t.Logf("=== Bool + 空 OR 测试 ===")
+	t.Logf("=== Bool + Empty OR Test ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// ⭐ includeOptional = false，整个 Bool 块不执行
-	// 即使执行，空 OR 也会被过滤
+	// ⭐ includeOptional = false, entire Bool block not executed
+	// Even if executed, empty OR will be filtered
 	if containsString(sql, "OR") {
 		t.Errorf("OR should not appear")
 	}
 
-	t.Logf("✅ Bool + 空 OR 正确处理")
+	t.Logf("✅ Bool + empty OR handled correctly")
 }
 
-// 测试完整场景：多层过滤
+// Test complete scenario: multi-layer filtering
 func TestComplexFiltering(t *testing.T) {
 	queryVector := Vector{0.1, 0.2, 0.3}
 
 	built := Of(&CodeVectorForQdrant{}).
 		Custom(NewQdrantBuilder().Build()).
-		Eq("language", "golang"). // ✅ 有效
-		Eq("category", "").       // ⭐ 空字符串，单个条件过滤
+		Eq("language", "golang"). // ✅ Valid
+		Eq("category", "").       // ⭐ Empty string, single condition filtered
 		Or(func(cb *CondBuilder) {
-			// ⭐ 空 OR，整个 OR 过滤
+			// ⭐ Empty OR, entire OR filtered
 			cb.Eq("tag1", "")
 			cb.Gt("count1", 0)
 		}).
 		And(func(cb *CondBuilder) {
-			// ⭐ 部分有效的 AND
-			cb.Eq("status", "active") // ✅ 有效
-			cb.Gt("rank", 0)          // ⭐ 0，被过滤
+			// ⭐ Partially valid AND
+			cb.Eq("status", "active") // ✅ Valid
+			cb.Gt("rank", 0)          // ⭐ 0, filtered
 		}).
 		Or(func(cb *CondBuilder) {
-			// ⭐ 全部有效的 OR
+			// ⭐ All valid OR
 			cb.Eq("layer", "service")
 			cb.Eq("layer", "repository")
 		}).
@@ -244,15 +244,15 @@ func TestComplexFiltering(t *testing.T) {
 
 	// PostgreSQL
 	sql, args := built.SqlOfVectorSearch()
-	t.Logf("=== 复杂过滤测试 - PostgreSQL ===")
+	t.Logf("=== Complex Filtering Test - PostgreSQL ===")
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args count: %d", len(args))
 
-	// 验证结果：
-	// 1. category="" 被过滤
-	// 2. 第一个空 OR 被过滤
-	// 3. AND 中 rank=0 被过滤，但 status="active" 保留
-	// 4. 第二个 OR 保留（有效）
+	// Verify results:
+	// 1. category="" is filtered
+	// 2. First empty OR is filtered
+	// 3. rank=0 in AND is filtered, but status="active" is retained
+	// 4. Second OR is retained (valid)
 
 	if containsString(sql, "category") {
 		t.Errorf("category='' should be filtered")
@@ -271,7 +271,7 @@ func TestComplexFiltering(t *testing.T) {
 	if err != nil {
 		t.Fatalf("JsonOfSelect failed: %v", err)
 	}
-	t.Logf("\n=== 复杂过滤测试 - Qdrant ===\n%s", jsonStr)
+	t.Logf("\n=== Complex Filtering Test - Qdrant ===\n%s", jsonStr)
 
-	t.Logf("✅ 多层过滤正确工作")
+	t.Logf("✅ Multi-layer filtering works correctly")
 }

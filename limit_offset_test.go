@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestLimit 测试 Limit API
+// TestLimit test Limit API
 func TestLimit(t *testing.T) {
 	built := Of(&Product{}).
 		Eq("status", 1).
@@ -18,18 +18,18 @@ func TestLimit(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 包含 LIMIT
+	// Verify SQL contains LIMIT
 	if !strings.Contains(sql, "LIMIT 10") {
 		t.Errorf("Expected SQL to contain 'LIMIT 10', got: %s", sql)
 	}
 
-	// 验证参数
+	// Verify args
 	if len(args) != 1 { // status = 1
 		t.Errorf("Expected 1 arg, got %d", len(args))
 	}
 }
 
-// TestOffset 测试 Offset API
+// TestOffset test Offset API
 func TestOffset(t *testing.T) {
 	built := Of(&Product{}).
 		Eq("status", 1).
@@ -43,7 +43,7 @@ func TestOffset(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 包含 LIMIT 和 OFFSET
+	// Verify SQL contains LIMIT and OFFSET
 	if !strings.Contains(sql, "LIMIT 10") {
 		t.Errorf("Expected SQL to contain 'LIMIT 10', got: %s", sql)
 	}
@@ -52,7 +52,7 @@ func TestOffset(t *testing.T) {
 	}
 }
 
-// TestLimitOnly 测试只有 Limit 没有 Offset
+// TestLimitOnly test only Limit without Offset
 func TestLimitOnly(t *testing.T) {
 	built := Of(&Product{}).
 		Limit(20).
@@ -63,7 +63,7 @@ func TestLimitOnly(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 包含 LIMIT 但不包含 OFFSET
+	// Verify SQL contains LIMIT but not OFFSET
 	if !strings.Contains(sql, "LIMIT 20") {
 		t.Errorf("Expected SQL to contain 'LIMIT 20', got: %s", sql)
 	}
@@ -72,7 +72,7 @@ func TestLimitOnly(t *testing.T) {
 	}
 }
 
-// TestOffsetOnly 测试只有 Offset 没有 Limit
+// TestOffsetOnly test only Offset without Limit
 func TestOffsetOnly(t *testing.T) {
 	built := Of(&Product{}).
 		Offset(10).
@@ -83,17 +83,17 @@ func TestOffsetOnly(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 包含 OFFSET
+	// Verify SQL contains OFFSET
 	if !strings.Contains(sql, "OFFSET 10") {
 		t.Errorf("Expected SQL to contain 'OFFSET 10', got: %s", sql)
 	}
 }
 
-// TestLimitWithPaged 测试 Limit 不与 Paged 冲突（Paged 优先）
+// TestLimitWithPaged test Limit not conflict with Paged (Paged priority)
 func TestLimitWithPaged(t *testing.T) {
 	built := Of(&Product{}).
 		Eq("status", 1).
-		Limit(50). // 应该被 Paged 覆盖
+		Limit(50). // Should be covered by Paged
 		Paged(func(pb *PageBuilder) {
 			pb.Page(2).Rows(20)
 		}).
@@ -104,7 +104,7 @@ func TestLimitWithPaged(t *testing.T) {
 	t.Logf("Data SQL: %s", dataSql)
 	t.Logf("Args: %v", args)
 
-	// 验证使用 Paged 的值（LIMIT 20 OFFSET 20），而不是 Limit 的值
+	// Verify using Paged value (LIMIT 20 OFFSET 20), not Limit value
 	if !strings.Contains(dataSql, "LIMIT 20") {
 		t.Errorf("Expected SQL to contain 'LIMIT 20' (from Paged), got: %s", dataSql)
 	}
@@ -113,11 +113,11 @@ func TestLimitWithPaged(t *testing.T) {
 	}
 }
 
-// TestLimitZeroIgnored 测试 Limit(0) 被自动忽略
+// TestLimitZeroIgnored test Limit(0) is ignored automatically
 func TestLimitZeroIgnored(t *testing.T) {
 	built := Of(&Product{}).
 		Eq("status", 1).
-		Limit(0). // 应该被忽略
+		Limit(0). // Should be ignored
 		Build()
 
 	sql, args, _ := built.SqlOfSelect()
@@ -125,17 +125,17 @@ func TestLimitZeroIgnored(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 不包含 LIMIT
+	// Verify SQL does not contain LIMIT
 	if strings.Contains(sql, "LIMIT") {
 		t.Errorf("Expected Limit(0) to be ignored, but SQL contains LIMIT: %s", sql)
 	}
 }
 
-// TestOffsetZeroIgnored 测试 Offset(0) 被自动忽略
+// TestOffsetZeroIgnored test Offset(0) is ignored automatically
 func TestOffsetZeroIgnored(t *testing.T) {
 	built := Of(&Product{}).
 		Eq("status", 1).
-		Offset(0). // 应该被忽略
+		Offset(0). // Should be ignored
 		Build()
 
 	sql, args, _ := built.SqlOfSelect()
@@ -143,7 +143,7 @@ func TestOffsetZeroIgnored(t *testing.T) {
 	t.Logf("SQL: %s", sql)
 	t.Logf("Args: %v", args)
 
-	// 验证 SQL 不包含 OFFSET
+	// Verify SQL does not contain OFFSET
 	if strings.Contains(sql, "OFFSET") {
 		t.Errorf("Expected Offset(0) to be ignored, but SQL contains OFFSET: %s", sql)
 	}

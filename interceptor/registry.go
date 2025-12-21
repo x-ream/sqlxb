@@ -23,22 +23,24 @@ var (
 	mu                 sync.RWMutex
 )
 
-// Register 注册全局拦截器
-// 拦截器按注册顺序执行
+// Register register global interceptor
+// Interceptors are executed in registration order
 //
-// 示例:
-//   interceptor.Register(&LoggingInterceptor{})
-//   interceptor.Register(&PrometheusInterceptor{})
+// Example:
+//
+//	interceptor.Register(&LoggingInterceptor{})
+//	interceptor.Register(&PrometheusInterceptor{})
 func Register(i Interceptor) {
 	mu.Lock()
 	defer mu.Unlock()
 	globalInterceptors = append(globalInterceptors, i)
 }
 
-// Unregister 卸载拦截器（按名称）
+// Unregister uninstall interceptor (by name)
 //
-// 示例:
-//   interceptor.Unregister("logging")
+// Example:
+//
+//	interceptor.Unregister("logging")
 func Unregister(name string) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -51,21 +53,21 @@ func Unregister(name string) {
 	}
 }
 
-// Clear 清空所有拦截器
-// 主要用于测试环境
+// Clear clear all interceptors
+// Mainly used for test environment
 func Clear() {
 	mu.Lock()
 	defer mu.Unlock()
 	globalInterceptors = []Interceptor{}
 }
 
-// GetAll 获取所有拦截器（只读）
-// 主要用于内部调用
+// GetAll get all interceptors (read only)
+// Mainly used for internal use
 func GetAll() []Interceptor {
 	mu.RLock()
 	defer mu.RUnlock()
 
-	// 返回副本，避免外部修改
+	// Return copy to avoid external modification
 	result := make([]Interceptor, len(globalInterceptors))
 	copy(result, globalInterceptors)
 	return result

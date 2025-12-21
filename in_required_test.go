@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-// TestInRequired_EmptyValues 测试空值场景
+// TestInRequired_EmptyValues test empty values scenario
 func TestInRequired_EmptyValues(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -116,7 +116,7 @@ func TestInRequired_EmptyValues(t *testing.T) {
 	}
 }
 
-// TestInRequired_ValidValues 测试有效值场景
+// TestInRequired_ValidValues test valid values scenario
 func TestInRequired_ValidValues(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -167,7 +167,7 @@ func TestInRequired_ValidValues(t *testing.T) {
 	}
 }
 
-// TestInRequired_ComparedWithIn 测试 InRequired 与 In 的行为差异
+// TestInRequired_ComparedWithIn test InRequired and In behavior difference
 func TestInRequired_ComparedWithIn(t *testing.T) {
 	t.Run("In() with empty slice - no panic, no WHERE clause", func(t *testing.T) {
 		ids := []interface{}{}
@@ -209,10 +209,10 @@ func TestInRequired_ComparedWithIn(t *testing.T) {
 	})
 }
 
-// TestInRequired_RealWorldScenario 测试真实场景
+// TestInRequired_RealWorldScenario test real world scenario
 func TestInRequired_RealWorldScenario(t *testing.T) {
 	t.Run("Scenario: Admin deletes selected orders", func(t *testing.T) {
-		// ✅ 用户选择了订单
+		// ✅ User selected orders
 		selectedOrderIDs := []interface{}{101, 102, 103}
 		built := Of("orders").InRequired("id", selectedOrderIDs...).Build()
 		sql, _, _ := built.SqlOfSelect()
@@ -232,21 +232,21 @@ func TestInRequired_RealWorldScenario(t *testing.T) {
 			}
 		}()
 
-		// ❌ 用户忘记选择订单（前端bug或用户误操作）
+		// ❌ User forgot to select orders (frontend bug or user error)
 		selectedOrderIDs := []interface{}{}
 		Of("orders").InRequired("id", selectedOrderIDs...).Build()
-		// 如果不报错，会删除所有订单！
+		// If no error, all orders will be deleted
 	})
 
 	t.Run("Scenario: Query orders by status (optional filter)", func(t *testing.T) {
-		// ✅ 使用 In() 实现可选过滤
-		status := "" // 用户没有选择状态
+		// ✅ Use In() to implement optional filtering
+		status := "" // User did not select status
 
 		var built *Built
 		if status != "" {
 			built = Of("orders").In("status", status).Build()
 		} else {
-			built = Of("orders").Build() // 查询所有状态
+			built = Of("orders").Build() // Query all status
 		}
 
 		sql, _, _ := built.SqlOfSelect()

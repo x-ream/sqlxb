@@ -16,21 +16,21 @@
 // limitations under the License.
 package interceptor
 
-// Interceptor 拦截器接口
-// 用于基础设施观察（日志、监控）
-// 不用于业务逻辑
+// Interceptor interceptor interface
+// Used for infrastructure observation (logging, monitoring)
+// Not used for business logic
 type Interceptor interface {
-	// Name 拦截器名称（用于注册/卸载）
+	// Name interceptor name (for registration/unregistration)
 	Name() string
 
-	// BeforeBuild 在 Build() 之前执行
-	// ⭐ 只传 Metadata，编译时强制只能设置元数据
-	// ⭐ 无法修改查询逻辑（类型系统保证）
-	// 返回 error 可以阻止 Build()
+	// BeforeBuild before Build() is executed
+	// ⭐ Only pass Metadata, enforced at compile time to only set metadata
+	// ⭐ Cannot modify query logic (type system ensures)
+	// Return error can prevent Build()
 	BeforeBuild(meta *Metadata) error
 
-	// AfterBuild 在 Build() 之后执行
-	// 用于观察生成的 SQL（日志、监控、审计）
-	// 返回 error 可以阻止后续执行
+	// AfterBuild after Build() is executed
+	// Used for observing generated SQL (logging, monitoring, auditing)
+	// Return error can prevent subsequent execution
 	AfterBuild(built interface{}) error
 }
