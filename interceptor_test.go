@@ -140,7 +140,7 @@ func TestInterceptor_TypeSafety(t *testing.T) {
 	interceptor.Clear()
 
 	// ⭐ This test verifies compile time restriction
-	// BeforeBuild 只能接收 *Metadata
+	// BeforeBuild can only receive *Metadata
 	// Cannot access BuilderX's query methods
 
 	safeInterceptor := &TypeSafeInterceptor{}

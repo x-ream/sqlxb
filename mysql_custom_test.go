@@ -50,7 +50,7 @@ func TestMySQLCustom_DefaultBehavior(t *testing.T) {
 
 	built := Of(&MySQLUser{}).
 		Custom(custom).
-		Eq("name", "张三").
+		Eq("name", "ZhangSan").
 		Gt("age", 18).
 		Build()
 

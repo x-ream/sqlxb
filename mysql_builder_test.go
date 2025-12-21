@@ -32,7 +32,7 @@ func TestMySQLBuilder_Upsert(t *testing.T) {
 				Build(),
 		).
 		Insert(func(ib *InsertBuilder) {
-			ib.Set("name", "张三").
+			ib.Set("name", "ZhangSan").
 				Set("age", 18)
 		}).
 		Build()

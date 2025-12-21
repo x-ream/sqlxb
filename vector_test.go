@@ -177,7 +177,7 @@ func TestVectorSearch_AutoIgnoreNil(t *testing.T) {
 	t.Logf("Args: %d", len(args))
 
 	// SQL should not contain language (because it's an empty string)
-	// 但应该包含 layer
+	// But should contain layer
 	if containsString(sql, "language") {
 		t.Errorf("Empty language should be ignored, but found in SQL: %s", sql)
 	}

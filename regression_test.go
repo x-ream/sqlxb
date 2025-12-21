@@ -221,7 +221,7 @@ func TestRegression_SqlOfSelect_vs_SqlOfVectorSearch(t *testing.T) {
 		t.Errorf("SqlOfVectorSearch expected 5 args, got %d", len(args2))
 	}
 
-	t.Logf("✅ SqlOfSelect and SqlOfVectorSearch behavior一致")
+	t.Logf("✅ SqlOfSelect and SqlOfVectorSearch behavior consistent")
 }
 
 // Regression test: empty And/Or subquery filtering
