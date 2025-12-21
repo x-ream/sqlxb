@@ -8,7 +8,7 @@ import (
 func TestBuilderX_WithClauseBasic(t *testing.T) {
 	built := Of("recent_orders").As("ro").
 		With("recent_orders", func(sb *BuilderX) {
-			sb.From("orders o").
+			sb.From("orders").As("o").
 				Select("o.id", "o.user_id").
 				Gt("o.created_at", "2025-01-01")
 		}).
